@@ -1,0 +1,16 @@
+.card__right{
+    flex: 1;
+    text-align: right;
+}
+
+.card__left h3{
+    margin: 8px 0;
+}
+.list-info{
+    display: flex;
+    justify-content: space-around;
+}
+.list-info h6{
+    font-size: 14px;
+    margin: 6px 0;
+}
