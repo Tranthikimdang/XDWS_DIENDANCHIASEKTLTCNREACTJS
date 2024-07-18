@@ -5,12 +5,11 @@ const Header = () => {
     return (
         <div className="header">
             <div className="breadcrumb">
-                <span>Dashboard</span> / Quản lý thành viên
+                <span>Dashboard</span> /
             </div>
             <div className="user-info">
-                <span>Nam Hoàng Văn</span>
-                <span>Administrator</span>
-                <img src="/user-avatar.png" alt="User Avatar" />
+                <span className="user-name">Nam Hoàng Văn</span>
+                <img src="/user-avatar.png" alt="User Avatar" className="user-avatar" />
             </div>
         </div>
     );

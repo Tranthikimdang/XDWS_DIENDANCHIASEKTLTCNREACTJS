@@ -1,3 +1,4 @@
+import React from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Chart from "react-apexcharts";
 import {
@@ -8,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Card from "../../../../components/atoms/Card";
 import "./dashboard.css";
+
 function Dashboard() {
   const chartConfig1 = {
     type: "bar",

@@ -1,44 +1,46 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faChartPie,
+  
   faFolder,
   faSignOutAlt,
   faTachometerAlt,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { NavLink } from "react-router-dom";
-import "./sidebar.css"; // Đảm bảo file CSS sidebar.css đã được import và có các thiết lập kiểu dáng
+import logo from "./S.jpg"; // Adjust the path as necessary
+import "./sidebar.css"; // Ensure the sidebar.css file is imported for styles
 
 const Sidebar = () => {
   return (
     <div className="sidebar">
       <div className="logo">
-        <img src="" alt="Logo" /> {/* Thêm URL hoặc đường dẫn ảnh của logo vào src */}
+        <img src={logo} alt="Logo" className="logo-img" /> {/* Add the logo image here */}
         <h2>Admin</h2>
       </div>
       <ul>
         <li>
-          <NavLink to="/">
+          <NavLink to="/" activeClassName="active">
             <FontAwesomeIcon icon={faTachometerAlt} />
-            &nbsp; Dashboard
+            <span>Dashboard</span>
           </NavLink>
         </li>
         <li>
-          <NavLink to="/quan-ly-bai-viet"> {/* Thay thế href thành to để sử dụng NavLink */}
+          <NavLink to="/quan-ly-bai-viet" activeClassName="active">
             <FontAwesomeIcon icon={faFolder} />
-            &nbsp; QL bài viết
+            <span>Quản lí bài viết</span>
           </NavLink>
         </li>
         <li>
-          <NavLink to="/quan-ly-thanh-vien"> {/* Thay thế href thành to để sử dụng NavLink */}
+          <NavLink to="/quan-ly-thanh-vien" activeClassName="active">
             <FontAwesomeIcon icon={faUsers} />
-            &nbsp; QL Thành Viên
+            <span>Quản lí Thành Viên</span>
           </NavLink>
         </li>
         <li>
-          <NavLink to="/dang-xuat"> {/* Thay thế href thành to để sử dụng NavLink */}
-            <FontAwesomeIcon icon={faSignOutAlt} /> Đăng xuất
+          <NavLink to="/dang-xuat" activeClassName="active">
+            <FontAwesomeIcon icon={faSignOutAlt} />
+            <span>Đăng xuất</span>
           </NavLink>
         </li>
       </ul>

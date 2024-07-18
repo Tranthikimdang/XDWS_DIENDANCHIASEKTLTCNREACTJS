@@ -2,11 +2,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
+    padding: 10px 20px;
+   
+    border-bottom: 1px solid #ddd;
 }
 
 .breadcrumb {
-    font-size: 14px;
+    font-size: 18px;
+    color: #ffffff;
 }
 
 .user-info {
@@ -14,12 +17,16 @@
     align-items: center;
 }
 
-.user-info span {
-    margin-right: 10px;
+.user-name {
+    margin-right: 15px;
+    font-size: 16px;
+    color: #ffffff;
 }
 
-.user-info img {
+.user-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
 }
