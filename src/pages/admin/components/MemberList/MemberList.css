@@ -6,27 +6,20 @@
     margin-bottom: 10px;
 }
 
+td,th{
+    text-align: left;
+}
+td {
+    padding: 8px 0;
+    text-align: left;
+    opacity: 1;
+    background: transparent;
+    border-top: 0.0625rem solid rgb(45, 55, 72);
+}
+
 .member-list p {
     margin-bottom: 20px;
     color: red;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-}
-
-th {
-    background-color: #f4f4f4;
 }
 
 button {
