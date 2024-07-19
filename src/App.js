@@ -59,6 +59,14 @@ const App = () => {
           path="/quan-ly-thanh-vien"
           element={<PrivateRoute element={<MemberList />} />}
         />
+        <Route
+          path="/quan-ly-quyen-han"
+          element={<PrivateRoute element={<MemberList />} />}
+        />
+        <Route
+          path="/quan-ly-thong-bao"
+          element={<PrivateRoute element={<MemberList />} />}
+        />
       </Route>
       <Route path="/dang-nhap" element={<PrivateRoute element={<Login />} />} />
       <Route path="/dang-xuat" element={<LogoutPage />} />

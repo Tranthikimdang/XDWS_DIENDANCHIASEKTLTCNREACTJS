@@ -6,6 +6,9 @@ import {
   faSignOutAlt,
   faTachometerAlt,
   faUsers,
+  faBell,
+  faUserShield
+
 } from "@fortawesome/free-solid-svg-icons";
 import { NavLink } from "react-router-dom";
 import "./sidebar.css"; // Đảm bảo file CSS sidebar.css đã được import và có các thiết lập kiểu dáng
@@ -40,6 +43,18 @@ const Sidebar = () => {
           <NavLink to="/quan-ly-binh-luan"> {/* Thay thế href thành to để sử dụng NavLink */}
             <FontAwesomeIcon icon={faUsers} />
             &nbsp; QL Bình Luận
+          </NavLink>
+        </li>
+        <li>
+        <NavLink to="/quan-ly-thong-bao" activeClassName="active">
+            <FontAwesomeIcon icon={faBell} />
+            <span>Quản lí Thông báo</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/quan-ly-quyen-han" activeClassName="active">
+            <FontAwesomeIcon icon={faUserShield} />
+            <span>Quản lí quyền hạn</span>
           </NavLink>
         </li>
         <li>
