@@ -7,10 +7,10 @@ const Header = () => {
             <div className="breadcrumb">
                 <span>Dashboard</span> /
             </div>
-            <div className="user-info">
+            {/* <div className="user-info">
                 <span className="user-name">Nam Hoàng Văn</span>
                 <img src="/user-avatar.png" alt="User Avatar" className="user-avatar" />
-            </div>
+            </div> */}
         </div>
     );
 };

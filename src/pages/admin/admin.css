@@ -1,6 +1,7 @@
 .background {
     margin: 0;
-    background: linear-gradient(135deg, rgba(10,25,49,1) 0%, rgba(10,25,49,1) 25%, rgba(42,55,141,1) 50%, rgba(48,63,159,1) 75%, rgba(10,25,49,1) 100%);
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 25%, rgba(255,192,203,0.5) 50%, rgba(255,255,255,0.2) 75%, rgba(255,255,255,0) 100%);
+
     background-size: cover;
     color: #fff;
 }

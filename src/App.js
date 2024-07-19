@@ -5,6 +5,8 @@ import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Administrator from "./pages/admin";
 import MemberList from "./pages/admin/components/MemberList/MemberList";
 import Dashboard from "./pages/admin/components/dashboard/Dashboard";
+import Comment from "./pages/admin/components/comment/Comment";
+
 
 const PrivateRoute = ({ element, requiredPermission = [] }) => {
   // const userType = useSelector((state) => state.auth?.user?.userType);
@@ -48,6 +50,10 @@ const App = () => {
         <Route
           path="/quan-ly-thanh-vien"
           element={<PrivateRoute element={<MemberList />} />}
+        />
+        <Route
+          path="/quan-ly-binh-luan"
+          element={<PrivateRoute element={<Comment />} />}
         />
       </Route>
       {/* <Route path="/admin" element={<Administrator />} />
