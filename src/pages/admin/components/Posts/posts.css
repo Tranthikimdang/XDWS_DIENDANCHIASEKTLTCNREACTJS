@@ -1,0 +1,37 @@
+.member-list {
+  margin-top: 20px;
+}
+
+.member-list h2 {
+  margin-bottom: 10px;
+}
+
+td,
+th {
+  text-align: left;
+  padding: 8px 0;
+}
+td {
+  text-align: left;
+  opacity: 1;
+  background: transparent;
+  border-top: 0.0625rem solid rgb(45, 55, 72);
+}
+
+.member-list p {
+  margin-bottom: 20px;
+  color: red;
+}
+
+button {
+  padding: 5px 10px;
+  margin-right: 5px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
