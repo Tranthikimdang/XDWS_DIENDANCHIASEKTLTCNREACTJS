@@ -1,11 +1,12 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  
+  faBell,
   faFolder,
   faSignOutAlt,
   faTachometerAlt,
   faUsers,
+  faUserShield
 } from "@fortawesome/free-solid-svg-icons";
 import { NavLink } from "react-router-dom";
 import logo from "./S.jpg"; // Adjust the path as necessary
@@ -35,6 +36,18 @@ const Sidebar = () => {
           <NavLink to="/quan-ly-thanh-vien" activeClassName="active">
             <FontAwesomeIcon icon={faUsers} />
             <span>Quản lí Thành Viên</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/quan-ly-thong-bao" activeClassName="active">
+            <FontAwesomeIcon icon={faBell} />
+            <span>Quản lí Thông báo</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/quan-ly-quyen-han" activeClassName="active">
+            <FontAwesomeIcon icon={faUserShield} />
+            <span>Quản lí quyền hạn</span>
           </NavLink>
         </li>
         <li>
