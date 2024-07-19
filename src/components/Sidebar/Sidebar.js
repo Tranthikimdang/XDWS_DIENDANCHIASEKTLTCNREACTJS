@@ -37,6 +37,12 @@ const Sidebar = () => {
           </NavLink>
         </li>
         <li>
+          <NavLink to="/quan-ly-binh-luan"> {/* Thay thế href thành to để sử dụng NavLink */}
+            <FontAwesomeIcon icon={faUsers} />
+            &nbsp; QL Bình Luận
+          </NavLink>
+        </li>
+        <li>
           <NavLink to="/dang-xuat"> {/* Thay thế href thành to để sử dụng NavLink */}
             <FontAwesomeIcon icon={faSignOutAlt} /> Đăng xuất
           </NavLink>
