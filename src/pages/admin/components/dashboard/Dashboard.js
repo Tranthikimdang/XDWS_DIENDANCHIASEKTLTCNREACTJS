@@ -6,7 +6,7 @@ import {
   faComment,
   faHandPointer,
 } from "@fortawesome/free-solid-svg-icons";
-import Card from "../../../../components/atoms/Card";
+import Card from "../../../../components/atoms/Card/Card";
 import "./dashboard.css";
 function Dashboard() {
   const chartConfig1 = {
