@@ -6,6 +6,8 @@ import Administrator from "./pages/admin";
 import MemberList from "./pages/admin/components/MemberList/MemberList";
 import Dashboard from "./pages/admin/components/dashboard/Dashboard";
 import Login from "./pages/admin/components/Login/Login";
+import Posts from "./pages/admin/components/Posts/Posts";
+import Post from "./pages/admin/components/Posts/Post/Post";
 
 const PrivateRoute = ({ element, requiredPermission = [] }) => {
   // const userType = useSelector((state) => state.auth?.user?.userType);
@@ -44,8 +46,15 @@ const App = () => {
       {/* <Route path="/" element={<Navigate to="/dang-xuat" replace />} /> */}
       <Route path="/" element={<Administrator />}>
         <Route path="/" element={<Dashboard />} />
-     
-        
+
+        <Route
+          path="quan-ly-bai-viet"
+          element={<PrivateRoute element={<Posts />} />}
+        />
+        <Route
+          path="quan-ly-bai-viet/:id"
+          element={<PrivateRoute element={<Post />} />}
+        />
         <Route
           path="/quan-ly-thanh-vien"
           element={<PrivateRoute element={<MemberList />} />}
