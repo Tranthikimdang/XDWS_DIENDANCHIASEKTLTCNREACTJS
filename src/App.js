@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
 import "./App.css";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import Administrator from "./pages/admin";
 import MemberList from "./pages/admin/components/MemberList/MemberList";
 import Dashboard from "./pages/admin/components/dashboard/Dashboard";
+import Login from "./pages/admin/components/Login/Login";
 
 const PrivateRoute = ({ element, requiredPermission = [] }) => {
   // const userType = useSelector((state) => state.auth?.user?.userType);
@@ -25,31 +26,33 @@ const PrivateRoute = ({ element, requiredPermission = [] }) => {
 };
 
 function LogoutPage() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
 
   useEffect(() => {
     // dispatch(logoutAuth());
-    navigate("/login", { replace: true });
-  }, []);
+    navigate("/dang-nhap", { replace: true });
+  }, [navigate]);
 
-//   return <Spin fullscreen />;
+  //   return <Spin fullscreen />;
 }
 
 const App = () => {
   return (
     <Routes>
+      {/* Redirect to the logout page on initial load */}
+      {/* <Route path="/" element={<Navigate to="/dang-xuat" replace />} /> */}
       <Route path="/" element={<Administrator />}>
-        <Route path="/" element={<Dashboard/>} />
-        <Route
-          path="/quan-ly-bai-viet"
-          element={<PrivateRoute element={<MemberList />} />}
-        />
+        <Route path="/" element={<Dashboard />} />
+     
+        
         <Route
           path="/quan-ly-thanh-vien"
           element={<PrivateRoute element={<MemberList />} />}
         />
       </Route>
+      <Route path="/dang-nhap" element={<PrivateRoute element={<Login />} />} />
+      <Route path="/dang-xuat" element={<LogoutPage />} />
       {/* <Route path="/admin" element={<Administrator />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
