@@ -63,7 +63,7 @@ function FormEditCmt() {
             {errors.rating && errors.rating.type === 'required' && <span className='text-danger'>Rating is required</span>}
           </div>
           <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            <button className='text-light btn btn-outline-info' type="submit">Edit</button>
           </div>
         </form>
       </div>
