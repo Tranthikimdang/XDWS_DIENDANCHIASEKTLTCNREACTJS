@@ -215,7 +215,7 @@ export default {
             Add
           </VuiTypography>
           <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Update
+            Edit
           </VuiTypography>
           <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
             Delete
@@ -290,7 +290,7 @@ export default {
             Add
           </VuiTypography>
           <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Update
+            Edit
           </VuiTypography>
           <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
             Delete
@@ -321,6 +321,7 @@ export default {
             Delete
           </VuiTypography>
         </VuiBox>
+        
       ),
     },
     
