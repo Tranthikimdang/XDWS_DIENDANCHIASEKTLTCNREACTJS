@@ -21,7 +21,7 @@
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
-import VuiBadge from "components/VuiBadge";
+import { Link } from "react-router-dom";
 
 // Images
 import avatar1 from "assets/images/avatar1.png";
@@ -62,6 +62,16 @@ function Function({ title, category }) {
   );
 }
 
+const handleEdit = (id) => {
+  console.log("Edit", id);
+  // Thực hiện hành động chỉnh sửa ở đây
+};
+
+const handleDelete = (id) => {
+  console.log("Delete", id);
+  // Thực hiện hành động xóa ở đây
+};
+
 export default {
   columns: [
     { name: "id", align: "left" },
@@ -86,14 +96,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditarticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeletearticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -110,14 +120,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -134,14 +144,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -158,14 +168,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -182,14 +192,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -206,14 +216,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -230,14 +240,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -254,14 +264,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -278,14 +288,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditArticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     {
@@ -302,14 +312,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiBox display="flex" gap="10px">
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Edit
-          </VuiTypography>
-          <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            Delete
-          </VuiTypography>
-        </VuiBox>
+        <div>
+          <Link to="/formeditarticle">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteArticle">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
+        </div>
       ),
     },
     

@@ -9,9 +9,12 @@ import Announcement from "layouts/announcement";
 import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
-import FormAddCate from "layouts/category/data/FormAddCate.js";
+import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
+import FormEditArticle from "layouts/tables/data/FormEditArticle";
+import FormDeleteArticle from "layouts/tables/data/FormDeleteArticle";
+
 // Vision UI Dashboard React icons
 import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
@@ -135,6 +138,20 @@ const routes = [
     key: "formdeletecate",
     route: "/formdeletecate",
     component: FormDeleteCate,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formeditarticle",
+    route: "/formeditArticle",
+    component: FormEditArticle,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formdeletearticle",
+    route: "/formdeleteArticle",
+    component: FormDeleteArticle,
     noCollapse: true,
   }
 ];

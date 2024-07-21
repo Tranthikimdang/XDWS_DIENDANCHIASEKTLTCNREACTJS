@@ -45,7 +45,10 @@ function Category() {
                 Category table
               </VuiTypography>
               <Link to="/formaddcate">
-                <button className="text-light btn btn-outline-info" type="button">Add</button>
+                <button className="text-light btn btn-outline-info" type="button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
+                  </svg>Add</button>
               </Link>
             </VuiBox>
             <VuiBox
@@ -68,7 +71,7 @@ function Category() {
                   ...row,
                   action: (
                     <div>
-                      <Link to={`/formeditcate/${row.id}`}>
+                      <Link to="/formeditcate">
                         <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(row.id)}>Edit</button>
                       </Link>
                       <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>Delete</button>
