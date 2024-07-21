@@ -4,7 +4,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
 
-function FormAddCmt() {
+function FormEditCmt() {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = data => {
@@ -72,4 +72,4 @@ function FormAddCmt() {
   );
 }
 
-export default FormAddCmt;
+export default FormEditCmt;

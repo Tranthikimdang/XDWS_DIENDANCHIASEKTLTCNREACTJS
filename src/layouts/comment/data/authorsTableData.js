@@ -76,9 +76,12 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className='text-light btn btn-outline-warning' type="submit">Edit</button>
+          </a>
+          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+        </div>
       ),
     },
     {
@@ -104,9 +107,12 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className='text-light btn btn-outline-warning' type="submit">Edit</button>
+          </a>
+          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+        </div>
       ),
     },
     {
@@ -133,9 +139,12 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className='text-light btn btn-outline-warning' type="submit">Edit</button>
+          </a>
+          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+        </div>
       ),
     },
     {
@@ -162,9 +171,12 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className='text-light btn btn-outline-warning' type="submit">Edit</button>
+          </a>
+          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+        </div>
       ),
     },
     {
@@ -190,9 +202,12 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className='text-light btn btn-outline-warning' type="submit">Edit</button>
+          </a>
+          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+        </div>
       ),
     },
     {
@@ -218,9 +233,12 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className='text-light btn btn-outline-warning' type="submit">Edit</button>
+          </a>
+          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+        </div>
       ),
     },
   ],

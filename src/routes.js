@@ -156,8 +156,15 @@ const routes = [
   },
   {
     type: "collapse",
-    key: "userform",
-    route: "/userform",
+    key: "formaddcmt",
+    route: "/formaddcmt",
+    component: UserForm,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formeditcmt",
+    route: "/formeditcmt",
     component: UserForm,
     noCollapse: true,
   }

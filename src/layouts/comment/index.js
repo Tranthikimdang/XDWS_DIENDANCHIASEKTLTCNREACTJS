@@ -50,9 +50,9 @@ function Comment() {
                 Comment table
               </VuiTypography>
             </VuiBox>
-            <a href="userform">
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            </a>          
+            <a href="formAddCmt">
+              <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            </a>
             <VuiBox
               sx={{
                 "& th": {
