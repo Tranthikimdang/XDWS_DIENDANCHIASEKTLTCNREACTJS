@@ -49,7 +49,9 @@ import Announcement from "layouts/announcement";
 import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
-import UserForm from "layouts/comment/data/formComment";
+import FormAddCmt from "layouts/comment/data/formComment";
+import FormEditCmt from "layouts/comment/data/formEditComment";
+
 // Vision UI Dashboard React icons
 import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
@@ -158,14 +160,14 @@ const routes = [
     type: "collapse",
     key: "formaddcmt",
     route: "/formaddcmt",
-    component: UserForm,
+    component: FormAddCmt,
     noCollapse: true,
   },
   {
     type: "collapse",
     key: "formeditcmt",
     route: "/formeditcmt",
-    component: UserForm,
+    component: FormEditCmt,
     noCollapse: true,
   }
 ];
