@@ -1,40 +1,39 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-// @mui material components
-import Card from "@mui/material/Card";
-
-// Vision UI Dashboard React components
-import VuiBox from "components/VuiBox";
-import VuiTypography from "components/VuiTypography";
-
-// Vision UI Dashboard React example components
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
-import Table from "examples/Tables/Table";
-
-// Data
-import authorsTableData from "layouts/category/data/authorsTableData";
-
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import Card from '@mui/material/Card';
+import VuiBox from 'components/VuiBox';
+import VuiTypography from 'components/VuiTypography';
+import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
+import Footer from 'examples/Footer';
+import Table from 'examples/Tables/Table';
+import authorsTableData from 'layouts/category/data/authorsTableData';
+import ConfirmDialog from './data/FormDeleteCate'; // Import the ConfirmDialog component
 
 function Category() {
   const { columns, rows } = authorsTableData;
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
+
+  const handleEdit = (id) => {
+    console.log("Edit button clicked", id);
+    // Add your edit logic here
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setOpenDialog(true);
+  };
+
+  const confirmDelete = (id) => {
+    console.log("Delete button clicked", id);
+    // Add your delete logic here
+  };
+
+  const cancelDelete = () => {
+    setOpenDialog(false);
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -45,6 +44,9 @@ function Category() {
               <VuiTypography variant="lg" color="white">
                 Category table
               </VuiTypography>
+              <Link to="/formaddcate">
+                <button className="text-light btn btn-outline-info" type="button">Add</button>
+              </Link>
             </VuiBox>
             <VuiBox
               sx={{
@@ -60,12 +62,33 @@ function Category() {
                 },
               }}
             >
-              <Table columns={columns} rows={rows} />
+              <Table
+                columns={columns}
+                rows={rows.map(row => ({
+                  ...row,
+                  action: (
+                    <div>
+                      <Link to={`/formeditcate/${row.id}`}>
+                        <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(row.id)}>Edit</button>
+                      </Link>
+                      <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>Delete</button>
+                    </div>
+                  ),
+                }))}
+              />
             </VuiBox>
           </Card>
         </VuiBox>
       </VuiBox>
       <Footer />
+
+      {/* Dialog for delete confirmation */}
+      <ConfirmDialog
+        open={openDialog}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        itemId={deleteId}
+      />
     </DashboardLayout>
   );
 }
