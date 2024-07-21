@@ -105,11 +105,7 @@ function BadgeComponent({ status }) {
   );
 }
 
-const action = ('Edit'
-  // <Icon sx={{ cursor: "pointer", fontWeight: "bold" }} fontSize="small">
-  //   more_vert
-  // </Icon>
-);
+
 
 export default {
   columns: [
@@ -127,8 +123,15 @@ export default {
     sender: project.sender,
     receiver: project.receiver,
     content: project.content,
-    status: <BadgeComponent status={project.status} />,
+    status: <BadgeComponent status={project.status} />, // Custom component for displaying status
     created_date: project.created_date,
-    action,
+    action: (
+      <div>
+        <a href={`/formAnnouncement/${project.id}`}>
+          <button className='text-light btn btn-outline-warning mr-1' type="button">Edit</button>
+        </a>
+        <button className='text-light btn btn-outline-danger' type="button" onClick={() => handleDelete(project.id)}>Delete</button>
+      </div>
+    ),
   })),
 };

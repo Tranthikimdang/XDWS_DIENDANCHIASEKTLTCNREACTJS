@@ -50,6 +50,8 @@ import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import UserForm from "layouts/comment/data/formComment";
+import FormAuthority from "layouts/authority/data/formAuthority";
+import FormAunouncement from "layouts/announcement/data/formAunouncement";
 // Vision UI Dashboard React icons
 import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
@@ -167,7 +169,20 @@ const routes = [
     route: "/formeditcmt",
     component: UserForm,
     noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formauthority",
+    route: "/formauthority",
+    component: FormAuthority,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formAunouncement",
+    route: "/formAunouncement",
+    component: FormAunouncement,
+    noCollapse: true,
   }
-];
-
+]; 
 export default routes;

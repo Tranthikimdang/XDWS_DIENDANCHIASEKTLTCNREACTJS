@@ -47,9 +47,9 @@ function Authority() {
               <VuiTypography variant="lg" color="white">
                 Authority Management table
               </VuiTypography>
-              <Button variant="contained" color="primary" >
-                Add
-              </Button>
+              <a href="/formauthority">
+              <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            </a>
             </VuiBox>
             <VuiBox
               sx={{

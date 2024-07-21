@@ -27,9 +27,9 @@ function Announcement() {
               <VuiTypography variant="lg" color="white">
                 Announcement table
               </VuiTypography>
-              <Button variant="contained" color="primary" onClick={handleAddClick}>
-                Add
-              </Button>
+              <a href="/formAunouncement">
+              <button className='text-light btn btn-outline-info' type="submit">Send</button>
+            </a>
             </VuiBox>
             <VuiBox
               sx={{

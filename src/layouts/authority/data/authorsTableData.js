@@ -122,16 +122,16 @@ export default {
     assigned: project.assigned,
     number_of_members: project.number_of_members,
     created_date: project.created_date,
-    action:(<VuiBox display="flex" gap="10px">
-      <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-        View
-      </VuiTypography>
-      <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-        Edit
-      </VuiTypography>
-      <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-        Delete
-      </VuiTypography>
-    </VuiBox>) , // Replace this with your actual action
+    action: (
+      <div>
+        <a href="#">
+          <button className='text-light btn btn-outline-primary mr-1' type="submit">View</button>
+        </a>
+        <a href="/formauthority">
+          <button className='text-light btn btn-outline-warning mr-1' type="submit">Edit</button>
+        </a>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
+      </div>
+    ) // Replace this with your actual action
   })),
 };
