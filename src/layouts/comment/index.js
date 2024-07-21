@@ -32,6 +32,8 @@ import Table from "examples/Tables/Table";
 // Data
 import authorsTableData from "layouts/comment/data/authorsTableData";
 import projectsTableData from "layouts/comment/data/projectsTableData";
+import formComment from "layouts/comment/data/formComment";
+import VuiButton from "components/VuiButton";
 
 function Comment() {
   const { columns, rows } = authorsTableData;
@@ -48,6 +50,9 @@ function Comment() {
                 Comment table
               </VuiTypography>
             </VuiBox>
+            <a href="userform">
+            <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            </a>          
             <VuiBox
               sx={{
                 "& th": {
@@ -66,7 +71,7 @@ function Comment() {
             </VuiBox>
           </Card>
         </VuiBox>
-        <Card>
+        {/* <Card>
           <VuiBox display="flex" justifyContent="space-between" alignItems="center">
             <VuiTypography variant="lg" color="white">
               Projects table
@@ -88,7 +93,7 @@ function Comment() {
           >
             <Table columns={prCols} rows={prRows} />
           </VuiBox>
-        </Card>
+        </Card> */}
       </VuiBox>
       <Footer />
     </DashboardLayout>
