@@ -49,6 +49,8 @@ import Announcement from "layouts/announcement";
 import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import FormAddCmt from "layouts/comment/data/formComment";
+import FormEditCmt from "layouts/comment/data/formEditComment";
 
 // Vision UI Dashboard React icons
 import { IoRocketSharp } from "react-icons/io5";
@@ -154,6 +156,20 @@ const routes = [
     component: SignUp,
     noCollapse: true,
   },
+  {
+    type: "collapse",
+    key: "formaddcmt",
+    route: "/formaddcmt",
+    component: FormAddCmt,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
+    noCollapse: true,
+  }
 ];
 
 export default routes;
