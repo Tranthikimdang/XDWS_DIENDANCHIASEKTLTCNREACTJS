@@ -51,7 +51,11 @@ import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 import FormAddCmt from "layouts/comment/data/formComment";
 import FormEditCmt from "layouts/comment/data/formEditComment";
-
+import FormAddCate from "layouts/category/data/FormAddCate.js";
+import FormEditCate from "layouts/category/data/FormEditCate";
+import FormDeleteCate from "layouts/category/data/FormDeleteCate";
+import FormEditArticle from "layouts/tables/data/FormEditArticle";
+import FormDeleteArticle from "layouts/tables/data/FormDeleteArticle";
 // Vision UI Dashboard React icons
 import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
@@ -158,6 +162,30 @@ const routes = [
   },
   {
     type: "collapse",
+    key: "formaddcate",
+    route: "/formaddcate",
+    component: FormAddCate,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formeditcate",
+    route: "/formeditcate",
+    component: FormEditCate,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: UserForm,
+    key: "formdeletecate",
+    route: "/formdeletecate",
+    component: FormDeleteCate,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
@@ -168,6 +196,20 @@ const routes = [
     key: "formeditcmt",
     route: "/formeditcmt",
     component: FormEditCmt,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formeditarticle",
+    route: "/formeditArticle",
+    component: FormEditArticle,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "formdeletearticle",
+    route: "/formdeleteArticle",
+    component: FormDeleteArticle,
     noCollapse: true,
   }
 ];
