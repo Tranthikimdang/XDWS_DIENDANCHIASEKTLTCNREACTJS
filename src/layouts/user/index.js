@@ -1,41 +1,16 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-// @mui material components
+import React from "react";
 import Card from "@mui/material/Card";
-
-// Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
-
-// Vision UI Dashboard React example components
+import VuiButton from "components/VuiButton";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
-
-// Data
-import authorsTableData from "layouts/user/data/authorsTableData";
-import projectsTableData from "layouts/user/data/projectsTableData";
+import usersTableData from "layouts/user/data/authorsTableData";
 
 function User() {
-  const { columns, rows } = authorsTableData;
-  const { columns: prCols, rows: prRows } = projectsTableData;
+  const { columns, rows } = usersTableData;
 
   return (
     <DashboardLayout>
@@ -43,11 +18,19 @@ function User() {
       <VuiBox py={3}>
         <VuiBox mb={3}>
           <Card>
-            <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
+            <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px" p="16px">
               <VuiTypography variant="lg" color="white">
-                User table
+                User Management
               </VuiTypography>
+              <a href="formAddUser">
+              <button className='text-light btn btn-outline-info' type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
+                </svg>
+                Add</button>
+              </a>
             </VuiBox>
+
             <VuiBox
               sx={{
                 "& th": {
@@ -66,29 +49,6 @@ function User() {
             </VuiBox>
           </Card>
         </VuiBox>
-        <Card>
-          <VuiBox display="flex" justifyContent="space-between" alignItems="center">
-            <VuiTypography variant="lg" color="white">
-              Projects table
-            </VuiTypography>
-          </VuiBox>
-          <VuiBox
-            sx={{
-              "& th": {
-                borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
-                  `${borderWidth[1]} solid ${grey[700]}`,
-              },
-              "& .MuiTableRow-root:not(:last-child)": {
-                "& td": {
-                  borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
-                    `${borderWidth[1]} solid ${grey[700]}`,
-                },
-              },
-            }}
-          >
-            <Table columns={prCols} rows={prRows} />
-          </VuiBox>
-        </Card>
       </VuiBox>
       <Footer />
     </DashboardLayout>

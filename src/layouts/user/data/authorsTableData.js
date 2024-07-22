@@ -1,35 +1,19 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-/* eslint-disable react/prop-types */
-// Vision UI Dashboard React components
+import React from "react";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
 import VuiBadge from "components/VuiBadge";
-
-// Images
 import avatar1 from "assets/images/avatar1.png";
 import avatar2 from "assets/images/avatar2.png";
 import avatar3 from "assets/images/avatar3.png";
 import avatar4 from "assets/images/avatar4.png";
 import avatar5 from "assets/images/avatar5.png";
 import avatar6 from "assets/images/avatar6.png";
+import avatar7 from "assets/images/avatar7.png";
+import avatar8 from "assets/images/avatar8.png";
+import avatar9 from "assets/images/avatar9.png";
+import avatar10 from "assets/images/avatar10.png";
+import { Link } from "react-router-dom";
 
 function Author({ image, name, email }) {
   return (
@@ -61,6 +45,16 @@ function Function({ job, org }) {
     </VuiBox>
   );
 }
+
+const handleEdit = (id) => {
+  console.log("Edit", id);
+  // Thực hiện hành động chỉnh sửa ở đây
+};
+
+const handleDelete = (id) => {
+  console.log("Delete", id);
+  // Thực hiện hành động xóa ở đây
+};
 
 export default {
   columns: [
@@ -96,9 +90,14 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+        <Link to="/formedituser">
+          <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+        </Link>
+        <Link to="/formdeleteuser">
+          <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+        </Link>
+      </div>
       ),
     },
     {
@@ -124,9 +123,16 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
       ),
     },
     {
@@ -153,9 +159,16 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
       ),
     },
     {
@@ -182,9 +195,16 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
       ),
     },
     {
@@ -210,14 +230,21 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
-        </VuiTypography>
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
       ),
     },
     {
       author: <Author image={avatar6} name="Mark Wilson" email="mark@simmmple.com" />,
-      function: <Function job="Programtor" org="Developer" />,
+      function: <Function job="Programator" org="Developer" />,
       status: (
         <VuiBadge
           variant="standard"
@@ -238,9 +265,158 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <VuiTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-          Edit
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
+      ),
+    },
+    {
+      author: <Author image={avatar7} name="Sophia Brown" email="sophia@simmmple.com" />,
+      function: <Function job="Designer" org="UI/UX" />,
+      status: (
+        <VuiBadge
+          variant="standard"
+          badgeContent="Online"
+          color="success"
+          size="xs"
+          container
+          sx={({ palette: { white, success }, borders: { borderRadius, borderWidth } }) => ({
+            background: success.main,
+            border: `${borderWidth[1]} solid ${success.main}`,
+            borderRadius: borderRadius.md,
+            color: white.main,
+          })}
+        />
+      ),
+      employed: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          01/02/22
         </VuiTypography>
+      ),
+      action: (
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
+      ),
+    },
+    {
+      author: <Author image={avatar8} name="Michael Scott" email="michael@simmmple.com" />,
+      function: <Function job="Sales" org="Marketing" />,
+      status: (
+        <VuiBadge
+          variant="standard"
+          badgeContent="Offline"
+          size="xs"
+          container
+          sx={({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
+            background: "unset",
+            border: `${borderWidth[1]} solid ${white.main}`,
+            borderRadius: borderRadius.md,
+            color: white.main,
+          })}
+        />
+      ),
+      employed: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          15/05/19
+        </VuiTypography>
+      ),
+      action: (
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
+      ),
+    },
+    {
+      author: <Author image={avatar9} name="Angela Martin" email="angela@simmmple.com" />,
+      function: <Function job="Accountant" org="Finance" />,
+      status: (
+        <VuiBadge
+          variant="standard"
+          badgeContent="Online"
+          color="success"
+          size="xs"
+          container
+          sx={({ palette: { white, success }, borders: { borderRadius, borderWidth } }) => ({
+            background: success.main,
+            border: `${borderWidth[1]} solid ${success.main}`,
+            borderRadius: borderRadius.md,
+            color: white.main,
+          })}
+        />
+      ),
+      employed: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          08/11/20
+        </VuiTypography>
+      ),
+      action: (
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
+      ),
+    },
+    {
+      author: <Author image={avatar10} name="Dwight Schrute" email="dwight@simmmple.com" />,
+      function: <Function job="Assistant to the Regional Manager" org="Sales" />,
+      status: (
+        <VuiBadge
+          variant="standard"
+          badgeContent="Offline"
+          size="xs"
+          container
+          sx={({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
+            background: "unset",
+            border: `${borderWidth[1]} solid ${white.main}`,
+            borderRadius: borderRadius.md,
+            color: white.main,
+          })}
+        />
+      ),
+      employed: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          24/01/05
+        </VuiTypography>
+      ),
+      action: (
+        <div>
+          <a href="formEditCmt">
+            <button className="text-light btn btn-outline-warning me-2" type="submit">
+              Edit
+            </button>
+          </a>
+          <button className="text-light btn btn-outline-danger" type="submit">
+            Delete
+          </button>
+        </div>
       ),
     },
   ],
