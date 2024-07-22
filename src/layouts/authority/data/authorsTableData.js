@@ -22,6 +22,7 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
 import VuiBadge from "components/VuiBadge";
+import { Link } from "react-router-dom";
 
 // Images
 import avatar1 from "assets/images/avatar1.png";
@@ -124,12 +125,12 @@ export default {
     created_date: project.created_date,
     action: (
       <div>
-        <a href="/announcementDetail">
-          <button className='text-light btn btn-outline-primary mr-1' type="submit">View</button>
-        </a>
-        <a href="">
-        <button className='text-light btn btn-outline-info' type="submit">Add User</button>
-        </a>
+        <Link to="/announcementDetail">
+          <button className='text-light btn btn-outline-primary me-2' type="submit">View</button>
+        </Link>
+        <Link to="">
+        <button className='text-light btn btn-outline-info me-2' type="submit">Add User</button>
+        </Link>
         <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       </div>
     ) // Replace this with your actual action

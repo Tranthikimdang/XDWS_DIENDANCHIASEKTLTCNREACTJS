@@ -31,7 +31,8 @@ import Atlassian from "examples/Icons/Atlassian";
 import Slack from "examples/Icons/Slack";
 import Spotify from "examples/Icons/Spotify";
 import Jira from "examples/Icons/Jira";
-
+// import Linkk from "assets/theme/components/link";
+import { Link } from "react-router-dom";
 const statusMap = {
   "nháp": {
     badgeContent: "Nháp",
@@ -127,9 +128,9 @@ export default {
     created_date: project.created_date,
     action: (
       <div>
-        <a href={`/formAnnouncement/${project.id}`}>
-          <button className='text-light btn btn-outline-warning mr-1' type="button">Edit</button>
-        </a>
+        <Link to={`/formAnnouncement/${project.id}`}>
+          <button className='text-light btn btn-outline-warning me-2' type="button">Edit</button>
+        </Link>
         <button className='text-light btn btn-outline-danger' type="button" onClick={() => handleDelete(project.id)}>Delete</button>
       </div>
     ),
