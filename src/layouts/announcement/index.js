@@ -1,41 +1,21 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
-// @mui material components
+import React from 'react';
 import Card from "@mui/material/Card";
-
-// Vision UI Dashboard React components
+import Button from "@mui/material/Button"; // Thêm import Button
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
-
-// Vision UI Dashboard React example components
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
-
-// Data
-import authorsTableData from "layouts/announcement/data/authorsTableData";
-import projectsTableData from "layouts/announcement/data/projectsTableData";
+import AuthorsTableData from "layouts/announcement/data/authorsTableData";
 
 function Announcement() {
-  const { columns, rows } = authorsTableData;
-  const { columns: prCols, rows: prRows } = projectsTableData;
+  const { columns, rows } = AuthorsTableData;
+
+  const handleAddClick = () => {
+    console.log('Add button clicked');
+    // Xử lý sự kiện khi nhấn nút "Add" tại đây
+  };
 
   return (
     <DashboardLayout>
@@ -43,10 +23,13 @@ function Announcement() {
       <VuiBox py={3}>
         <VuiBox mb={3}>
           <Card>
-            <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
+            <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px" p="16px">
               <VuiTypography variant="lg" color="white">
                 Announcement table
               </VuiTypography>
+              <a href="/formAunouncement">
+              <button className='text-light btn btn-outline-info' type="submit">Send</button>
+            </a>
             </VuiBox>
             <VuiBox
               sx={{
@@ -66,29 +49,6 @@ function Announcement() {
             </VuiBox>
           </Card>
         </VuiBox>
-        <Card>
-          <VuiBox display="flex" justifyContent="space-between" alignItems="center">
-            <VuiTypography variant="lg" color="white">
-              Projects table
-            </VuiTypography>
-          </VuiBox>
-          <VuiBox
-            sx={{
-              "& th": {
-                borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
-                  `${borderWidth[1]} solid ${grey[700]}`,
-              },
-              "& .MuiTableRow-root:not(:last-child)": {
-                "& td": {
-                  borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
-                    `${borderWidth[1]} solid ${grey[700]}`,
-                },
-              },
-            }}
-          >
-            <Table columns={prCols} rows={prRows} />
-          </VuiBox>
-        </Card>
       </VuiBox>
       <Footer />
     </DashboardLayout>

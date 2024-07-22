@@ -1,3 +1,23 @@
+/*!
+
+=========================================================
+* Vision UI Free React - v1.0.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
+* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
+* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
+
+* Design and Coded by Simmmple & Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+*/
+
+/* eslint-disable react/prop-types */
+// Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
@@ -76,12 +96,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
@@ -107,12 +122,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
@@ -139,12 +149,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
@@ -171,12 +176,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
@@ -202,12 +202,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
@@ -228,17 +223,10 @@ export default {
         />
       ),
       employed: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          14/09/20
-        </VuiTypography>
+        "ssss"
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
   ],
