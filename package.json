@@ -57,13 +57,14 @@
 	},
 	"dependencies": {
 		"@emotion/cache": "11.4.0",
-		"@emotion/react": "^11.9.3",
-		"@emotion/styled": "^11.9.3",
+		"@emotion/react": "^11.13.0",
+		"@emotion/styled": "^11.13.0",
 		"@mui/icons-material": "5.1.1",
-		"@mui/material": "^5.9.2",
+		"@mui/material": "^5.16.4",
 		"@mui/styled-engine": "5.1.1",
 		"@mui/styles": "^5.2.0",
 		"apexcharts": "^3.30.0",
+		"bootstrap": "^5.3.3",
 		"chroma-js": "2.1.2",
 		"install": "^0.13.0",
 		"prop-types": "15.7.2",
@@ -73,6 +74,7 @@
 		"react-dom": "^18.2.0",
 		"react-flatpickr": "3.10.7",
 		"react-github-btn": "1.2.1",
+		"react-hook-form": "^7.52.1",
 		"react-icons": "^4.3.1",
 		"react-router-dom": "5.2.0",
 		"stylis": "4.0.10",
@@ -81,10 +83,10 @@
 		"web-vitals": "1.0.1"
 	},
 	"devDependencies": {
-		"eslint": "^7.11.0",
 		"@testing-library/jest-dom": "5.11.4",
 		"@testing-library/react": "11.1.0",
 		"@testing-library/user-event": "12.1.10",
+		"eslint": "^7.11.0",
 		"react-scripts": "4.0.3"
 	},
 	"scripts": {
