@@ -1,18 +1,7 @@
-import React from "react";
+import React from 'react';
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
-import VuiBadge from "components/VuiBadge";
-import avatar1 from "assets/images/avatar1.png";
-import avatar2 from "assets/images/avatar2.png";
-import avatar3 from "assets/images/avatar3.png";
-import avatar4 from "assets/images/avatar4.png";
-import avatar5 from "assets/images/avatar5.png";
-import avatar6 from "assets/images/avatar6.png";
-import avatar7 from "assets/images/avatar7.png";
-import avatar8 from "assets/images/avatar8.png";
-import avatar9 from "assets/images/avatar9.png";
-import avatar10 from "assets/images/avatar10.png";
 import { Link } from "react-router-dom";
 
 function Author({ image, name, email }) {
@@ -58,366 +47,235 @@ const handleDelete = (id) => {
 
 export default {
   columns: [
-    { name: "author", align: "left" },
-    { name: "function", align: "left" },
-    { name: "status", align: "center" },
-    { name: "employed", align: "center" },
-    { name: "action", align: "center" },
+    { name: "id", align: "left" },
+    { name: "categoryname", align: "left" },
+    { name: "action", align: "left" },
   ],
 
   rows: [
     {
-      author: <Author image={avatar4} name="Esthera Jackson" email="esthera@simmmple.com" />,
-      function: <Function job="Manager" org="Organization" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Online"
-          color="success"
-          size="xs"
-          container
-          sx={({ palette: { white, success }, borders: { borderRadius, borderWidth } }) => ({
-            background: success.main,
-            border: `${borderWidth[1]} solid ${success.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          23/04/18
+          1
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          HTML
         </VuiTypography>
       ),
       action: (
         <div>
-        <Link to="/formedituser">
-          <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
-        </Link>
-        <Link to="/formdeleteuser">
-          <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
-        </Link>
-      </div>
-      ),
-    },
-    {
-      author: <Author image={avatar2} name="Alexa Liras" email="alexa@simmmple.com" />,
-      function: <Function job="Programator" org="Developer" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Offline"
-          size="xs"
-          container
-          sx={({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
-            background: "unset",
-            border: `${borderWidth[1]} solid ${white.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          11/01/19
-        </VuiTypography>
-      ),
-      action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar3} name="Laurent Michael" email="laurent@simmmple.com" />,
-      function: <Function job="Executive" org="Projects" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Online"
-          color="success"
-          size="xs"
-          container
-          sx={({ palette: { white, success }, borders: { borderRadius, borderWidth } }) => ({
-            background: success.main,
-            border: `${borderWidth[1]} solid ${success.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          19/09/17
+          2
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          PHP
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar1} name="Freduardo Hill" email="freduardo@simmmple.com" />,
-      function: <Function job="Programator" org="Developer" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Online"
-          color="success"
-          size="xs"
-          container
-          sx={({ palette: { white, success }, borders: { borderRadius, borderWidth } }) => ({
-            background: success.main,
-            border: `${borderWidth[1]} solid ${success.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          24/12/08
+          3
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          React
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
+        </div>
+      ),
+
+    },
+    {
+      id: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          4
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          React
+        </VuiTypography>
+      ),
+      action: (
+        <div className="mt-3">
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar5} name="Daniel Thomas" email="daniel@simmmple.com" />,
-      function: <Function job="Manager" org="Executive" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Offline"
-          size="xs"
-          container
-          sx={({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
-            background: "unset",
-            border: `${borderWidth[1]} solid ${white.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          04/10/21
+          5
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Angular
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar6} name="Mark Wilson" email="mark@simmmple.com" />,
-      function: <Function job="Programator" org="Developer" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Offline"
-          size="xs"
-          container
-          sx={({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
-            background: "unset",
-            border: `${borderWidth[1]} solid ${white.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          14/09/20
+          6
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Vue
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar7} name="Sophia Brown" email="sophia@simmmple.com" />,
-      function: <Function job="Designer" org="UI/UX" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Online"
-          color="success"
-          size="xs"
-          container
-          sx={({ palette: { white, success }, borders: { borderRadius, borderWidth } }) => ({
-            background: success.main,
-            border: `${borderWidth[1]} solid ${success.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          01/02/22
+          7
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Svelte
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formedituser">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteuser">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar8} name="Michael Scott" email="michael@simmmple.com" />,
-      function: <Function job="Sales" org="Marketing" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Offline"
-          size="xs"
-          container
-          sx={({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
-            background: "unset",
-            border: `${borderWidth[1]} solid ${white.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          15/05/19
+          8
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Backbone
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar9} name="Angela Martin" email="angela@simmmple.com" />,
-      function: <Function job="Accountant" org="Finance" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Online"
-          color="success"
-          size="xs"
-          container
-          sx={({ palette: { white, success }, borders: { borderRadius, borderWidth } }) => ({
-            background: success.main,
-            border: `${borderWidth[1]} solid ${success.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          08/11/20
+          9
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Ember
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formeditcate">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
     {
-      author: <Author image={avatar10} name="Dwight Schrute" email="dwight@simmmple.com" />,
-      function: <Function job="Assistant to the Regional Manager" org="Sales" />,
-      status: (
-        <VuiBadge
-          variant="standard"
-          badgeContent="Offline"
-          size="xs"
-          container
-          sx={({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
-            background: "unset",
-            border: `${borderWidth[1]} solid ${white.main}`,
-            borderRadius: borderRadius.md,
-            color: white.main,
-          })}
-        />
-      ),
-      employed: (
+      id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          24/01/05
+          10
+        </VuiTypography>
+      ),
+      categoryname: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Meteor
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className="text-light btn btn-outline-warning me-2" type="submit">
-              Edit
-            </button>
-          </a>
-          <button className="text-light btn btn-outline-danger" type="submit">
-            Delete
-          </button>
+        <div className="mt-3">
+          <Link to="/formedituser">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
+          <Link to="/formdeleteuser">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
+          </Link>
         </div>
       ),
     },
+    
+
   ],
+  
 };
