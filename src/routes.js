@@ -52,6 +52,7 @@ import SignUp from "layouts/authentication/sign-up";
 import UserForm from "layouts/comment/data/formComment";
 import FormAuthority from "layouts/authority/data/formAuthority";
 import FormAunouncement from "layouts/announcement/data/formAunouncement";
+import AnnouncementDetail from "layouts/announcementDetail";
 // Vision UI Dashboard React icons
 import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
@@ -183,6 +184,15 @@ const routes = [
     route: "/formAunouncement",
     component: FormAunouncement,
     noCollapse: true,
+  },
+  {
+    type: "collapse",
+    key: "announcementDetail",
+    route: "/announcementDetail",
+    component: AnnouncementDetail,
+    noCollapse: true,
   }
+
 ]; 
+
 export default routes;

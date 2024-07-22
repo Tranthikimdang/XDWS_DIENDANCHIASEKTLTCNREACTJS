@@ -124,11 +124,11 @@ export default {
     created_date: project.created_date,
     action: (
       <div>
-        <a href="#">
+        <a href="/announcementDetail">
           <button className='text-light btn btn-outline-primary mr-1' type="submit">View</button>
         </a>
-        <a href="/formauthority">
-          <button className='text-light btn btn-outline-warning mr-1' type="submit">Edit</button>
+        <a href="">
+        <button className='text-light btn btn-outline-info' type="submit">Add User</button>
         </a>
         <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       </div>
