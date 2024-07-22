@@ -125,7 +125,7 @@ export default {
     created_date: project.created_date,
     action: (
       <div>
-        <Link to="/announcementDetail">
+        <Link to="/authorityDetail">
           <button className='text-light btn btn-outline-primary me-2' type="submit">View</button>
         </Link>
         <Link to="">

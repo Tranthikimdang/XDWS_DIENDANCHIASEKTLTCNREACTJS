@@ -13,7 +13,7 @@ import SignUp from "layouts/authentication/sign-up";
 import UserForm from "layouts/comment/data/formComment";
 import FormAuthority from "layouts/authority/data/formAuthority";
 import FormAunouncement from "layouts/announcement/data/formAunouncement";
-import AnnouncementDetail from "layouts/announcementDetail";
+import AuthorityDetail from "layouts/authorityDetail";
 
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
@@ -132,7 +132,8 @@ const routes = [
     key: "formaddcate",
     route: "/formaddcate",
     component: FormAddCate,
-
+  },
+  {
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
@@ -183,15 +184,18 @@ const routes = [
   },
   {
     type: "collapse",
-    key: "announcementDetail",
-    route: "/announcementDetail",
-    component: AnnouncementDetail,
+    key: "authorityDetail",
+    route: "/authorityDetail",
+    component: AuthorityDetail,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
     key: "formeditcmt",
     route: "/formeditcmt",
     component: FormEditCmt,
     noCollapse: true,
-  }
-
-]; 
+  },
+];
 
 export default routes;
