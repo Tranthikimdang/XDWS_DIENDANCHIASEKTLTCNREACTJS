@@ -44,6 +44,7 @@ function Function({ job, org }) {
 
 export default {
   columns: [
+    { name: "id", align: "left" },
     { name: "author", align: "left" },
     { name: "function", align: "left" },
     { name: "status", align: "center" },
@@ -53,7 +54,12 @@ export default {
 
   rows: [
     {
-      author: <Author image={avatar4} name="Esthera Jackson" email="esthera@simmmple.com" />,
+      id: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          1
+        </VuiTypography>
+      ),
+      author: <Author image={avatar1} name="Esthera Jackson" email="esthera@simmmple.com" />,
       function: <Function job="Manager" org="Organization" />,
       status: (
         <VuiBadge
@@ -85,6 +91,11 @@ export default {
       ),
     },
     {
+      id: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          2
+        </VuiTypography>
+      ),
       author: <Author image={avatar2} name="Alexa Liras" email="alexa@simmmple.com" />,
       function: <Function job="Programator" org="Developer" />,
       status: (
@@ -116,6 +127,11 @@ export default {
       ),
     },
     {
+      id: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          3
+        </VuiTypography>
+      ),
       author: <Author image={avatar3} name="Laurent Michael" email="laurent@simmmple.com" />,
       function: <Function job="Executive" org="Projects" />,
       status: (
@@ -148,7 +164,12 @@ export default {
       ),
     },
     {
-      author: <Author image={avatar1} name="Freduardo Hill" email="freduardo@simmmple.com" />,
+      id: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          4
+        </VuiTypography>
+      ),
+      author: <Author image={avatar4} name="Freduardo Hill" email="freduardo@simmmple.com" />,
       function: <Function job="Programator" org="Developer" />,
       status: (
         <VuiBadge
@@ -180,6 +201,11 @@ export default {
       ),
     },
     {
+      id: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          5
+        </VuiTypography>
+      ),
       author: <Author image={avatar5} name="Daniel Thomas" email="daniel@simmmple.com" />,
       function: <Function job="Manager" org="Executive" />,
       status: (
@@ -211,6 +237,11 @@ export default {
       ),
     },
     {
+      id: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          6
+        </VuiTypography>
+      ),
       author: <Author image={avatar6} name="Mark Wilson" email="mark@simmmple.com" />,
       function: <Function job="Programtor" org="Developer" />,
       status: (

@@ -133,119 +133,111 @@ const routes = [
     component: SignUp,
     noCollapse: true,
   },
+  // router form thêm sửa xóa
+
   {
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
-    noCollapse: true,
+    // hidden: true, // Ẩn mục này
   },
-
   {
-    type: "collapse",
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formaddcmt",
+    route: "/formaddcmt",
+    component: FormAddCmt,
+    hidden: true, // Ẩn mục này
+  },
+  {
     key: "formaddcate",
     route: "/formaddcate",
     component: FormAddCate,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "formeditcate",
     route: "/formeditcate",
     component: FormEditCate,
     noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
     key: "formdeletecate",
     route: "/formdeletecate",
     component: FormDeleteCate,
     noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
-// 
-
-{
-  type: "collapse",
-  key: "formadduser",
-  route: "/formadduser",
-  component: FormAddUser,
-},
-{
-  type: "collapse",
-  key: "formedituser",
-  route: "/formedituser",
-  component: FormEditUser,
-  noCollapse: true,
-},
-{
-  key: "formdeleteUser",
-  route: "/formdeleteUser",
-  component: FormDeleteUser,
-  noCollapse: true,
-},
-// 
-
   {
-    type: "collapse",
+    key: "formadduser",
+    route: "/formadduser",
+    component: FormAddUser,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formedituser",
+    route: "/formedituser",
+    component: FormEditUser,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formdeleteUser",
+    route: "/formdeleteUser",
+    component: FormDeleteUser,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
     key: "formeditcmt",
     route: "/formeditcmt",
     component: FormEditCmt,
     noCollapse: true,
-  },
-  
-  {
-    type: "collapse",
-    key: "formaddcmt",
-    route: "/formaddcmt",
-    component: FormAddCmt,
-    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
-    key: "formeditcmt",
-    route: "/formeditcmt",
-    component: FormEditCmt,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
     key: "formeditarticle",
     route: "/formeditArticle",
     component: FormEditArticle,
-    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "formdeletearticle",
     route: "/formdeleteArticle",
     component: FormDeleteArticle,
-    noCollapse: true,
-
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "formauthority",
     route: "/formauthority",
     component: FormAuthority,
-    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "formAunouncement",
     route: "/formAunouncement",
     component: FormAunouncement,
-    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "authorityDetail",
     route: "/authorityDetail",
     component: AuthorityDetail,
-    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
+
     key: "formeditcmt",
     route: "/formeditcmt",
     component: FormEditCmt,
-    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
 
 ];

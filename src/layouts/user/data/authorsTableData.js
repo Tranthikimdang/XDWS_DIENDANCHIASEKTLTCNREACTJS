@@ -4,7 +4,15 @@ import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
 import { Link } from "react-router-dom";
 
-function Author({ image, name, email }) {
+// Images
+import avatar1 from "assets/images/avatar1.png";
+import avatar2 from "assets/images/avatar2.png";
+import avatar3 from "assets/images/avatar3.png";
+import avatar4 from "assets/images/avatar4.png";
+import avatar5 from "assets/images/avatar5.png";
+import avatar6 from "assets/images/avatar6.png";
+
+function User({ image, name, email }) {
   return (
     <VuiBox display="flex" alignItems="center" px={1} py={0.5}>
       <VuiBox mr={2}>
@@ -22,19 +30,6 @@ function Author({ image, name, email }) {
   );
 }
 
-function Function({ job, org }) {
-  return (
-    <VuiBox display="flex" flexDirection="column">
-      <VuiTypography variant="caption" fontWeight="medium" color="white">
-        {job}
-      </VuiTypography>
-      <VuiTypography variant="caption" color="text">
-        {org}
-      </VuiTypography>
-    </VuiBox>
-  );
-}
-
 const handleEdit = (id) => {
   console.log("Edit", id);
   // Thực hiện hành động chỉnh sửa ở đây
@@ -48,7 +43,7 @@ const handleDelete = (id) => {
 export default {
   columns: [
     { name: "id", align: "left" },
-    { name: "categoryname", align: "left" },
+    { name: "user", align: "left" },
     { name: "action", align: "left" },
   ],
 
@@ -59,11 +54,7 @@ export default {
           1
         </VuiTypography>
       ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          HTML
-        </VuiTypography>
-      ),
+      user: <User image={avatar1} name="Esthera Jackson" email="esthera@simmmple.com" />,
       action: (
         <div>
           <Link to="/formeditcate">
@@ -81,11 +72,7 @@ export default {
           2
         </VuiTypography>
       ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          PHP
-        </VuiTypography>
-      ),
+      user: <User image={avatar2} name="Alexa Liras" email="alexa@simmmple.com" />,
       action: (
         <div className="mt-3">
           <Link to="/formeditcate">
@@ -103,11 +90,7 @@ export default {
           3
         </VuiTypography>
       ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          React
-        </VuiTypography>
-      ),
+      user: <User image={avatar3} name="Laurent Michael" email="laurent@simmmple.com" />,
       action: (
         <div className="mt-3">
           <Link to="/formeditcate">
@@ -126,11 +109,7 @@ export default {
           4
         </VuiTypography>
       ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          React
-        </VuiTypography>
-      ),
+      user: <User image={avatar4} name="Freduardo Hill" email="freduardo@simmmple.com" />,
       action: (
         <div className="mt-3">
           <Link to="/formeditcate">
@@ -148,11 +127,7 @@ export default {
           5
         </VuiTypography>
       ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          Angular
-        </VuiTypography>
-      ),
+      user: <User image={avatar5} name="Daniel Thomas" email="daniel@simmmple.com" />,
       action: (
         <div className="mt-3">
           <Link to="/formeditcate">
@@ -170,11 +145,7 @@ export default {
           6
         </VuiTypography>
       ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          Vue
-        </VuiTypography>
-      ),
+      user: <User image={avatar6} name="Mark Wilson" email="mark@simmmple.com" />,
       action: (
         <div className="mt-3">
           <Link to="/formeditcate">
@@ -186,96 +157,6 @@ export default {
         </div>
       ),
     },
-    {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          7
-        </VuiTypography>
-      ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          Svelte
-        </VuiTypography>
-      ),
-      action: (
-        <div className="mt-3">
-          <Link to="/formedituser">
-            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
-          </Link>
-          <Link to="/formdeleteuser">
-            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
-          </Link>
-        </div>
-      ),
-    },
-    {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          8
-        </VuiTypography>
-      ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          Backbone
-        </VuiTypography>
-      ),
-      action: (
-        <div className="mt-3">
-          <Link to="/formeditcate">
-            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
-          </Link>
-          <Link to="/formdeletecate">
-            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
-          </Link>
-        </div>
-      ),
-    },
-    {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          9
-        </VuiTypography>
-      ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          Ember
-        </VuiTypography>
-      ),
-      action: (
-        <div className="mt-3">
-          <Link to="/formeditcate">
-            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
-          </Link>
-          <Link to="/formdeletecate">
-            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
-          </Link>
-        </div>
-      ),
-    },
-    {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          10
-        </VuiTypography>
-      ),
-      categoryname: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          Meteor
-        </VuiTypography>
-      ),
-      action: (
-        <div className="mt-3">
-          <Link to="/formedituser">
-            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
-          </Link>
-          <Link to="/formdeleteuser">
-            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(2)}>Delete</button>
-          </Link>
-        </div>
-      ),
-    },
-    
-
   ],
   
 };
