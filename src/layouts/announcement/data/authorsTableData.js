@@ -34,7 +34,7 @@ import Jira from "examples/Icons/Jira";
 // import Linkk from "assets/theme/components/link";
 import { Link } from "react-router-dom";
 const statusMap = {
-  "nháp": {
+  nháp: {
     badgeContent: "Nháp",
     color: "warning",
   },
@@ -87,7 +87,6 @@ const projects = [
   },
 ];
 
-
 function BadgeComponent({ status }) {
   return (
     <VuiBadge
@@ -98,15 +97,15 @@ function BadgeComponent({ status }) {
       container
       sx={({ palette: { white, success, warning }, borders: { borderRadius, borderWidth } }) => ({
         background: status === "đã gửi" ? success.main : status === "nháp" ? warning.main : "unset",
-        border: `${borderWidth[1]} solid ${status === "đã gửi" ? success.main : status === "nháp" ? warning.main : white.main}`,
+        border: `${borderWidth[1]} solid ${
+          status === "đã gửi" ? success.main : status === "nháp" ? warning.main : white.main
+        }`,
         borderRadius: borderRadius.md,
         color: white.main,
       })}
     />
   );
 }
-
-
 
 export default {
   columns: [
@@ -128,10 +127,20 @@ export default {
     created_date: project.created_date,
     action: (
       <div>
-        <Link to={`/formAnnouncement/${project.id}`}>
-          <button className='text-light btn btn-outline-warning me-2' type="button">Edit</button>
+       {project.status === "nháp" && (
+        <Link to={`/formAnnouncement`}>
+          <button className="text-light btn btn-outline-info me-2" type="submit">
+            Send
+          </button>
         </Link>
-        <button className='text-light btn btn-outline-danger' type="button" onClick={() => handleDelete(project.id)}>Delete</button>
+      )}
+        <button
+          className="text-light btn btn-outline-danger"
+          type="button"
+          onClick={() => handleDelete(project.id)}
+        >
+          Delete
+        </button>
       </div>
     ),
   })),
