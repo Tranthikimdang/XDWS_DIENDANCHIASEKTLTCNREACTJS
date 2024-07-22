@@ -112,7 +112,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Announcement Management",
+    name: "Announcement ",
     key: "announcement",
     route: "/announcement",
     icon: <BsBellFill size="15px" color="inherit" />,
