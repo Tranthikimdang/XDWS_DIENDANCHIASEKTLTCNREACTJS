@@ -30,7 +30,7 @@ import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 
 // Data
-import authorsTableData from "layouts/announcementDetail/data/authorsTableData";
+import authorsTableData from "./data/authorsTableData";
 
 
 function AnnouncementDetail() {
