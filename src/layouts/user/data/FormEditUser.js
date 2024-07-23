@@ -4,7 +4,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
 
-function FormAddUser() {
+function FormEditUser() {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = data => {
@@ -63,7 +63,7 @@ function FormAddUser() {
             {errors.rating && errors.rating.type === 'required' && <span className='text-danger'>Rating is required</span>}
           </div>
           <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            <button className='text-light btn btn-outline-info' type="submit">Edit</button>
           </div>
         </form>
       </div>
@@ -72,4 +72,4 @@ function FormAddUser() {
   );
 }
 
-export default FormAddUser;
+export default FormEditUser;

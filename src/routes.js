@@ -10,11 +10,10 @@ import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
 
+import FormAddUser from "layouts/user/data/FormAddUser";
+import FormEditUser from "layouts/user/data/FormEditUser";
+import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
-
-
-
-import UserForm from "layouts/comment/data/formComment";
 import FormAuthority from "layouts/authority/data/formAuthority";
 import FormAunouncement from "layouts/announcement/data/formAunouncement";
 import AuthorityDetail from "layouts/authorityDetail";
@@ -22,6 +21,7 @@ import AuthorityDetail from "layouts/authorityDetail";
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
+
 import FormEditArticle from "layouts/tables/data/FormEditArticle";
 import FormDeleteArticle from "layouts/tables/data/FormDeleteArticle";
 
@@ -133,18 +133,18 @@ const routes = [
     component: SignUp,
     noCollapse: true,
   },
+  {
+    key: "formaddcmt",
+    route: "/formaddcmt",
+    component: FormAddCmt,
+    noCollapse: true,
+  },
 
   {
     type: "collapse",
     key: "formaddcate",
     route: "/formaddcate",
     component: FormAddCate,
-  },
-  {
-    key: "formaddcmt",
-    route: "/formaddcmt",
-    component: FormAddCmt,
-    noCollapse: true,
   },
   {
     type: "collapse",
@@ -154,15 +154,42 @@ const routes = [
     noCollapse: true,
   },
   {
-    type: "collapse",
-    key: "formeditcmt",
-    route: "/formeditcmt",
-    component: UserForm,
     key: "formdeletecate",
     route: "/formdeletecate",
     component: FormDeleteCate,
     noCollapse: true,
   },
+// 
+
+{
+  type: "collapse",
+  key: "formadduser",
+  route: "/formadduser",
+  component: FormAddUser,
+},
+{
+  type: "collapse",
+  key: "formedituser",
+  route: "/formedituser",
+  component: FormEditUser,
+  noCollapse: true,
+},
+{
+  key: "formdeleteUser",
+  route: "/formdeleteUser",
+  component: FormDeleteUser,
+  noCollapse: true,
+},
+// 
+
+  {
+    type: "collapse",
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
+    noCollapse: true,
+  },
+  
   {
     type: "collapse",
     key: "formaddcmt",
