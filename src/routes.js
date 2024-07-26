@@ -8,7 +8,6 @@ import User from "layouts/user";
 import Announcement from "layouts/announcement";
 import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
-import SignUp from "layouts/authentication/sign-up";
 
 import FormAddUser from "layouts/user/data/FormAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
@@ -125,15 +124,7 @@ const routes = [
     component: SignIn,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Sign Up",
-    key: "sign-up",
-    route: "/authentication/sign-up",
-    icon: <IoRocketSharp size="15px" color="inherit" />,
-    component: SignUp,
-    noCollapse: true,
-  },
+ 
   // router form thêm sửa xóa
 
   {
