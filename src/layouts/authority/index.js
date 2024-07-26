@@ -18,7 +18,7 @@
 
 // @mui material components
 import Card from "@mui/material/Card";
-
+import Button from "@mui/material/Button"; 
 // Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -31,11 +31,11 @@ import Table from "examples/Tables/Table";
 
 // Data
 import authorsTableData from "layouts/authority/data/authorsTableData";
-import projectsTableData from "layouts/authority/data/projectsTableData";
+// import projectsTableData from "layouts/authority/data/projectsTableData";
 
 function Authority() {
   const { columns, rows } = authorsTableData;
-  const { columns: prCols, rows: prRows } = projectsTableData;
+  // const { columns: prCols, rows: prRows } = projectsTableData;
 
   return (
     <DashboardLayout>
@@ -47,6 +47,9 @@ function Authority() {
               <VuiTypography variant="lg" color="white">
                 Authority Management table
               </VuiTypography>
+              <a href="/formauthority">
+              <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            </a>
             </VuiBox>
             <VuiBox
               sx={{
@@ -66,7 +69,7 @@ function Authority() {
             </VuiBox>
           </Card>
         </VuiBox>
-        <Card>
+        {/* <Card>
           <VuiBox display="flex" justifyContent="space-between" alignItems="center">
             <VuiTypography variant="lg" color="white">
               Projects table
@@ -88,7 +91,7 @@ function Authority() {
           >
             <Table columns={prCols} rows={prRows} />
           </VuiBox>
-        </Card>
+        </Card> */}
       </VuiBox>
       <Footer />
     </DashboardLayout>

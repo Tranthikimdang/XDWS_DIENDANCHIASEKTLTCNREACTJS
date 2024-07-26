@@ -37,19 +37,19 @@ function Footer() {
           sx={{ textAlign: "center", fontWeight: "400 !important" }}
           color="white"
         >
-          @ 2021, Made with ❤️&nbsp;&nbsp;&nbsp; by{" "}
+          @ 2024, FPT Polytechnic Can Tho - code  by {""}
           <VuiTypography
             component="a"
             variant="button"
-            href="https://simmmple.com/"
+            href="https://react.dev/"
             sx={{ textAlign: "center", fontWeight: "500 !important" }}
             color="white"
             mr="2px"
           >
-            Simmmple
+            React JS
           </VuiTypography>
-          &
-          <VuiTypography
+          {/* & */}
+          {/* <VuiTypography
             ml="2px"
             mr="2px"
             component="a"
@@ -60,7 +60,7 @@ function Footer() {
           >
             Creative Tim
           </VuiTypography>
-          for a better web
+          for a better web */}
         </VuiTypography>
       </VuiBox>
       <VuiBox item xs={10}>

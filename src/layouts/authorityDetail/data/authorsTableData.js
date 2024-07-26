@@ -1,3 +1,23 @@
+/*!
+
+=========================================================
+* Vision UI Free React - v1.0.0
+=========================================================
+
+* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
+* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
+* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
+
+* Design and Coded by Simmmple & Creative Tim
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+*/
+
+/* eslint-disable react/prop-types */
+// Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
@@ -44,7 +64,6 @@ function Function({ job, org }) {
 
 export default {
   columns: [
-    { name: "id", align: "left" },
     { name: "author", align: "left" },
     { name: "function", align: "left" },
     { name: "status", align: "center" },
@@ -54,12 +73,7 @@ export default {
 
   rows: [
     {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          1
-        </VuiTypography>
-      ),
-      author: <Author image={avatar1} name="Esthera Jackson" email="esthera@simmmple.com" />,
+      author: <Author image={avatar4} name="Esthera Jackson" email="esthera@simmmple.com" />,
       function: <Function job="Manager" org="Organization" />,
       status: (
         <VuiBadge
@@ -82,20 +96,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          2
-        </VuiTypography>
-      ),
       author: <Author image={avatar2} name="Alexa Liras" email="alexa@simmmple.com" />,
       function: <Function job="Programator" org="Developer" />,
       status: (
@@ -118,20 +122,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          3
-        </VuiTypography>
-      ),
       author: <Author image={avatar3} name="Laurent Michael" email="laurent@simmmple.com" />,
       function: <Function job="Executive" org="Projects" />,
       status: (
@@ -155,21 +149,11 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          4
-        </VuiTypography>
-      ),
-      author: <Author image={avatar4} name="Freduardo Hill" email="freduardo@simmmple.com" />,
+      author: <Author image={avatar1} name="Freduardo Hill" email="freduardo@simmmple.com" />,
       function: <Function job="Programator" org="Developer" />,
       status: (
         <VuiBadge
@@ -192,20 +176,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          5
-        </VuiTypography>
-      ),
       author: <Author image={avatar5} name="Daniel Thomas" email="daniel@simmmple.com" />,
       function: <Function job="Manager" org="Executive" />,
       status: (
@@ -228,20 +202,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
     {
-      id: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          6
-        </VuiTypography>
-      ),
       author: <Author image={avatar6} name="Mark Wilson" email="mark@simmmple.com" />,
       function: <Function job="Programtor" org="Developer" />,
       status: (
@@ -259,17 +223,10 @@ export default {
         />
       ),
       employed: (
-        <VuiTypography variant="caption" color="white" fontWeight="medium">
-          14/09/20
-        </VuiTypography>
+        "ssss"
       ),
       action: (
-        <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
-        </div>
+        <button className='text-light btn btn-outline-danger mr-1' type="submit">Delete</button>
       ),
     },
   ],

@@ -1,4 +1,4 @@
-import React from "react";
+// Vision UI Dashboard React layouts
 import Dashboard from "layouts/dashboard";
 import Comment from "layouts/comment";
 import Category from "layouts/category";
@@ -9,11 +9,25 @@ import Announcement from "layouts/announcement";
 import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+
+import FormAddUser from "layouts/user/data/FormAddUser";
+import FormEditUser from "layouts/user/data/FormEditUser";
+import FormDeleteUser from "layouts/user/data/FormDeleteUser";
+
+import FormAuthority from "layouts/authority/data/formAuthority";
+import FormAunouncement from "layouts/announcement/data/formAunouncement";
+import AuthorityDetail from "layouts/authorityDetail";
+
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
+
 import FormEditArticle from "layouts/tables/data/FormEditArticle";
 import FormDeleteArticle from "layouts/tables/data/FormDeleteArticle";
+
+import FormAddCmt from "layouts/comment/data/formComment";
+import FormEditCmt from "layouts/comment/data/formEditComment";
+
 
 // Vision UI Dashboard React icons
 import { IoRocketSharp } from "react-icons/io5";
@@ -28,6 +42,7 @@ import { BsBellFill } from "react-icons/bs";
 import { BsGearFill } from "react-icons/bs";
 
 const routes = [
+  { type: "title", title: "Management pages", key: "account-pages" },
   {
     type: "collapse",
     name: "Dashboard",
@@ -75,7 +90,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Announcement Management",
+    name: "Announcement",
     key: "announcement",
     route: "/announcement",
     icon: <BsBellFill size="15px" color="inherit" />,
@@ -119,41 +134,113 @@ const routes = [
     component: SignUp,
     noCollapse: true,
   },
+  // router form thêm sửa xóa
+
   {
-    type: "collapse",
+    key: "formaddcmt",
+    route: "/formaddcmt",
+    component: FormAddCmt,
+    // hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formaddcmt",
+    route: "/formaddcmt",
+    component: FormAddCmt,
+    hidden: true, // Ẩn mục này
+  },
+  {
     key: "formaddcate",
     route: "/formaddcate",
     component: FormAddCate,
     noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "formeditcate",
     route: "/formeditcate",
     component: FormEditCate,
     noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "formdeletecate",
     route: "/formdeletecate",
     component: FormDeleteCate,
     noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
+    key: "formadduser",
+    route: "/formadduser",
+    component: FormAddUser,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formedituser",
+    route: "/formedituser",
+    component: FormEditUser,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formdeleteUser",
+    route: "/formdeleteUser",
+    component: FormDeleteUser,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
     key: "formeditarticle",
     route: "/formeditArticle",
     component: FormEditArticle,
-    noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
     key: "formdeletearticle",
     route: "/formdeleteArticle",
     component: FormDeleteArticle,
-    noCollapse: true,
-  }
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formauthority",
+    route: "/formauthority",
+    component: FormAuthority,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formAunouncement",
+    route: "/formAunouncement",
+    component: FormAunouncement,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "authorityDetail",
+    route: "/authorityDetail",
+    component: AuthorityDetail,
+    hidden: true, // Ẩn mục này
+  },
+  {
+
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
+    hidden: true, // Ẩn mục này
+  },
+
 ];
 
 export default routes;
