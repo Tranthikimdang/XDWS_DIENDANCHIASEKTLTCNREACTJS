@@ -101,34 +101,7 @@ export default function App() {
         return getRoutes(route.collapse);
       }
 
-        <Route
-          path="quan-ly-bai-viet"
-          element={<PrivateRoute element={<Posts />} />}
-        />
-        <Route
-          path="quan-ly-bai-viet/:id"
-          element={<PrivateRoute element={<Post />} />}
-        />
-        <Route
-          path="/quan-ly-thanh-vien"
-          element={<PrivateRoute element={<MemberList />} />}
-        />
-        <Route
-          path="/quan-ly-quyen-han"
-          element={<PrivateRoute element={<MemberList />} />}
-        />
-        <Route
-          path="/quan-ly-thong-bao"
-          element={<PrivateRoute element={<MemberList />} />}
-        />
-      </Route>
-      <Route path="/dang-nhap" element={<PrivateRoute element={<Login />} />} />
-      <Route path="/dang-xuat" element={<LogoutPage />} />
-      {/* <Route path="/admin" element={<Administrator />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="/logout" element={<LogoutPage />} /> */}
-    </Routes>
+        
       if (route.route) {
         return <Route exact path={route.route} component={route.component} key={route.key} />;
       }
