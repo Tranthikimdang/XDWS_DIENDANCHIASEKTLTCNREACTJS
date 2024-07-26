@@ -42,6 +42,7 @@ import { BsBellFill } from "react-icons/bs";
 import { BsGearFill } from "react-icons/bs";
 
 const routes = [
+  { type: "title", title: "Management pages", key: "account-pages" },
   {
     type: "collapse",
     name: "Dashboard",
