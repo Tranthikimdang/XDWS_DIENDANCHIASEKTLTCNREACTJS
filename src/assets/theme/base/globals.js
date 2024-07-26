@@ -29,6 +29,13 @@ export default {
   body: {
     background: `url(${bgAdmin})`,
     backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundAttachment: "fixed",
+    height: "100vh",
+    width: "100vw",
+    margin: 0,
+    padding: 0,
+    overflow: "hidden",
   },
   "*, *::before, *::after": {
     margin: 0,

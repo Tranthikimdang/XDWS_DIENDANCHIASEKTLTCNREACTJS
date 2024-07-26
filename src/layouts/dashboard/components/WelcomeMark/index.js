@@ -8,13 +8,27 @@ import gif from "assets/images/cardimgfree.png";
 
 const WelcomeMark = () => {
   return (
-    <Card sx={() => ({
-      height: "340px",
-      py: "32px",
+    <Card
+  sx={() => ({
+    height: "340px",
+    py: "32px",
+    position: "relative", // Để định vị pseudo-element chính xác
+    overflow: "hidden",   // Đảm bảo pseudo-element không tràn ra ngoài
+    "::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
       backgroundImage: `url(${gif})`,
       backgroundSize: "cover",
-      backgroundPosition: "50%"
-    })}>
+      backgroundPosition: "50%",
+      opacity: 0.5, // Độ mờ
+      zIndex: -1,  // Đặt lớp phủ phía sau nội dung thẻ
+    },
+  })}
+>
       <VuiBox height="100%" display="flex" flexDirection="column" justifyContent="space-between">
         <VuiBox>
           <VuiTypography color="text" variant="button" fontWeight="regular" mb="12px">
