@@ -7,10 +7,10 @@ import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
 import Footer from 'examples/Footer';
 import Table from 'examples/Tables/Table';
-import authorsTableData from 'layouts/tables/data/authorsTableData';
+import authorsTableData from 'layouts/article/data/authorsArticleData';
 import ConfirmDialog from './data/FormDeleteArticle';
 
-function Tables() {
+function Article() {
   const { columns, rows } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -91,4 +91,4 @@ function Tables() {
   );
 }
 
-export default Tables;
+export default Article;
