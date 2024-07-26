@@ -83,6 +83,7 @@ export default function App() {
         return getRoutes(route.collapse);
       }
 
+        
       if (route.route) {
         return <Route exact path={route.route} component={route.component} key={route.key} />;
       }
