@@ -98,20 +98,6 @@ function SignIn() {
             SIGN IN
           </VuiButton>
         </VuiBox>
-        <VuiBox mt={3} textAlign="center">
-          <VuiTypography variant="button" color="text" fontWeight="regular">
-            Don&apos;t have an account?{" "}
-            <VuiTypography
-              component={Link}
-              to="/authentication/sign-up"
-              variant="button"
-              color="white"
-              fontWeight="medium"
-            >
-              Sign up
-            </VuiTypography>
-          </VuiTypography>
-        </VuiBox>
       </VuiBox>
     </CoverLayout>
   );

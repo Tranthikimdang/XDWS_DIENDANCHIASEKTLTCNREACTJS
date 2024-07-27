@@ -44,7 +44,7 @@ function Function({ job, org }) {
 
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "ordinal", align: "left" },
     { name: "author", align: "left" },
     { name: "function", align: "left" },
     { name: "status", align: "center" },
@@ -54,7 +54,7 @@ export default {
 
   rows: [
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           1
         </VuiTypography>
@@ -91,7 +91,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           2
         </VuiTypography>
@@ -127,7 +127,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           3
         </VuiTypography>
@@ -164,7 +164,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           4
         </VuiTypography>
@@ -201,7 +201,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           5
         </VuiTypography>
@@ -237,7 +237,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           6
         </VuiTypography>

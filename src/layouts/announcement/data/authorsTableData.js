@@ -28,7 +28,7 @@ const statusMap = {
 
 const projects = [
   {
-    id: "HT00001",
+    ordinal: "HT00001",
     sender: "Nguyễn Văn A",
     receiver: "Trần Thị B",
     content: "Thông báo về cuộc họp vào ngày mai lúc 10 giờ sáng tại phòng họp chính.",
@@ -36,7 +36,7 @@ const projects = [
     created_date: "2024-07-20",
   },
   {
-    id: "HT00002",
+    ordinal: "HT00002",
     sender: "Lê Văn C",
     receiver: "Nguyễn Thị D",
     content: "Cập nhật tài liệu dự án mới. Vui lòng xem tài liệu đính kèm.",
@@ -44,7 +44,7 @@ const projects = [
     created_date: "2024-07-21",
   },
   {
-    id: "HT00003",
+    ordinal: "HT00003",
     sender: "Vũ Văn E",
     receiver: "Trần Văn F",
     content: "Yêu cầu hỗ trợ kỹ thuật cho hệ thống phân tích dữ liệu.",
@@ -52,7 +52,7 @@ const projects = [
     created_date: "2024-07-22",
   },
   {
-    id: "HT00004",
+    ordinal: "HT00004",
     sender: "Phan Thị G",
     receiver: "Lê Văn H",
     content: "Thông báo về việc nghỉ phép của phòng nhân sự từ ngày 24 đến 26 tháng 7.",
@@ -60,7 +60,7 @@ const projects = [
     created_date: "2024-07-23",
   },
   {
-    id: "HT00005",
+    ordinal: "HT00005",
     sender: "Nguyễn Văn I",
     receiver: "Trần Thị J",
     content: "Nhắc nhở về hạn nộp báo cáo tài chính vào cuối tuần này.",
@@ -91,7 +91,7 @@ function BadgeComponent({ status }) {
 
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "ordinal", align: "left" },
     { name: "sender", align: "left" },
     { name: "receiver", align: "center" },
     { name: "content", align: "center" },
@@ -101,7 +101,7 @@ export default {
   ],
 
   rows: projects.map((project) => ({
-    id: project.id,
+    ordinal: project.ordinal,
     sender: project.sender,
     receiver: project.receiver,
     content: project.content,

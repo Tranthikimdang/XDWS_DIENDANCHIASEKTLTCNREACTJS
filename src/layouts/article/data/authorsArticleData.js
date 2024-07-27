@@ -44,19 +44,19 @@ function Function({ title, category }) {
   );
 }
 
-const handleEdit = (id) => {
-  console.log("Edit", id);
+const handleEdit = (ordinal) => {
+  console.log("Edit", ordinal);
   // Thực hiện hành động chỉnh sửa ở đây
 };
 
-const handleDelete = (id) => {
-  console.log("Delete", id);
+const handleDelete = (ordinal) => {
+  console.log("Delete", ordinal);
   // Thực hiện hành động xóa ở đây
 };
 
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "ordinal", align: "left" },
     { name: "author", align: "left" },
     { name: "function", align: "left" },
     { name: "content", align: "center" },
@@ -65,7 +65,7 @@ export default {
 
   rows: [
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           1
         </VuiTypography>
@@ -89,7 +89,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           2
         </VuiTypography>
@@ -113,7 +113,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           3
         </VuiTypography>
@@ -137,7 +137,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           4
         </VuiTypography>
@@ -161,7 +161,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           5
         </VuiTypography>
@@ -185,7 +185,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           6
         </VuiTypography>
@@ -209,7 +209,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           7
         </VuiTypography>
@@ -233,7 +233,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           8
         </VuiTypography>
@@ -257,7 +257,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           9
         </VuiTypography>
@@ -281,7 +281,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           10
         </VuiTypography>

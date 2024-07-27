@@ -46,42 +46,42 @@ function Function({ job, org }) {
 }
 const projects = [
   {
-    id: "HT00001",
+    ordinal: "HT00001",
     name: "Nam Hoàng Văn",
     assigned: "Quản lý nội dung",
     number_of_members: "2",
     created_date: "12/02/2002",
   },
   {
-    id: "HT00002",
+    ordinal: "HT00002",
     name: "Nam Hoàng Văn",
     assigned: "Quản lý người dùng",
     number_of_members: "2",
     created_date: "12/02/2002",
   },
   {
-    id: "HT00003",
+    ordinal: "HT00003",
     name: "Nam Hoàng Văn",
     assigned: "Quản lý cơ sở dữ liệu",
     number_of_members: "2",
     created_date: "12/02/2002",
   },
   {
-    id: "HT00004",
+    ordinal: "HT00004",
     name: "Nam Hoàng Văn",
     assigned: "Quản lý nội dung",
     number_of_members: "2",
     created_date: "12/02/2002",
   },
   {
-    id: "HT00003",
+    ordinal: "HT00003",
     name: "Nam Hoàng Văn",
     assigned: "Quản lý cơ sở dữ liệu",
     number_of_members: "2",
     created_date: "12/02/2002",
   },
   {
-    id: "HT00004",
+    ordinal: "HT00004",
     name: "Nam Hoàng Văn",
     assigned: "Quản lý nội dung",
     number_of_members: "2",
@@ -91,7 +91,7 @@ const projects = [
 
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "ordinal", align: "left" },
     { name: "name", align: "left" },
     { name: "assigned", align: "center" },
     { name: "number_of_members", align: "center" },
@@ -100,7 +100,7 @@ export default {
   ],
 
   rows: projects.map((project) => ({
-    id: project.id,
+    ordinal: project.ordinal,
     name: project.name,
     assigned: project.assigned,
     number_of_members: project.number_of_members,
