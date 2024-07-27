@@ -6,7 +6,7 @@ export default styled(Box)(({ theme, ownerState }) => {
   const { palette, functions, borders, boxShadows } = theme;
   const { variant, bgColor, color, opacity, borderRadius, shadow } = ownerState;
 
-  const { gradients, grey, white } = palette;
+  const { gradients, grey, white, deepBlue } = palette; // Added deepBlue
   const { linearGradient } = functions;
   const { borderRadius: radius } = borders;
 
@@ -55,6 +55,7 @@ export default styled(Box)(({ theme, ownerState }) => {
     "grey-700",
     "grey-800",
     "grey-900",
+    "deepBlue", // Added deepBlue to valid colors
   ];
 
   const validBorderRadius = ["xs", "sm", "md", "lg", "xl", "xxl", "section"];

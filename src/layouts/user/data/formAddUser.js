@@ -3,12 +3,18 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 
 function FormAddUser() {
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = data => {
     console.log(data);
+    // Add logic to submit data to the backend here
+  };
+
+  const smallFontStyle = { 
+    fontSize: '0.9rem'
   };
 
   return (
@@ -16,54 +22,85 @@ function FormAddUser() {
       <DashboardNavbar />
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label className='text-light form-label'>Username</label>
-            <input className='form-control bg-dark text-light' {...register('name', { required: true, minLength: 3, maxLength: 20 })} />
-            {errors.name && errors.name.type === 'required' && <span className='text-danger'>Name is required</span>}
-            {errors.name && errors.name.type === 'minLength' && <span className='text-danger'>Name must be at least 3 characters long</span>}
-            {errors.name && errors.name.type === 'maxLength' && <span className='text-danger'>Name must be less than 20 characters long</span>}
+          {/* <div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>ID</label>
+            <input
+              className={`form-control bg-dark text-light ${errors.id ? 'is-invalid' : ''}`}
+              type='number'
+              {...register('id', { required: true })}
+              style={smallFontStyle}
+            />
+            {errors.id && <div className='invalid-feedback'>
+              {errors.id.type === 'required' && 'ID is required'}
+            </div>}
+          </div> */}
+          <div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Image URL</label>
+            <input
+              className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+              type='url'
+              {...register('image', { required: true })}
+              style={smallFontStyle}
+            />
+            {errors.image && <div className='invalid-feedback'>
+              {errors.image.type === 'required' && 'Image URL is required'}
+            </div>}
           </div>
-          <div>
-            <label className='text-light form-label'>Email</label>
-            <input className='form-control bg-dark text-light' type='email' {...register('email', { required: true, pattern: /^\S+@\S+$/i })} />
-            {errors.email && errors.email.type === 'required' && <span className='text-danger'>Email is required</span>}
-            {errors.email && errors.email.type === 'pattern' && <span className='text-danger'>Invalid email address</span>}
+          <div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Name</label>
+            <input
+              className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
+              {...register('name', { required: true, minLength: 3, maxLength: 20 })}
+              style={smallFontStyle}
+            />
+            {errors.name && <div className='invalid-feedback'>
+              {errors.name.type === 'required' && 'Name is required'}
+              {errors.name.type === 'minLength' && 'Name must be at least 3 characters long'}
+              {errors.name.type === 'maxLength' && 'Name must be less than 20 characters long'}
+            </div>}
           </div>
-          <div>
-            <label className='text-light form-label'>Address</label>
-            <input className='form-control bg-dark text-light' {...register('address', { required: true, minLength: 5, maxLength: 50 })} />
-            {errors.address && errors.address.type === 'required' && <span className='text-danger'>Address is required</span>}
-            {errors.address && errors.address.type === 'minLength' && <span className='text-danger'>Address must be at least 5 characters long</span>}
-            {errors.address && errors.address.type === 'maxLength' && <span className='text-danger'>Address must be less than 50 characters long</span>}
+          <div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Email</label>
+            <input
+              className={`form-control bg-dark text-light ${errors.email ? 'is-invalid' : ''}`}
+              type='email'
+              {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
+              style={smallFontStyle}
+            />
+            {errors.email && <div className='invalid-feedback'>
+              {errors.email.type === 'required' && 'Email is required'}
+              {errors.email.type === 'pattern' && 'Invalid email address'}
+            </div>}
           </div>
-          <div>
-            <label className='text-light form-label'>Description</label>
-            <input className='form-control bg-dark text-light' {...register('description', { required: true, minLength: 10, maxLength: 100 })} />
-            {errors.description && errors.description.type === 'required' && <span className='text-danger'>Description is required</span>}
-            {errors.description && errors.description.type === 'minLength' && <span className='text-danger'>Description must be at least 10 characters long</span>}
-            {errors.description && errors.description.type === 'maxLength' && <span className='text-danger'>Description must be less than 100 characters long</span>}
+          <div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Location</label>
+            <input
+              className={`form-control bg-dark text-light ${errors.location ? 'is-invalid' : ''}`}
+              {...register('location', { required: true, minLength: 5, maxLength: 50 })}
+              style={smallFontStyle}
+            />
+            {errors.location && <div className='invalid-feedback'>
+              {errors.location.type === 'required' && 'Location is required'}
+              {errors.location.type === 'minLength' && 'Location must be at least 5 characters long'}
+              {errors.location.type === 'maxLength' && 'Location must be less than 50 characters long'}
+            </div>}
           </div>
-          <div>
-            <label className='text-light form-label'>Comment</label>
-            <textarea className='form-control bg-dark text-light' {...register('comment', { required: true, minLength: 10, maxLength: 500 })}></textarea>
-            {errors.comment && errors.comment.type === 'required' && <span className='text-danger'>Comment is required</span>}
-            {errors.comment && errors.comment.type === 'minLength' && <span className='text-danger'>Comment must be at least 10 characters long</span>}
-            {errors.comment && errors.comment.type === 'maxLength' && <span className='text-danger'>Comment must be less than 500 characters long</span>}
-          </div>
-          <div>
-            <label className='text-light form-label'>Rating</label>
-            <select className='form-control bg-dark text-light' {...register('rating', { required: true })}>
-              <option value="">Select a rating</option>
-              <option value="1">1 - Poor</option>
-              <option value="2">2 - Fair</option>
-              <option value="3">3 - Good</option>
-              <option value="4">4 - Very Good</option>
-              <option value="5">5 - Excellent</option>
-            </select>
-            {errors.rating && errors.rating.type === 'required' && <span className='text-danger'>Rating is required</span>}
+          <div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Phone</label>
+            <input
+              className={`form-control bg-dark text-light ${errors.phone ? 'is-invalid' : ''}`}
+              type='tel'
+              {...register('phone', { required: true, pattern: /^[0-9]{10,15}$/ })}
+              style={smallFontStyle}
+            />
+            {errors.phone && <div className='invalid-feedback'>
+              {errors.phone.type === 'required' && 'Phone number is required'}
+              {errors.phone.type === 'pattern' && 'Invalid phone number'}
+            </div>}
           </div>
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            <Link to="/user" className='btn btn-outline-light ms-3'>Back</Link>
           </div>
         </form>
       </div>
