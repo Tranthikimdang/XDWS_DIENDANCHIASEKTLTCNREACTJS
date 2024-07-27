@@ -3,12 +3,11 @@ import Dashboard from "layouts/dashboard";
 import Comment from "layouts/comment";
 import Category from "layouts/category";
 import Profile from "layouts/profile";
-import Tables from "layouts/tables";
+import Article from "layouts/article";
 import User from "layouts/user";
 import Announcement from "layouts/announcement";
 import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
-import SignUp from "layouts/authentication/sign-up";
 
 import FormAddUser from "layouts/user/data/formAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
@@ -22,8 +21,8 @@ import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
 
-import FormEditArticle from "layouts/tables/data/FormEditArticle";
-import FormDeleteArticle from "layouts/tables/data/FormDeleteArticle";
+import FormEditArticle from "layouts/article/data/FormEditArticle";
+import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
 import FormAddCmt from "layouts/comment/data/formComment";
 import FormEditCmt from "layouts/comment/data/formEditComment";
@@ -42,7 +41,7 @@ import { BsBellFill } from "react-icons/bs";
 import { BsGearFill } from "react-icons/bs";
 
 const routes = [
-  { type: "title", title: "Management pages", key: "account-pages" },
+  
   {
     type: "collapse",
     name: "Dashboard",
@@ -55,10 +54,10 @@ const routes = [
   {
     type: "collapse",
     name: "Article Management",
-    key: "tables",
-    route: "/tables",
+    key: "article",
+    route: "/article",
     icon: <BsJournals size="15px" color="inherit" />,
-    component: Tables,
+    component: Article,
     noCollapse: true,
   },
   {
@@ -125,15 +124,7 @@ const routes = [
     component: SignIn,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Sign Up",
-    key: "sign-up",
-    route: "/authentication/sign-up",
-    icon: <IoRocketSharp size="15px" color="inherit" />,
-    component: SignUp,
-    noCollapse: true,
-  },
+ 
   // router form thêm sửa xóa
 
   {

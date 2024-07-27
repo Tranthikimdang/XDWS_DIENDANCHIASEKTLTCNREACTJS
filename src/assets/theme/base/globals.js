@@ -1,21 +1,3 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
 // Vision UI Dashboard React Base Styles
 import colors from "assets/theme/base/colors";
 import bgAdmin from "assets/images/body-background.png";
@@ -29,13 +11,13 @@ export default {
   body: {
     background: `url(${bgAdmin})`,
     backgroundSize: "cover",
-    backgroundPosition: "center",
-    backgroundAttachment: "fixed",
-    height: "100vh",
-    width: "100vw",
-    margin: 0,
-    padding: 0,
-    overflow: "hidden",
+    // backgroundPosition: "center",
+    // backgroundAttachment: "fixed",
+    // height: "100vh",
+    // width: "100vw",
+    // margin: 0,
+    // padding: 0,
+    // overflow: "hidden",
   },
   "*, *::before, *::after": {
     margin: 0,

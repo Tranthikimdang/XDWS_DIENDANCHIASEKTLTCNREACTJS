@@ -88,6 +88,7 @@ const SatisfactionRate = () => {
 			</VuiBox>
 		</Card>
 	);
+	
 };
 
 export default SatisfactionRate;
