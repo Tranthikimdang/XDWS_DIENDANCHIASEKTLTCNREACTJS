@@ -1,21 +1,3 @@
-/*!
-
-=========================================================
-* Vision UI Free React - v1.0.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/vision-ui-free-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com/)
-* Licensed under MIT (https://github.com/creativetimofficial/vision-ui-free-react/blob/master LICENSE.md)
-
-* Design and Coded by Simmmple & Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-
 // @mui material components
 import Box from "@mui/material/Box";
 import { styled } from "@mui/material/styles";
@@ -24,7 +6,7 @@ export default styled(Box)(({ theme, ownerState }) => {
   const { palette, functions, borders, boxShadows } = theme;
   const { variant, bgColor, color, opacity, borderRadius, shadow } = ownerState;
 
-  const { gradients, grey, white } = palette;
+  const { gradients, grey, white, deepBlue } = palette; // Added deepBlue
   const { linearGradient } = functions;
   const { borderRadius: radius } = borders;
 
@@ -73,6 +55,7 @@ export default styled(Box)(({ theme, ownerState }) => {
     "grey-700",
     "grey-800",
     "grey-900",
+    "deepBlue", // Added deepBlue to valid colors
   ];
 
   const validBorderRadius = ["xs", "sm", "md", "lg", "xl", "xxl", "section"];
