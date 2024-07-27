@@ -29,13 +29,13 @@ function FormAddCmt() {
           </div>         
           <div>
             <label className='text-light form-label'>Description</label>
-            <input className='form-control bg-dark text-light' {...register('description', { required: true, minLength: 10, maxLength: 100 })} />
+            <textarea className='form-control bg-dark text-light' {...register('description', { required: true, minLength: 10, maxLength: 100 })} />
             {errors.description && <span className='text-danger'>{errors.description.type === 'required' ? 'Description is required' : errors.description.type === 'minLength' ? 'Description must be at least 10 characters long' : 'Description must be less than 100 characters long'}</span>}
           </div>                  
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Add</button>
             <Link to="/comment">
-              <button className='text-light btn btn-outline-warning' type="button">Cancel</button>
+              <button className='text-light btn btn-outline-warning ms-2' type="button">Cancel</button>
             </Link>
           </div>
         </form>

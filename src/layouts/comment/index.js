@@ -13,12 +13,7 @@ function Comment() {
   const { columns, rows } = authorsTableData;
 
   const [openDialog, setOpenDialog] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
-
-  const handleEdit = (id) => {
-    console.log("Edit button clicked", id);
-    // Add your edit logic here
-  };
+  const [deleteId, setDeleteId] = useState(null); 
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -71,10 +66,7 @@ function Comment() {
                 rows={rows.map(row => ({
                   ...row,
                   action: (
-                    <div>
-                      <Link to="/formEditCmt">
-                        <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(row.id)}>Edit</button>
-                      </Link>
+                    <div>                      
                       <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>Delete</button>
                     </div>
                   ),

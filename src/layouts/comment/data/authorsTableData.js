@@ -43,10 +43,6 @@ function Function({ job, org }) {
   );
 }
 
-const handleEdit = (id) => {
-  console.log("Edit", id);
-  // Thực hiện hành động chỉnh sửa ở đây
-};
 
 const handleDelete = (id) => {
   console.log("Delete", id);
@@ -93,13 +89,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <Link to="/formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
-          </Link>
-          <link to="/formDeleteCmt">
+        <div>          
+          <Link to="/formDeleteCmt">
             <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
-          </link>
+          </Link>
         </div>
       ),
     },
@@ -131,13 +124,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <Link to="/formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
-          </Link>
-          <link to="/formDeleteCmt">
+        <div>          
+          <Link to="/formDeleteCmt">
             <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
-          </link>
+          </Link>
         </div>
       ),
     },
@@ -170,13 +160,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <Link to="/formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
-          </Link>
-          <link to="/formDeleteCmt">
+        <div>         
+          <Link to="/formDeleteCmt">
             <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
-          </link>
+          </Link>
         </div>
       ),
     },
@@ -209,13 +196,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <Link to="/formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
-          </Link>
-          <link to="/formDeleteCmt">
+        <div>          
+          <Link to="/formDeleteCmt">
             <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
-          </link>
+          </Link>
         </div>
       ),
     },
@@ -247,13 +231,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <Link to="/formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
-          </Link>
-          <link to="/formDeleteCmt">
+        <div>          
+          <Link to="/formDeleteCmt">
             <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
-          </link>
+          </Link>
         </div>
       ),
     },
@@ -285,13 +266,10 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div>
-          <Link to="/formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
-          </Link>
-          <link to="/formDeleteCmt">
+        <div>          
+          <Link to="/formDeleteCmt">
             <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
-          </link>
+          </Link>
         </div>
       ),
     },
