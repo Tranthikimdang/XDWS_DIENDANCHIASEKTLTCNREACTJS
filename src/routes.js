@@ -9,7 +9,7 @@ import Announcement from "layouts/announcement";
 import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 
-import FormAddUser from "layouts/user/data/FormAddUser";
+import FormAddUser from "layouts/user/data/formAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
 import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
