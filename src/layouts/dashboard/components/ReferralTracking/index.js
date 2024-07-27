@@ -157,6 +157,7 @@ function ReferralTracking() {
 			</VuiBox>
 		</Card>
 	);
+
 }
 
 export default ReferralTracking;
