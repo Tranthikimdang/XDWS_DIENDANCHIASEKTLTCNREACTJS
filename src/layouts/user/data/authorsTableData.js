@@ -1,10 +1,10 @@
+// layouts/user/data/authorsTableData.js
+
 import React from 'react';
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
 import { Link } from "react-router-dom";
-//import routes
-import routes from "routes";
 
 // Images
 import avatar1 from "assets/images/avatar1.png";
@@ -13,6 +13,10 @@ import avatar3 from "assets/images/avatar3.png";
 import avatar4 from "assets/images/avatar4.png";
 import avatar5 from "assets/images/avatar5.png";
 import avatar6 from "assets/images/avatar6.png";
+import avatar7 from "assets/images/avatar7.png"; // Add these additional avatars
+import avatar8 from "assets/images/avatar8.png";
+import avatar9 from "assets/images/avatar9.png";
+import avatar10 from "assets/images/avatar10.png";
 
 function User({ image, name, email }) {
   return (
@@ -32,19 +36,19 @@ function User({ image, name, email }) {
   );
 }
 
-const handleEdit = (id) => {
-  console.log("Edit", id);
+const handleEdit = (ordinal) => {
+  console.log("Edit", ordinal);
   // Thực hiện hành động chỉnh sửa ở đây
 };
 
-const handleDelete = (id) => {
-  console.log("Delete", id);
+const handleDelete = (ordinal) => {
+  console.log("Delete", ordinal);
   // Thực hiện hành động xóa ở đây
 };
 
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "ordinal", align: "left" },
     { name: "user", align: "left" },
     { name: "location", align: "left" },
     { name: "phone", align: "left" },
@@ -53,7 +57,7 @@ export default {
 
   rows: [
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           1
         </VuiTypography>
@@ -71,7 +75,9 @@ export default {
       ),
       action: (
         <div>
-        
+           <Link to="/formedituser">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(2)}>Edit</button>
+          </Link>
           <Link to="/formdeletecate">
             <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(1)}>Delete</button>
           </Link>
@@ -79,7 +85,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           2
         </VuiTypography>
@@ -107,7 +113,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           3
         </VuiTypography>
@@ -124,7 +130,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div className="mt-3">
+        <div>
           <Link to="/formedituser">
             <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(3)}>Edit</button>
           </Link>
@@ -135,7 +141,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           4
         </VuiTypography>
@@ -152,7 +158,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div className="mt-3">
+        <div>
           <Link to="/formedituser">
             <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(4)}>Edit</button>
           </Link>
@@ -163,7 +169,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           5
         </VuiTypography>
@@ -180,7 +186,7 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div className="mt-3">
+        <div>
           <Link to="/formedituser">
             <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(5)}>Edit</button>
           </Link>
@@ -191,7 +197,7 @@ export default {
       ),
     },
     {
-      id: (
+      ordinal: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           6
         </VuiTypography>
@@ -208,12 +214,124 @@ export default {
         </VuiTypography>
       ),
       action: (
-        <div className="mt-3">
+        <div>
           <Link to="/formedituser">
             <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(6)}>Edit</button>
           </Link>
           <Link to="/formdeletecate">
             <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(6)}>Delete</button>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      ordinal: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          7
+        </VuiTypography>
+      ),
+      user: <User image={avatar7} name="Sarah Connor" email="sarah@simmmple.com" />,
+      location: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Seattle
+        </VuiTypography>
+      ),
+      phone: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          654-789-1234
+        </VuiTypography>
+      ),
+      action: (
+        <div>
+          <Link to="/formedituser">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(7)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(7)}>Delete</button>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      ordinal: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          8
+        </VuiTypography>
+      ),
+      user: <User image={avatar8} name="James Smith" email="james@simmmple.com" />,
+      location: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Denver
+        </VuiTypography>
+      ),
+      phone: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          321-987-6543
+        </VuiTypography>
+      ),
+      action: (
+        <div>
+          <Link to="/formedituser">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(8)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(8)}>Delete</button>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      ordinal: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          9
+        </VuiTypography>
+      ),
+      user: <User image={avatar9} name="Anna Williams" email="anna@simmmple.com" />,
+      location: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Atlanta
+        </VuiTypography>
+      ),
+      phone: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          789-456-1230
+        </VuiTypography>
+      ),
+      action: (
+        <div>
+          <Link to="/formedituser">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(9)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(9)}>Delete</button>
+          </Link>
+        </div>
+      ),
+    },
+    {
+      ordinal: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          10
+        </VuiTypography>
+      ),
+      user: <User image={avatar10} name="Michael Brown" email="michael@simmmple.com" />,
+      location: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          Austin
+        </VuiTypography>
+      ),
+      phone: (
+        <VuiTypography variant="caption" color="white" fontWeight="medium">
+          456-123-7890
+        </VuiTypography>
+      ),
+      action: (
+        <div>
+          <Link to="/formedituser">
+            <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(10)}>Edit</button>
+          </Link>
+          <Link to="/formdeletecate">
+            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(10)}>Delete</button>
           </Link>
         </div>
       ),
