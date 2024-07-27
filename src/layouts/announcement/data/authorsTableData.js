@@ -98,6 +98,7 @@ export default {
     { name: "status", align: "center" },
     { name: "created_date", align: "center" },
     { name: "action", align: "center" },
+    { name: "", align: "center" },
   ],
 
   rows: projects.map((project) => ({
@@ -116,14 +117,15 @@ export default {
           </button>
         </Link>
       )}
-        <button
-          className="text-light btn btn-outline-danger"
-          type="button"
-          onClick={() => handleDelete(project.id)}
-        >
-          Delete
-        </button>
+        
       </div>
     ),
+    "": (<button
+      className="text-light btn btn-outline-danger"
+      type="button"
+      onClick={() => handleDelete(project.id)}
+    >
+      Delete
+    </button>)
   })),
 };
