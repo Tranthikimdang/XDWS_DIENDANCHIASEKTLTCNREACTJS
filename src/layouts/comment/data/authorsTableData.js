@@ -2,6 +2,7 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
 import VuiBadge from "components/VuiBadge";
+import { Link } from "react-router-dom";
 
 // Images
 import avatar1 from "assets/images/avatar1.png";
@@ -42,13 +43,23 @@ function Function({ job, org }) {
   );
 }
 
+const handleEdit = (id) => {
+  console.log("Edit", id);
+  // Thực hiện hành động chỉnh sửa ở đây
+};
+
+const handleDelete = (id) => {
+  console.log("Delete", id);
+  // Thực hiện hành động xóa ở đây
+};
+
 export default {
   columns: [
     { name: "id", align: "left" },
     { name: "author", align: "left" },
     { name: "function", align: "left" },
     { name: "status", align: "center" },
-    { name: "employed", align: "center" },
+    { name: "discription", align: "center" },
     { name: "action", align: "center" },
   ],
 
@@ -76,17 +87,19 @@ export default {
           })}
         />
       ),
-      employed: (
+      discription: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          23/04/18
+          Oh mai chuối!
         </VuiTypography>
       ),
       action: (
         <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+          <Link to="/formEditCmt">
+            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <link to="/formDeleteCmt">
+            <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
+          </link>
         </div>
       ),
     },
@@ -112,17 +125,19 @@ export default {
           })}
         />
       ),
-      employed: (
+      discription: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          11/01/19
+          Oh mai chuối!
         </VuiTypography>
       ),
       action: (
         <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+          <Link to="/formEditCmt">
+            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <link to="/formDeleteCmt">
+            <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
+          </link>
         </div>
       ),
     },
@@ -149,17 +164,19 @@ export default {
           })}
         />
       ),
-      employed: (
+      discription: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          19/09/17
+          Oh mai chuối!
         </VuiTypography>
       ),
       action: (
         <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+          <Link to="/formEditCmt">
+            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <link to="/formDeleteCmt">
+            <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
+          </link>
         </div>
       ),
     },
@@ -186,17 +203,19 @@ export default {
           })}
         />
       ),
-      employed: (
+      discription: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          24/12/08
+          Oh mai chuối!
         </VuiTypography>
       ),
       action: (
         <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+          <Link to="/formEditCmt">
+            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <link to="/formDeleteCmt">
+            <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
+          </link>
         </div>
       ),
     },
@@ -222,17 +241,19 @@ export default {
           })}
         />
       ),
-      employed: (
+      discription: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          04/10/21
+          Oh mai chuối!
         </VuiTypography>
       ),
       action: (
         <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+          <Link to="/formEditCmt">
+            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <link to="/formDeleteCmt">
+            <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
+          </link>
         </div>
       ),
     },
@@ -258,17 +279,19 @@ export default {
           })}
         />
       ),
-      employed: (
+      discription: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
-          14/09/20
+          Oh mai chuối!
         </VuiTypography>
       ),
       action: (
         <div>
-          <a href="formEditCmt">
-            <button className='text-light btn btn-outline-warning me-2' type="submit">Edit</button>
-          </a>
-          <button className='text-light btn btn-outline-danger' type="submit">Delete</button>
+          <Link to="/formEditCmt">
+            <button className='text-light btn btn-outline-warning me-2' type="submit" onClick={() => handleEdit(1)}>Edit</button>
+          </Link>
+          <link to="/formDeleteCmt">
+            <button className='text-light btn btn-outline-danger' type="submit" onClick={() => handleDelete(1)} >Delete</button>
+          </link>
         </div>
       ),
     },
