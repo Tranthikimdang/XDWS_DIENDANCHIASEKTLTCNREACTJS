@@ -25,7 +25,7 @@ import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
 import FormAddCmt from "layouts/comment/data/formComment";
-import FormEditCmt from "layouts/comment/data/formEditComment";
+import FormDeleteCmt from "layouts/comment/data/formDeleteComment";
 
 
 // Vision UI Dashboard React icons
@@ -126,23 +126,16 @@ const routes = [
   },
  
   // router form thêm sửa xóa
-
   {
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
-    // hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formeditcmt",
-    route: "/formeditcmt",
-    component: FormEditCmt,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formaddcmt",
-    route: "/formaddcmt",
-    component: FormAddCmt,
+    key: "formdeletecmt",
+    route: "/formdeletecmt",
+    component: FormDeleteCmt,
     hidden: true, // Ẩn mục này
   },
   {
@@ -188,13 +181,6 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formeditcmt",
-    route: "/formeditcmt",
-    component: FormEditCmt,
-    noCollapse: true,
-    hidden: true, // Ẩn mục này
-  },
-  {
     key: "formeditarticle",
     route: "/formeditArticle",
     component: FormEditArticle,
@@ -224,14 +210,6 @@ const routes = [
     component: AuthorityDetail,
     hidden: true, // Ẩn mục này
   },
-  {
-
-    key: "formeditcmt",
-    route: "/formeditcmt",
-    component: FormEditCmt,
-    hidden: true, // Ẩn mục này
-  },
-
 ];
 
 export default routes;
