@@ -21,6 +21,7 @@ import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
 
+import FormAddArticle from "layouts/article/data/FormAndArticle";
 import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
@@ -178,6 +179,12 @@ const routes = [
     route: "/formdeleteUser",
     component: FormDeleteUser,
     noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formeandarticle",
+    route: "/formandarticle",
+    component: FormAddArticle,
     hidden: true, // Ẩn mục này
   },
   {
