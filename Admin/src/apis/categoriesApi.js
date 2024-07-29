@@ -1,8 +1,7 @@
 // api.js
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api"; // Thay đổi URL này nếu cần
-
+const API_URL = "http://localhost:4000/api"; 
 const addCategory = async (category) => {
   try {
     const response = await axios.post(`${API_URL}/categories`, category);
