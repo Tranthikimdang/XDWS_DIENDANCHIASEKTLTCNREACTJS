@@ -11,30 +11,34 @@ function FormAuthority() {
     console.log(data);
   };
 
+  const smallFontStyle = { 
+    fontSize: '0.9rem'
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <div className='container'>
       <form onSubmit={handleSubmit(onSubmit)}>
           <div className='mb-3'>
-            <label className='text-light form-label'>Project Name</label>
+            <label className='text-light form-label' style={smallFontStyle}>Project Name</label>
             <input
-              className='form-control bg-dark text-light'
+              className='form-control bg-dark text-light' style={smallFontStyle}
               {...register('name', { required: 'Project Name is required', minLength: { value: 3, message: 'Name must be at least 3 characters long' }, maxLength: { value: 50, message: 'Name must be less than 50 characters long' } })}
             />
             {errors.name && <span className='text-danger'>{errors.name.message}</span>}
           </div>
           <div className='mb-3'>
-            <label className='text-light form-label'>Assigned Role</label>
+            <label className='text-light form-label' style={smallFontStyle}>Assigned Role</label>
             <input
-              className='form-control bg-dark text-light'
+              className='form-control bg-dark text-light' style={smallFontStyle}
               {...register('assigned', { required: 'Assigned Role is required', minLength: { value: 5, message: 'Role must be at least 5 characters long' }, maxLength: { value: 50, message: 'Role must be less than 50 characters long' } })}
             />
             {errors.assigned && <span className='text-danger'>{errors.assigned.message}</span>}
           </div>
 
           <div className='mb-3'>
-            <label className='text-light form-label'>Created Date</label>
+            <label className='text-light form-label' style={smallFontStyle}> Created Date</label>
             <input
               className='form-control bg-dark text-light'
               type='date'
