@@ -48,7 +48,7 @@ const handleDelete = (id) => {
 export default {
   columns: [
     { name: "id", align: "left" },
-    { name: "categoryname", align: "left" },
+    { name: "name", align: "left" },
     { name: "action", align: "left" },
   ],
 

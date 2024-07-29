@@ -21,6 +21,7 @@
 		"@mui/material": "^5.16.4",
 		"@mui/styled-engine": "5.1.1",
 		"@mui/styles": "^5.2.0",
+		"@tinymce/tinymce-react": "^5.1.1",
 		"apexcharts": "^3.30.0",
 		"axios": "^1.7.2",
 		"bootstrap": "^5.3.3",
