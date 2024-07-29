@@ -3,12 +3,20 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
+import {useNavigate} from 'react-router-dom'
+import api from '../../../apis/categoriesApi'; // Import API service
 
 function FormAddCate() {
   const { register, handleSubmit, formState: { errors } } = useForm();
+  
 
-  const onSubmit = data => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await api.addCategory(data);
+      console.log('Category added successfully:', response);
+    } catch (error) {
+      console.error('Error adding category:', error);
+    }
   };
 
   return (

@@ -1,33 +1,73 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import Card from '@mui/material/Card';
-import VuiBox from 'components/VuiBox';
-import VuiTypography from 'components/VuiTypography';
-import DashboardLayout from 'examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from 'examples/Navbars/DashboardNavbar';
-import Footer from 'examples/Footer';
-import Table from 'examples/Tables/Table';
-import authorsTableData from 'layouts/category/data/authorsTableData';
-import ConfirmDialog from './data/FormDeleteCate'; // Import the ConfirmDialog component
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Card from "@mui/material/Card";
+import VuiBox from "components/VuiBox";
+import VuiTypography from "components/VuiTypography";
+import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Footer from "examples/Footer";
+import Table from "examples/Tables/Table";
+import authorsTableData from "layouts/category/data/authorsTableData";
+import ConfirmDialog from "./data/FormDeleteCate";
+import apis from "../../apis/categoriesApi";
+import { Alert, Snackbar } from "@mui/material";
 
 function Category() {
-  const { columns, rows } = authorsTableData;
+  const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
+  const [rows, setRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
-    // Add your edit logic here
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apis.getList();
+        if (response.status == 200) {
+          console.log(response.data);
+          const categories = response.data || [];
+          setRows(categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
   };
 
-  const confirmDelete = (id) => {
-    console.log("Delete button clicked", id);
-    // Add your delete logic here
+  const confirmDelete = async (deleteId) => {
+    try {
+      await apis.deleteCategory(deleteId);
+      setRows(rows.filter((category) => category.id !== deleteId));
+      setOpenDialog(false);
+      setSnackbarMessage("Category deleted successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      setSnackbarMessage("Failed to delete category.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   const cancelDelete = () => {
@@ -46,9 +86,21 @@ function Category() {
               </VuiTypography>
               <Link to="/formaddcate">
                 <button className="text-light btn btn-outline-info" type="button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
-                  </svg>Add</button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-plus"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
+                    />
+                  </svg>
+                  Add
+                </button>
               </Link>
             </VuiBox>
             <VuiBox
@@ -67,17 +119,28 @@ function Category() {
             >
               <Table
                 columns={columns}
-                rows={rows.map(row => ({
-                  ...row,
-                  action: (
-                    <div>
-                      <Link to="/formeditcate">
-                        <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(row.id)}>Edit</button>
-                      </Link>
-                      <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>Delete</button>
-                    </div>
-                  ),
-                }))}
+                rows={rows.map((row) => {
+                  console.log(row);
+                  return {
+                    ...row,
+                    action: (
+                      <div>
+                        <Link to={{ pathname: "/formeditcate", state: { data: row } }}>
+                          <button className="text-light btn btn-outline-warning me-2" type="button">
+                            Edit
+                          </button>
+                        </Link>
+                        <button
+                          className="text-light btn btn-outline-danger"
+                          type="button"
+                          onClick={() => handleDelete(row.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ),
+                  };
+                })}
               />
             </VuiBox>
           </Card>
@@ -92,6 +155,17 @@ function Category() {
         onConfirm={confirmDelete}
         itemId={deleteId}
       />
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 }
