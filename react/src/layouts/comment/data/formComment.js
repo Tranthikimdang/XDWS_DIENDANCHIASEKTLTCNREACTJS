@@ -1,16 +1,8 @@
-import React from 'react';
 import React, { useState } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
-
-function FormAddCmt() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
-
-  const onSubmit = data => {
-    console.log(data);
 import { useHistory } from 'react-router-dom';
 import api from '../../../apis/commentApi';
 import { Snackbar, Alert } from "@mui/material";
@@ -30,7 +22,7 @@ function FormAddCmt() {
       setSnackbarMessage("Comment added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/comment'),1000); 
+      setTimeout(() => history.push('/comment'),500); 
     } catch (error) {
       console.error('Error adding comment:', error);
       setSnackbarMessage("Failed to add comment.");
@@ -56,17 +48,6 @@ function FormAddCmt() {
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <label className='text-light form-label'>Author</label>
-            <input className='form-control bg-dark text-light' {...register('author', { required: true, minLength: 3, maxLength: 20 })} />
-            {errors.author && <span className='text-danger'>{errors.author.type === 'required' ? 'Author is required' : errors.author.type === 'minLength' ? 'Name must be at least 3 characters long' : 'Name must be less than 20 characters long'}</span>}
-          </div>
-          <div>
-            <label className='text-light form-label'>Function</label>
-            <input className='form-control bg-dark text-light' {...register('function', { required: true, pattern: /^\S+@\S+$/i })} />
-            {errors.function && <span className='text-danger'>{errors.function.type === 'required' ? 'Functionil is required' : 'Invalid Function address'}</span>}
-          </div>         
-          <div>
-            <label className='text-light form-label'>Description</label>
             <label className='text-light form-label' style={smallFontStyle}>Name</label>
             <input className='form-control bg-dark text-light' {...register('name', { required: true, minLength: 3, maxLength: 20 })} />
             {errors.name && <span className='text-danger'>{errors.name.type === 'required' ? 'Name is required' : errors.name.type === 'minLength' ? 'Name must be at least 3 characters long' : 'Name must be less than 20 characters long'}</span>}
@@ -83,9 +64,6 @@ function FormAddCmt() {
           </div>                  
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            <Link to="/comment">
-              <button className='text-light btn btn-outline-warning ms-2' type="button">Cancel</button>
-            </Link>
             <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/comment')}>Back</button>
           </div>
         </form>
@@ -94,7 +72,7 @@ function FormAddCmt() {
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={500}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
