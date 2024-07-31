@@ -1,9 +1,12 @@
+
+
+import React from 'react';
+
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiAvatar from "components/VuiAvatar";
 import VuiBadge from "components/VuiBadge";
 import { Link } from "react-router-dom";
-
 // Images
 import avatar1 from "assets/images/avatar1.png";
 import avatar2 from "assets/images/avatar2.png";
@@ -42,6 +45,7 @@ function Function({ job, org }) {
     </VuiBox>
   );
 }
+
 
 
 const handleDelete = (id) => {
@@ -274,4 +278,11 @@ export default {
       ),
     },
   ],
+    { name: "id", align: "left" },
+    { name: "name", align: "left" },
+    { name: "email", align: "center" },
+    { name: "description", align: "center" },
+    { name: "action", align: "center" },
+  ],
+  
 };
