@@ -14,8 +14,8 @@ import FormEditUser from "layouts/user/data/FormEditUser";
 import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
 import FormAuthority from "layouts/authority/data/formAuthority";
-import FormAunouncement from "layouts/announcement/data/formAunouncement";
-import AuthorityDetail from "layouts/authorityDetail";
+import FormAnnouncement from "../src/layouts/announcement/data/formAunouncement";
+import AuthorityDetail from "../src/layouts/authorityDetail";
 
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
@@ -40,7 +40,7 @@ import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
 import { BsBellFill } from "react-icons/bs";
 import { BsGearFill } from "react-icons/bs";
-
+import { FaUserShield } from "react-icons/fa";
 const routes = [
   
   {
@@ -102,7 +102,7 @@ const routes = [
     name: "Authority Management",
     key: "authority",
     route: "/authority",
-    icon: <BsGearFill size="15px" color="inherit" />,
+    icon: <FaUserShield size="15px" color="inherit" />,
     component: Authority,
     noCollapse: true,
   },
@@ -206,9 +206,9 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formAunouncement",
+    key: "FormAnnouncement",
     route: "/formAunouncement",
-    component: FormAunouncement,
+    component: FormAnnouncement,
     hidden: true, // Ẩn mục này
   },
   {
