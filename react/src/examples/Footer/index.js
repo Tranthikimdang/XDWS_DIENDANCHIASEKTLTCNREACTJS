@@ -2,6 +2,22 @@
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 
+function App() {
+  return (
+    <VuiBox
+      display="flex"
+      flexDirection="column"
+      minHeight="10vh"
+    >
+      {/* Your main content here */}
+      <VuiBox flex="1">
+        {/* Other components */}
+      </VuiBox>
+      <Footer />
+    </VuiBox>
+  );
+}
+
 function Footer() {
   return (
     <VuiBox
@@ -70,4 +86,4 @@ function Footer() {
   );
 }
 
-export default Footer;
+export default App;
