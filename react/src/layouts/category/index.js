@@ -74,6 +74,7 @@ function Category() {
     setOpenDialog(false);
   };
 
+
   return (
     <DashboardLayout>
       <DashboardNavbar />

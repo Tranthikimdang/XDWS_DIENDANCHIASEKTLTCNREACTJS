@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api"; // Thay đổi URL này nếu cần
+const API_URL = "http://localhost:4000/api"; 
 
-const addUser = async (user) => {
+const addUser = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/users`, user);
+    const response = await axios.post(`${API_URL}/users`, userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -20,9 +20,9 @@ const getList = async () => {
   }
 };
 
-const updateUser = async (id, updatedData) => {
+const updateUser = async (id, userData) => {
   try {
-    const response = await axios.put(`${API_URL}/users/${id}`, updatedData);
+    const response = await axios.put(`${API_URL}/users/${id}`, userData);
     return response.data;
   } catch (error) {
     throw error;

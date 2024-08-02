@@ -13,8 +13,4 @@ export default {
     { name: "phone", align: "center" },
     { name: "action", align: "left" },
   ],
-
-  
-  
-
 };
