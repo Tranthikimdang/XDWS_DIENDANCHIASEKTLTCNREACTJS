@@ -82,6 +82,7 @@ function User() {
                 columns={columns} 
                 rows={rows.map(row => ({
                   ...row,
+                  id: index + 1,  // Thay thế ID bằng index + 1
                   action: (
                     <div>
                       <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>Delete</button>

@@ -19,10 +19,10 @@ function FormAddCmt() {
     try {
       const response = await api.addComment(data);
       console.log('Comment added successfully:', response);
-      setSnackbarMessage("Comment added successfully.");
+      setSnackbarMessage("Comment added.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/comment'),1000); 
+      setTimeout(() => history.push('/comment'),500); 
     } catch (error) {
       console.error('Error adding comment:', error);
       setSnackbarMessage("Failed to add comment.");
@@ -72,7 +72,7 @@ function FormAddCmt() {
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={500}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >

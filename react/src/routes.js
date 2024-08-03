@@ -22,15 +22,14 @@ import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
 
 import FormAddArticle from "layouts/article/data/FormAndArticle";
+import FormViewArticle from "layouts/article/data/FormViewArticle";
 import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
 import FormAddCmt from "layouts/comment/data/formComment";
 import FormDeleteCmt from "layouts/comment/data/formDeleteComment";
 
-
 // Vision UI Dashboard React icons
-import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
@@ -39,7 +38,6 @@ import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
 import { BsBellFill } from "react-icons/bs";
-import { BsGearFill } from "react-icons/bs";
 import { FaUserShield } from "react-icons/fa";
 const routes = [
   
@@ -185,6 +183,12 @@ const routes = [
     key: "formeandarticle",
     route: "/formandarticle",
     component: FormAddArticle,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formeviewarticle",
+    route: "/formviewarticle",
+    component: FormViewArticle,
     hidden: true, // Ẩn mục này
   },
   {
