@@ -7,7 +7,9 @@ function App() {
     <VuiBox
       display="flex"
       flexDirection="column"
+
       minHeight="10vh"
+
     >
       {/* Your main content here */}
       <VuiBox flex="1">
@@ -87,3 +89,4 @@ function Footer() {
 }
 
 export default App;
+
