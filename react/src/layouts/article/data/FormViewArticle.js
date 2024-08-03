@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import apis from "../../../apis/articleApi";
 import Card from "@mui/material/Card";
 import { Link } from 'react-router-dom';
 import VuiBox from "components/VuiBox";
@@ -7,115 +9,49 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
-import authorsArticleData from "layouts/article/data/authorsArticleData";
-import ConfirmDialog from './data/FormDeleteArticle';
-import apis from "../../apis/articleApi";
+import authorsArticleData from "./authorsArticleData";
+import ConfirmDialog from '../data/FormDeleteArticle';
 import { Alert, Snackbar } from "@mui/material";
+const { columns } = authorsArticleData;
+const FormViewArticle = () => {
+  const { id } = useParams(); // Nhận ID từ URL
+  const [article, setArticle] = useState(null); // Khai báo state article
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-// Chuyển đổi đường dẫn hình ảnh sang định dạng URL hợp lệ
-const sanitizeImagePath = (path) => path.replace(/\\/g, '/');
-const getImageUrl = (path) => `/assets/uploads/${sanitizeImagePath(path)}`;
-
-function Article() {
-  const { columns } = authorsArticleData;
-  const [openDialog, setOpenDialog] = useState(false);
-  const [rows, setRows] = useState([]);
-  const [deleteId, setDeleteId] = useState(null);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
-  // Lấy danh sách bài viết từ API
   useEffect(() => {
     const fetchArticle = async () => {
+      if (!id) {
+        setError("Invalid article ID.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await apis.getList();
-        if (response.status === 200) {
-          console.log(response.data);
-          const article = response.data || [];
-          setRows(article);
-        }
+        const { data } = await apis.getArticleById(id);
+        console.log("Fetched article data:", data); // Kiểm tra dữ liệu API
+        setArticle(data);
+        setError(null);
       } catch (error) {
         console.error("Error fetching article:", error);
+        setError("Failed to fetch article.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchArticle();
-  }, []);
+  }, [id]);
 
-  const handleEdit = (id) => {
-    console.log("Edit button clicked", id);
-  };
-  const handleView = (id) => {
-    console.log("Edit button clicked", id);
-  };
-  const handleDelete = (id) => {
-    setDeleteId(id);
-    setOpenDialog(true);
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
-  
-
-  const confirmDelete = async (deleteId) => {
-    try {
-      await apis.deleteArticle(deleteId);
-      setRows(rows.filter((article) => article.id !== deleteId));
-      setOpenDialog(false);
-      setSnackbarMessage("Article deleted successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error deleting Article:", error);
-      setSnackbarMessage("Failed to delete Article.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
-
-  const cancelDelete = () => {
-    setOpenDialog(false);
-  };
-
-
-
-  const removeSpecificHtmlTags = (htmlString, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
-    return htmlString?.replace(regex, '');
-  };
-
-  const handleAddArticleSuccess = () => {
-    setSnackbarMessage("Article added successfully.");
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
-  };
-  
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <VuiBox py={3}>
         <VuiBox mb={3}>
           <Card>
-            <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
-              <VuiTypography variant="lg" color="white">
-                Article table
-              </VuiTypography>
-              <Link to="/formandarticle">
-                <button className='text-light btn btn-outline-info' type="button" onClick={handleAddArticleSuccess}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
-                    <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
-                  </svg>
-                  Add
-                </button>
-              </Link>
-            </VuiBox>
-
             <VuiBox
               sx={{
                 "& th": {
@@ -133,6 +69,7 @@ function Article() {
               <Table
                 columns={columns}
                 rows={rows.map((row, index) => ({
+                  // Hiển thị thông tin của mỗi bài viết trong bảng
                   id: index + 1,  // Thay thế ID bằng index + 1
                   fuction: (
                     <div className="container">
@@ -174,19 +111,11 @@ function Article() {
                       </VuiTypography>
                     </VuiBox>
                   ),
-                  content: removeSpecificHtmlTags(row.content, 'p')?.length > 20
-                    ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 20)}...`
-                    : removeSpecificHtmlTags(row.content, 'p'),
+                  content: 
+                    removeSpecificHtmlTags(row.content, 'p')
+                    ,
                   action: (
                     <div className="action-buttons">
-                       <Link to={{ pathname: "/formviewarticle", state: { data: row } }}>
-                        <button className="text-light btn btn-outline-info me-2" type="button"  onClick={() => handleView(row.id)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
-                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
-                          </svg>
-                        </button>
-                      </Link>
                       <Link to={{ pathname: "/formeditarticle", state: { data: row } }}>
                         <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(row.id)}>
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
@@ -203,6 +132,8 @@ function Article() {
                   ),
                 }))}
               />
+
+            
             </VuiBox>
           </Card>
         </VuiBox>
@@ -228,4 +159,4 @@ function Article() {
   );
 }
 
-export default Article;
+export default FormViewArticle;

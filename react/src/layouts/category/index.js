@@ -120,10 +120,11 @@ function Category() {
             >
               <Table
                 columns={columns}
-                rows={rows.map((row) => {
+                rows={rows.map((row, index) => {
                   console.log(row);
                   return {
                     ...row,
+                    id: index + 1,  // Thay thế ID bằng index + 1
                     action: (
                       <div>
                         <Link to={{ pathname: "/formeditcate", state: { data: row } }}>

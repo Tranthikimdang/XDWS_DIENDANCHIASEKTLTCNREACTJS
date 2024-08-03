@@ -110,8 +110,9 @@ function Comment() {
               }}
             >
               <Table columns={columns}
-                rows={rows.map(row => ({
+                rows={rows.map((row,index) => ({
                   ...row,
+                  id: index + 1,  // Thay thế ID bằng index + 1
                   action: (
                     <div>                      
                       <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>Delete</button>
@@ -131,7 +132,7 @@ function Comment() {
       />
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={500}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >

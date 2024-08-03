@@ -8,7 +8,9 @@ function App() {
       display="flex"
       flexDirection="column"
 
+
       minHeight="10vh"
+
 
     >
       {/* Your main content here */}
