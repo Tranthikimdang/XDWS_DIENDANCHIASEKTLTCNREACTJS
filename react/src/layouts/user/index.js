@@ -96,7 +96,7 @@ function User() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3}>
+      <VuiBox py={3}>  
         <VuiBox mb={3}>
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
