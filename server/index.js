@@ -7,6 +7,7 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const authorityRoutes = require('./routes/authorityRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 const path = require('path')
+const userRoutes = require('./routes/userRoutes');
 
 const app = express();
 app.use(cors());
@@ -27,6 +28,8 @@ app.use('/api', commentRoutes);
 app.use('/api', announcementRoutes);
 app.use('/api', authorityRoutes);
 app.use('/api', articleRoutes);
+app.use('/api', userRoutes); 
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

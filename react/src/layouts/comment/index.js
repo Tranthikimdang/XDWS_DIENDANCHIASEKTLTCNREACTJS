@@ -28,6 +28,7 @@ function Comment() {
         if (response.status === 200) {
           const comment = response.data || [];
           setRows(comment);
+          console.log("Fetched commnets:", comment);
         }
       } catch (error) {
         console.error("Error fetching comment:", error);
@@ -87,7 +88,7 @@ function Comment() {
               </VuiTypography>
               <Link to="/formAddCmt">
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
                     <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
                   </svg>
                   Add
