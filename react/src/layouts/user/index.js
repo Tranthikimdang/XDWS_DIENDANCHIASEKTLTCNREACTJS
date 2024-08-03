@@ -134,10 +134,11 @@ function User() {
                 >
                   <Table
                     columns={columns}
-                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                       console.log(row);
                       return {
                         ...row,
+                        id: index + 1,
                         action: (
                           <div>
                             <Link to={{ pathname: "/formEditUser", state: { data: row } }}>
