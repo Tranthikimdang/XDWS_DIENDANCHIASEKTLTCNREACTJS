@@ -187,29 +187,14 @@ function FormEditArticle() {
               <span className="text-danger">{errors.category.message}</span>
             )}
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Title
-            </label>
+          <div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Title</label>
             <input
-              className={`form-control bg-dark text-light ${errors.title ? "is-invalid" : ""
-                }`}
-              {...register("title", {
-                required: "Title is required",
-                minLength: 3,
-                maxLength: 20,
-              })}
+              className={`form-control bg-dark text-light`}
+              {...register("title", { required: "Title is required" })}
               style={smallFontStyle}
             />
-            {errors.title && (
-              <div className="invalid-feedback">
-                {errors.title.message ||
-                  (errors.title.type === "minLength" &&
-                    "Title must be at least 3 characters long") ||
-                  (errors.title.type === "maxLength" &&
-                    "Title must be less than 20 characters long")}
-              </div>
-            )}
+            {errors.category && <span className="text-danger">{errors.category.message}</span>}
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
