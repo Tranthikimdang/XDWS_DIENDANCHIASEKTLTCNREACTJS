@@ -37,6 +37,7 @@ const deleteCategory = async (id) => {
     throw error;
   }
 };
+
 export default {
   addCategory,
   getList,

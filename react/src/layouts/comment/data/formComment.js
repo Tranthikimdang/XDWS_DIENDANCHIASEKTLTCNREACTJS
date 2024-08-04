@@ -19,7 +19,7 @@ function FormAddCmt() {
     try {
       const response = await api.addComment(data);
       console.log('Comment added successfully:', response);
-      setSnackbarMessage("Comment added successfully.");
+      setSnackbarMessage("Comment added.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setTimeout(() => history.push('/comment'),500); 
