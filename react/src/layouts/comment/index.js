@@ -102,7 +102,6 @@ function Comment() {
                 Comment Table
               </VuiTypography>
               <Link to="/formAddCmt">
-
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
                     <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
@@ -140,20 +139,24 @@ function Comment() {
                 >
                   <Table
                     columns={columns}
-                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => ({
-                      ...row,
-                      action: (
-                        <div>
-                          <button
-                            className="text-light btn btn-outline-danger"
-                            type="button"
-                            onClick={() => handleDelete(row.id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      ),
-                    }))}
+                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                      console.log(row);
+                      return {
+                        ...row,
+                        id : page * rowsPerPage + index + 1,
+                        action: (
+                          <div>                            
+                            <button
+                              className="text-light btn btn-outline-danger"
+                              type="button"
+                              onClick={() => handleDelete(row.id)}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ),
+                      };
+                    })}
                   />
                 </VuiBox>
                 <div className="d-flex justify-content-end p-2 custom-pagination">
