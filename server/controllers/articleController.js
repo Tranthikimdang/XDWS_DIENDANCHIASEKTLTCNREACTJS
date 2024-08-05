@@ -91,8 +91,8 @@ const updateArticle = async (req, res) => {
 
     // Xử lý dữ liệu bài viết
     const { title, category, view, created_date, name, email, content } = req.body;
-    const image = req.file ? req.file.path : null; // Đường dẫn đến tệp tin đã lưu trữ nếu có
-
+    // const image = req.file ? req.file.path : null; // Đường dẫn đến tệp tin đã lưu trữ nếu có
+    const image = req.file ? `assets\\uploads\\${req.file.filename}` : null; // Đường dẫn đến tệp tin đã lưu trữ
     const articleData = {
       image: image || undefined, // Cập nhật image chỉ khi có hình ảnh mới
       title,
