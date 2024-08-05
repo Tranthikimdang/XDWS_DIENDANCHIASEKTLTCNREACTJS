@@ -22,7 +22,7 @@ function FormAddCmt() {
       setSnackbarMessage("Comment added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/comment'),500); 
+      setTimeout(() => history.push('/comment'),1000); 
     } catch (error) {
       console.error('Error adding comment:', error);
       setSnackbarMessage("Failed to add comment.");
@@ -72,7 +72,7 @@ function FormAddCmt() {
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={1000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
