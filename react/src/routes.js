@@ -16,6 +16,7 @@ import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 import FormAuthority from "layouts/authority/data/formAuthority";
 import FormAnnouncement from "../src/layouts/announcement/data/formAunouncement";
 import AuthorityDetail from "../src/layouts/authorityDetail";
+import FormAddUserAuthory from "../src/layouts/authorityDetail/data/formAddUser";
 
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
@@ -221,6 +222,19 @@ const routes = [
     component: AuthorityDetail,
     hidden: true, // Ẩn mục này
   },
+  {
+    key: "formAddUserAuthory",
+    route: "/formAddUserAuthory",
+    component: FormAddUserAuthory,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formAddUserAuthory",
+    route: "/authorityDetail/:id",
+    component: AuthorityDetail,
+    hidden: true, // Ẩn mục này
+  },
 ];
+
 
 export default routes;

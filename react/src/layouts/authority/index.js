@@ -134,7 +134,7 @@ function Authority() {
                   ordinal: index + 1,
                   action: (
                     <div>
-                      <Link to="/authorityDetail">
+                      <Link to={`/authorityDetail/${row.id}`}>
                         <button className="text-light btn btn-outline-primary me-2" type="submit">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -149,23 +149,29 @@ function Authority() {
                           </svg>
                         </button>
                       </Link>
-                      <Link to="">
-                        <button className="text-light btn btn-outline-info me-2" type="submit">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="bi bi-plus"
-                            viewBox="0 0 16 16"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
-                            />
-                          </svg>
-                        </button>
-                      </Link>
+                      <button
+                        className="text-light btn btn-outline-info me-2"
+                        type="button" // Đổi từ 'submit' sang 'button'
+                        onClick={() => {
+                          // Gửi yêu cầu với ID người dùng từ row
+                          const userId = row.id; // Lấy ID từ dòng tương ứng
+                          fetchUserData(userId); // Gọi hàm để lấy dữ liệu người dùng
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          fill="currentColor"
+                          className="bi bi-plus"
+                          viewBox="0 0 16 16"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
+                          />
+                        </svg>
+                      </button>
                       <button
                         className="text-light btn btn-outline-danger mr-1"
                         type="button"
@@ -190,7 +196,6 @@ function Authority() {
           </Card>
         </VuiBox>
       </VuiBox>
-
 
       {/* Dialog để thêm authority */}
       <FormAdd open={openDialog} handleClose={handleCloseDialog} onAdd={handleAddAuthority} />

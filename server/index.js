@@ -6,7 +6,7 @@ const commentRoutes = require('./routes/commentRoutes');
 const userRoutes = require('./routes/userRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const authorityRoutes = require('./routes/authorityRoutes');
-
+const authorityDetailRoutes = require('./routes/authorityDetailRoutes');
 
 
 
@@ -35,7 +35,7 @@ app.use('/api', userRoutes);
 
 app.use('/api', announcementRoutes); 
 app.use('/api', authorityRoutes); 
-
+app.use('/api', authorityDetailRoutes); 
 
 
 

@@ -1,4 +1,4 @@
-const User = require('../models/userModel.js');
+const User = require('../models/authorityDetailModel');
 
 // List all users
 const listUsers = async (req, res) => {
@@ -72,14 +72,16 @@ const deleteUser = async (req, res) => {
   }
 };
 
-const getUserByEmail = async (req, res) => {
-  const { email } = req.params;
+const getOneUser = async (req, res) => {
+  const { id } = req.params;
+  const userId = id || req.body.userId; // Lấy ID từ tham số URL hoặc từ body
+
   try {
-    const user = await User.getOneUser(email);
+    const user = await authorityDetailModel.getOneUser(userId);
     res.status(200).json(user);
   } catch (error) {
-    console.error('Error getting user by email:', error);
-    res.status(404).json({ message: 'User not found.'});
+    console.error('Error getting user:', error);
+    res.status(404).json({ message: error.message });
   }
 };
 
@@ -88,5 +90,5 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-  getUserByEmail
+  getOneUser
 };
