@@ -7,6 +7,7 @@ import api from "../../../apis/articleApi";
 import { Editor } from "@tinymce/tinymce-react"; // Thay thế bằng đường dẫn thực tế tới Editor
 import { Snackbar, Alert } from "@mui/material";
 import { useHistory } from 'react-router-dom';
+
 function FormEditArticle() {
   const location = useLocation();
   const { data } = location.state || {};

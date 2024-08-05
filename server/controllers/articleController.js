@@ -86,7 +86,7 @@ const getArticleById = async (req, res) => {
   try {
     const article = await Article.getArticleById(id);
     if (!article) {
-      return res.status(404).json({ status: 404, error: "Không tìm thấy bài viết." });
+      return res.status(404).json({ status: 404, error: "Article not found." });
     }
 
     const host = req.protocol + '://' + req.get('host');
@@ -101,8 +101,7 @@ const getArticleById = async (req, res) => {
       message: "Success",
     });
   } catch (error) {
-    console.error('Error fetching article details:', error.message);
-    res.status(500).json({ status: 500, error: 'Lỗi khi lấy chi tiết bài viết. ' + error.message });
+    res.status(500).json({ status: 500, error: 'Failed to fetch article details. ' + error.message });
   }
 };
 
