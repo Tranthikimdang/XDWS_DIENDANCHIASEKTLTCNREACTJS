@@ -69,7 +69,6 @@ function BasicLayout({ title, description, image, children }) {
           </Grid>
         </Grid>
       </VuiBox>
-      <Footer />
     </PageLayout>
   );
 }

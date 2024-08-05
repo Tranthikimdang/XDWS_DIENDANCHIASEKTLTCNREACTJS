@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 import api from '../../../apis/commentApi';
@@ -68,7 +67,6 @@ function FormAddCmt() {
           </div>
         </form>
       </div>
-      <Footer />
 
       <Snackbar
         open={snackbarOpen}

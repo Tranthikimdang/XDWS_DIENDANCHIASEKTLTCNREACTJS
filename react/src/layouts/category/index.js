@@ -5,7 +5,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/category/data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
@@ -148,7 +147,6 @@ function Category() {
           </Card>
         </VuiBox>
       </VuiBox>
-      <Footer />
 
       {/* Dialog for delete confirmation */}
       <ConfirmDialog

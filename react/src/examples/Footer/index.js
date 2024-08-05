@@ -1,22 +1,18 @@
+import React from "react";
 // Vision UI Dashboard React components
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
+import "./footer.css";
 
 function App() {
   return (
-    <VuiBox
-      display="flex"
-      flexDirection="column"
-
-
-      minHeight="10vh"
-
-
-    >
-      {/* Your main content here */}
-      <VuiBox flex="1">
-        {/* Other components */}
+    <VuiBox id="root">
+      {/* Main content area */}
+      <VuiBox className="main-content">
+        {/* Your main content goes here */}
       </VuiBox>
+
+      {/* Footer */}
       <Footer />
     </VuiBox>
   );
@@ -25,6 +21,7 @@ function App() {
 function Footer() {
   return (
     <VuiBox
+      className="footer"
       display="flex"
       flexDirection={{ xs: "column", lg: "row" }}
       justifyContent="space-between"
@@ -39,7 +36,7 @@ function Footer() {
           sx={{ textAlign: "center", fontWeight: "400 !important" }}
           color="white"
         >
-          @ 2024, FPT Polytechnic Can Tho - code by {""}
+          @ 2024, FPT Polytechnic Can Tho - code by{" "}
           <VuiTypography
             component="a"
             variant="button"
@@ -91,4 +88,3 @@ function Footer() {
 }
 
 export default App;
-

@@ -1,9 +1,7 @@
 import React from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
-import {useNavigate} from 'react-router-dom'
 import api from '../../../apis/categoriesApi'; // Import API service
 
 function FormAddCate() {

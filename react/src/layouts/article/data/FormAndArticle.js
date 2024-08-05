@@ -114,11 +114,11 @@ function FormAndArticle() {
           <div className='mb-3'>
             <label className='text-light form-label' style={smallFontStyle}>Title</label>
             <input
-              className={`form-control bg-dark text-light ${errors.title ? 'is-invalid' : ''}`}
-              {...register("category", { required: "Title is required" })}
+              className={`form-control bg-dark text-light`}
+              {...register("title", { required: "Title is required" })}
               style={smallFontStyle}
             />
-            {errors.category && <span className="text-danger">{errors.title.message}</span>}
+            {errors.category && <span className="text-danger">{errors.category.message}</span>}
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>

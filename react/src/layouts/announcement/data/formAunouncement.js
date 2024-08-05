@@ -2,7 +2,6 @@ import React from "react";
 import { useHistory } from "react-router-dom"; // Thêm import useHistory
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import { useForm } from "react-hook-form";
 import { Editor } from "@tinymce/tinymce-react";
 import api from "../../../apis/announcementApi";
@@ -138,7 +137,7 @@ function FormAunouncement() {
         </form>
       </div>
 
-      <Footer />
+
     </DashboardLayout>
   );
 }

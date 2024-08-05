@@ -7,7 +7,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 import authorsArticleData from "./authorsArticleData";
 import ConfirmDialog from '../data/FormDeleteArticle';
@@ -111,9 +110,9 @@ const FormViewArticle = () => {
                       </VuiTypography>
                     </VuiBox>
                   ),
-                  content: 
+                  content:
                     removeSpecificHtmlTags(row.content, 'p')
-                    ,
+                  ,
                   action: (
                     <div className="action-buttons">
                       <Link to={{ pathname: "/formeditarticle", state: { data: row } }}>
@@ -133,12 +132,11 @@ const FormViewArticle = () => {
                 }))}
               />
 
-            
+
             </VuiBox>
           </Card>
         </VuiBox>
       </VuiBox>
-      <Footer />
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}

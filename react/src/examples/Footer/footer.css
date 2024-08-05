@@ -1,0 +1,9 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  
+}
+.footer {
+  top: 100%;
+  position:absolute;
+}
