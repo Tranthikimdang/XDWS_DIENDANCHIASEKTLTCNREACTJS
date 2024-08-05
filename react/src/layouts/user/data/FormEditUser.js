@@ -1,31 +1,67 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom"; // Sử dụng react-router-dom cho Link
+import { useLocation } from "react-router-dom";
+import { useHistory } from 'react-router-dom';
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import api from "../../../apis/userApi"; // Update the API import to your users API
 
 function FormEditUser() {
+  const location = useLocation();
+  const { data } = location.state || {};
+  const history = useHistory();
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   const {
     register,
     handleSubmit,
-    formState: { errors },
     setValue,
-  } = useForm();
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: data?.name || "",
+      email: data?.email || "",
+      location: data?.location || "",
+      phone: data?.phone || "",
+    },
+  });
 
   useEffect(() => {
-    // Set default values for form fields
-    setValue("id", 1); // Example ID
-    setValue("image", "https://example.com/image.jpg"); // Example Image URL
-    setValue("name", "John Doe"); // Example Name
-    setValue("email", "john.doe@example.com"); // Example Email
-    setValue("location", "New York, USA"); // Example Location
-    setValue("phone", "1234567890"); // Example Phone Number
-  }, [setValue]);
+    if (data) {
+      setValue("name", data.name);
+      setValue("email", data.email);
+      setValue("location", data.location);
+      setValue("phone", data.phone);
+    }
+  }, [data, setValue]);
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // Add logic to update the user data here
+  const onSubmit = async (formData) => {
+    try {
+      const response = await api.updateUser(data.id, formData);
+      console.log("User updated successfully:", response);
+      setSnackbarMessage("User updated successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setTimeout(() => history.push('/user'),1000); 
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setSnackbarMessage("Failed to update user.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   const smallFontStyle = {
@@ -37,119 +73,84 @@ function FormEditUser() {
       <DashboardNavbar />
       <div className="container">
         <form onSubmit={handleSubmit(onSubmit)}>
-          {/* <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              ID
-            </label>
+          <div>
+            <label className="text-light form-label">Name</label>
             <input
-              className={`form-control bg-dark text-light ${errors.id ? "is-invalid" : ""}`}
-              type="number"
-              {...register("id", { required: true })}
-              style={smallFontStyle}
-              readOnly
-            />
-            {errors.id && (
-              <div className="invalid-feedback">
-                {errors.id.type === "required" && "ID is required"}
-              </div>
-            )}
-          </div> */}
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Image URL
-            </label>
-            <input
-              className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""}`}
-              type="url"
-              {...register("image", { required: true })}
-              style={smallFontStyle}
-            />
-            {errors.image && (
-              <div className="invalid-feedback">
-                {errors.image.type === "required" && "Image URL is required"}
-              </div>
-            )}
-          </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Name
-            </label>
-            <input
-              className={`form-control bg-dark text-light ${errors.name ? "is-invalid" : ""}`}
+              className="form-control bg-dark text-light"
               {...register("name", { required: true, minLength: 3, maxLength: 20 })}
-              style={smallFontStyle}
             />
-            {errors.name && (
-              <div className="invalid-feedback">
-                {errors.name.type === "required" && "Name is required"}
-                {errors.name.type === "minLength" && "Name must be at least 3 characters long"}
-                {errors.name.type === "maxLength" && "Name must be less than 20 characters long"}
-              </div>
+            {errors.name && errors.name.type === "required" && (
+              <span className="text-danger">Name is required</span>
+            )}
+            {errors.name && errors.name.type === "minLength" && (
+              <span className="text-danger">Name must be at least 3 characters long</span>
+            )}
+            {errors.name && errors.name.type === "maxLength" && (
+              <span className="text-danger">Name must be less than 20 characters long</span>
             )}
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Email
-            </label>
+          <div>
+            <label className="text-light form-label">Email</label>
             <input
-              className={`form-control bg-dark text-light ${errors.email ? "is-invalid" : ""}`}
+              className="form-control bg-dark text-light"
               type="email"
               {...register("email", { required: true, pattern: /^\S+@\S+$/i })}
-              style={smallFontStyle}
             />
-            {errors.email && (
-              <div className="invalid-feedback">
-                {errors.email.type === "required" && "Email is required"}
-                {errors.email.type === "pattern" && "Invalid email address"}
-              </div>
+            {errors.email && errors.email.type === "required" && (
+              <span className="text-danger">Email is required</span>
+            )}
+            {errors.email && errors.email.type === "pattern" && (
+              <span className="text-danger">Invalid email format</span>
             )}
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Location
-            </label>
+          <div>
+            <label className="text-light form-label">Location</label>
             <input
-              className={`form-control bg-dark text-light ${errors.location ? "is-invalid" : ""}`}
-              {...register("location", { required: true, minLength: 5, maxLength: 50 })}
-              style={smallFontStyle}
+              className="form-control bg-dark text-light"
+              {...register("location", { required: true, minLength: 2, maxLength: 50 })}
             />
-            {errors.location && (
-              <div className="invalid-feedback">
-                {errors.location.type === "required" && "Location is required"}
-                {errors.location.type === "minLength" &&
-                  "Location must be at least 5 characters long"}
-                {errors.location.type === "maxLength" &&
-                  "Location must be less than 50 characters long"}
-              </div>
+            {errors.location && errors.location.type === "required" && (
+              <span className="text-danger">Location is required</span>
+            )}
+            {errors.location && errors.location.type === "minLength" && (
+              <span className="text-danger">Location must be at least 2 characters long</span>
+            )}
+            {errors.location && errors.location.type === "maxLength" && (
+              <span className="text-danger">Location must be less than 50 characters long</span>
             )}
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Phone
-            </label>
+          <div>
+            <label className="text-light form-label">Phone</label>
             <input
-              className={`form-control bg-dark text-light ${errors.phone ? "is-invalid" : ""}`}
+              className="form-control bg-dark text-light"
               type="tel"
               {...register("phone", { required: true, pattern: /^[0-9]{10,15}$/ })}
-              style={smallFontStyle}
             />
-            {errors.phone && (
-              <div className="invalid-feedback">
-                {errors.phone.type === "required" && "Phone number is required"}
-                {errors.phone.type === "pattern" && "Invalid phone number"}
-              </div>
+            {errors.phone && errors.phone.type === "required" && (
+              <span className="text-danger">Phone is required</span>
+            )}
+            {errors.phone && errors.phone.type === "pattern" && (
+              <span className="text-danger">Phone number must be 10 to 15 digits long</span>
             )}
           </div>
           <div className="mt-3">
             <button className="text-light btn btn-outline-info" type="submit">
               Edit
             </button>
-            <Link to="/user" className="btn btn-outline-light ms-3" >
-              Back
-            </Link>
           </div>
         </form>
       </div>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Footer />
     </DashboardLayout>
   );

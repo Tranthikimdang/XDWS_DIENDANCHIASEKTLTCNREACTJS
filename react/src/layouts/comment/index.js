@@ -28,6 +28,7 @@ function Comment() {
         if (response.status === 200) {
           const comment = response.data || [];
           setRows(comment);
+          console.log("Fetched commnets:", comment);
         }
       } catch (error) {
         console.error("Error fetching comment:", error);
