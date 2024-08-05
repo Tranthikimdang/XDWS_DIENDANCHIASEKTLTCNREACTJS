@@ -11,6 +11,8 @@ import authorsTableData from "layouts/comment/data/authorsTableData";
 import ConfirmDialog from './data/formDeleteComment';
 import apis from "../../apis/commentApi";
 import { Alert, Snackbar } from "@mui/material";
+import { ClipLoader } from "react-spinners";
+import './index.css';
 
 function Comment() {
   const { columns } = authorsTableData;
@@ -20,18 +22,23 @@ function Comment() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchComment = async () => {
       try {
         const response = await apis.getList();
         if (response.status === 200) {
-          const comment = response.data || [];
-          setRows(comment);
-          console.log("Fetched commnets:", comment);
+          const comments = response.data || [];
+          setRows(comments);
+          console.log("Fetched comments:", comments);
         }
       } catch (error) {
-        console.error("Error fetching comment:", error);
+        console.error("Error fetching comments:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -43,7 +50,7 @@ function Comment() {
     setOpenDialog(true);
   };
 
-  const confirmDelete = async (deleteId) => {
+  const confirmDelete = async () => {
     try {
       await apis.deleteComment(deleteId);
       setRows(rows.filter((comment) => comment.id !== deleteId));
@@ -76,6 +83,15 @@ function Comment() {
     setSnackbarOpen(true);
   };
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -84,41 +100,99 @@ function Comment() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Comment table
+                Comment Table
               </VuiTypography>
               <Link to="/formAddCmt">
-                <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
-                    <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
+                <button
+                  className="text-light btn btn-outline-info"
+                  type="button"
+                  onClick={handleAddCommentSuccess}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-plus"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
+                    />
                   </svg>
                   Add
                 </button>
               </Link>
             </VuiBox>
-            <VuiBox
-              sx={{
-                "& th": {
-                  borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
-                    `${borderWidth[1]} solid ${grey[700]}`,
-                },
-                "& .MuiTableRow-root:not(:last-child)": {
-                  "& td": {
-                    borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
-                      `${borderWidth[1]} solid ${grey[700]}`,
-                  },
-                },
-              }}
-            >
-              <Table columns={columns}
-                rows={rows.map(row => ({
-                  ...row,
-                  action: (
-                    <div>                      
-                      <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>Delete</button>
-                    </div>
-                  ),
-                }))} />
-            </VuiBox>
+            {loading ? (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100px',
+                }}
+              >
+                <ClipLoader size={50} color={"#123abc"} loading={loading} />
+              </div>
+            ) : (
+              <>
+                <VuiBox
+                  sx={{
+                    "& th": {
+                      borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
+                        `${borderWidth[1]} solid ${grey[700]}`,
+                    },
+                    "& .MuiTableRow-root:not(:last-child)": {
+                      "& td": {
+                        borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
+                          `${borderWidth[1]} solid ${grey[700]}`,
+                      },
+                    },
+                  }}
+                >
+                  <Table
+                    columns={columns}
+                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(row => ({
+                      ...row,
+                      action: (
+                        <div>
+                          <button
+                            className="text-light btn btn-outline-danger"
+                            type="button"
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ),
+                    }))}
+                  />
+                </VuiBox>
+                <div className="d-flex justify-content-end p-2 custom-pagination">
+                  <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+                    <button
+                      className="btn btn-light"
+                      onClick={() => handleChangePage(null, page - 1)}
+                      disabled={page === 0}
+                    >
+                      &laquo; Prev
+                    </button>
+                    <span className="btn btn-light disabled">
+                      Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+                    </span>
+                    <button
+                      className="btn btn-light"
+                      onClick={() => handleChangePage(null, page + 1)}
+                      disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+                    >
+                      Next &raquo;
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </Card>
         </VuiBox>
       </VuiBox>
@@ -131,7 +205,7 @@ function Comment() {
       />
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
