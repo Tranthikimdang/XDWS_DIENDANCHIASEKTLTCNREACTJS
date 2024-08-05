@@ -118,7 +118,7 @@ function FormAndArticle() {
               {...register("title", { required: "Title is required" })}
               style={smallFontStyle}
             />
-            {errors.category && <span className="text-danger">{errors.category.message}</span>}
+            {errors.title && <span className="text-danger">{errors.title.message}</span>}
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
