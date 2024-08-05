@@ -5,7 +5,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/category/data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
@@ -120,10 +119,11 @@ function Category() {
             >
               <Table
                 columns={columns}
-                rows={rows.map((row) => {
+                rows={rows.map((row, index) => {
                   console.log(row);
                   return {
                     ...row,
+                    id: index + 1,  // Thay thế ID bằng index + 1
                     action: (
                       <div>
                         <Link to={{ pathname: "/formeditcate", state: { data: row } }}>
@@ -147,7 +147,6 @@ function Category() {
           </Card>
         </VuiBox>
       </VuiBox>
-      <Footer />
 
       {/* Dialog for delete confirmation */}
       <ConfirmDialog

@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
 import api from "../../../apis/categoriesApi";
@@ -64,7 +63,6 @@ function FormEditCate() {
           </div>
         </form>
       </div>
-      <Footer />
     </DashboardLayout>
   );
 }

@@ -14,23 +14,22 @@ import FormEditUser from "layouts/user/data/FormEditUser";
 import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
 import FormAuthority from "layouts/authority/data/formAuthority";
-import FormAunouncement from "layouts/announcement/data/formAunouncement";
-import AuthorityDetail from "layouts/authorityDetail";
+import FormAnnouncement from "../src/layouts/announcement/data/formAunouncement";
+import AuthorityDetail from "../src/layouts/authorityDetail";
 
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
 
 import FormAddArticle from "layouts/article/data/FormAndArticle";
+import FormViewArticle from "layouts/article/data/FormViewArticle";
 import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
 import FormAddCmt from "layouts/comment/data/formComment";
 import FormDeleteCmt from "layouts/comment/data/formDeleteComment";
 
-
 // Vision UI Dashboard React icons
-import { IoRocketSharp } from "react-icons/io5";
 import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
@@ -39,8 +38,7 @@ import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
 import { BsBellFill } from "react-icons/bs";
-import { BsGearFill } from "react-icons/bs";
-
+import { FaUserShield } from "react-icons/fa";
 const routes = [
   
   {
@@ -102,7 +100,7 @@ const routes = [
     name: "Authority Management",
     key: "authority",
     route: "/authority",
-    icon: <BsGearFill size="15px" color="inherit" />,
+    icon: <FaUserShield size="15px" color="inherit" />,
     component: Authority,
     noCollapse: true,
   },
@@ -188,6 +186,12 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
+    key: "formviewarticle",
+    route: "/formviewarticle/:id", // Thêm :id để định tuyến theo params
+    component: FormViewArticle,
+    hidden: true, // Ẩn mục này
+  },
+  {
     key: "formeditarticle",
     route: "/formeditArticle",
     component: FormEditArticle,
@@ -206,9 +210,9 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formAunouncement",
+    key: "FormAnnouncement",
     route: "/formAunouncement",
-    component: FormAunouncement,
+    component: FormAnnouncement,
     hidden: true, // Ẩn mục này
   },
   {

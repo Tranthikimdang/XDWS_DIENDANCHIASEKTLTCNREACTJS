@@ -5,7 +5,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/user/data/authorsTableData";
 import ConfirmDialog from './data/FormDeleteUser';
@@ -96,7 +95,7 @@ function User() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3}>
+      <VuiBox py={3}>  
         <VuiBox mb={3}>
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
@@ -134,10 +133,11 @@ function User() {
                 >
                   <Table
                     columns={columns}
-                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                       console.log(row);
                       return {
                         ...row,
+                        id: index + 1,
                         action: (
                           <div>
                             <Link to={{ pathname: "/formEditUser", state: { data: row } }}>
@@ -184,8 +184,6 @@ function User() {
           </Card>
         </VuiBox>
       </VuiBox>
-      <Footer />
-
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
