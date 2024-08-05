@@ -21,6 +21,21 @@ const getList = async () => {
   }
 };
 
+const getArticleById = async (id) => {
+  try {
+    const docRef = doc(db, 'article', id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      throw new Error('No such document!');
+    }
+  } catch (e) {
+    throw new Error('Error getting document: ' + e.message);
+  }
+};
+
 const updateArticle = async (id, updatedData) => {
   try {
     const articleDoc = doc(db, 'article', id);
@@ -45,6 +60,7 @@ const deleteArticle = async (id) => {
 module.exports = {
   addArticle,
   getList,
+  getArticleById,
   updateArticle,
   deleteArticle
 };
