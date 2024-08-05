@@ -167,7 +167,7 @@ function Announcement() {
             >
               <Table
                 columns={[
-                  { name: "ordinal", align: "center" },
+                  { name: "Id", align: "left" },
                   { name: "sender", align: "left" },
                   { name: "receiver", align: "center" },
                   { name: "content", align: "center" },

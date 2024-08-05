@@ -40,7 +40,7 @@ function Function({ job, org }) {
 
 export default {
   columns: [
-    { name: "ordinal", align: "left" },
+    { name: "Id", align: "left" },
     { name: "name", align: "left" },
     { name: "assigned", align: "center" },
     { name: "number_of_members", align: "center" },

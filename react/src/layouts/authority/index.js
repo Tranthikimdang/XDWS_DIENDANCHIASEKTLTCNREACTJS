@@ -131,61 +131,25 @@ function Authority() {
                 columns={columns}
                 rows={rows.map((row, index) => ({
                   ...row,
-                  ordinal: index + 1,
+                  Id: index + 1,
                   action: (
                     <div>
                       <Link to={`/authorityDetail/${row.id}`}>
                         <button className="text-light btn btn-outline-primary me-2" type="submit">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="bi bi-eye"
-                            viewBox="0 0 16 16"
-                          >
-                            <path d="M8 3.5a4.5 4.5 0 0 0-4.5 4.5A4.5 4.5 0 0 0 8 12.5a4.5 4.5 0 0 0 4.5-4.5A4.5 4.5 0 0 0 8 3.5zm0 8a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" />
-                            <path d="M8 1C4.4 1 1.3 4 0 8c1.3 4 4.4 7 8 7s6.7-3 8-7c-1.3-4-4.4-7-8-7zm0 13.5C5.2 14.5 2.8 12.1 2 8c.8-4.1 3.2-6.5 6-6.5s5.2 2.4 6 6.5c-.8 4.1-3.2 6.5-6 6.5z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
+                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
                           </svg>
                         </button>
                       </Link>
-                      <button
-                        className="text-light btn btn-outline-info me-2"
-                        type="button" // Đổi từ 'submit' sang 'button'
-                        onClick={() => {
-                          // Gửi yêu cầu với ID người dùng từ row
-                          const userId = row.id; // Lấy ID từ dòng tương ứng
-                          fetchUserData(userId); // Gọi hàm để lấy dữ liệu người dùng
-                        }}
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          fill="currentColor"
-                          className="bi bi-plus"
-                          viewBox="0 0 16 16"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
-                          />
-                        </svg>
-                      </button>
+                     
                       <button
                         className="text-light btn btn-outline-danger mr-1"
                         type="button"
                         onClick={() => handleOpenConfirmDialog(row.id)} // Mở dialog xác nhận khi nhấn Delete
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          fill="currentColor"
-                          className="bi bi-trash"
-                          viewBox="0 0 16 16"
-                        >
-                          <path d="M2.5 5.5V14a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V5.5h-1V14H3V5.5h-1zM3.5 1a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5V2h-9V1zM6.5 2h3v1h-3V2z" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                         </svg>
                       </button>
                     </div>

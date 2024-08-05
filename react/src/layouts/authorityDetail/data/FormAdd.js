@@ -2,15 +2,13 @@ import React, { useState } from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useForm } from "react-hook-form";
 import authorityDetailApi from "../../../apis/authorityDetailApi";
 import VuiTypography from "components/VuiTypography";
 
-function FormAddUserAuthory({ open, onClose }) {
+function FormAddUserAuthory({ open, onClose, onUserAdded }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -23,27 +21,49 @@ function FormAddUserAuthory({ open, onClose }) {
 
   const onSubmit = async (formData) => {
     try {
-      // Check if email exists in userApi
+      // Lấy IdAuthority từ URL
+      const pathArray = window.location.pathname.split('/');
+      const idAuthority = pathArray[pathArray.length - 1];
+
+      // Kiểm tra xem người dùng đã tồn tại trong authorityDetailApi chưa
+      const existingUserResponse = await authorityDetailApi.getUserByEmail(formData.email);
+      const existingUser = existingUserResponse.data;
+
+      if (existingUser) {
+        setSnackbarMessage("User with provided email already exists in authority details.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return; // Dừng lại nếu người dùng đã tồn tại
+      }
+
+      // Kiểm tra nếu email tồn tại trong userApi
       const response = await authorityDetailApi.getUserByEmail(formData.email);
-      console.log(response);
       const user = response;
-  
+
       if (user) {
-        // If user exists, add to authorityDetailApi
-        const addResponse = await authorityDetailApi.addUser(user);
-        console.log("User added successfully:", addResponse);
+        // Nếu người dùng tồn tại, thêm IdAuthority vào dữ liệu người dùng
+        const userData = {
+          ...user,
+          IdAuthority: idAuthority,
+        };
+
+        // Thêm vào authorityDetailApi
+        const addResponse = await authorityDetailApi.addUser(userData);
         setSnackbarMessage("User added successfully.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
-  
+
+        // Notify parent component about the new user
+        onUserAdded(addResponse.data); // Giả sử dữ liệu người dùng mới nằm trong addResponse.data
+
         // Đợi một chút trước khi đóng dialog
         setTimeout(() => {
           onClose();
-        }, 1000); // Thay đổi thời gian nếu cần
-  
+        }, 500); // Thay đổi thời gian nếu cần
+
       } else {
-        // If user does not exist, show error message
-        setSnackbarMessage("User with provided email does not exist.");
+        // Nếu người dùng không tồn tại, hiển thị thông báo lỗi
+        setSnackbarMessage("User with provided email does not exist in user database.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       }
@@ -96,14 +116,14 @@ function FormAddUserAuthory({ open, onClose }) {
                 >
                   Add User
                 </button>
-                  <button
-                    onClick={onClose}
-                    style={{border: '1px solid red', backgroundColor: "white", color: "black" }}
-                    variant="outlined"
-                    className="btn btn-outline-info"
-                  >
-                    Cancel
-                  </button>
+                <button
+                  onClick={onClose}
+                  style={{ border: '1px solid red', backgroundColor: "white", color: "black" }}
+                  variant="outlined"
+                  className="btn btn-outline-info"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

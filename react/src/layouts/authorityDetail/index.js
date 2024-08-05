@@ -14,18 +14,21 @@ import apiauthorityDetail from "../../apis/authorityDetailApi";
 
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
+import { useParams } from 'react-router-dom';
 
 function User() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
-  const [openAddUserDialog, setOpenAddUserDialog] = useState(false); // Trạng thái cho dialog thêm người dùng
+  const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
   const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]); // State for filtered users
   const [deleteId, setDeleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
-  
+  const { id } = useParams(); // Lấy idAuthority từ đường dẫn
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -33,7 +36,11 @@ function User() {
         if (response.status === 200) {
           const user = response.data || [];
           setRows(user);
-          console.log("Fetched users:", user);
+          console.log(user, user.idAuthority, id);
+          
+          // Lọc người dùng theo idAuthority
+          const filteredUsers = user.filter(user => user.IdAuthority == id);
+          setFilteredRows(filteredUsers); // Cập nhật filteredRows với người dùng đã lọc
         }
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -42,9 +49,8 @@ function User() {
       }
     };
 
-
     fetchUser();
-  }, []);
+  }, [id]); // Thêm id vào dependency array để cập nhật khi id thay đổi
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -54,7 +60,7 @@ function User() {
   const confirmDelete = async (deleteId) => {
     try {
       await apiauthorityDetail.deleteUser(deleteId);
-      setRows(rows.filter((user) => user.id !== deleteId));
+      setFilteredRows(filteredRows.filter((user) => user.id !== deleteId)); // Cập nhật filteredRows sau khi xóa
       setOpenDialog(false);
       setSnackbarMessage("User deleted successfully.");
       setSnackbarSeverity("success");
@@ -67,11 +73,12 @@ function User() {
     }
   };
 
-  const handleAddUserSuccess = () => {
+  const handleAddUserSuccess = (newUser) => {
+    setFilteredRows([...filteredRows, newUser]); // Cập nhật filteredRows với người dùng mới
     setSnackbarMessage("User added successfully.");
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
-    setOpenAddUserDialog(false); // Đóng dialog thêm người dùng sau khi thêm thành công
+    setOpenAddUserDialog(false);
   };
 
   const handleSnackbarClose = (event, reason) => {
@@ -92,7 +99,7 @@ function User() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3}>  
+      <VuiBox py={3}>
         <VuiBox mb={3}>
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
@@ -128,7 +135,7 @@ function User() {
                 >
                   <Table
                     columns={columns}
-                    rows={rows.map((row, index) => ({
+                    rows={filteredRows.map((row, index) => ({
                       ...row,
                       id: index + 1,
                       action: (
@@ -138,7 +145,9 @@ function User() {
                             type="button"
                             onClick={() => handleDelete(row.id)}
                           >
-                            Delete
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                        </svg>
                           </button>
                         </div>
                       ),
@@ -161,7 +170,7 @@ function User() {
       <FormAddUserAuthory
         open={openAddUserDialog}
         onClose={() => setOpenAddUserDialog(false)}
-        onConfirm={handleAddUserSuccess}
+        onUserAdded={handleAddUserSuccess}
       />
       <Snackbar
         open={snackbarOpen}

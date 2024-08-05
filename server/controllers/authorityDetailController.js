@@ -17,11 +17,11 @@ const listUsers = async (req, res) => {
 
 // Create a new user
 const createUser = async (req, res) => {
-  const { name, email, location, phone } = req.body;
-  if (!name || !email || !location || !phone) {
+  const { name, email, location, phone, IdAuthority } = req.body;
+  if (!name || !email || !location || !phone || !IdAuthority) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
-  const newUser = { name, email, location, phone };
+  const newUser = { name, email, location, phone, IdAuthority };
   try {
     const id = await User.addUser(newUser);
     res.status(201).json({ id, message: "User created successfully." });
