@@ -7,7 +7,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
-import authorsTableData from "layouts/user/data/authorsTableData";
+import authorsTableData from "layouts//authorityDetail/data/authorsTableData";
 import ConfirmDialog from './data/FormDeleteUser'; 
 import FormAddUserAuthory from './data/FormAdd'; 
 import apiauthorityDetail from "../../apis/authorityDetailApi";
@@ -145,7 +145,7 @@ function User() {
                     columns={columns}
                     rows={currentRows.map((row, index) => ({
                       ...row,
-                      id: startIndex + index + 1,
+                      Id:  index + 1,
                       action: (
                         <div>
                           <button

@@ -1,12 +1,6 @@
-import React from 'react';
-import VuiBox from "components/VuiBox";
-import VuiTypography from "components/VuiTypography";
-import VuiAvatar from "components/VuiAvatar";
-import { Link } from "react-router-dom";
-
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "Id", align: "left" },
     { name: "name", align: "left" },
     { name: "email", align: "center" },
     { name: "location", align: "left" },

@@ -11,10 +11,10 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import VuiBadge from "components/VuiBadge";
 import CircularProgress from "@mui/material/CircularProgress";
-import './MyPagination.css';
+import "./MyPagination.css";
 
 const statusMap = {
-  "nháp": {
+  nháp: {
     badgeContent: "Nháp",
     sx: ({ palette: { white }, borders: { borderRadius, borderWidth } }) => ({
       background: "unset",
@@ -42,10 +42,10 @@ function Announcement() {
   // const [snackbarOpen, setSnackbarOpen] = useState(false);
   // const [snackbarMessage, setSnackbarMessage] = useState("");
   // const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [loading, setLoading] = useState(true); 
-  const [page, setPage] = useState(1); 
-  const rowsPerPage = 5; // 
-  const totalPages = Math.ceil(rows.length / rowsPerPage); 
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 5; //
+  const totalPages = Math.ceil(rows.length / rowsPerPage);
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -77,7 +77,7 @@ function Announcement() {
       await apis.deleteAnnouncement(deleteId);
       setRows(rows.filter((announcement) => announcement.id !== deleteId));
       setOpenDeleteDialog(false);
-      setSnackbarMessage("Announcement deleted successfully.");
+      setSnackbarMessage("announcementr deleted successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
@@ -209,10 +209,10 @@ function Announcement() {
                               width="16"
                               height="16"
                               fill="currentColor"
-                              className="bi bi-send"
+                              class="bi bi-send"
                               viewBox="0 0 16 16"
                             >
-                              <path d="M15.964.39a.5.5 0 0 1 .036.518l-2 12a.5.5 0 0 1-.622.38l-9-3a.5.5 0 0 1-.166-.895L11.95 8 3.178 4.632a.5.5 0 0 1 .166-.895l9-3a.5.5 0 0 1 .62.383z" />
+                              <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z" />
                             </svg>
                           </button>
                         )}
@@ -257,7 +257,7 @@ function Announcement() {
                       onClick={() => handleChangePage(null, page - 1)}
                       disabled={page === 1}
                     >
-                      &laquo; 
+                      &laquo;
                     </button>
                     <span className="btn btn-light disabled">
                       Page {page} of {totalPages}
@@ -267,7 +267,7 @@ function Announcement() {
                       onClick={() => handleChangePage(null, page + 1)}
                       disabled={page >= totalPages}
                     >
-                     &raquo;
+                      &raquo;
                     </button>
                   </div>
                 </div>
