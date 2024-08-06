@@ -60,7 +60,12 @@ function FormAddCmt() {
             <label className='text-light form-label' style={smallFontStyle}>Description</label>
             <textarea className='form-control bg-dark text-light' {...register('description', { required: true, minLength: 10, maxLength: 100 })} />
             {errors.description && <span className='text-danger'>{errors.description.type === 'required' ? 'Description is required' : errors.description.type === 'minLength' ? 'Description must be at least 10 characters long' : 'Description must be less than 100 characters long'}</span>}
-          </div>                  
+          </div>   
+          <div>
+            <label className='text-light form-label' style={smallFontStyle}>Created Date</label>
+            <input type='date' className='form-control bg-dark text-light' {...register('created_date', { required: true })} />
+            {errors.created_date && <span className='text-danger'>{errors.created_date.type === 'required' ? 'Created_date is required' : ''}</span>}
+          </div>                
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Add</button>
             <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/comment')}>Back</button>
