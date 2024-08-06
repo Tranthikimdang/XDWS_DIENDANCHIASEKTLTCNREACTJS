@@ -135,10 +135,9 @@ function User() {
                   <Table
                     columns={columns}
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                      console.log(row);
                       return {
                         ...row,
-                        ordinal: page * rowsPerPage + index + 1,
+                        no: page * rowsPerPage + index + 1,
                         action: (
                           <div>
                             <Link to={{ pathname: "/formEditUser", state: { data: row } }}>
@@ -159,7 +158,7 @@ function User() {
                     })}
                   />
                 </VuiBox>
-                <div className="d-flex justify-content-end p-2 custom-pagination">
+                <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
                       className="btn btn-light"

@@ -17,11 +17,11 @@ const listUsers = async (req, res) => {
 
 // Create a new user
 const createUser = async (req, res) => {
-  const { name, email, location, phone } = req.body;
-  if (!name || !email || !location || !phone) {
+  const { name, email, location, phone, role } = req.body;
+  if (!name || !email || !location || !phone || !role) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
-  const newUser = { name, email, location, phone };
+  const newUser = { name, email, location, phone, role };
   try {
     const id = await User.addUser(newUser);
     res.status(201).json({ id, message: "User created successfully." });
@@ -34,13 +34,13 @@ const createUser = async (req, res) => {
 // Update a user by ID
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { name, email, location, phone } = req.body;
+  const { name, email, location, phone, role } = req.body;
 
-  if (!name || !email || !location || !phone) {
+  if (!name || !email || !location || !phone || !role) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  const user = { name, email, location, phone };
+  const user = { name, email, location, phone, role };
 
   try {
     const updated = await User.updateUser(id, user);
@@ -62,7 +62,7 @@ const deleteUser = async (req, res) => {
   try {
     const deleted = await User.deleteUser(id);
     if (deleted) {
-      res.status(204).json({ status: 204, message: "User deleted successfully" }); // No content status
+      res.status(204).json({ status: 204, message: "User deleted successfully" }); 
     } else {
       res.status(404).json({ status: 404, error: "User not found." });
     }
