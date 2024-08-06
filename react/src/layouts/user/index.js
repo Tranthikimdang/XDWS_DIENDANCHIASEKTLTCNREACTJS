@@ -106,7 +106,7 @@ function User() {
               <Link to="/formAddUser">
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddUserSuccess}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
-                    <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
+                    <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
                   </svg>
                   Add
                 </button>
@@ -134,10 +134,11 @@ function User() {
                 >
                   <Table
                     columns={columns}
-                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                       console.log(row);
                       return {
                         ...row,
+                        ordinal: page * rowsPerPage + index + 1,
                         action: (
                           <div>
                             <Link to={{ pathname: "/formEditUser", state: { data: row } }}>
@@ -165,7 +166,7 @@ function User() {
                       onClick={() => handleChangePage(null, page - 1)}
                       disabled={page === 0}
                     >
-                      &laquo; Prev
+                      &laquo; 
                     </button>
                     <span className="btn btn-light disabled">
                       Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
@@ -175,7 +176,7 @@ function User() {
                       onClick={() => handleChangePage(null, page + 1)}
                       disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
                     >
-                      Next &raquo;
+                       &raquo;
                     </button>
                   </div>
                 </div>

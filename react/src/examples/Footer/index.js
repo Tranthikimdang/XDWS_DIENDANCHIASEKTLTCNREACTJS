@@ -7,7 +7,7 @@ function App() {
     <VuiBox
       display="flex"
       flexDirection="column"
-      minHeight="10vh"
+      minHeight="11 vh" // Set the minimum height to 100vh to fill the entire viewport
     >
       {/* Your main content here */}
       <VuiBox flex="1">
@@ -27,7 +27,7 @@ function Footer() {
       component="footer"
       py={2}
       pb={0}
-      sx={{ mt: "auto" }}
+      sx={{ mt: "auto" }} // Ensure the footer is pushed to the bottom
     >
       <VuiBox item xs={12} sx={{ textAlign: "center" }}>
         <VuiTypography
