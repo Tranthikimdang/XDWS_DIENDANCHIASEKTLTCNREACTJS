@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -8,27 +8,30 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/user/data/authorsTableData";
-import ConfirmDialog from './data/FormDeleteUser'; // Giả sử đây là dialog xóa
-import FormAddUserAuthory from './data/FormAdd'; // Nhập dialog thêm người dùng
+import ConfirmDialog from './data/FormDeleteUser'; 
+import FormAddUserAuthory from './data/FormAdd'; 
 import apiauthorityDetail from "../../apis/authorityDetailApi";
+import './MyPagination.css';
 
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
-import { useParams } from 'react-router-dom';
 
 function User() {
   const { columns } = authorsTableData;
+  const { id } = useParams();
+  
   const [openDialog, setOpenDialog] = useState(false);
   const [openAddUserDialog, setOpenAddUserDialog] = useState(false);
   const [rows, setRows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]); // State for filtered users
+  const [filteredRows, setFilteredRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
-  const { id } = useParams(); // Lấy idAuthority từ đường dẫn
-
+  const [page, setPage] = useState(1);
+  const rowsPerPage = 5;
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -36,11 +39,8 @@ function User() {
         if (response.status === 200) {
           const user = response.data || [];
           setRows(user);
-          console.log(user, user.idAuthority, id);
-          
-          // Lọc người dùng theo idAuthority
-          const filteredUsers = user.filter(user => user.IdAuthority == id);
-          setFilteredRows(filteredUsers); // Cập nhật filteredRows với người dùng đã lọc
+          const filteredUsers = user.filter(user => user.IdAuthority === id);
+          setFilteredRows(filteredUsers);
         }
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -50,8 +50,8 @@ function User() {
     };
 
     fetchUser();
-  }, [id]); // Thêm id vào dependency array để cập nhật khi id thay đổi
-
+  }, [id]);
+  const totalPages = Math.ceil(filteredRows.length / rowsPerPage);
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
@@ -60,7 +60,7 @@ function User() {
   const confirmDelete = async (deleteId) => {
     try {
       await apiauthorityDetail.deleteUser(deleteId);
-      setFilteredRows(filteredRows.filter((user) => user.id !== deleteId)); // Cập nhật filteredRows sau khi xóa
+      setFilteredRows(filteredRows.filter((user) => user.id !== deleteId));
       setOpenDialog(false);
       setSnackbarMessage("User deleted successfully.");
       setSnackbarSeverity("success");
@@ -74,7 +74,7 @@ function User() {
   };
 
   const handleAddUserSuccess = (newUser) => {
-    setFilteredRows([...filteredRows, newUser]); // Cập nhật filteredRows với người dùng mới
+    setFilteredRows([...filteredRows, newUser]);
     setSnackbarMessage("User added successfully.");
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
@@ -95,6 +95,14 @@ function User() {
   const openAddUserDialogHandler = () => {
     setOpenAddUserDialog(true);
   };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const startIndex = (page - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const currentRows = filteredRows.slice(startIndex, endIndex);
 
   return (
     <DashboardLayout>
@@ -135,9 +143,9 @@ function User() {
                 >
                   <Table
                     columns={columns}
-                    rows={filteredRows.map((row, index) => ({
+                    rows={currentRows.map((row, index) => ({
                       ...row,
-                      id: index + 1,
+                      id: startIndex + index + 1,
                       action: (
                         <div>
                           <button
@@ -145,14 +153,38 @@ function User() {
                             type="button"
                             onClick={() => handleDelete(row.id)}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                        </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                            </svg>
                           </button>
                         </div>
                       ),
                     }))}
                   />
+                </VuiBox>
+                <VuiBox display="flex" justifyContent="end" my={3}>
+                  <div className="d-flex justify-content-end p-2 custom-pagination">
+                    <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+                      <button
+                        className="btn btn-light"
+                        onClick={() => handleChangePage(null, page - 1)}
+                        disabled={page === 1}
+                      >
+                        &laquo; 
+                      </button>
+                      <span className="btn btn-light disabled">
+                        Page {page} of {totalPages}
+                      </span>
+                      <button
+                        className="btn btn-light"
+                        onClick={() => handleChangePage(null, page + 1)}
+                        disabled={page >= totalPages}
+                      >
+                        &raquo;
+                      </button>
+                    </div>
+                  </div>
                 </VuiBox>
               </>
             )}

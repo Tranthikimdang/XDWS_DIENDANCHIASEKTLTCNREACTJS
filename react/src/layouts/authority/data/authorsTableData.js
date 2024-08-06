@@ -43,7 +43,7 @@ export default {
     { name: "Id", align: "left" },
     { name: "name", align: "left" },
     { name: "assigned", align: "center" },
-    { name: "number_of_members", align: "center" },
+    // { name: "number_of_members", align: "center" },
     { name: "created_date", align: "center" },
     { name: "action", align: "center" },
   ],

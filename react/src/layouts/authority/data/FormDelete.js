@@ -14,10 +14,14 @@ function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // State cho mức độ thông điệp
 
   const handleConfirm = () => {
-    onConfirm(itemId);
-    setSnackbarMessage("Authority deleted successfully."); // Thông điệp thành công
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
+    if (typeof onConfirm === 'function') { // Kiểm tra onConfirm có phải là hàm không
+      onConfirm(itemId);
+      setSnackbarMessage("Authority deleted successfully."); // Thông điệp thành công
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } else {
+      console.error('onConfirm is not a function'); // In ra lỗi nếu không phải là hàm
+    }
     onClose();
   };
 
