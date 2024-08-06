@@ -111,7 +111,7 @@ function FormAddUser() {
               <input
                 type="number"
                 className="form-control bg-dark text-light"
-                {...register("cardId", { required: true, minLength: 10, maxLength: 12 })}
+                {...register("cardId", { required: true, min: 1000000000, max: 99999999999 })}
               />
               {errors.cardId && <span className="text-danger">Card ID must be between 10 and 12 digits</span>}
             </div>

@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import App from "App";
 import "bootstrap/dist/css/bootstrap.min.css";
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 
 // Vision UI Dashboard React Context Provider
 import { VisionUIControllerProvider } from "context";
