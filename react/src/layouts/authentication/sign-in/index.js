@@ -15,8 +15,6 @@ import GradientBorder from "examples/GradientBorder";
 import radialGradient from "assets/theme/functions/radialGradient";
 import palette from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
-// import GoogleAuth from './GoogleAuth';
-// Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images

@@ -169,7 +169,7 @@ function Article() {
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                       console.log(row);
                       return {
-                        id : page * rowsPerPage + index + 1,
+                        id: page * rowsPerPage + index + 1,
                         fuction: (
                           <div className="container">
                             <div className="row">
