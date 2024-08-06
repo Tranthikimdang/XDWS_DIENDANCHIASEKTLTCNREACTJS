@@ -7,6 +7,7 @@ import api from "../../../apis/articleApi";
 import { Editor } from "@tinymce/tinymce-react"; // Thay thế bằng đường dẫn thực tế tới Editor
 import { Snackbar, Alert } from "@mui/material";
 import { useHistory } from 'react-router-dom';
+
 function FormEditArticle() {
   const location = useLocation();
   const { data } = location.state || {};
@@ -194,7 +195,7 @@ function FormEditArticle() {
               {...register("title", { required: "Title is required" })}
               style={smallFontStyle}
             />
-            {errors.category && <span className="text-danger">{errors.category.message}</span>}
+            {errors.title && <span className="text-danger">{errors.title.message}</span>}
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>

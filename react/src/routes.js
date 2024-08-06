@@ -187,8 +187,8 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formeviewarticle",
-    route: "/formviewarticle",
+    key: "formviewarticle",
+    route: "/formviewarticle/:id", // Thêm :id để định tuyến theo params
     component: FormViewArticle,
     hidden: true, // Ẩn mục này
   },

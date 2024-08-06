@@ -1,4 +1,4 @@
-const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
+const { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig.js');
 
 const addArticle = async (article) => {
@@ -18,6 +18,21 @@ const getList = async () => {
     return article;
   } catch (e) {
     throw new Error('Error getting documents: ' + e.message);
+  }
+};
+
+const getArticleById = async (id) => {
+  try {
+    const docRef = doc(db, 'article', id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() };
+    } else {
+      throw new Error('No such document!');
+    }
+  } catch (e) {
+    throw new Error('Error getting document: ' + e.message);
   }
 };
 
@@ -45,6 +60,7 @@ const deleteArticle = async (id) => {
 module.exports = {
   addArticle,
   getList,
+  getArticleById,
   updateArticle,
   deleteArticle
 };

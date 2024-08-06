@@ -80,6 +80,32 @@ const getList = async (req, res) => {
   }
 };
 
+const getArticleById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const article = await Article.getArticleById(id);
+    if (!article) {
+      return res.status(404).json({ status: 404, error: "Article not found." });
+    }
+
+    const host = req.protocol + '://' + req.get('host');
+    const updatedArticle = {
+      ...article,
+      image: host + '/' + article.image.replace(/\\/g, '/'),
+    };
+
+    res.status(200).json({
+      data: updatedArticle,
+      status: 200,
+      message: "Success",
+    });
+  } catch (error) {
+    res.status(500).json({ status: 500, error: 'Failed to fetch article details. ' + error.message });
+  }
+};
+
+
 const updateArticle = async (req, res) => {
   const { id } = req.params;
 
@@ -138,6 +164,7 @@ const deleteArticle = async (req, res) => {
 module.exports = {
   addArticle,
   getList,
+  getArticleById,
   updateArticle,
   deleteArticle
 };
