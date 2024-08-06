@@ -166,7 +166,7 @@ function Comment() {
                       onClick={() => handleChangePage(null, page - 1)}
                       disabled={page === 0}
                     >
-                      &laquo; Prev
+                      &laquo;
                     </button>
                     <span className="btn btn-light disabled">
                       Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
@@ -176,7 +176,7 @@ function Comment() {
                       onClick={() => handleChangePage(null, page + 1)}
                       disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
                     >
-                      Next &raquo;
+                       &raquo;
                     </button>
                   </div>
                 </div>
