@@ -7,6 +7,7 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/comment/data/authorsTableData";
+import comment from "layouts/comment/data/comment";
 import ConfirmDialog from './data/formDeleteComment';
 import apis from "../../apis/commentApi";
 import { Alert, Snackbar } from "@mui/material";
@@ -14,7 +15,7 @@ import { ClipLoader } from "react-spinners";
 import './index.css';
 
 function Comment() {
-  const { columns } = authorsTableData;
+  const { columns } = comment;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
@@ -23,7 +24,7 @@ function Comment() {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     const fetchComment = async () => {
