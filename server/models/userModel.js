@@ -1,6 +1,7 @@
 const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig.js');
 
+
 // Add a new user
 const addUser = async (user) => {
   try {
@@ -29,7 +30,7 @@ const updateUser = async (id, updatedData) => {
   try {
     const userDoc = doc(db, 'users', id);
     await updateDoc(userDoc, updatedData);
-    return `Category with id ${id} updated successfully.`;
+    return `User with id ${id} updated successfully.`;
   } catch (e) {
     console.error('Error updating user:', e.message);
     throw new Error('Error updating user: ' + e.message);
