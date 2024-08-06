@@ -1,4 +1,4 @@
-const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
+const { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig.js');
 
 const addArticle = async (article) => {

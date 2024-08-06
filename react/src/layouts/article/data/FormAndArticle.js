@@ -118,7 +118,7 @@ function FormAndArticle() {
               {...register("title", { required: "Title is required" })}
               style={smallFontStyle}
             />
-            {errors.category && <span className="text-danger">{errors.category.message}</span>}
+            {errors.title && <span className="text-danger">{errors.title.message}</span>}
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
@@ -171,7 +171,7 @@ function FormAndArticle() {
             )}
           </div>
           <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            <button className='text-light btn btn-outline-info' type="submit">Edit</button>
             <Link to="/article" className='btn btn-outline-light ms-3'>Back</Link>
           </div>
         </form>

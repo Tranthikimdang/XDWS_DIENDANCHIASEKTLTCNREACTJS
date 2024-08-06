@@ -15,8 +15,6 @@ import GradientBorder from "examples/GradientBorder";
 import radialGradient from "assets/theme/functions/radialGradient";
 import palette from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
-
-// Authentication layout components
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 
 // Images
@@ -28,6 +26,7 @@ function SignIn() {
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   return (
+   
     <CoverLayout
       title="Nice to see you!"
       color="white"
@@ -37,6 +36,7 @@ function SignIn() {
       image={bgSignIn}
     >
       <VuiBox component="form" role="form">
+   
         <VuiBox mb={2}>
           <VuiBox mb={1} ml={0.5}>
             <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
@@ -100,6 +100,7 @@ function SignIn() {
         </VuiBox>
       </VuiBox>
     </CoverLayout>
+    
   );
 }
 

@@ -1,20 +1,42 @@
-import React from 'react';
+import React, { useState } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
-import api from '../../../apis/categoriesApi'; // Import API service
+import api from '../../../apis/categoriesApi';
+import { Snackbar, Alert } from "@mui/material";
+import { useHistory } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+
 
 function FormAddCate() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
+  const history = useHistory();
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
   const onSubmit = async (data) => {
     try {
       const response = await api.addCategory(data);
       console.log('Category added successfully:', response);
+      setSnackbarMessage("Article added successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setTimeout(() => history.push('/category'), 3000);
     } catch (error) {
       console.error('Error adding category:', error);
+      setSnackbarMessage("Failed to add category.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     }
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   return (
@@ -31,10 +53,20 @@ function FormAddCate() {
           </div>
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            <Link to="/article" className='btn btn-outline-light ms-3'>Back</Link>
           </div>
         </form>
       </div>
-      <Footer />
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 }
