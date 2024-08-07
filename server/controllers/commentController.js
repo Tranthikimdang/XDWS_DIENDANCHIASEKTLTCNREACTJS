@@ -1,13 +1,13 @@
 const Comment = require("../models/commentModel.js");
 
 const createComment = async (req, res) => {
-  const { name, email, description } = req.body;
+  const { name, email, description , created_date } = req.body;
 
-  if (!name || !email || !description) {
+  if (!name || !email || !description || !created_date)  {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  const newComment = { name, email, description };
+  const newComment = { name, email, description,created_date};
 
   try {
     const id = await Comment.addComment(newComment);

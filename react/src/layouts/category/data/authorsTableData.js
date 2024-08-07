@@ -47,14 +47,14 @@ const handleDelete = (ordinal) => {
 
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "Id", align: "left" },
     { name: "name", align: "left" },
     { name: "action", align: "left" },
   ],
 
   rows: [
     {
-      ordinal: (
+      Id: (
         <VuiTypography variant="caption" color="white" fontWeight="medium">
           1
         </VuiTypography>

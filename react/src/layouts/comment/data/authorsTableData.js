@@ -18,6 +18,7 @@ export default {
     { name: "name", align: "left" },
     { name: "email", align: "center" },
     { name: "description", align: "center" },
+    { name: "created_date", align: "center" },
     { name: "action", align: "center" },
   ],
 

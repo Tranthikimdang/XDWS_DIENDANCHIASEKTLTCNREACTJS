@@ -1,112 +1,103 @@
-import React from 'react';
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
-import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+// import React, { useState } from "react";
+// import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+// import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+// import Footer from "examples/Footer";
+// import { useForm } from "react-hook-form";
+// import { useHistory } from "react-router-dom";
+// import Snackbar from "@mui/material/Snackbar";
+// import Alert from "@mui/material/Alert";
+// import authorityDetailApi from "../../../apis/authorityDetailApi";
+// import userApi from "../../../apis/userApi";
 
-function FormAddUser() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+// function FormAddUserAuthory() {
+//   const history = useHistory();
+//   const [snackbarOpen, setSnackbarOpen] = useState(false);
+//   const [snackbarMessage, setSnackbarMessage] = useState("");
+//   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
 
-  const onSubmit = data => {
-    console.log(data);
-    // Add logic to submit data to the backend here
-  };
+//   const {
+//     register,
+//     handleSubmit,
+//     formState: { errors },
+//   } = useForm();
 
-  const smallFontStyle = { 
-    fontSize: '0.9rem'
-  };
+//   const onSubmit = async (formData) => {
+//     try {
+//       // Check if email exists in userApi
+//       const response = await authorityDetailApi.getUserByEmail(formData.email);
+//       console.log(response);
+//       const user = response;
+      
+//       if (user) {
+//         // If user exists, add to authorityDetailApi
+//         const addResponse = await authorityDetailApi.addUser(user);
+//         console.log("User added successfully:", addResponse);
+//         setSnackbarMessage("User added successfully.");
+//         setSnackbarSeverity("success");
+//         setSnackbarOpen(true);
+//         setTimeout(() => history.push('/authorityDetail'), 1000); 
+//       } else {
+//         // If user does not exist, show error message
+//         setSnackbarMessage("User with provided email does not exist.");
+//         setSnackbarSeverity("error");
+//         setSnackbarOpen(true);
+//       }
+//     } catch (error) {
+//       console.error("Error adding user:", error);
+//       setSnackbarMessage(error.response?.data?.message || "Failed to add user.");
+//       setSnackbarSeverity("error");
+//       setSnackbarOpen(true);
+//     }
+//   };
 
-  return (
-    <DashboardLayout>
-      <DashboardNavbar />
-      <div className='container'>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>ID</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.id ? 'is-invalid' : ''}`}
-              type='number'
-              {...register('id', { required: true })}
-              style={smallFontStyle}
-            />
-            {errors.id && <div className='invalid-feedback'>
-              {errors.id.type === 'required' && 'ID is required'}
-            </div>}
-          </div> */}
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Image URL</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-              type='url'
-              {...register('image', { required: true })}
-              style={smallFontStyle}
-            />
-            {errors.image && <div className='invalid-feedback'>
-              {errors.image.type === 'required' && 'Image URL is required'}
-            </div>}
-          </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Name</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
-              {...register('name', { required: true, minLength: 3, maxLength: 20 })}
-              style={smallFontStyle}
-            />
-            {errors.name && <div className='invalid-feedback'>
-              {errors.name.type === 'required' && 'Name is required'}
-              {errors.name.type === 'minLength' && 'Name must be at least 3 characters long'}
-              {errors.name.type === 'maxLength' && 'Name must be less than 20 characters long'}
-            </div>}
-          </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Email</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.email ? 'is-invalid' : ''}`}
-              type='email'
-              {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
-              style={smallFontStyle}
-            />
-            {errors.email && <div className='invalid-feedback'>
-              {errors.email.type === 'required' && 'Email is required'}
-              {errors.email.type === 'pattern' && 'Invalid email address'}
-            </div>}
-          </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Location</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.location ? 'is-invalid' : ''}`}
-              {...register('location', { required: true, minLength: 5, maxLength: 50 })}
-              style={smallFontStyle}
-            />
-            {errors.location && <div className='invalid-feedback'>
-              {errors.location.type === 'required' && 'Location is required'}
-              {errors.location.type === 'minLength' && 'Location must be at least 5 characters long'}
-              {errors.location.type === 'maxLength' && 'Location must be less than 50 characters long'}
-            </div>}
-          </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Phone</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.phone ? 'is-invalid' : ''}`}
-              type='tel'
-              {...register('phone', { required: true, pattern: /^[0-9]{10,15}$/ })}
-              style={smallFontStyle}
-            />
-            {errors.phone && <div className='invalid-feedback'>
-              {errors.phone.type === 'required' && 'Phone number is required'}
-              {errors.phone.type === 'pattern' && 'Invalid phone number'}
-            </div>}
-          </div>
-          <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            <Link to="/user" className='btn btn-outline-light ms-3'>Back</Link>
-          </div>
-        </form>
-      </div>
-      <Footer />
-    </DashboardLayout>
-  );
-}
+//   const handleSnackbarClose = (event, reason) => {
+//     if (reason === "clickaway") {
+//       return;
+//     }
+//     setSnackbarOpen(false);
+//   };
 
-export default FormAddUser;
+//   return (
+//     <DashboardLayout>
+//       <DashboardNavbar />
+//       <div className="container">
+//         <form onSubmit={handleSubmit(onSubmit)}>
+//           <div>
+//             <label className="text-light form-label">Email</label>
+//             <input
+//               className="form-control bg-dark text-light"
+//               {...register("email", {
+//                 required: true,
+//                 pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+//               })}
+//             />
+//             {errors.email && errors.email.type === "required" && (
+//               <span className="text-danger">Email is required</span>
+//             )}
+//             {errors.email && errors.email.type === "pattern" && (
+//               <span className="text-danger">Invalid email address</span>
+//             )}
+//           </div>
+//           <div className="mt-3">
+//             <button className="text-light btn btn-outline-info" type="submit">
+//               Add User
+//             </button>
+//           </div>
+//         </form>
+//       </div>
+//       <Snackbar
+//         open={snackbarOpen}
+//         autoHideDuration={3000}
+//         onClose={handleSnackbarClose}
+//         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+//       >
+//         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+//           {snackbarMessage}
+//         </Alert>
+//       </Snackbar>
+//       <Footer />
+//     </DashboardLayout>
+//   );
+// }
+
+// export default FormAddUserAuthory;
