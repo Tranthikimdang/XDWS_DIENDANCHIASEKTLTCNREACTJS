@@ -1,9 +1,9 @@
 const { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig.js');
 
-const addArticle = async (article) => {
+const addArticle = async (articles) => {
   try {
-    const docRef = await addDoc(collection(db, 'article'), article);
+    const docRef = await addDoc(collection(db, 'articles'), articles);
     return docRef.id;
   } catch (e) {
     console.log(e);
@@ -13,7 +13,7 @@ const addArticle = async (article) => {
 
 const getList = async () => {
   try {
-    const querySnapshot = await getDocs(collection(db, 'article'));
+    const querySnapshot = await getDocs(collection(db, 'articles'));
     const article = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     return article;
   } catch (e) {
@@ -23,7 +23,7 @@ const getList = async () => {
 
 const getArticleById = async (id) => {
   try {
-    const docRef = doc(db, 'article', id);
+    const docRef = doc(db, 'articles', id);
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -38,7 +38,7 @@ const getArticleById = async (id) => {
 
 const updateArticle = async (id, updatedData) => {
   try {
-    const articleDoc = doc(db, 'article', id);
+    const articleDoc = doc(db, 'articles', id);
     await updateDoc(articleDoc, updatedData);
     return `Article with id ${id} updated successfully.`;
   } catch (e) {
@@ -49,7 +49,7 @@ const updateArticle = async (id, updatedData) => {
 
 const deleteArticle = async (id) => {
   try {
-    const docRef = doc(db, 'article', id);
+    const docRef = doc(db, 'articles', id);
     await deleteDoc(docRef);
     return true;
   } catch (e) {

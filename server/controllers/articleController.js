@@ -22,7 +22,7 @@ const addArticle = async (req, res) => {
     }
 
     // Lấy các trường dữ liệu từ req.body và req.file (tệp tin)
-    const { title, category, view, created_date, name, email, content } = req.body;
+    const { categories_id, user_id, title, content, view, created_at, updated_at, is_deleted } = req.body;
     const image = req.file ? `assets\\uploads\\${req.file.filename}` : null; // Đường dẫn đến tệp tin đã lưu trữ
     console.log(req.file);
     // Kiểm tra tất cả các trường cần thiết
@@ -32,14 +32,15 @@ const addArticle = async (req, res) => {
 
     // Xử lý giá trị trường
     const newArticle = {
+      categories_id,
+      user_id,
       image,
       title,
-      category,
+      content,
       view,
-      created_date,
-      name,
-      email,
-      content
+      created_at,
+      updated_at,
+      is_deleted
     };
 
     try {

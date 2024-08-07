@@ -3,9 +3,9 @@ const API_URL = process.env.REACT_APP_API_URI;
 // console.log(process.env);
 console.log('API_URL:', API_URL);
 
-const addArticle = async (article) => {
+const addArticle = async (articles) => {
   try {
-    const response = await axios.post(`${API_URL}/article`, article);
+    const response = await axios.post(`${API_URL}/article`, articles);
     return response.data;
   } catch (error) {
     throw error;

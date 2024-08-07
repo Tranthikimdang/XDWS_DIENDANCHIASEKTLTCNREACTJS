@@ -17,14 +17,12 @@ function FormAndArticle() {
 
   const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append('name', data.name);
+    formData.append('user_id', data.user_id);
     formData.append('image', data.image[0]); // File input is an array
-    formData.append('email', data.email);
-    formData.append('category', data.category);
+    formData.append('categories_id', data.categories_id);
     formData.append('title', data.title);
     formData.append('content', data.content);
-    formData.append('view', data.view);
-    formData.append('created_date', data.created_date);
+
 
     // Debug: Log FormData entries
     for (const [key, value] of formData.entries()) {
@@ -62,52 +60,57 @@ function FormAndArticle() {
     <DashboardLayout>
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-          <div className='col-6 mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Username</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.user_id ? 'is-invalid' : ''}`}
-              {...register('user_id', { required: 'Name is required', minLength: 3, maxLength: 20 })}
-              style={smallFontStyle}
-            />
-            {errors.user_id && errors.user_id.type === 'required' && <span className='text-warning'>Name is required</span>}
-            {errors.user_id && errors.user_id.type === 'minLength' && <span className='text-warning'>Name must be at least 3 characters long</span>}
-            {errors.user_id && errors.user_id.type === 'maxLength' && <span className='text-warning'>Name must be less than 20 characters long</span>}
+          <div className="row">
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Username</label>
+              <input
+                className={`form-control bg-dark text-light ${errors.user_id ? 'is-invalid' : ''}`}
+                {...register('user_id', { required: 'Name is required', minLength: 3, maxLength: 20 })}
+                style={smallFontStyle}
+              />
+               {errors.user_id && <span className="text-danger"  style={smallFontStyle}>{errors.user_id.message}</span>}
+
+              {errors.user_id && errors.user_id.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Name must be at least 3 characters long</span>}
+              {errors.user_id && errors.user_id.type === 'maxLength' && <span className="text-danger" style={smallFontStyle}>Name must be less than 20 characters long</span>}
+            </div>
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Title</label>
+              <input
+                className={`form-control bg-dark text-light`}
+                {...register("title", { required: "Title is required" })}
+                style={smallFontStyle}
+              />
+              {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
+            </div>
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Image</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-              type='file'
-              {...register('image', { required: 'Image is required' })}
-            />
-            {errors.image && <div className='invalid-feedback'>
-              {errors.image.message}
-            </div>}
-          </div><div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Title</label>
-            <input
-              className={`form-control bg-dark text-light`}
-              {...register("title", { required: "Title is required" })}
-              style={smallFontStyle}
-            />
-            {errors.title && <span className="text-danger">{errors.title.message}</span>}
+          <div className="row">
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Image</label>
+              <input
+                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+                type='file'
+                {...register('image', { required: 'Image is required' })}
+              />
+              {errors.image && <div className='invalid-feedback' style={smallFontStyle}>
+                {errors.image.message}
+              </div>}
+            </div>
+            <div className="col-6 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Category
+              </label>
+              <select
+                style={smallFontStyle}
+                className="form-control bg-dark text-light"
+                {...register("category", { required: "Category is required" })}
+              >
+                <option value="" disabled>Select category</option>
+                <option value="React" style={smallFontStyle}>React</option>
+                <option value="AnotherCategory" style={smallFontStyle}>Another Category</option>
+              </select>
+              {errors.category && <span className="text-danger" style={smallFontStyle}>{errors.category.message}</span>}
+            </div>
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Category
-            </label>
-            <select
-              style={smallFontStyle}
-              className="form-control bg-dark text-light"
-              {...register("category", { required: "Category is required" })}
-            >
-              <option value="" disabled>Select category</option>
-              <option value="React" style={smallFontStyle}>React</option>
-              <option value="AnotherCategory" style={smallFontStyle}>Another Category</option>
-            </select>
-            {errors.category && <span className="text-danger">{errors.category.message}</span>}
-          </div>
-          
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
               Content
@@ -133,12 +136,17 @@ function FormAndArticle() {
               initialValue=""
               onEditorChange={(content) => setValue("content", content)}
             />
-
-            {errors.content && <span className="text-danger">{errors.content.message}</span>}
+            {errors.content && <span className="text-danger" style={smallFontStyle}>{errors.content.message}</span>}
           </div>
-          <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            <Link to="/article" className='btn btn-outline-light ms-3'>Back</Link>
+          <div className="d-flex justify-content mt-3">
+            <button className="text-light btn btn-outline-info me-2" type="submit">Add Article</button>
+            <button
+              className="text-light btn btn-outline-secondary"
+              type="button"
+              onClick={() => history.push("/article")}
+            >
+              Back
+            </button>
           </div>
         </form>
       </div>
