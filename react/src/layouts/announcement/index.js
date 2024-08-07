@@ -12,6 +12,8 @@ import axios from "axios";
 import VuiBadge from "components/VuiBadge";
 import CircularProgress from "@mui/material/CircularProgress";
 import "./MyPagination.css";
+import { Alert, Snackbar } from "@mui/material";
+import { ClipLoader } from "react-spinners";
 
 const statusMap = {
   nháp: {
@@ -39,9 +41,9 @@ function Announcement() {
   const [openSendDialog, setOpenSendDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
-  // const [snackbarOpen, setSnackbarOpen] = useState(false);
-  // const [snackbarMessage, setSnackbarMessage] = useState("");
-  // const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const rowsPerPage = 5; //
@@ -77,7 +79,7 @@ function Announcement() {
       await apis.deleteAnnouncement(deleteId);
       setRows(rows.filter((announcement) => announcement.id !== deleteId));
       setOpenDeleteDialog(false);
-      setSnackbarMessage("announcementr deleted successfully.");
+      setSnackbarMessage("Announcement deleted successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
@@ -88,6 +90,7 @@ function Announcement() {
     }
   };
 
+  
   const handleSend = (id) => {
     setSelectedId(id);
     setOpenSendDialog(true);
