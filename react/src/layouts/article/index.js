@@ -192,7 +192,7 @@ function Article() {
                                   <div className="style-scope ytd-video-meta-block" style={{ display: 'flex', flexDirection: 'column' }}>
                                     <span className="inline-metadata-item">{row.view}</span>
                                     <span className="inline-metadata-item style-scope ytd-video-meta-block">
-                                      {new Date(row.created_date).toLocaleDateString()}
+                                      {new Date(row.created_at).toLocaleDateString()}
                                     </span>
                                   </div>
                                 </VuiBox>

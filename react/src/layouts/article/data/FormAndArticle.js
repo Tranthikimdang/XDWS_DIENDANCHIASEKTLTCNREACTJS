@@ -62,16 +62,16 @@ function FormAndArticle() {
     <DashboardLayout>
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Name</label>
+          <div className='col-6 mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Username</label>
             <input
-              className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
-              {...register('name', { required: 'Name is required', minLength: 3, maxLength: 20 })}
+              className={`form-control bg-dark text-light ${errors.user_id ? 'is-invalid' : ''}`}
+              {...register('user_id', { required: 'Name is required', minLength: 3, maxLength: 20 })}
               style={smallFontStyle}
             />
-            {errors.name && <div className='invalid-feedback'>
-              {errors.name.message || (errors.name.type === 'minLength' && 'Name must be at least 3 characters long') || (errors.name.type === 'maxLength' && 'Name must be less than 20 characters long')}
-            </div>}
+            {errors.user_id && errors.user_id.type === 'required' && <span className='text-warning'>Name is required</span>}
+            {errors.user_id && errors.user_id.type === 'minLength' && <span className='text-warning'>Name must be at least 3 characters long</span>}
+            {errors.user_id && errors.user_id.type === 'maxLength' && <span className='text-warning'>Name must be less than 20 characters long</span>}
           </div>
           <div className='mb-3'>
             <label className='text-light form-label' style={smallFontStyle}>Image</label>
@@ -83,18 +83,14 @@ function FormAndArticle() {
             {errors.image && <div className='invalid-feedback'>
               {errors.image.message}
             </div>}
-          </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Email</label>
+          </div><div className='mb-3'>
+            <label className='text-light form-label' style={smallFontStyle}>Title</label>
             <input
-              className={`form-control bg-dark text-light ${errors.email ? 'is-invalid' : ''}`}
-              type='email'
-              {...register('email', { required: 'Email is required', pattern: { value: /^\S+@\S+$/i, message: 'Invalid email address' } })}
+              className={`form-control bg-dark text-light`}
+              {...register("title", { required: "Title is required" })}
               style={smallFontStyle}
             />
-            {errors.email && <div className='invalid-feedback'>
-              {errors.email.message}
-            </div>}
+            {errors.title && <span className="text-danger">{errors.title.message}</span>}
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
@@ -111,15 +107,7 @@ function FormAndArticle() {
             </select>
             {errors.category && <span className="text-danger">{errors.category.message}</span>}
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Title</label>
-            <input
-              className={`form-control bg-dark text-light`}
-              {...register("title", { required: "Title is required" })}
-              style={smallFontStyle}
-            />
-            {errors.title && <span className="text-danger">{errors.title.message}</span>}
-          </div>
+          
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
               Content
@@ -148,30 +136,8 @@ function FormAndArticle() {
 
             {errors.content && <span className="text-danger">{errors.content.message}</span>}
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>View</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.view ? 'is-invalid' : ''}`}
-              {...register('view', { required: 'View is required', minLength: 3, maxLength: 20 })}
-              style={smallFontStyle}
-            />
-            {errors.view && <div className='invalid-feedback'>
-              {errors.view.message || (errors.view.type === 'minLength' && 'View must be at least 3 characters long') || (errors.view.type === 'maxLength' && 'View must be less than 20 characters long')}
-            </div>}
-          </div>
-          <div className="mb-3">
-            <label className='text-light form-label' style={smallFontStyle}>Date</label>
-            <input
-              className="form-control bg-dark text-light"
-              type="date"
-              {...register("created_date", { required: "Created Date is required" })}
-            />
-            {errors.created_date && (
-              <span className="text-danger">{errors.created_date.message}</span>
-            )}
-          </div>
           <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Edit</button>
+            <button className='text-light btn btn-outline-info' type="submit">Add</button>
             <Link to="/article" className='btn btn-outline-light ms-3'>Back</Link>
           </div>
         </form>

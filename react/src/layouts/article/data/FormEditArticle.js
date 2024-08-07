@@ -228,28 +228,6 @@ function FormEditArticle() {
               <span className="text-danger">{errors.content.message}</span>
             )}
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>View</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.view ? 'is-invalid' : ''}`}
-              {...register('view', { required: 'View is required', minLength: 3, maxLength: 20 })}
-              style={smallFontStyle}
-            />
-            {errors.view && <div className='invalid-feedback'>
-              {errors.view.message || (errors.view.type === 'minLength' && 'View must be at least 3 characters long') || (errors.view.type === 'maxLength' && 'View must be less than 20 characters long')}
-            </div>}
-          </div>
-          <div className="mb-3">
-            <label className='text-light form-label' style={smallFontStyle}>Date</label>
-            <input
-              className="form-control bg-dark text-light"
-              type="date"
-              {...register("created_date", { required: "Created Date is required" })}
-            />
-            {errors.created_date && (
-              <span className="text-danger">{errors.created_date.message}</span>
-            )}
-          </div>
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Edit</button>
             <Link to="/article" className='btn btn-outline-light ms-3'>Back</Link>
