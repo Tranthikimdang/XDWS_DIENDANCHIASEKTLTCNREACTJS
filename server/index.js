@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const categoryRoutes = require('./routes/categoryRoutes');
 const commentRoutes = require('./routes/commentRoutes');
+const commentDetailRoutes = require('./routes/commentDetailRoutes');
 const userRoutes = require('./routes/userRoutes');
 const announcementRoutes = require('./routes/announcementRoutes');
 const authorityRoutes = require('./routes/authorityRoutes');
@@ -30,7 +31,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 app.use('/api', categoryRoutes);
+
 app.use('/api', commentRoutes);
+app.use('/api', commentDetailRoutes);
+
 app.use('/api', userRoutes); 
 
 app.use('/api', announcementRoutes); 
