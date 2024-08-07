@@ -138,30 +138,7 @@ function FormEditUser() {
               )}
             </div>
           </div>
-          <div className="row">
-            {/* Birthday */}
-            <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Birthday</label>
-              <input
-                type="date"
-                className="form-control bg-dark text-light"
-                {...register("birthday", { required: true })}
-              />
-              {errors.birthday && <span className="text-danger">Birthday is required</span>}
-            </div>
-            {/* Card ID */}
-            <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Card ID</label>
-              <input
-                type="number"
-                className="form-control bg-dark text-light"
-                {...register("cardId", { required: true, minLength: 10, maxLength: 12 })}
-              />
-              {errors.cardId && (
-                <span className="text-danger">Card ID must be between 10 and 12 digits long</span>
-              )}
-            </div>
-          </div>
+         
           <div className="row">
             {/* Password */}
             <div className="col-md-6 mb-3">

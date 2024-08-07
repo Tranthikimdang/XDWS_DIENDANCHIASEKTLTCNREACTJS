@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useHistory } from "react-router-dom"; // Import useNavigate from react-router-dom
 import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -17,8 +18,22 @@ import "./styles.css"; // Make sure to import your custom CSS file
 
 function Login() {
   const [rememberMe, setRememberMe] = useState(true);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useHistory();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
+
+  const handleLogin = () => {
+    const adminEmail = "phuong@123gmail.com"; // Replace with your admin email
+    const adminPassword = "phuong"; // Replace with your admin password
+
+    if (email === adminEmail && password === adminPassword) {
+      navigate("/dashboard"); // Redirect to the dashboard route
+    } else {
+      alert("Invalid email or password");
+    }
+  };
 
   const responseGoogle = (response) => {
     console.log(response);
@@ -53,7 +68,13 @@ function Login() {
               palette.gradients.borderLight.angle
             )}
           >
-            <VuiInput type="email" placeholder="Your email..." fontWeight="500" />
+            <VuiInput
+              type="email"
+              placeholder="Your email..."
+              fontWeight="500"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </GradientBorder>
         </VuiBox>
         <VuiBox mb={2}>
@@ -75,6 +96,8 @@ function Login() {
             <VuiInput
               type="password"
               placeholder="Your password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               sx={({ typography: { size } }) => ({
                 fontSize: size.sm,
               })}
@@ -94,17 +117,12 @@ function Login() {
           </VuiTypography>
         </VuiBox>
         <VuiBox mt={4} mb={1}>
-          <VuiButton color="info" fullWidth>
+          <VuiButton color="info" fullWidth onClick={handleLogin}>
             LOGIN
           </VuiButton>
         </VuiBox>
         <VuiBox mt={4} mb={1} textAlign="center">
           <div className="google-login-btn">
-            <img
-              className="google-icon"
-              src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-              alt="Google"
-            />
             <GoogleLogin
               clientId="YOUR_GOOGLE_CLIENT_ID"
               buttonText=""
@@ -117,6 +135,11 @@ function Login() {
                   onClick={renderProps.onClick}
                   disabled={renderProps.disabled}
                 >
+                  <img
+                    className="google-icon"
+                    src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+                    alt="Google"
+                  />
                   Login with Google
                 </button>
               )}
