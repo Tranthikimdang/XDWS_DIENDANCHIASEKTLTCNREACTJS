@@ -125,10 +125,7 @@ function FormAddUser() {
           </div>
         </form>
       </div>
-
-      {/* Snackbar for notifications */}
       <Footer />
-
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
