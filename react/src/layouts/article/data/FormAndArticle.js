@@ -102,13 +102,13 @@ function FormAndArticle() {
               <select
                 style={smallFontStyle}
                 className="form-control bg-dark text-light"
-                {...register("category", { required: "Category is required" })}
+                {...register("categories_id ", { required: "Category is required" })}
               >
                 <option value="" disabled>Select category</option>
                 <option value="React" style={smallFontStyle}>React</option>
                 <option value="AnotherCategory" style={smallFontStyle}>Another Category</option>
               </select>
-              {errors.category && <span className="text-danger" style={smallFontStyle}>{errors.category.message}</span>}
+              {errors.categories_id  && <span className="text-danger" style={smallFontStyle}>{errors.category.message}</span>}
             </div>
           </div>
           <div className="mb-3">

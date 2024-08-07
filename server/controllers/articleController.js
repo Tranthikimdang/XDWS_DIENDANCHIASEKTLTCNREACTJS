@@ -26,7 +26,7 @@ const addArticle = async (req, res) => {
     const image = req.file ? `assets\\uploads\\${req.file.filename}` : null; // Đường dẫn đến tệp tin đã lưu trữ
     console.log(req.file);
     // Kiểm tra tất cả các trường cần thiết
-    if (!title || !category || !view || !created_date || !name || !email || !content) {
+    if (!categories_id || !user_id || !title || !content || !view || !created_at || !updated_at|| !is_deleted) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
@@ -109,7 +109,6 @@ const getArticleById = async (req, res) => {
 
 const updateArticle = async (req, res) => {
   const { id } = req.params;
-
   // Xử lý tệp tin với multer
   upload.single('image')(req, res, async (err) => {
     if (err) {
@@ -117,18 +116,20 @@ const updateArticle = async (req, res) => {
     }
 
     // Xử lý dữ liệu bài viết
-    const { title, category, view, created_date, name, email, content } = req.body;
+    const { categories_id, user_id, title, content, view, created_at, updated_at, is_deleted } = req.body;
     // const image = req.file ? req.file.path : null; // Đường dẫn đến tệp tin đã lưu trữ nếu có
     const image = req.file ? `assets\\uploads\\${req.file.filename}` : null; // Đường dẫn đến tệp tin đã lưu trữ
     const articleData = {
       image: image || undefined, // Cập nhật image chỉ khi có hình ảnh mới
+      categories_id,
+      user_id,
+      image,
       title,
-      category,
+      content,
       view,
-      created_date,
-      name,
-      email,
-      content
+      created_at,
+      updated_at,
+      is_deleted
     };
 
     try {
@@ -149,7 +150,6 @@ const updateArticle = async (req, res) => {
 
 const deleteArticle = async (req, res) => {
   const { id } = req.params;
-
   try {
     const deleted = await Article.deleteArticle(id);
     if (deleted) {

@@ -3,9 +3,9 @@ const API_URL = process.env.REACT_APP_API_URI;
 // console.log(process.env);
 console.log('API_URL:', API_URL);
 
-const addArticle = async (articles) => {
+const addArticle = async (article) => {
   try {
-    const response = await axios.post(`${API_URL}/article`, articles);
+    const response = await axios.post(`${API_URL}/article`, article);
     return response.data;
   } catch (error) {
     throw error;
@@ -14,7 +14,7 @@ const addArticle = async (articles) => {
 
 const getList = async () => {
   try {
-    const response = await axios.get(`${API_URL}/article`);
+    const response = await axios.get(`${API_URL}/articles`);
     return response.data;
   } catch (error) {
     throw error;
@@ -49,7 +49,7 @@ const getArticleDetails = async (id) => {
 
 const updateArticle = async (id, updatedData) => {
   try {
-    const response = await axios.put(`${API_URL}/article/${id}`, updatedData);
+    const response = await axios.put(`${API_URL}/articles/${id}`, updatedData);
     return response.data;
   } catch (error) {
     throw error;
@@ -58,7 +58,7 @@ const updateArticle = async (id, updatedData) => {
 
 const deleteArticle = async (id) => {
   try {
-    const response = await axios.delete(`${API_URL}/article/${id}`);
+    const response = await axios.delete(`${API_URL}/articles/${id}`);
     return response.status === 204;
   } catch (error) {
     throw error;

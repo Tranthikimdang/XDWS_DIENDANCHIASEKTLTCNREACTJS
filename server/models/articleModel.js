@@ -1,9 +1,9 @@
 const { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig.js');
 
-const addArticle = async (articles) => {
+const addArticle = async (article) => {
   try {
-    const docRef = await addDoc(collection(db, 'articles'), articles);
+    const docRef = await addDoc(collection(db, 'articles'), article);
     return docRef.id;
   } catch (e) {
     console.log(e);
@@ -14,8 +14,8 @@ const addArticle = async (articles) => {
 const getList = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'articles'));
-    const article = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return article;
+    const articles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return articles;
   } catch (e) {
     throw new Error('Error getting documents: ' + e.message);
   }
