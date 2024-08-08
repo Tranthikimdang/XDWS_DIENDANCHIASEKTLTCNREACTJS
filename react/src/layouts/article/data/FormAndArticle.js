@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 import api from '../../../apis/articleApi';
+import categoriesApi from '../../../apis/categoriesApi';
 import { Editor } from "@tinymce/tinymce-react";
 import { Link } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
@@ -14,6 +15,26 @@ function FormAndArticle() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [cates, setCates] = useState([])
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesApi.getList();
+        console.log(response.data);
+
+        if (response.status == 200) {
+          const categories = response.data || [];
+          setCates(categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -68,7 +89,7 @@ function FormAndArticle() {
                 {...register('user_id', { required: 'Name is required', minLength: 3, maxLength: 20 })}
                 style={smallFontStyle}
               />
-               {errors.user_id && <span className="text-danger"  style={smallFontStyle}>{errors.user_id.message}</span>}
+              {errors.user_id && <span className="text-danger" style={smallFontStyle}>{errors.user_id.message}</span>}
 
               {errors.user_id && errors.user_id.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Name must be at least 3 characters long</span>}
               {errors.user_id && errors.user_id.type === 'maxLength' && <span className="text-danger" style={smallFontStyle}>Name must be less than 20 characters long</span>}
@@ -76,11 +97,14 @@ function FormAndArticle() {
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Title</label>
               <input
-                className={`form-control bg-dark text-light`}
-                {...register("title", { required: "Title is required" })}
+                className={`form-control bg-dark text-light ${errors.title ? 'is-invalid' : ''}`}
+                {...register('title', { required: 'Title is required', minLength: 3, maxLength: 20 })}
                 style={smallFontStyle}
               />
               {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
+
+              {errors.title && errors.title.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Title must be at least 3 characters long</span>}
+              {errors.title && errors.title.type === 'maxLength' && <span className="text-danger" style={smallFontStyle}>Title must be less than 20 characters long</span>}
             </div>
           </div>
           <div className="row">
@@ -99,16 +123,17 @@ function FormAndArticle() {
               <label className="text-light form-label" style={smallFontStyle}>
                 Category
               </label>
-              <select
-                style={smallFontStyle}
-                className="form-control bg-dark text-light"
-                {...register("categories_id ", { required: "Category is required" })}
-              >
-                <option value="" disabled>Select category</option>
-                <option value="React" style={smallFontStyle}>React</option>
-                <option value="AnotherCategory" style={smallFontStyle}>Another Category</option>
+               <select 
+               className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`} style={smallFontStyle}  
+               {...register("categories_id", { required: "Category is required" })}>
+                <option selected>Open this select menu</option>
+                {
+                  cates.length && cates.map((cate) => (
+                    <option key={cate?.key} value={cate?.key}>{cate?.name}</option>
+                  ))
+                }
               </select>
-              {errors.categories_id  && <span className="text-danger" style={smallFontStyle}>{errors.category.message}</span>}
+              {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
             </div>
           </div>
           <div className="mb-3">
@@ -123,7 +148,7 @@ function FormAndArticle() {
                 toolbar:
                   "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                 tinycomments_mode: "embedded",
-                content_css: "/article.css",
+                content_css: "/path/to/dark-theme-tinymce.css", // Use the downloaded CSS file path
                 body_class: "my-editor",
                 tinycomments_author: "Author name",
                 mergetags_list: [
@@ -136,7 +161,12 @@ function FormAndArticle() {
               initialValue=""
               onEditorChange={(content) => setValue("content", content)}
             />
-            {errors.content && <span className="text-danger" style={smallFontStyle}>{errors.content.message}</span>}
+            {errors.content && (
+              <span className="text-danger" style={smallFontStyle}>
+                {errors.content.message}
+              </span>
+            )}
+
           </div>
           <div className="d-flex justify-content mt-3">
             <button className="text-light btn btn-outline-info me-2" type="submit">Add Article</button>
