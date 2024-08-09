@@ -15,7 +15,8 @@ function FormEditArticle() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-
+  const [cates, setCates] = useState([])
+  
   const {
     register,
     handleSubmit,

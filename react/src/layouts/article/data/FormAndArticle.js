@@ -44,7 +44,6 @@ function FormAndArticle() {
     formData.append('title', data.title);
     formData.append('content', data.content);
 
-
     // Debug: Log FormData entries
     for (const [key, value] of formData.entries()) {
       console.log(key, value);

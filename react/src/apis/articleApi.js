@@ -26,7 +26,7 @@ const getArticleDetails = async (id) => {
   const realId = id; // Giả sử id từ API là chính xác
   console.log('Fetching details for ID:', realId);
   try {
-    const response = await axios.get(`${API_URL}/article/${realId}`);
+    const response = await axios.get(`${API_URL}/articles/${realId}`);
     if (response.status === 200) {
       return response.data;
     } else {
