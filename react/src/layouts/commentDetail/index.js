@@ -30,9 +30,9 @@ function CommentDetail() {
       try {
         const response = await apis.getList();
         if (response.status === 200) {
-          const comments = response.data || [];
-          setRows(comments);
-          console.log("Fetched comments:", comments);
+          const commentDetails = response.data || [];
+          setRows(commentDetails);
+          console.log("Fetched comments:", commentDetails);
         }
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -99,7 +99,7 @@ function CommentDetail() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Comment Table
+                Comment Detail Table
               </VuiTypography>
               <Link to="/formAddCmt">
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
@@ -143,7 +143,7 @@ function CommentDetail() {
                       console.log(row);
                       return {
                         ...row,
-                        id : page * rowsPerPage + index + 1,
+                        '#' : page * rowsPerPage + index + 1,
                         action: (
                           <div>                            
                             <button
@@ -169,7 +169,7 @@ function CommentDetail() {
                     })}
                   />
                 </VuiBox>
-                <div className="d-flex justify-content-end p-2 custom-pagination">
+                <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
                       className="btn btn-light"

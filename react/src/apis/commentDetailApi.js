@@ -1,4 +1,3 @@
-// api.js
 import axios from "axios";
 
 const API_URL = "http://localhost:4000/api"; // Thay đổi URL này nếu cần
@@ -17,10 +16,10 @@ const getList = async () => {
     const response = await axios.get(`${API_URL}/commentDetails`);
     return response.data;
   } catch (error) {
+    console.error("Error fetching comments:", error);
     throw error;
   }
 };
-
 
 const deleteComment = async (id) => {
   try {
@@ -39,6 +38,7 @@ const getCommentById = async (id) => {
     throw error;
   }
 };
+
 export default {
   addComment,
   getList,
