@@ -124,12 +124,12 @@ function FormAndArticle() {
                 Category
               </label>
                <select 
-               className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`} style={smallFontStyle}  
+               className="form-control bg-dark text-light" style={smallFontStyle}
                {...register("categories_id", { required: "Category is required" })}>
-                <option selected>Open this select menu</option>
+                <option style={smallFontStyle}>Open this select menu</option>
                 {
                   cates.length && cates.map((cate) => (
-                    <option key={cate?.key} value={cate?.key}>{cate?.name}</option>
+                    <option style={smallFontStyle} key={cate?.key} value={cate?.key}>{cate?.name}</option>
                   ))
                 }
               </select>
