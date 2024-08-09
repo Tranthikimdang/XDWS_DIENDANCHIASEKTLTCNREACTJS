@@ -1,5 +1,5 @@
-const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } = require('firebase/firestore/lite');
-const db = require('../config/firebaseconfig.js');
+const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
+const db = require('../config/firebaseconfig');
 
 
 // Add a new user
@@ -49,25 +49,9 @@ const deleteUser = async (id) => {
   }
 };
 
-const getOneUser = async (email) => {
-  try {
-    const q = query(collection(db, 'users'), where('email', '==', email));
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-      throw new Error('No user found with the provided email.');
-    }
-    const user = querySnapshot.docs[0].data();
-    return user;
-  } catch (e) {
-    console.error('Error getting user:', e.message);
-    throw new Error('Error getting user: ' + e.message);
-  }
-};
-
 module.exports = {
   addUser,
   getAllUsers,
   updateUser,
-  deleteUser,
-  getOneUser
+  deleteUser
 };

@@ -1,6 +1,7 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "layouts/dashboard";
 import Comment from "layouts/comment";
+import CommentDetail from "layouts/commentDetail";
 import Category from "layouts/category";
 import Profile from "layouts/profile";
 import Article from "layouts/article";
@@ -21,8 +22,8 @@ import FormViewArticle from "layouts/article/data/FormViewArticle";
 import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
-import FormAddCmt from "layouts/comment/data/formComment";
-import FormDeleteCmt from "layouts/comment/data/formDeleteComment";
+import FormAddCmt from "layouts/commentDetail/data/formComment";
+import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
 // Vision UI Dashboard React icons
 import { IoIosDocument } from "react-icons/io";
@@ -104,6 +105,12 @@ const routes = [
   },
  
   // router form thêm sửa xóa
+  {
+    key: "commentDetail",
+    route: "/commentDetail",
+    component: CommentDetail,
+    hidden: true, // Ẩn mục này
+  },
   {
     key: "formaddcmt",
     route: "/formaddcmt",
