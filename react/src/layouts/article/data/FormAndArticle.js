@@ -85,14 +85,10 @@ function FormAndArticle() {
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Username</label>
               <input
-                className={`form-control bg-dark text-light ${errors.user_id ? 'is-invalid' : ''}`}
-                {...register('user_id', { required: 'Name is required', minLength: 3, maxLength: 20 })}
+              className="form-control bg-dark text-light" 
+                id="user-id"
                 style={smallFontStyle}
               />
-              {errors.user_id && <span className="text-danger" style={smallFontStyle}>{errors.user_id.message}</span>}
-
-              {errors.user_id && errors.user_id.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Name must be at least 3 characters long</span>}
-              {errors.user_id && errors.user_id.type === 'maxLength' && <span className="text-danger" style={smallFontStyle}>Name must be less than 20 characters long</span>}
             </div>
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Title</label>
@@ -124,7 +120,7 @@ function FormAndArticle() {
                 Category
               </label>
                <select 
-               className="form-control bg-dark text-light" style={smallFontStyle}
+              className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`} style={smallFontStyle}
                {...register("categories_id", { required: "Category is required" })}>
                 <option style={smallFontStyle}>Open this select menu</option>
                 {
