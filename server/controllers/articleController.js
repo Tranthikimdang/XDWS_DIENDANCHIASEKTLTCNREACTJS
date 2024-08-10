@@ -121,13 +121,12 @@ const updateArticle = async (req, res) => {
       image: image || undefined, // Cập nhật image chỉ khi có hình ảnh mới
       categories_id,
       user_id,
-      image,
       title,
       content,
-      view,
-      created_at,
-      updated_at,
-      is_deleted
+      view: 0,
+      created_at: false,
+      updated_at: false,
+      is_deleted: false
     };
 
     try {

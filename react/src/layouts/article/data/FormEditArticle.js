@@ -4,6 +4,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useLocation, Link } from "react-router-dom";
 import api from "../../../apis/articleApi";
+import categoriesApi from '../../../apis/categoriesApi';
 import { Editor } from "@tinymce/tinymce-react"; // Thay thế bằng đường dẫn thực tế tới Editor
 import { Snackbar, Alert } from "@mui/material";
 import { useHistory } from 'react-router-dom';
@@ -52,14 +53,13 @@ function FormEditArticle() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: data?.name || "",
+      user_id: data?.user_id || "",
       image: data?.image || "",
       title: data?.title || "",
-      category: data?.category || "",
-      view: data?.view || "",
-      created_date: data?.created_date || "",
-      email: data?.email || "",
-      content: data?.content || "",
+      categories_id: data?.categories_id || "",
+      
+
+     
     },
   });
 
@@ -170,15 +170,14 @@ function FormEditArticle() {
                 Category
               </label>
               <select
-                style={smallFontStyle}
-                className="form-control bg-dark text-light"
-                {...register("categories_id", { required: "Category is required" })}
-              >
-                <option value="" disabled>Select category</option>
-                <option value="React" style={smallFontStyle}>React</option>
-                <option value="AnotherCategory" style={smallFontStyle}>Another Category</option>
+                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`} style={smallFontStyle}
+                {...register("categories_id", { required: "Category is required" })}>
+                <option style={smallFontStyle}>Open this select menu</option>
+                {cates.length && cates.map((cate) => (
+                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>{cate?.name}</option>
+                ))}
               </select>
-              {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.category.message}</span>}
+              {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
             </div>
           </div>
           <div className="mb-3">
@@ -186,14 +185,14 @@ function FormEditArticle() {
               Content
             </label>
             <Editor
-              apiKey="owarvk3rl1z5v44dvx9b06crntnsgrgjcja6mayprjqj5qaa"
+              apiKey="w8d8xdljziohzromzltpcfb782uwno43s83axici5dyzam4y"
               init={{
                 plugins:
                   "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
                 toolbar:
                   "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                 tinycomments_mode: "embedded",
-                content_css: false,
+                content_css: "/path/to/dark-theme-tinymce.css", // Use the downloaded CSS file path
                 body_class: "my-editor",
                 tinycomments_author: "Author name",
                 mergetags_list: [
@@ -201,16 +200,17 @@ function FormEditArticle() {
                   { value: "Email", title: "Email" },
                 ],
                 ai_request: (request, respondWith) =>
-                  respondWith.string(() =>
-                    Promise.reject("See docs to implement AI Assistant")
-                  ),
+                  respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
               }}
-              initialValue={data?.content || ""} // Set initial value
+              initialValue=""
               onEditorChange={(content) => setValue("content", content)}
             />
             {errors.content && (
-              <span className="text-danger">{errors.content.message}</span>
+              <span className="text-danger" style={smallFontStyle}>
+                {errors.content.message}
+              </span>
             )}
+
           </div>
           <div className="d-flex justify-content mt-3">
             <button className="text-light btn btn-outline-info me-2" type="submit">Edit Article</button>
