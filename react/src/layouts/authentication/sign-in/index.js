@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom"; // Import useNavigate from react-router-dom
+import { useHistory, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
 import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -29,13 +29,10 @@ function Login() {
   const handleLogin = async () => {
     try {
       const users = await loginAPI.getList();
-      
-      const user = users.data.find(
-        (user) => user.email === email && user.password === password
-      );
-  
+
+      const user = users.data.find((user) => user.email === email && user.password === password);
+
       if (user) {
-       
         // Lưu thông tin người dùng vào localStorage
         localStorage.setItem("user", JSON.stringify(user));
         // Chuyển hướng đến dashboard
@@ -53,10 +50,7 @@ function Login() {
     console.log(response);
   };
 
-  
-
   return (
-   
     <CoverLayout
       title="Nice to see you!"
       color="white"
@@ -66,7 +60,6 @@ function Login() {
       image={bgSignIn}
     >
       <VuiBox component="form" role="form">
-   
         <VuiBox mb={2}>
           <VuiBox mb={1} ml={0.5}>
             <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
@@ -131,6 +124,18 @@ function Login() {
             &nbsp;&nbsp;&nbsp;&nbsp;Remember me
           </VuiTypography>
         </VuiBox>
+        <VuiBox display="flex" alignItems="center" justifyContent="center">
+          <Link to="/signup" style={{ textDecoration: "none" }}>
+            <VuiTypography
+              variant="caption"
+              color="blud"
+              fontWeight="medium"
+              sx={{ cursor: "pointer", userSelect: "none" }}
+            >
+              Don't have an account? Sign up.
+            </VuiTypography>
+          </Link>
+        </VuiBox>
         <VuiBox mt={4} mb={1}>
           <VuiButton color="info" fullWidth onClick={handleLogin}>
             LOGIN
@@ -143,8 +148,8 @@ function Login() {
               buttonText=""
               onSuccess={responseGoogle}
               onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-              render={renderProps => (
+              cookiePolicy={"single_host_origin"}
+              render={(renderProps) => (
                 <button
                   className="google-login-btn"
                   onClick={renderProps.onClick}
@@ -163,7 +168,6 @@ function Login() {
         </VuiBox>
       </VuiBox>
     </CoverLayout>
-    
   );
 }
 

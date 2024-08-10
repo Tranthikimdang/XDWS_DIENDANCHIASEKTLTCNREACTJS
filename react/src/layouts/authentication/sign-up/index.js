@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom"; // Import useNavigate from react-router-dom
+import { useHistory, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
 import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
@@ -232,7 +232,18 @@ function Register() {
             &nbsp;&nbsp;&nbsp;&nbsp;Remember me
           </VuiTypography>
         </VuiBox>
-
+        <VuiBox display="flex" alignItems="center" justifyContent="center">
+          <Link to="/authentication/sign-in" style={{ textDecoration: "none" }}>
+            <VuiTypography
+              variant="caption"
+              color="blud"
+              fontWeight="medium"
+              sx={{ cursor: "pointer", userSelect: "none" }}
+            >
+              Already have an account? Sign in.
+            </VuiTypography>
+          </Link>
+        </VuiBox>
         <VuiBox mt={4} mb={1}>
           <VuiButton color="info" fullWidth onClick={handleRegister}>
             SIGN UP
