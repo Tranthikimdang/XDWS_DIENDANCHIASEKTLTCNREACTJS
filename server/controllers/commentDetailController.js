@@ -58,9 +58,22 @@ const getOneCmt = async (req, res) => {
   }
 };
 
+const getCommentsByArticleId = async (req, res) => {
+  const { articleId } = req.params;
+
+  try {
+    const comments = await CommentDetail.getCommentsByArticleId(articleId);
+    res.status(200).json(comments);
+  } catch (error) {
+    console.error('Error getting comments by article ID:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createComment,
   listComment,
   deleteComment,
   getOneCmt,
+  getCommentsByArticleId
 };

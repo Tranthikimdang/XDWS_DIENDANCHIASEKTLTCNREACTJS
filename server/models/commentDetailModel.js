@@ -3,7 +3,7 @@ const db = require('../config/firebaseconfig.js');
 
 const addComment = async (commentDetail) => {
   try {
-    const docRef = await addDoc(collection(db, 'commentDetail'), commentDetail);
+    const docRef = await addDoc(collection(db, 'commentDetails'), commentDetail);
     return docRef.id;
   } catch (e) {
     console.error('Error adding document:', e.message);
@@ -13,7 +13,7 @@ const addComment = async (commentDetail) => {
 
 const getAllComment = async () => {
   try {
-    const querySnapshot = await getDocs(collection(db, 'commentDetail'));
+    const querySnapshot = await getDocs(collection(db, 'commentDetails'));
     const comment = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     return comment;
   } catch (e) {
@@ -23,7 +23,7 @@ const getAllComment = async () => {
 
 const deleteComment = async (id) => {
   try {
-    const docRef = doc(db, 'commentDetail', id);
+    const docRef = doc(db, 'commentDetails', id);
     await deleteDoc(docRef);
     return true;
   } catch (e) {
@@ -33,7 +33,7 @@ const deleteComment = async (id) => {
 
 const getCommentById = async (id) => {
   try {
-    const docRef = doc(db, 'commentDetail', id);
+    const docRef = doc(db, 'commentDetails', id);
     const comment = await getDoc(docRef);
 
     if (!comment.exists()) {
@@ -54,9 +54,22 @@ const getCommentById = async (id) => {
   }
 };
 
+const getCommentsByArticleId = async (articleId) => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'commentDetails'));
+    const comments = querySnapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter(comment => comment.articleId === articleId);
+    return comments;
+  } catch (e) {
+    throw new Error('Error getting documents: ' + e.message);
+  }
+}
+
 module.exports = {
   addComment,
   getAllComment,
   deleteComment,
   getCommentById,
+  getCommentsByArticleId
 };
