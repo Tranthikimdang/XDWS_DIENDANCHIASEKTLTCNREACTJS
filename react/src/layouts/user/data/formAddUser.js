@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Footer from "examples/Footer";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
@@ -110,7 +111,7 @@ function FormAddUser() {
               <input
                 type="number"
                 className="form-control bg-dark text-light"
-                {...register("cardId", { required: true, minLength: 10, maxLength: 12 })}
+                {...register("cardId", { required: true, min: 1000000000, max: 99999999999 })}
               />
               {errors.cardId && <span className="text-danger">Card ID must be between 10 and 12 digits</span>}
             </div>

@@ -10,7 +10,7 @@ import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/user/data/authorsTableData";
 import ConfirmDialog from './data/FormDeleteUser';
 import apis from "../../apis/userApi";
-import { Alert, Snackbar, TablePagination } from "@mui/material";
+import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 
@@ -138,6 +138,8 @@ function User() {
                       return {
                         ...row,
                         no: page * rowsPerPage + index + 1,
+                        id_card: row.id_card,
+                        password: '••••••••••••', 
                         action: (
                           <div>
                             <Link to={{ pathname: "/formEditUser", state: { data: row } }}>
@@ -177,7 +179,7 @@ function User() {
                       onClick={() => handleChangePage(null, page - 1)}
                       disabled={page === 0}
                     >
-                      &laquo; 
+                      &laquo;
                     </button>
                     <span className="btn btn-light disabled">
                       Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
@@ -187,7 +189,7 @@ function User() {
                       onClick={() => handleChangePage(null, page + 1)}
                       disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
                     >
-                       &raquo;
+                      &raquo;
                     </button>
                   </div>
                 </div>

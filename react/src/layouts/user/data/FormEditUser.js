@@ -2,10 +2,11 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
-import { useLocation, useHistory } from 'react-router-dom';
+import { useLocation, useHistory } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
-import api from "../../../apis/userApi"; // Update the API import to your users API
+import api from "../../../apis/userApi";
+import "../index.css";
 
 function FormEditUser() {
   const location = useLocation();
@@ -15,6 +16,7 @@ function FormEditUser() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -54,7 +56,7 @@ function FormEditUser() {
       setSnackbarMessage("User updated successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/user'), 1000); 
+      setTimeout(() => history.push("/user"), 1000);
     } catch (error) {
       console.error("Error updating user:", error);
       setSnackbarMessage("Failed to update user.");
@@ -70,10 +72,14 @@ function FormEditUser() {
     setSnackbarOpen(false);
   };
 
+  const handlePasswordToggle = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <div className="container">
+      <div className="container small-text">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
             {/* Full Name */}
@@ -83,7 +89,11 @@ function FormEditUser() {
                 className="form-control bg-dark text-light"
                 {...register("name", { required: true, minLength: 3, maxLength: 50 })}
               />
-              {errors.name && <span className="text-danger">Name is required and must be between 3 and 50 characters long</span>}
+              {errors.name && (
+                <span className="text-danger">
+                  Name is required and must be between 3 and 50 characters long
+                </span>
+              )}
             </div>
             {/* Email */}
             <div className="col-md-6 mb-3">
@@ -91,7 +101,10 @@ function FormEditUser() {
               <input
                 className="form-control bg-dark text-light"
                 type="email"
-                {...register("email", { required: true, pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/ })}
+                {...register("email", {
+                  required: true,
+                  pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                })}
               />
               {errors.email && <span className="text-danger">Valid email is required</span>}
             </div>
@@ -104,7 +117,11 @@ function FormEditUser() {
                 className="form-control bg-dark text-light"
                 {...register("location", { required: true, minLength: 2, maxLength: 50 })}
               />
-              {errors.location && <span className="text-danger">Location is required and must be between 2 and 50 characters long</span>}
+              {errors.location && (
+                <span className="text-danger">
+                  Location is required and must be between 2 and 50 characters long
+                </span>
+              )}
             </div>
             {/* Phone Number */}
             <div className="col-md-6 mb-3">
@@ -114,7 +131,11 @@ function FormEditUser() {
                 type="tel"
                 {...register("phone", { required: true, pattern: /^[0-9]{10,15}$/ })}
               />
-              {errors.phone && <span className="text-danger">Phone number must be between 10 and 15 digits long</span>}
+              {errors.phone && (
+                <span className="text-danger">
+                  Phone number must be between 10 and 15 digits long
+                </span>
+              )}
             </div>
           </div>
           <div className="row">
@@ -136,24 +157,42 @@ function FormEditUser() {
                 className="form-control bg-dark text-light"
                 {...register("cardId", { required: true, minLength: 10, maxLength: 12 })}
               />
-              {errors.cardId && <span className="text-danger">Card ID must be between 10 and 12 digits long</span>}
+              {errors.cardId && (
+                <span className="text-danger">Card ID must be between 10 and 12 digits long</span>
+              )}
             </div>
           </div>
           <div className="row">
             {/* Password */}
             <div className="col-md-6 mb-3">
               <label className="text-light form-label">Password</label>
-              <input
-                type="password"
-                className="form-control bg-dark text-light"
-                {...register("password", { required: true, minLength: 6 })}
-              />
-              {errors.password && <span className="text-danger">Password must be at least 6 characters long</span>}
+              <div className="input-group position-relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="form-control bg-dark text-light"
+                  {...register("password", { required: true, minLength: 6 })}
+                />
+                {errors.password && (
+                  <span className="text-danger">Password must be at least 6 characters long</span>
+                )}
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary position-absolute end-0 top-50 translate-middle-y"
+                  onClick={handlePasswordToggle}
+                  style={{ right: "10px", border: "none", background: "transparent", zIndex: 1 }}
+                >
+                  <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                </button>
+              </div>
             </div>
+
             {/* Role */}
             <div className="col-md-6 mb-3">
               <label className="text-light form-label">Role</label>
-              <select className="form-control bg-dark text-light" {...register("role", { required: true })}>
+              <select
+                className="form-control bg-dark text-light"
+                {...register("role", { required: true })}
+              >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
@@ -164,7 +203,11 @@ function FormEditUser() {
             <button className="text-light btn btn-outline-info me-2" type="submit">
               Edit User
             </button>
-            <button className="text-light btn btn-outline-secondary" type="button" onClick={() => history.push('/user')}>
+            <button
+              className="text-light btn btn-outline-secondary"
+              type="button"
+              onClick={() => history.push("/user")}
+            >
               Back
             </button>
           </div>
