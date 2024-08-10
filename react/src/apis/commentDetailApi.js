@@ -16,7 +16,6 @@ const getList = async () => {
     const response = await axios.get(`${API_URL}/commentDetails`);
     return response.data;
   } catch (error) {
-    console.error("Error fetching comments:", error);
     throw error;
   }
 };
@@ -24,11 +23,18 @@ const getList = async () => {
 const deleteComment = async (id) => {
   try {
     const response = await axios.delete(`${API_URL}/commentDetails/${id}`);
-    return response.status === 204;
+    if (response.status === 204) {
+      return true;
+    }
   } catch (error) {
-    throw error;
+    if (error.response && error.response.status === 404) {
+      console.error(`Comment with ID ${id} not found.`);
+      return false; 
+    }
+    throw error; 
   }
 };
+
 
 const getCommentById = async (id) => {
   try {
@@ -39,9 +45,19 @@ const getCommentById = async (id) => {
   }
 };
 
+const getCommentsByArticleId = async (articleId) => {
+  try {
+    const response = await axios.get(`${API_URL}/commentDetails/article/${articleId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   addComment,
   getList,
   deleteComment,
-  getCommentById
+  getCommentById,
+  getCommentsByArticleId
 };
