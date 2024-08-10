@@ -5,12 +5,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const commentDetailRoutes = require('./routes/commentDetailRoutes');
 const userRoutes = require('./routes/userRoutes');
-const announcementRoutes = require('./routes/announcementRoutes');
-const authorityRoutes = require('./routes/authorityRoutes');
-const authorityDetailRoutes = require('./routes/authorityDetailRoutes');
-
-
-
+const loginRoutes = require('./routes/loginRoutes');
 
 const articleRoutes = require('./routes/articleRoutes');
 const path = require('path')
@@ -36,11 +31,7 @@ app.use('/api', commentRoutes);
 app.use('/api', commentDetailRoutes);
 
 app.use('/api', userRoutes); 
-
-app.use('/api', announcementRoutes); 
-app.use('/api', authorityRoutes); 
-app.use('/api', authorityDetailRoutes); 
-
+app.use('/api', loginRoutes); 
 
 
 app.use('/api', articleRoutes);

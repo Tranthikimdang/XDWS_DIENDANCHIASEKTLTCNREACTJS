@@ -14,8 +14,8 @@ const addArticle = async (article) => {
 const getList = async () => {
   try {
     const querySnapshot = await getDocs(collection(db, 'articles'));
-    const article = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return article;
+    const articles = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return articles;
   } catch (e) {
     throw new Error('Error getting documents: ' + e.message);
   }
@@ -49,7 +49,7 @@ const updateArticle = async (id, updatedData) => {
 
 const deleteArticle = async (id) => {
   try {
-    const docRef = doc(db, 'article', id);
+    const docRef = doc(db, 'articles', id);
     await deleteDoc(docRef);
     return true;
   } catch (e) {

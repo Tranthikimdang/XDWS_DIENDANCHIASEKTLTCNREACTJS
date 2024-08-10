@@ -169,7 +169,7 @@ function Article() {
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                       console.log(row);
                       return {
-                        id : page * rowsPerPage + index + 1,
+                        id: page * rowsPerPage + index + 1,
                         fuction: (
                           <div className="container">
                             <div className="row">
@@ -187,12 +187,12 @@ function Article() {
                                     <strong>{row.title.toUpperCase()}</strong>
                                   </VuiTypography>
                                   <VuiTypography variant="caption" color="text">
-                                    {row.category}
+                                    {row.categories_id}
                                   </VuiTypography>
                                   <div className="style-scope ytd-video-meta-block" style={{ display: 'flex', flexDirection: 'column' }}>
                                     <span className="inline-metadata-item">{row.view}</span>
                                     <span className="inline-metadata-item style-scope ytd-video-meta-block">
-                                      {new Date(row.created_date).toLocaleDateString()}
+                                      {row.updated_at}
                                     </span>
                                   </div>
                                 </VuiBox>
@@ -203,10 +203,7 @@ function Article() {
                         Author: (
                           <VuiBox display="flex" flexDirection="column">
                             <VuiTypography variant="button" color="white" fontWeight="medium">
-                              {row.name}
-                            </VuiTypography>
-                            <VuiTypography variant="caption" color="text">
-                              {row.email}
+                              {row.user_id}
                             </VuiTypography>
                           </VuiBox>
                         ),

@@ -6,18 +6,12 @@ import Category from "layouts/category";
 import Profile from "layouts/profile";
 import Article from "layouts/article";
 import User from "layouts/user";
-import Announcement from "layouts/announcement";
-import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
 
 import FormAddUser from "layouts/user/data/formAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
 import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
-import FormAuthority from "layouts/authority/data/formAuthority";
-import FormAnnouncement from "../src/layouts/announcement/data/formAunouncement";
-import AuthorityDetail from "../src/layouts/authorityDetail";
-import FormAddUserAuthory from "../src/layouts/authorityDetail/data/formAddUser";
 
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
@@ -90,24 +84,6 @@ const routes = [
     component: User,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Announcement",
-    key: "announcement",
-    route: "/announcement",
-    icon: <BsBellFill size="15px" color="inherit" />,
-    component: Announcement,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Authority Management",
-    key: "authority",
-    route: "/authority",
-    icon: <FaUserShield size="15px" color="inherit" />,
-    component: Authority,
-    noCollapse: true,
-  },
   { type: "title", title: "Account Pages", key: "account-pages" },
   {
     type: "collapse",
@@ -126,9 +102,9 @@ const routes = [
     icon: <IoIosDocument size="15px" color="inherit" />,
     component: SignIn,
     noCollapse: true,
+
   },
- 
-  // router form thêm sửa xóa
+
   {
     key: "commentDetail",
     route: "/commentDetail",
@@ -139,7 +115,7 @@ const routes = [
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
-    hidden: true, // Ẩn mục này
+    hidden: true, 
   },
   {
     key: "formdeletecmt",
@@ -212,37 +188,8 @@ const routes = [
     route: "/formdeleteArticle",
     component: FormDeleteArticle,
     hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formauthority",
-    route: "/formauthority",
-    component: FormAuthority,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "FormAnnouncement",
-    route: "/formAunouncement",
-    component: FormAnnouncement,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "authorityDetail",
-    route: "/authorityDetail",
-    component: AuthorityDetail,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formAddUserAuthory",
-    route: "/formAddUserAuthory",
-    component: FormAddUserAuthory,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formAddUserAuthory",
-    route: "/authorityDetail/:id",
-    component: AuthorityDetail,
-    hidden: true, // Ẩn mục này
-  },
+  }
+
 ];
 
 

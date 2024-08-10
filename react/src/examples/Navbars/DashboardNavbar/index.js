@@ -49,8 +49,18 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const { miniSidenav, transparentNavbar, fixedNavbar, openConfigurator } = controller;
   const [openMenu, setOpenMenu] = useState(false);
   const route = useLocation().pathname.split("/").slice(1);
+  const [userName, setUserName] = useState(""); 
 
   useEffect(() => {
+    
+    const userData = JSON.parse(localStorage.getItem("user"));
+    console.log(userData);
+    
+    if (userData && userData.name) {
+      setUserName(userData.name); 
+    } else {
+      setUserName(""); // Nếu không có tên, thiết lập về chuỗi rỗng
+    }
     // Setting the navbar type
     if (fixedNavbar) {
       setNavbarType("sticky");
@@ -80,7 +90,9 @@ function DashboardNavbar({ absolute, light, isMini }) {
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
   const handleOpenMenu = (event) => setOpenMenu(event.currentTarget);
   const handleCloseMenu = () => setOpenMenu(false);
+  
 
+  
   // Render the notifications menu
   const renderMenu = () => (
     <Menu
@@ -148,7 +160,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
               />
             </VuiBox>
             <VuiBox color={light ? "white" : "inherit"}>
-              <Link to="/authentication/sign-in">
+              <Link to="/profile">
                 <IconButton sx={navbarIconButton} size="small">
                   <Icon
                     sx={({ palette: { dark, white } }) => ({
@@ -162,7 +174,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                     fontWeight="medium"
                     color={light ? "white" : "dark"}
                   >
-                    Sign in
+                     {userName ? userName : ""}
                   </VuiTypography>
                 </IconButton>
               </Link>
@@ -178,7 +190,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
                 size="small"
                 color="inherit"
                 sx={navbarIconButton}
-                onClick={handleConfiguratorOpen}
+                // onClick={handleConfiguratorOpen}
               >
                 <Icon>settings</Icon>
               </IconButton>
