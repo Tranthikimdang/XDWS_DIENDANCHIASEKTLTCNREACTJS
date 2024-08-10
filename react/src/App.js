@@ -40,10 +40,21 @@ export default function App() {
 
 
   useEffect(() => {
-    const userData = localStorage.getItem("user"); // Lấy dữ liệu người dùng từ local storage
+    // Lấy dữ liệu người dùng từ local storage
+    const userData = localStorage.getItem("user"); 
     if (!userData) {
       history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
+      localStorage.removeItem("user")
+      return;
     }
+
+    const user = JSON.parse(userData); // Chuyển đổi chuỗi JSON thành đối tượng
+    if (user.role !== "admin") {
+      alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
+      localStorage.removeItem("user")
+      history.push("/authentication/sign-in"); // Có thể điều hướng đến trang đăng nhập hoặc trang khác
+    }
+    
   }, [history]);
   
   // Cache for the rtl

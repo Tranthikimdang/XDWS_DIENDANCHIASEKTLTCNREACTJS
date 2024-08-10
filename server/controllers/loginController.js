@@ -21,7 +21,7 @@ const createUser = async (req, res) => {
   if (!name ||!password || !email || !location || !phone) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
-  const newUser = {  name,password, email, location, phone, role: 0, created_at: new Date(), updated_at: new Date(), is_deleted: false };
+  const newUser = {  name,password, email, location, phone, role: 'user', created_at: new Date(), updated_at: new Date(), is_deleted: false };
   try {
     const id = await User.addUser(newUser);
     res.status(201).json({ id, message: "User created successfully." });
@@ -73,16 +73,19 @@ const deleteUser = async (req, res) => {
 };
 
 const getUserByEmail = async (req, res) => {
-  const { email } = req.params;
   try {
-    const user = await User.getOneUser(email);
+    const email = req.params.email;
+    const user = await User.getOneUserByEmail(email);
+    
+    if (!user) {
+      return res.status(404).json({ message: "Người dùng không tìm thấy." });
+    }
+    
     res.status(200).json(user);
   } catch (error) {
-    console.error('Error getting user by email:', error);
-    res.status(404).json({ message: 'User not found.'});
+    res.status(500).json({ message: error.message });
   }
 };
-
 module.exports = {
   listUsers,
   createUser,

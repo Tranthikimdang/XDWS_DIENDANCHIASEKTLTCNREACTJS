@@ -40,9 +40,19 @@ const deleteUser = async (id) => {
   }
 };
 
+const checkEmailExists = async (email) => {
+  try {
+    const response = await axios.get(`${API_URL}/login/email/${email}`);
+    return response.data.exists; // Giả sử API trả về { exists: true } nếu email đã tồn tại
+  } catch (error) {
+    console.error("Error in checkEmailExists:", error); // Log the error
+    throw error; // Ném lại lỗi để có thể xử lý ở nơi gọi hàm
+  }
+};
 export default {
   addUser,
   getList,
   updateUser,
   deleteUser,
+  checkEmailExists
 };

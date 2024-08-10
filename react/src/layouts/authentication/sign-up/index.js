@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useHistory, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
-import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
+import { useHistory, Link } from "react-router-dom";
+import { GoogleLogin } from "react-google-login";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiInput from "components/VuiInput";
@@ -12,52 +12,92 @@ import palette from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
-import registerAPI from "../../../apis/loginApi"; // Đổi thành API cho đăng ký
+import registerAPI from "../../../apis/loginApi"; // API cho đăng ký
 
 // Import custom styles
-import "./styles.css"; // Make sure to import your custom CSS file
+import "./styles.css";
 
 function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // State mới cho Confirm Password
-  const [location, setLocation] = useState("");
-  const [phone, setPhone] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    location: "",
+    phone: "",
+  });
   const [rememberMe, setRememberMe] = useState(true);
-  const navigate = useHistory();
+  const [errors, setErrors] = useState({});
+  const history = useHistory();
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
-  const handleRegister = async () => {
+  const validateForm = () => {
+    let validationErrors = {};
+    const { name, email, password, confirmPassword, location, phone } = formData;
+
+    if (!name) validationErrors.name = "Name is required.";
+    if (!email) validationErrors.email = "Email is required.";
+    if (!password) validationErrors.password = "Password is required.";
+    if (!confirmPassword) validationErrors.confirmPassword = "Please confirm your password.";
+    if (!location) validationErrors.location = "Location is required.";
+    if (!phone) validationErrors.phone = "Phone number is required.";
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      validationErrors.confirmPassword = "Passwords do not match!";
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email && !emailRegex.test(email)) {
+      validationErrors.email = "Please enter a valid email address.";
+    }
+
+    if (password && password.length < 6) {
+      validationErrors.password = "Password must be at least 6 characters long.";
+    }
+
+    return validationErrors;
+  };
+
+  const handleRegister = async () => {
+    setErrors({});
+    const validationErrors = validateForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     try {
-      const newUser = {
-        name,
-        email,
-        password,
-        location,
-        phone,
-      };
-      
-      
+      // Kiểm tra email đã tồn tại
+      const emailExists = await registerAPI.checkEmailExists(formData.email);
+      if (emailExists) {
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          email: "Tài khoản đã tồn tại với email này.", // Thông báo lỗi
+        }));
+        return;
+      }
 
-      await registerAPI.addUser(newUser); // Gọi API để đăng ký
-      
-      // Chuyển hướng đến dashboard
-      navigate.push("/authentication/sign-in");
+      await registerAPI.addUser(formData);
+      history.push("/authentication/sign-in");
     } catch (error) {
-      alert("An error occurred during registration. Please try again.");
+      alert("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.");
       console.error("Registration error:", error);
     }
   };
 
-  const responseGoogle = (response) => {
+  const responseGoogle = async (response) => {
     console.log(response);
+    // Bạn có thể thêm logic xử lý đăng nhập Google ở đây
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   return (
@@ -70,155 +110,35 @@ function Register() {
       image={bgSignIn}
     >
       <VuiBox component="form" role="form">
-        <VuiBox mb={2}>
-          <VuiBox mb={1} ml={0.5}>
-            <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Name
-            </VuiTypography>
+        {["name", "email", "password", "confirmPassword", "location", "phone"].map((field) => (
+          <VuiBox mb={2} key={field}>
+            <VuiBox mb={1} ml={0.5}>
+              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+                {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}
+              </VuiTypography>
+            </VuiBox>
+            <GradientBorder
+              minWidth="100%"
+              padding="1px"
+              borderRadius={borders.borderRadius.lg}
+              backgroundImage={radialGradient(
+                palette.gradients.borderLight.main,
+                palette.gradients.borderLight.state,
+                palette.gradients.borderLight.angle
+              )}
+            >
+               <VuiInput
+        type={field === "confirmPassword" || field === "password" ? "password" : "text"}
+        name={field}
+        placeholder={`Your ${field}...`}
+        value={formData[field]}
+        onChange={handleChange}
+      />
+              
+            </GradientBorder>
+            {errors[field] && <VuiTypography variant="caption" color="red">{errors[field]}</VuiTypography>}
           </VuiBox>
-          <GradientBorder
-            minWidth="100%"
-            padding="1px"
-            borderRadius={borders.borderRadius.lg}
-            backgroundImage={radialGradient(
-              palette.gradients.borderLight.main,
-              palette.gradients.borderLight.state,
-              palette.gradients.borderLight.angle
-            )}
-          >
-            <VuiInput
-              type="text"
-              placeholder="Your name..."
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </GradientBorder>
-        </VuiBox>
-
-        <VuiBox mb={2}>
-          <VuiBox mb={1} ml={0.5}>
-            <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Email
-            </VuiTypography>
-          </VuiBox>
-          <GradientBorder
-            minWidth="100%"
-            padding="1px"
-            borderRadius={borders.borderRadius.lg}
-            backgroundImage={radialGradient(
-              palette.gradients.borderLight.main,
-              palette.gradients.borderLight.state,
-              palette.gradients.borderLight.angle
-            )}
-          >
-            <VuiInput
-              type="email"
-              placeholder="Your email..."
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </GradientBorder>
-        </VuiBox>
-
-        <VuiBox mb={2}>
-          <VuiBox mb={1} ml={0.5}>
-            <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Password
-            </VuiTypography>
-          </VuiBox>
-          <GradientBorder
-            minWidth="100%"
-            borderRadius={borders.borderRadius.lg}
-            padding="1px"
-            backgroundImage={radialGradient(
-              palette.gradients.borderLight.main,
-              palette.gradients.borderLight.state,
-              palette.gradients.borderLight.angle
-            )}
-          >
-            <VuiInput
-              type="password"
-              placeholder="Your password..."
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </GradientBorder>
-        </VuiBox>
-
-        <VuiBox mb={2}>
-          <VuiBox mb={1} ml={0.5}>
-            <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Confirm Password
-            </VuiTypography>
-          </VuiBox>
-          <GradientBorder
-            minWidth="100%"
-            borderRadius={borders.borderRadius.lg}
-            padding="1px"
-            backgroundImage={radialGradient(
-              palette.gradients.borderLight.main,
-              palette.gradients.borderLight.state,
-              palette.gradients.borderLight.angle
-            )}
-          >
-            <VuiInput
-              type="password"
-              placeholder="Confirm your password..."
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </GradientBorder>
-        </VuiBox>
-
-        <VuiBox mb={2}>
-          <VuiBox mb={1} ml={0.5}>
-            <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Location
-            </VuiTypography>
-          </VuiBox>
-          <GradientBorder
-            minWidth="100%"
-            padding="1px"
-            borderRadius={borders.borderRadius.lg}
-            backgroundImage={radialGradient(
-              palette.gradients.borderLight.main,
-              palette.gradients.borderLight.state,
-              palette.gradients.borderLight.angle
-            )}
-          >
-            <VuiInput
-              type="text"
-              placeholder="Your location..."
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-            />
-          </GradientBorder>
-        </VuiBox>
-
-        <VuiBox mb={2}>
-          <VuiBox mb={1} ml={0.5}>
-            <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Phone
-            </VuiTypography>
-          </VuiBox>
-          <GradientBorder
-            minWidth="100%"
-            padding="1px"
-            borderRadius={borders.borderRadius.lg}
-            backgroundImage={radialGradient(
-              palette.gradients.borderLight.main,
-              palette.gradients.borderLight.state,
-              palette.gradients.borderLight.angle
-            )}
-          >
-            <VuiInput
-              type="text"
-              placeholder="Your phone..."
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </GradientBorder>
-        </VuiBox>
+        ))}
 
         <VuiBox display="flex" alignItems="center">
           <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />
@@ -232,11 +152,12 @@ function Register() {
             &nbsp;&nbsp;&nbsp;&nbsp;Remember me
           </VuiTypography>
         </VuiBox>
+
         <VuiBox display="flex" alignItems="center" justifyContent="center">
           <Link to="/authentication/sign-in" style={{ textDecoration: "none" }}>
             <VuiTypography
               variant="caption"
-              color="blud"
+              color="blue"
               fontWeight="medium"
               sx={{ cursor: "pointer", userSelect: "none" }}
             >
@@ -244,6 +165,7 @@ function Register() {
             </VuiTypography>
           </Link>
         </VuiBox>
+
         <VuiBox mt={4} mb={1}>
           <VuiButton color="info" fullWidth onClick={handleRegister}>
             SIGN UP
