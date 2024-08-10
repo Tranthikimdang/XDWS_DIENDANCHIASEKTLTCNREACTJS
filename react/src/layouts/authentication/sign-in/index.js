@@ -34,9 +34,16 @@ function Login() {
 
       if (user) {
         // Lưu thông tin người dùng vào localStorage
-        localStorage.setItem("user", JSON.stringify(user));
-        // Chuyển hướng đến dashboard
-        navigate.push("/dashboard");
+        if (user.role !== "admin") {
+          alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
+          localStorage.removeItem("user")
+          history.push("/authentication/sign-in"); // Có thể điều hướng đến trang đăng nhập hoặc trang khác
+        }else{
+          localStorage.setItem("user", JSON.stringify(user));
+          // Chuyển hướng đến dashboard
+          navigate.push("/dashboard");
+        }
+        
       } else {
         alert("Invalid email or password");
       }
