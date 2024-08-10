@@ -71,16 +71,21 @@ function Register() {
     try {
       // Kiểm tra email đã tồn tại
       const emailExists = await registerAPI.checkEmailExists(formData.email);
+      
       if (emailExists) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           email: "Tài khoản đã tồn tại với email này.", // Thông báo lỗi
         }));
         return;
+      }else{
+        // await registerAPI.addUser(formData);
+        console.log("dsdsd");
+        
+      history.push("/authentication/sign-in");
       }
 
-      await registerAPI.addUser(formData);
-      history.push("/authentication/sign-in");
+      
     } catch (error) {
       alert("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.");
       console.error("Registration error:", error);
