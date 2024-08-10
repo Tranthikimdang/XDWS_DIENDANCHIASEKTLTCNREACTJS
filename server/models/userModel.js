@@ -1,3 +1,6 @@
+const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } = require('firebase/firestore/lite');
+const db = require('../config/firebaseconfig.js');
+
 const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig');
 
