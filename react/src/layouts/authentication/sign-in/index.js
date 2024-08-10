@@ -12,6 +12,7 @@ import palette from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
+import loginAPI from "../../../apis/loginApi";
 
 // Import custom styles
 import "./styles.css"; // Make sure to import your custom CSS file
@@ -24,21 +25,33 @@ function Login() {
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
-  const handleLogin = () => {
-    const adminEmail = "phuong@123gmail.com"; // Replace with your admin email
-    const adminPassword = "phuong"; // Replace with your admin password
-
-    if (email === adminEmail && password === adminPassword) {
-      navigate("/dashboard"); // Redirect to the dashboard route
-    } else {
-      alert("Invalid email or password");
+  const handleLogin = async () => {
+    try {
+      const users = await loginAPI.getList();
+      
+      const user = users.data.find(
+        (user) => user.email === email && user.password === password
+      );
+  
+      if (user) {
+        // Lưu thông tin người dùng vào localStorage
+        localStorage.setItem("user", JSON.stringify(user));
+        // Chuyển hướng đến dashboard
+        navigate.push("/dashboard");
+      } else {
+        alert("Invalid email or password");
+      }
+    } catch (error) {
+      alert("An error occurred during login. Please try again.");
+      console.error("Login error:", error);
     }
   };
 
   const responseGoogle = (response) => {
     console.log(response);
-    // Handle Google login response here
   };
+
+  
 
   return (
    

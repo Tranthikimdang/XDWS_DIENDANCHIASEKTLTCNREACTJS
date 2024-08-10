@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-
+import { useHistory } from "react-router-dom";
 // react-router components
 import { Route, Switch, Redirect, useLocation } from "react-router-dom";
 
@@ -36,7 +36,18 @@ export default function App() {
   const [onMouseEnter, setOnMouseEnter] = useState(false);
   const [rtlCache, setRtlCache] = useState(null);
   const { pathname } = useLocation();
+  const history = useHistory();
 
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user"); // Lấy dữ liệu người dùng từ local storage
+    if (!userData) {
+      history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
+    } else {
+      history.push("/dashboard"); // Nếu có, điều hướng đến trang dashboard
+    }
+  }, [history]);
+  
   // Cache for the rtl
   useMemo(() => {
     const cacheRtl = createCache({
