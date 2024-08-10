@@ -4,12 +4,15 @@ const API_URL = "http://localhost:4000/api";
 
 const addUser = async (userData) => {
   try {
+    console.log("Sending data:", userData); // Log the data being sent
     const response = await axios.post(`${API_URL}/users`, userData);
     return response.data;
   } catch (error) {
+    console.error("Error in addUser:", error); // Log the error
     throw error;
   }
 };
+
 
 const getList = async () => {
   try {

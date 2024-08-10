@@ -16,3 +16,12 @@
     color: #ffffff; /* White text for disabled state */
   }
   
+
+  .small-text .form-label, .small-text .form-control, .small-text .btn {
+    font-size: 0.8rem;
+  }
+  
+  .small-text .form-control {
+    padding: 0.375rem 0.75rem;
+  }
+  
