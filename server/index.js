@@ -5,9 +5,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const commentRoutes = require('./routes/commentRoutes');
 const commentDetailRoutes = require('./routes/commentDetailRoutes');
 const userRoutes = require('./routes/userRoutes');
-
-
-
+const loginRoutes = require('./routes/loginRoutes');
 
 const articleRoutes = require('./routes/articleRoutes');
 const path = require('path')
@@ -33,6 +31,7 @@ app.use('/api', commentRoutes);
 app.use('/api', commentDetailRoutes);
 
 app.use('/api', userRoutes); 
+app.use('/api', loginRoutes); 
 
 
 app.use('/api', articleRoutes);

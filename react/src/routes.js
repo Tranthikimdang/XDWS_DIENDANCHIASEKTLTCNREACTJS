@@ -102,9 +102,9 @@ const routes = [
     icon: <IoIosDocument size="15px" color="inherit" />,
     component: SignIn,
     noCollapse: true,
+
   },
- 
-  // router form thêm sửa xóa
+
   {
     key: "commentDetail",
     route: "/commentDetail",
@@ -115,7 +115,7 @@ const routes = [
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
-    hidden: true, // Ẩn mục này
+    hidden: true, 
   },
   {
     key: "formdeletecmt",
