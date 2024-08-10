@@ -43,8 +43,6 @@ export default function App() {
     const userData = localStorage.getItem("user"); // Lấy dữ liệu người dùng từ local storage
     if (!userData) {
       history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
-    } else {
-      history.push("/dashboard"); // Nếu có, điều hướng đến trang dashboard
     }
   }, [history]);
   

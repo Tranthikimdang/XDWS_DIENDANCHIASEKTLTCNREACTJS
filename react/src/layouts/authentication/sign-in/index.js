@@ -34,6 +34,7 @@ function Login() {
       );
   
       if (user) {
+        localStorage.removeItem("user");
         // Lưu thông tin người dùng vào localStorage
         localStorage.setItem("user", JSON.stringify(user));
         // Chuyển hướng đến dashboard

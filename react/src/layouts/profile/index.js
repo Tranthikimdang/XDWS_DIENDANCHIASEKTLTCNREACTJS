@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -25,6 +26,15 @@ import Welcome from "../profile/components/Welcome/index";
 import CarInformations from "./components/CarInformations";
 
 function Overview() {
+  const [userInfo, setUserInfo] = useState({});
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (userData) {
+      setUserInfo(userData);
+    }
+  }, []);
+
   return (
     <DashboardLayout>
       <Header />
@@ -52,23 +62,11 @@ function Overview() {
           >
             <Welcome />
           </Grid>
+
           <Grid
             item
             xs={12}
-            xl={5}
-            xxl={6}
-            sx={({ breakpoints }) => ({
-              [breakpoints.only("xl")]: {
-                gridArea: "2 / 1 / 3 / 3",
-              },
-            })}
-          >
-            <CarInformations />
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            xl={3}
+            xl={4}
             xxl={3}
             sx={({ breakpoints }) => ({
               [breakpoints.only("xl")]: {
@@ -77,13 +75,13 @@ function Overview() {
             })}
           >
             <ProfileInfoCard
-              title="profile information"
-              description="Hi, I’m Mark Johnson, Decisions: If you can’t decide, the answer is no. If two equally difficult paths, choose the one more painful in the short term (pain avoidance is creating an illusion of equality)."
+              title="Profile Information"
+              description={userInfo.description || "Hi, I’m " + (userInfo.name || "User") + "."}
               info={{
-                fullName: "Mark Johnson",
-                mobile: "(44) 123 1234 123",
-                email: "mark@simmmple.com",
-                location: "United States",
+                fullName: userInfo.name || "User Name",
+                mobile: userInfo.phone|| "Mobile Number",
+                email: userInfo.email || "Email",
+                location: userInfo.location || "Location",
               }}
               social={[
                 {
@@ -104,25 +102,35 @@ function Overview() {
               ]}
             />
           </Grid>
+          <Grid
+            item
+            xs={12}
+            xl={4}
+            xxl={3}
+            sx={({ breakpoints }) => ({
+              [breakpoints.only("xl")]: {
+                gridArea: "1 / 2 / 2 / 3",
+              },
+            })}
+          >
+            <PlatformSettings />
+          </Grid>
         </Grid>
       </VuiBox>
       <Grid container spacing={3} mb="30px">
-        <Grid item xs={12} xl={3} height="100%">
-          <PlatformSettings />
-        </Grid>
-        <Grid item xs={12} xl={9}>
+        <Grid item xs={12} xl={12}>
           <Card>
             <VuiBox display="flex" flexDirection="column" height="100%">
               <VuiBox display="flex" flexDirection="column" mb="24px">
                 <VuiTypography color="white" variant="lg" fontWeight="bold" mb="6px">
-                  Projects
+                  Posts
                 </VuiTypography>
                 <VuiTypography color="text" variant="button" fontWeight="regular">
                   Architects design houses
                 </VuiTypography>
               </VuiBox>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={6} xl={4}>
+                <Grid item xs={12} md={6} xl={3}>
                   <DefaultProjectCard
                     image={profile1}
                     label="project #2"
@@ -142,7 +150,7 @@ function Overview() {
                     ]}
                   />
                 </Grid>
-                <Grid item xs={12} md={6} xl={4}>
+                <Grid item xs={12} md={6} xl={3}>
                   <DefaultProjectCard
                     image={profile2}
                     label="project #1"
@@ -162,7 +170,27 @@ function Overview() {
                     ]}
                   />
                 </Grid>
-                <Grid item xs={12} md={6} xl={4}>
+                <Grid item xs={12} md={6} xl={3}>
+                  <DefaultProjectCard
+                    image={profile3}
+                    label="project #3"
+                    title="minimalist"
+                    description="Different people have different taste, and various types of music."
+                    action={{
+                      type: "internal",
+                      route: "/pages/profile/profile-overview",
+                      color: "white",
+                      label: "VIEW ALL",
+                    }}
+                    authors={[
+                      { image: team4, name: "Peterson" },
+                      { image: team3, name: "Nick Daniel" },
+                      { image: team2, name: "Ryan Milly" },
+                      { image: team1, name: "Elena Morison" },
+                    ]}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6} xl={3}>
                   <DefaultProjectCard
                     image={profile3}
                     label="project #3"
