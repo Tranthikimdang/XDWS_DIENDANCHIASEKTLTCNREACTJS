@@ -15,7 +15,35 @@ function FormEditArticle() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [cates, setCates] = useState([])
+  const [cates, setCates] = useState([]);
+  const [user, setUser] = useState(""); // Khai báo state name
+
+  useEffect(() => {
+    // Lấy thông tin người dùng từ localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setUser(user)
+      // setName(user.name);
+    }
+    console.log(user);
+
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesApi.getList();
+        if (response.status === 200) {
+          const categories = response.data || [];
+          setCates(categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
   
   const {
     register,
@@ -97,17 +125,9 @@ function FormEditArticle() {
           encType="multipart/form-data"
         >
           <div className="row">
-            <div className='col-6 mb-3'>
+          <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Username</label>
-              <input
-                className={`form-control bg-dark text-light ${errors.user_id ? 'is-invalid' : ''}`}
-                {...register('user_id', { required: 'Name is required', minLength: 3, maxLength: 20 })}
-                style={smallFontStyle}
-              />
-              {errors.user_id && <span className="text-danger" style={smallFontStyle}>{errors.user_id.message}</span>}
-
-              {errors.user_id && errors.user_id.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Name must be at least 3 characters long</span>}
-              {errors.user_id && errors.user_id.type === 'maxLength' && <span className="text-danger" style={smallFontStyle}>Name must be less than 20 characters long</span>}
+              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} />
             </div>
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Title</label>
@@ -120,16 +140,30 @@ function FormEditArticle() {
             </div>
           </div>
           <div className="row">
-            <div className='col-6 mb-3'>
-              <label className='text-light form-label' style={smallFontStyle}>Image</label>
+            <div className="col-6 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Image
+              </label>
               <input
-                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-                type='file'
-                {...register('image', { required: 'Image is required' })}
+                className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""
+                  }`}
+                type="file"
+                {...register("image", { required: "Image is required" })}
+                onChange={handleImageChange} // Add onChange handler
               />
-              {errors.image && <div className='invalid-feedback' style={smallFontStyle}>
-                {errors.image.message}
-              </div>}
+              {errors.image && (
+                <div className="invalid-feedback">{errors.image.message}</div>
+              )}
+              {imagePreview && (
+                <div className="mt-2">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="img-thumbnail"
+                    style={{ maxWidth: "160px", height: "auto" }}
+                  />
+                </div>
+              )}
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
@@ -159,7 +193,7 @@ function FormEditArticle() {
                 toolbar:
                   "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                 tinycomments_mode: "embedded",
-                content_css: "/article.css",
+                content_css: false,
                 body_class: "my-editor",
                 tinycomments_author: "Author name",
                 mergetags_list: [
@@ -167,12 +201,16 @@ function FormEditArticle() {
                   { value: "Email", title: "Email" },
                 ],
                 ai_request: (request, respondWith) =>
-                  respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+                  respondWith.string(() =>
+                    Promise.reject("See docs to implement AI Assistant")
+                  ),
               }}
-              initialValue=""
+              initialValue={data?.content || ""} // Set initial value
               onEditorChange={(content) => setValue("content", content)}
             />
-            {errors.content && <span className="text-danger" style={smallFontStyle}>{errors.content.message}</span>}
+            {errors.content && (
+              <span className="text-danger">{errors.content.message}</span>
+            )}
           </div>
           <div className="d-flex justify-content mt-3">
             <button className="text-light btn btn-outline-info me-2" type="submit">Edit Article</button>

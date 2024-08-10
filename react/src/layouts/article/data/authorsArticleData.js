@@ -1,7 +1,7 @@
 
 export default {
   columns: [
-    { name: "id", align: "left" },
+    { name: "no", align: "left" },
     { name: "fuction", align: "left" },
     { name: "Author", align: "left" },
     { name: "content", align: "left" },

@@ -6,6 +6,7 @@ const addArticle = async (article) => {
     const docRef = await addDoc(collection(db, 'articles'), article);
     return docRef.id;
   } catch (e) {
+    console.clear()
     console.log(e);
     throw new Error('Error adding document: ' + e.message);
   }

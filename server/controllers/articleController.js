@@ -24,9 +24,10 @@ const addArticle = async (req, res) => {
     // Lấy các trường dữ liệu từ req.body và req.file (tệp tin)
     const { categories_id, user_id, title, content, view, created_at, updated_at, is_deleted } = req.body;
     const image = req.file ? `assets\\uploads\\${req.file.filename}` : null; // Đường dẫn đến tệp tin đã lưu trữ
-    console.log(req.file);
     // Kiểm tra tất cả các trường cần thiết
-    if (!categories_id || !user_id || !title || !content || !view || !created_at || !updated_at|| !is_deleted) {
+    console.clear()
+
+    if (!categories_id || !user_id || !title || !content) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
@@ -37,10 +38,8 @@ const addArticle = async (req, res) => {
       image,
       title,
       content,
-      view,
-      created_at,
-      updated_at,
-      is_deleted
+      view: 0,
+      is_deleted: false
     };
 
     try {
@@ -60,7 +59,6 @@ const getList = async (req, res) => {
   try {
     const articles = await Article.getList();
     const host = req.protocol + '://' + req.get('host'); // http://localhost:4000
-    console.log(articles);
 
     const updatedItems = articles.map(item => {
       return {

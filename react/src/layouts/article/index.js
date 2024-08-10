@@ -28,6 +28,18 @@ function Article() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [user, setUser] = useState(""); // Khai báo state name
+
+  useEffect(() => {
+    // Lấy thông tin người dùng từ localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setUser(user)
+      // setName(user.name);
+    }
+    console.log(user);
+
+  }, []);
 
   // Lấy danh sách bài viết từ API
   useEffect(() => {
@@ -48,6 +60,8 @@ function Article() {
 
     fetchArticle();
   }, []);
+
+
 
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
@@ -167,9 +181,10 @@ function Article() {
                   <Table
                     columns={columns}
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                      console.log(row);
+                      
                       return {
-                        id: page * rowsPerPage + index + 1,
+                        ...row,
+                        no: page * rowsPerPage + index + 1,
                         fuction: (
                           <div className="container">
                             <div className="row">
@@ -203,7 +218,7 @@ function Article() {
                         Author: (
                           <VuiBox display="flex" flexDirection="column">
                             <VuiTypography variant="button" color="white" fontWeight="medium">
-                              {row.user_id}
+                              {user?.name}
                             </VuiTypography>
                           </VuiBox>
                         ),
