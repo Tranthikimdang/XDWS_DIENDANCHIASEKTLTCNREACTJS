@@ -17,11 +17,11 @@ const listUsers = async (req, res) => {
 
 // Create a new user
 const createUser = async (req, res) => {
-  const { name,password, email, location, phone, role, created_at, updated_at, is_deleted } = req.body;
-  if (!name ||!password || !email || !location || !phone || !role) {
+  const { name,password, email, location, phone } = req.body;
+  if (!name ||!password || !email || !location || !phone) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
-  const newUser = {  name,password, email, location, phone, role, created_at, updated_at, is_deleted };
+  const newUser = {  name,password, email, location, phone, role: 0, created_at: new Date(), updated_at: new Date(), is_deleted: false };
   try {
     const id = await User.addUser(newUser);
     res.status(201).json({ id, message: "User created successfully." });
@@ -34,13 +34,13 @@ const createUser = async (req, res) => {
 // Update a user by ID
 const updateUser = async (req, res) => {
   const { id } = req.params;
-  const {  name,password, email, location, phone, role, created_at, updated_at, is_deleted } = req.body;
+  const {  name,password, email, location, phone } = req.body;
 
   if (!name || !password || !email || !location || !phone || !role) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  const user = {  name,password, email, location, phone, role, created_at, updated_at, is_deleted };
+  const user = {  name,password, email, location, phone, role: 0,  updated_at: new Date(), is_deleted: false };
 
   try {
     const updated = await User.updateUser(id, user);

@@ -4,7 +4,6 @@ const API_URL = "http://localhost:4000/api";
 
 const addUser = async (userData) => {
   try {
-    console.log("Sending data:", userData); // Log the data being sent
     const response = await axios.post(`${API_URL}/login`, userData);
     return response.data;
   } catch (error) {
