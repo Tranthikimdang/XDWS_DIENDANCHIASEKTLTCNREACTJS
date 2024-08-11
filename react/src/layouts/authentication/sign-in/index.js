@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useHistory, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
 import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
 import VuiBox from "components/VuiBox";
@@ -13,6 +13,7 @@ import borders from "assets/theme/base/borders";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
 import loginAPI from "../../../apis/loginApi";
+import emailjs from "emailjs-com";
 
 // Import custom styles
 import "./styles.css"; // Make sure to import your custom CSS file
@@ -21,12 +22,42 @@ function Login() {
   const [rememberMe, setRememberMe] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const navigate = useHistory();
-
+  const form = useRef();
+  const history = useHistory();
+  
   localStorage.removeItem("user");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
+  const validateEmailFormat = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validate = () => {
+    let valid = true;
+    let errors = {};
+
+    if (!email) {
+      errors.email = "Email is required.";
+      valid = false;
+    } else if (!validateEmailFormat(email)) {
+      errors.email = "Invalid email format."; // Thêm thông báo lỗi cho định dạng email không hợp lệ
+      valid = false;
+    }
+
+    if (!password) {
+      errors.password = "Password is required.";
+      valid = false;
+    }
+
+    setErrors(errors);
+    return valid;
+  };
+
   const handleLogin = async () => {
+    if (!validate()) return;
     try {
       const users = await loginAPI.getList();
 
@@ -36,14 +67,13 @@ function Login() {
         // Lưu thông tin người dùng vào localStorage
         if (user.role !== "admin") {
           alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
-          localStorage.removeItem("user")
+          localStorage.removeItem("user");
           history.push("/authentication/sign-in"); // Có thể điều hướng đến trang đăng nhập hoặc trang khác
-        }else{
+        } else {
           localStorage.setItem("user", JSON.stringify(user));
           // Chuyển hướng đến dashboard
           navigate.push("/dashboard");
         }
-        
       } else {
         alert("Invalid email or password");
       }
@@ -53,10 +83,71 @@ function Login() {
     }
   };
 
-  const responseGoogle = (response) => {
-    console.log(response);
+  const responseGoogle = async (response) => {
+    const email = response.wt.cu;
+    
+    try {
+      const emailExists = await loginAPI.checkEmailExists(email);
+      const generateRandomPassword = () => {
+        return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
+      };
+      const generatedPassword = generateRandomPassword();
+
+      if (emailExists) {
+        alert("Tài khoản đã tồn tại với email này.")
+        return;
+      }
+
+      // Tiếp tục nếu email không tồn tại
+      
+      const newUser = {
+        name: response.wt.Ad,
+        email: response.wt.cu,
+        password: generatedPassword,
+        location: "", // Cung cấp thông tin nếu cần
+        phone: "", // Cung cấp thông tin nếu cần
+        role: "user"
+      };
+      console.log(newUser);
+      
+
+      await loginAPI.addUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+      history.push("/");
+      // Gửi email sau khi thêm người dùng mới thành công
+      // sendEmail({
+      //   name: newUser.name,
+      //   email: newUser.email,
+      //   message: `Mật khẩu của bạn là: ${generatedPassword}`,
+      // });
+    } catch (error) {
+      console.error("Error during Google login:", error);
+    }
   };
 
+  const sendEmail = (data) => {
+    emailjs
+      .send(
+        process.env.REACT_APP_SERVICE_ID,
+        process.env.REACT_APP_TEMPLATE_ID,
+        {
+          to_name: data.name,
+          to_email: data.email,
+          message: data.message,
+        },
+        process.env.REACT_APP_PUBLIC_KEY
+      )
+      .then(
+        (result) => {
+          alert("Message sent successfully...");
+          console.log(result.text);
+        },
+        (error) => {
+          alert("An error occurred, please try again.");
+          console.log(error.text);
+        }
+      );
+  };
   return (
     <CoverLayout
       title="Nice to see you!"
@@ -91,6 +182,11 @@ function Login() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </GradientBorder>
+          {errors.email && ( // ADD HERE: Hiển thị lỗi password nếu có
+            <VuiTypography variant="caption" color="red">
+              {errors.email}
+            </VuiTypography>
+          )}
         </VuiBox>
         <VuiBox mb={2}>
           <VuiBox mb={1} ml={0.5}>
@@ -118,6 +214,11 @@ function Login() {
               })}
             />
           </GradientBorder>
+          {errors.password && ( // ADD HERE: Hiển thị lỗi password nếu có
+            <VuiTypography variant="caption" color="red">
+              {errors.password}
+            </VuiTypography>
+          )}
         </VuiBox>
         <VuiBox display="flex" alignItems="center">
           <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />

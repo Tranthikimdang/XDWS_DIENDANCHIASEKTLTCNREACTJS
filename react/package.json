@@ -14,6 +14,7 @@
 		"url": "git+https://github.com/creativetimofficial/vision-ui-dashboard-react.git"
 	},
 	"dependencies": {
+		"@emailjs/browser": "^4.4.1",
 		"@emotion/cache": "11.4.0",
 		"@emotion/react": "^11.13.0",
 		"@emotion/styled": "^11.13.0",
@@ -29,6 +30,7 @@
 		"axios": "^1.7.2",
 		"bootstrap": "^5.3.3",
 		"chroma-js": "2.1.2",
+		"emailjs-com": "^3.2.0",
 		"gapi-script": "^1.2.0",
 		"install": "^0.13.0",
 		"prop-types": "15.7.2",
