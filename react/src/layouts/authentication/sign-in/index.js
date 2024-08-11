@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom"; // Import useNavigate from react-router-dom
-import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
+import { useHistory } from "react-router-dom";
+import { GoogleLogin } from "react-google-login";
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiInput from "components/VuiInput";
@@ -13,8 +13,7 @@ import borders from "assets/theme/base/borders";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
 
-// Import custom styles
-import "./styles.css"; // Make sure to import your custom CSS file
+import "./styles.css"; // Ensure to import your custom CSS file
 
 function Login() {
   const [rememberMe, setRememberMe] = useState(true);
@@ -24,20 +23,38 @@ function Login() {
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
-  const handleLogin = () => {
-    const adminEmail = "phuong@123gmail.com"; // Replace with your admin email
-    const adminPassword = "phuong"; // Replace with your admin password
+  const handleLogin = async () => {
+    try {
+      const userCredential = await auth.signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
 
-    if (email === adminEmail && password === adminPassword) {
-      navigate("/dashboard"); // Redirect to the dashboard route
-    } else {
+      if (user.email === "phuong@123gmail.com") {
+        navigate.push("/dashboard"); // Redirect to the dashboard route
+      } else {
+        alert("You are not an admin");
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
       alert("Invalid email or password");
     }
   };
 
-  const responseGoogle = (response) => {
-    console.log(response);
-    // Handle Google login response here
+  const responseGoogle = async (response) => {
+    try {
+      const { tokenId } = response;
+      const credential = googleProvider.credential(tokenId);
+      const userCredential = await auth.signInWithCredential(credential);
+      const user = userCredential.user;
+
+      if (user.email === "phuong@123gmail.com") {
+        navigate.push("/dashboard"); // Redirect to the dashboard route
+      } else {
+        alert("You are not an admin");
+      }
+    } catch (error) {
+      console.error("Error logging in with Google:", error);
+      alert("Google login failed");
+    }
   };
 
   return (
@@ -136,17 +153,18 @@ function Login() {
                   <img
                     className="google-icon"
                     src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                    alt="Google"
-                  />
-                  Login with Google
-                </button>
-              )}
-            />
-          </div>
-        </VuiBox>
+                  alt="Google"
+                />
+                Login with Google
+              </button>
+            )}
+          />
+        </div>
       </VuiBox>
-    </CoverLayout>
-  );
+    </VuiBox>
+  </CoverLayout>
+);
+
 }
 
 export default Login;

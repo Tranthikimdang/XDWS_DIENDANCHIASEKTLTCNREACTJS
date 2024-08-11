@@ -47,13 +47,23 @@ const routes = [
    
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
-    route: "/dashboard",
-    icon: <IoHome size="15px" color="inherit" />,
-    component: Dashboard,
+    name: "Sign In",
+    key: "sign-in",
+    route: "/authentication/sign-in",
+    component: SignIn,
     noCollapse: true,
   },
+  {
+    type: "collapse",
+    name: "Sign In",
+    key: "sign-in",
+    route: "/authentication/sign-in",
+    icon: <IoHome size="15px" color="inherit" />,
+    component: SignIn,
+    noCollapse: true,
+  },
+
+
   {
     type: "collapse",
     name: "Article Management",

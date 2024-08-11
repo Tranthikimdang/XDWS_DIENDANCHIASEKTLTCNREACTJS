@@ -17,4 +17,3 @@ const db = getFirestore(app);
 
 module.exports = db;
 
-
