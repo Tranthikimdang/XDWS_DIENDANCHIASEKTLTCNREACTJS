@@ -1,13 +1,13 @@
 const CommentDetail = require('../models/commentDetailModel.js');
 
 const createComment = async (req, res) => {
-  const { article_id, user_id, content, created_date, updated_date } = req.body;
+  const { article_id, user_name, content, created_date, updated_date } = req.body;
 
-  if (!article_id || !user_id || !content || !created_date || !updated_date) {
+  if (!article_id || !user_name || !content || !created_date || !updated_date) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  const newComment = { article_id, user_id, content, created_date, updated_date };
+  const newComment = { article_id, user_name, content, created_date, updated_date };
 
   try {
     const id = await CommentDetail.addComment(newComment);

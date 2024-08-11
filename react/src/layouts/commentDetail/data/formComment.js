@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
@@ -13,14 +13,32 @@ function FormAddCmt() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [user, setUser] = useState(""); // User state
+  const [article, setArticle] = useState(""); // Article state
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedArticle = JSON.parse(localStorage.getItem('article'));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+    if (storedArticle) {
+      setArticle(storedArticle);
+    }
+  }, []);
 
   const onSubmit = async (data) => {
     const currentDate = new Date().toISOString().split('T')[0]; 
-    data.created_date = currentDate;
-    data.updated_date = currentDate;
+    const commentData = {
+      ...data,
+      articleId: article?.id,
+      userId: user?.id,
+      created_date: currentDate,
+      updated_date: currentDate
+    };
     
     try {
-      const response = await api.addComment(data);
+      const response = await api.addComment(commentData);
       console.log('Comment added successfully:', response);
       setSnackbarMessage("Comment added.");
       setSnackbarSeverity("success");
@@ -52,13 +70,11 @@ function FormAddCmt() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label className='text-light form-label' style={smallFontStyle}>Article ID</label>
-            <input className='form-control bg-dark text-light' {...register('article_id', { required: true })} />
-            {errors.article_id && <span className='text-danger'>Article ID is required</span>}
+            <input className='form-control bg-dark text-light' value={article?.no || ''} readOnly />
           </div>
           <div>
-            <label className='text-light form-label' style={smallFontStyle}>User ID</label>
-            <input className='form-control bg-dark text-light' {...register('user_id', { required: true })} />
-            {errors.user_id && <span className='text-danger'>User ID is required</span>}
+            <label className='text-light form-label' style={smallFontStyle}>User Name</label>
+            <input className='form-control bg-dark text-light' value={user?.name || ''} readOnly />
           </div>         
           <div>
             <label className='text-light form-label' style={smallFontStyle}>Content</label>

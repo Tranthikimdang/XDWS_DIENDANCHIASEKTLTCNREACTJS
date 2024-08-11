@@ -10,7 +10,7 @@ export default {
   columns: [
     { name: "#", align: "left" },
     { name: "article_id", align: "left" },
-    { name: "user_id", align: "center" },
+    { name: "user_name", align: "center" },
     { name: "content", align: "center" },
     { name: "created_date", align: "center" },
     { name: "updated_date", align: "center" },
