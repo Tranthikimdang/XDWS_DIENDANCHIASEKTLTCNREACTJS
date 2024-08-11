@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import { useForm } from "react-hook-form";
 import { useLocation, useHistory } from "react-router-dom";
 import Snackbar from "@mui/material/Snackbar";
@@ -202,7 +201,6 @@ function FormEditUser() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      <Footer />
     </DashboardLayout>
   );
 }

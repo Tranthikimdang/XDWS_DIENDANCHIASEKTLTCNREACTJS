@@ -7,10 +7,12 @@ import { Link } from "react-router-dom";
 
 export default {
   columns: [
-    { name: "id", align: "left" },
-    { name: "name", align: "left" },
-    { name: "email", align: "center" },
-    { name: "description", align: "center" },
+    { name: "#", align: "left" },
+    { name: "title", align: "left" },
+    { name: "image", align: "left" },
+    { name: "content", align: "center" },
+    { name: "created_date", align: "center" },
     { name: "action", align: "center" },
   ],
+
 };

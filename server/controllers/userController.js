@@ -72,9 +72,21 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const getUserByEmail = async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await User.getOneUser(email);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error getting user by email:', error);
+    res.status(404).json({ message: 'User not found.'});
+  }
+};
+
 module.exports = {
   listUsers,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getUserByEmail
 };

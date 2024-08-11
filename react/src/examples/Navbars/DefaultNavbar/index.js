@@ -36,7 +36,7 @@ import VuiButton from "components/VuiButton";
 // Vision UI Dashboard React example components
 import DefaultNavbarLink from "examples/Navbars/DefaultNavbar/DefaultNavbarLink";
 import DefaultNavbarMobile from "examples/Navbars/DefaultNavbar/DefaultNavbarMobile";
-
+import GoogleAuth from '../authen/GoogleAuth';
 // Vision UI Dashboard React base styles
 import breakpoints from "assets/theme/base/breakpoints";
 import colors from "assets/theme/base/colors";
@@ -123,6 +123,9 @@ function DefaultNavbar({ transparent, light, action }) {
           <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" />
           <DefaultNavbarLink icon="person" name="profile" route="/profile" />
           <DefaultNavbarLink icon="key" name="sign in" route="/authentication/sign-in" />
+          <div >
+              <GoogleAuth/>
+            </div>
         </VuiBox>
         {action &&
           (action.type === "internal" ? (

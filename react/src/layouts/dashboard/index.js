@@ -50,7 +50,7 @@ function Dashboard() {
     <DashboardLayout>
       <DashboardNavbar />
       <VuiBox py={3}>
-        <VuiBox mb={3}>
+        {/* <VuiBox mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={6} xl={3}>
               <MiniStatisticsCard
@@ -85,21 +85,21 @@ function Dashboard() {
               />
             </Grid>
           </Grid>
-        </VuiBox>
+        </VuiBox> */}
         <VuiBox mb={3}>
           <Grid container spacing="18px">
-            <Grid item xs={12} lg={12} xl={5}>
+            {/* <Grid item xs={12} lg={12} xl={5}>
               <WelcomeMark />
             </Grid>
             <Grid item xs={12} lg={6} xl={3}>
               <SatisfactionRate />
-            </Grid>
+            </Grid> */}
             <Grid item xs={12} lg={6} xl={4}>
               <ReferralTracking />
             </Grid>
           </Grid>
         </VuiBox>
-        <VuiBox mb={3}>
+        {/* <VuiBox mb={3}>
           <Grid container spacing={3}>
             <Grid item xs={12} lg={6} xl={7}>
               <Card>
@@ -257,7 +257,7 @@ function Dashboard() {
               </Card>
             </Grid>
           </Grid>
-        </VuiBox>
+        </VuiBox> */}
         <Grid container spacing={3} direction="row" justifyContent="center" alignItems="stretch">
           <Grid item xs={12} md={6} lg={8}>
             <Projects />

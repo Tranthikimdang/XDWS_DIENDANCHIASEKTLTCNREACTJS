@@ -14,7 +14,7 @@ const addComment = async (commentData) => {
 
 const getList = async () => {
   try {
-    const response = await axios.get(`${API_URL}/comments`);
+    const response = await axios.get(`${API_URL}/articles`);
     return response.data;
   } catch (error) {
     throw error;

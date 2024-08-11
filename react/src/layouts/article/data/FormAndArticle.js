@@ -1,98 +1,183 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
+import api from '../../../apis/articleApi';
+import categoriesApi from '../../../apis/categoriesApi';
+import { Editor } from "@tinymce/tinymce-react";
+import { Snackbar, Alert } from "@mui/material";
 
 function FormAndArticle() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const history = useHistory();
 
-  const onSubmit = data => {
-    console.log(data);
-    // Add logic to submit data to the backend here
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [cates, setCates] = useState([]);
+  const [user, setUser] = useState(""); // Khai báo state name
+
+  useEffect(() => {
+    // Lấy thông tin người dùng từ localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setUser(user)
+      // setName(user.name);
+    }
+    console.log(user);
+
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesApi.getList();
+        if (response.status === 200) {
+          const categories = response.data || [];
+          setCates(categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const onSubmit = async (data) => {
+    const formData = new FormData();
+    formData.append('user_id', user.id);
+    formData.append('image', data.image[0]); // File input is an array
+    formData.append('categories_id', data.categories_id);
+    formData.append('title', data.title);
+    formData.append('content', data.content);
+
+    try {
+      const response = await api.addArticle(formData);
+      setSnackbarMessage("Article added successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setTimeout(() => history.push('/article'), 500);
+    } catch (error) {
+      setSnackbarMessage("Failed to add article.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
   };
 
-  const smallFontStyle = { 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  const smallFontStyle = {
     fontSize: '0.9rem'
   };
 
   return (
     <DashboardLayout>
-      <DashboardNavbar />
       <div className='container'>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Image URL</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-              type='url'
-              {...register('image', { required: true })}
-              style={smallFontStyle}
-            />
-            {errors.image && <div className='invalid-feedback'>
-              {errors.image.type === 'required' && 'Image URL is required'}
-            </div>}
+        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+          <div className="row">
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Username</label>
+              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} />
+            </div>
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Title</label>
+              <input
+                className={`form-control bg-dark text-light ${errors.title ? 'is-invalid' : ''}`}
+                {...register('title', { required: 'Title is required', minLength: 3, maxLength: 20 })}
+                style={smallFontStyle}
+              />
+              {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
+              {errors.title && errors.title.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Title must be at least 3 characters long</span>}
+              {errors.title && errors.title.type === 'maxLength' && <span className="text-danger" style={smallFontStyle}>Title must be less than 20 characters long</span>}
+            </div>
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Name</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
-              {...register('name', { required: true, minLength: 3, maxLength: 20 })}
-              style={smallFontStyle}
-            />
-            {errors.name && <div className='invalid-feedback'>
-              {errors.name.type === 'required' && 'Name is required'}
-              {errors.name.type === 'minLength' && 'Name must be at least 3 characters long'}
-              {errors.name.type === 'maxLength' && 'Name must be less than 20 characters long'}
-            </div>}
+          <div className="row">
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Image</label>
+              <input
+                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+                type='file'
+                {...register('image', { required: 'Image is required' })}
+              />
+              {errors.image && <div className='invalid-feedback' style={smallFontStyle}>
+                {errors.image.message}
+              </div>}
+            </div>
+            <div className="col-6 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Category
+              </label>
+              <select
+                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`} style={smallFontStyle}
+                {...register("categories_id", { required: "Category is required" })}>
+                <option style={smallFontStyle}>Open this select menu</option>
+                {cates.length && cates.map((cate) => (
+                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>{cate?.name}</option>
+                ))}
+              </select>
+              {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
+            </div>
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Email</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.email ? 'is-invalid' : ''}`}
-              type='email'
-              {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
-              style={smallFontStyle}
+          <div className="mb-3">
+            <label className="text-light form-label" style={smallFontStyle}>
+              Content
+            </label>
+            <Editor
+              apiKey="owarvk3rl1z5v44dvx9b06crntnsgrgjcja6mayprjqj5qaa"
+              init={{
+                plugins:
+                  "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
+                toolbar:
+                  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
+                tinycomments_mode: "embedded",
+                content_css: "/path/to/dark-theme-tinymce.css",
+                body_class: "my-editor",
+                tinycomments_author: "Author name",
+                mergetags_list: [
+                  { value: "First.Name", title: "First Name" },
+                  { value: "Email", title: "Email" },
+                ],
+                ai_request: (request, respondWith) =>
+                  respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+              }}
+              initialValue=""
+              onEditorChange={(content) => setValue("content", content)}
             />
-            {errors.email && <div className='invalid-feedback'>
-              {errors.email.type === 'required' && 'Email is required'}
-              {errors.email.type === 'pattern' && 'Invalid email address'}
-            </div>}
+            {errors.content && (
+              <span className="text-danger" style={smallFontStyle}>
+                {errors.content.message}
+              </span>
+            )}
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Location</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.location ? 'is-invalid' : ''}`}
-              {...register('location', { required: true, minLength: 5, maxLength: 50 })}
-              style={smallFontStyle}
-            />
-            {errors.location && <div className='invalid-feedback'>
-              {errors.location.type === 'required' && 'Location is required'}
-              {errors.location.type === 'minLength' && 'Location must be at least 5 characters long'}
-              {errors.location.type === 'maxLength' && 'Location must be less than 50 characters long'}
-            </div>}
-          </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Phone</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.phone ? 'is-invalid' : ''}`}
-              type='tel'
-              {...register('phone', { required: true, pattern: /^[0-9]{10,15}$/ })}
-              style={smallFontStyle}
-            />
-            {errors.phone && <div className='invalid-feedback'>
-              {errors.phone.type === 'required' && 'Phone number is required'}
-              {errors.phone.type === 'pattern' && 'Invalid phone number'}
-            </div>}
-          </div>
-          <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            <Link to="/article" className='btn btn-outline-light ms-3'>Back</Link>
+          <div className="d-flex justify-content mt-3">
+            <button className="text-light btn btn-outline-info me-2" type="submit">Add Article</button>
+            <button
+              className="text-light btn btn-outline-secondary"
+              type="button"
+              onClick={() => history.push("/article")}
+            >
+              Back
+            </button>
           </div>
         </form>
       </div>
-      <Footer />
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={500}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 }

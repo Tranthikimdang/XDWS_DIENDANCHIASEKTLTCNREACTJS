@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
-import { GoogleLogin } from "react-google-login";
+import { useHistory, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
+import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import VuiInput from "components/VuiInput";
@@ -12,8 +12,10 @@ import palette from "assets/theme/base/colors";
 import borders from "assets/theme/base/borders";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
+import loginAPI from "../../../apis/loginApi";
 
-import "./styles.css"; // Ensure to import your custom CSS file
+// Import custom styles
+import "./styles.css"; // Make sure to import your custom CSS file
 
 function Login() {
   const [rememberMe, setRememberMe] = useState(true);
@@ -21,40 +23,38 @@ function Login() {
   const [password, setPassword] = useState("");
   const navigate = useHistory();
 
+  localStorage.removeItem("user");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   const handleLogin = async () => {
     try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      const user = userCredential.user;
+      const users = await loginAPI.getList();
 
-      if (user.email === "phuong@123gmail.com") {
-        navigate.push("/dashboard"); // Redirect to the dashboard route
+      const user = users.data.find((user) => user.email === email && user.password === password);
+
+      if (user) {
+        // Lưu thông tin người dùng vào localStorage
+        if (user.role !== "admin") {
+          alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
+          localStorage.removeItem("user")
+          history.push("/authentication/sign-in"); // Có thể điều hướng đến trang đăng nhập hoặc trang khác
+        }else{
+          localStorage.setItem("user", JSON.stringify(user));
+          // Chuyển hướng đến dashboard
+          navigate.push("/dashboard");
+        }
+        
       } else {
-        alert("You are not an admin");
+        alert("Invalid email or password");
       }
     } catch (error) {
-      console.error("Error logging in:", error);
-      alert("Invalid email or password");
+      alert("An error occurred during login. Please try again.");
+      console.error("Login error:", error);
     }
   };
 
-  const responseGoogle = async (response) => {
-    try {
-      const { tokenId } = response;
-      const credential = googleProvider.credential(tokenId);
-      const userCredential = await auth.signInWithCredential(credential);
-      const user = userCredential.user;
-
-      if (user.email === "phuong@123gmail.com") {
-        navigate.push("/dashboard"); // Redirect to the dashboard route
-      } else {
-        alert("You are not an admin");
-      }
-    } catch (error) {
-      console.error("Error logging in with Google:", error);
-      alert("Google login failed");
-    }
+  const responseGoogle = (response) => {
+    console.log(response);
   };
 
   return (
@@ -131,6 +131,18 @@ function Login() {
             &nbsp;&nbsp;&nbsp;&nbsp;Remember me
           </VuiTypography>
         </VuiBox>
+        <VuiBox display="flex" alignItems="center" justifyContent="center">
+          <Link to="/signup" style={{ textDecoration: "none" }}>
+            <VuiTypography
+              variant="caption"
+              color="blud"
+              fontWeight="medium"
+              sx={{ cursor: "pointer", userSelect: "none" }}
+            >
+              Don't have an account? Sign up.
+            </VuiTypography>
+          </Link>
+        </VuiBox>
         <VuiBox mt={4} mb={1}>
           <VuiButton color="info" fullWidth onClick={handleLogin}>
             LOGIN
@@ -143,8 +155,8 @@ function Login() {
               buttonText=""
               onSuccess={responseGoogle}
               onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-              render={renderProps => (
+              cookiePolicy={"single_host_origin"}
+              render={(renderProps) => (
                 <button
                   className="google-login-btn"
                   onClick={renderProps.onClick}
@@ -153,18 +165,17 @@ function Login() {
                   <img
                     className="google-icon"
                     src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                  alt="Google"
-                />
-                Login with Google
-              </button>
-            )}
-          />
-        </div>
+                    alt="Google"
+                  />
+                  Login with Google
+                </button>
+              )}
+            />
+          </div>
+        </VuiBox>
       </VuiBox>
-    </VuiBox>
-  </CoverLayout>
-);
-
+    </CoverLayout>
+  );
 }
 
 export default Login;
