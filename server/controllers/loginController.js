@@ -18,7 +18,7 @@ const listUsers = async (req, res) => {
 // Create a new user
 const createUser = async (req, res) => {
   const { name,password, email, location, phone } = req.body;
-  if (!name ||!password || !email || !location || !phone) {
+  if (!name ||!password || !email ) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
   const newUser = {  name,password, email, location, phone, role: 'user', created_at: new Date(), updated_at: new Date(), is_deleted: false };

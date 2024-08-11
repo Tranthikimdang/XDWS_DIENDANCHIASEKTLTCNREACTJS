@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useHistory } from "react-router-dom";
+
 // react-router components
 import { Route, Switch, Redirect, useLocation } from "react-router-dom";
 

@@ -80,7 +80,6 @@ function Register() {
         return;
       }else{
         // await registerAPI.addUser(formData);
-        console.log("dsdsd");
         
       history.push("/authentication/sign-in");
       }
