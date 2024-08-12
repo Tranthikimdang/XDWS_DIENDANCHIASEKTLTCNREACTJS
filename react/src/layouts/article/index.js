@@ -181,7 +181,7 @@ function Article() {
                   <Table
                     columns={columns}
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                      
+
                       return {
                         ...row,
                         no: page * rowsPerPage + index + 1,
@@ -190,11 +190,17 @@ function Article() {
                             <div className="row">
                               <div className="col">
                                 <img
-                                  src={row.image}  // Sử dụng hàm getImageUrl để lấy đường dẫn chính xác
+                                  src={row.image}
                                   alt="Image"
-                                  style={{ width: '160px', height: '93.99px' }}
+                                  style={{
+                                    width: '100px',
+                                    height: '50px',
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                                  }}
                                 />
-
                               </div>
                               <div className="col">
                                 <VuiBox display="flex" flexDirection="column">
@@ -254,7 +260,7 @@ function Article() {
                     })}
                   />
                 </VuiBox>
-                <div className="d-flex justify-content-end p-2 custom-pagination">
+                <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
                       className="btn btn-light"
