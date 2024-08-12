@@ -4,7 +4,6 @@ const API_URL = "http://localhost:4000/api";
 
 const addUser = async (userData) => {
   try {
-    console.log("Sending data:", userData); // Log the data being sent
     const response = await axios.post(`${API_URL}/login`, userData);
     return response.data;
   } catch (error) {
@@ -41,9 +40,19 @@ const deleteUser = async (id) => {
   }
 };
 
+const checkEmailExists = async (email) => {
+  try {
+    const response = await axios.get(`${API_URL}/login/email/${email}`);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 export default {
   addUser,
   getList,
   updateUser,
   deleteUser,
+  checkEmailExists
 };

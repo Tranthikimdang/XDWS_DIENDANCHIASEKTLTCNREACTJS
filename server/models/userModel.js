@@ -1,5 +1,7 @@
-const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
-const db = require('../config/firebaseconfig');
+
+const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } = require('firebase/firestore/lite');
+const db = require('../config/firebaseconfig.js');
+
 
 // Add a new user
 const addUser = async (user) => {
@@ -48,9 +50,26 @@ const deleteUser = async (id) => {
   }
 };
 
+const getOneUserByEmail = async (email) => {
+  try {
+    const usersCollection = collection(db, 'users');
+    const userDocs = await getDocs(query(usersCollection, where("email", "==", email)));
+    
+    if (userDocs.empty) {
+      return null; // Trả về null nếu không tìm thấy người dùng
+    }
+    
+    return userDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }))[0]; // Trả về người dùng đầu tiên tìm thấy
+  } catch (e) {
+    console.error('Error getting user by email:', e.message);
+    throw new Error('Error getting user by email: ' + e.message);
+  }
+};
+
 module.exports = {
   addUser,
   getAllUsers,
   updateUser,
-  deleteUser
+  deleteUser,
+  getOneUserByEmail
 };

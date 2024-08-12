@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -15,6 +15,7 @@ import './index.css';
 
 function CommentDetail() {
   const { columns } = authorsTableData;
+  const { articleId } = useParams(); // Lấy articleId từ URL
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
@@ -26,13 +27,12 @@ function CommentDetail() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
-    const fetchComment = async () => {
+    const fetchCommentsByArticle = async () => {
       try {
-        const response = await apis.getList();
+        setLoading(true);
+        const response = await apis.getCommentsByArticleId(articleId);
         if (response.status === 200) {
-          const comments = response.data || [];
-          setRows(comments);
-          console.log("Fetched comments:", comments);
+          setRows(response.data || []);
         }
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -41,15 +41,15 @@ function CommentDetail() {
       }
     };
 
-    fetchComment();
-  }, []);
+    fetchCommentsByArticle();
+  }, [articleId]);
 
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = async (deleteId) => {
     try {
       await apis.deleteComment(deleteId);
       setRows(rows.filter((comment) => comment.id !== deleteId));
@@ -77,6 +77,7 @@ function CommentDetail() {
   };
 
   const handleAddCommentSuccess = () => {
+    fetchCommentsByArticle();
     setSnackbarMessage("Comment added successfully.");
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
@@ -99,10 +100,10 @@ function CommentDetail() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Comment Table
+                Comment Detail Table
               </VuiTypography>
-              <Link to="/formAddCmt">
-                <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
+              <Link to={`/formAddCmt`}>
+                <button className='text-light btn btn-outline-info' type="button">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
                     <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
                   </svg>
@@ -120,6 +121,19 @@ function CommentDetail() {
                 }}
               >
                 <ClipLoader size={50} color={"#123abc"} loading={loading} />
+              </div>
+            ) : rows.length === 0 ? (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100px',
+                  color: 'white',
+                  fontSize: '18px'
+                }}
+              >
+                Chưa có bình luận nào
               </div>
             ) : (
               <>
@@ -140,10 +154,9 @@ function CommentDetail() {
                   <Table
                     columns={columns}
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                      console.log(row);
                       return {
                         ...row,
-                        id : page * rowsPerPage + index + 1,
+                        '#' : page * rowsPerPage + index + 1,
                         action: (
                           <div>                            
                             <button
@@ -152,16 +165,15 @@ function CommentDetail() {
                               onClick={() => handleDelete(row.id)}
                             >
                               <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          fill="currentColor"
-                          className="bi bi-trash"
-                          viewBox="0 0 16 16"
-                        >
-                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                        </svg>
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                className="bi bi-trash"
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zM8 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zM11.5 5.5A.5.5 0 0 1 12 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zM13.5 2a.5.5 0 0 1 .5.5v.5h1a.5.5 0 0 1 0 1H1a.5.5 0 0 1 0-1h1V2.5A.5.5 0 0 1 2.5 2h11zM3 4v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4H3z" />
+                              </svg>
                             </button>
                           </div>
                         ),
@@ -169,48 +181,29 @@ function CommentDetail() {
                     })}
                   />
                 </VuiBox>
-                <div className="d-flex justify-content-end p-2 custom-pagination">
-                  <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
-                    <button
-                      className="btn btn-light"
-                      onClick={() => handleChangePage(null, page - 1)}
-                      disabled={page === 0}
-                    >
-                      &laquo;
-                    </button>
-                    <span className="btn btn-light disabled">
-                      Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
-                    </span>
-                    <button
-                      className="btn btn-light"
-                      onClick={() => handleChangePage(null, page + 1)}
-                      disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
-                    >
-                       &raquo;
-                    </button>
-                  </div>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "1rem" }}>
+                  <button onClick={() => handleChangePage(null, page - 1)} disabled={page === 0}>Previous</button>
+                  <button onClick={() => handleChangePage(null, page + 1)} disabled={(page + 1) * rowsPerPage >= rows.length}>Next</button>
                 </div>
               </>
             )}
+            <ConfirmDialog
+              open={openDialog}
+              onClose={() => setOpenDialog(false)}
+              onConfirm={() => confirmDelete(deleteId)}
+              onCancel={cancelDelete}
+            />
           </Card>
         </VuiBox>
       </VuiBox>
-      <ConfirmDialog
-        open={openDialog}
-        onClose={cancelDelete}
-        onConfirm={confirmDelete}
-        itemId={deleteId}
-      />
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+        message={snackbarMessage}
+        action={<button onClick={handleSnackbarClose}>Close</button>}
+        severity={snackbarSeverity}
+      />
     </DashboardLayout>
   );
 }

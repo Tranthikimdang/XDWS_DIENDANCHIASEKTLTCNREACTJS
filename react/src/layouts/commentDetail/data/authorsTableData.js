@@ -6,24 +6,15 @@ import VuiBadge from "components/VuiBadge";
 import { Link } from "react-router-dom";
 
 
-
-const handleDelete = (id) => {
-  console.log("Delete", id);
-  // Thực hiện hành động xóa ở đây
-};
-
 export default {
   columns: [
-    { name: "id", align: "left" },
-    { name: "name", align: "left" },
-    { name: "email", align: "center" },
-    { name: "description", align: "center" },
+    { name: "#", align: "left" },
+    { name: "article_id", align: "left" },
+    { name: "user_id", align: "center" },
+    { name: "content", align: "center" },
     { name: "created_date", align: "center" },
+    { name: "updated_date", align: "center" },
     { name: "action", align: "center" },
   ],
 
 };
-
-  
-
-

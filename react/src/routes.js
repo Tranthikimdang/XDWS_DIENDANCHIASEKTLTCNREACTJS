@@ -7,6 +7,7 @@ import Profile from "layouts/profile";
 import Article from "layouts/article";
 import User from "layouts/user";
 import SignIn from "layouts/authentication/sign-in";
+import SignUp from "layouts/authentication/sign-up";
 
 import FormAddUser from "layouts/user/data/formAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
@@ -187,6 +188,13 @@ const routes = [
     key: "formdeletearticle",
     route: "/formdeleteArticle",
     component: FormDeleteArticle,
+    hidden: true, // Ẩn mục này
+  }
+  ,
+  {
+    key: "signup",
+    route: "/signup",
+    component: SignUp,
     hidden: true, // Ẩn mục này
   }
 

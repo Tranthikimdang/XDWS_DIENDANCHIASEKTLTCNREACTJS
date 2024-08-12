@@ -1,4 +1,3 @@
-// api.js
 import axios from "axios";
 
 const API_URL = "http://localhost:4000/api"; // Thay đổi URL này nếu cần
@@ -21,15 +20,21 @@ const getList = async () => {
   }
 };
 
-
 const deleteComment = async (id) => {
   try {
     const response = await axios.delete(`${API_URL}/commentDetails/${id}`);
-    return response.status === 204;
+    if (response.status === 204) {
+      return true;
+    }
   } catch (error) {
-    throw error;
+    if (error.response && error.response.status === 404) {
+      console.error(`Comment with ID ${id} not found.`);
+      return false; 
+    }
+    throw error; 
   }
 };
+
 
 const getCommentById = async (id) => {
   try {
@@ -39,9 +44,20 @@ const getCommentById = async (id) => {
     throw error;
   }
 };
+
+const getCommentsByArticleId = async (articleId) => {
+  try {
+    const response = await axios.get(`${API_URL}/commentDetails/article/${articleId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default {
   addComment,
   getList,
   deleteComment,
-  getCommentById
+  getCommentById,
+  getCommentsByArticleId
 };
