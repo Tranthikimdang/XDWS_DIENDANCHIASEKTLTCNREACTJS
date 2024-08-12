@@ -41,20 +41,21 @@ const routes = [
  
    
   {
-    type: "collapse",
-    name: "Sign In",
-    key: "sign-in",
+   
+   
+   
     route: "/authentication/sign-in",
+   
     component: SignIn,
-    noCollapse: true,
+    
   },
   {
     type: "collapse",
-    name: "Sign In",
-    key: "sign-in",
-    route: "/authentication/sign-in",
+    name: "Dashboard",
+    key: "dashboard",
+    route: "/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
-    component: SignIn,
+    component: Dashboard,
     noCollapse: true,
   },
 
@@ -105,16 +106,16 @@ const routes = [
     component: Profile,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Sign In",
-    key: "sign-in",
-    route: "/authentication/sign-in",
-    icon: <IoIosDocument size="15px" color="inherit" />,
-    component: SignIn,
-    noCollapse: true,
+  // {
+  //   type: "collapse",
+  //   name: "Sign In",
+  //   key: "sign-in",
+  //   route: "/authentication/sign-in",
+  //   icon: <IoIosDocument size="15px" color="inherit" />,
+  //   component: SignIn,
+  //   noCollapse: true,
 
-  },
+  // },
 
   {
     key: "commentDetail",

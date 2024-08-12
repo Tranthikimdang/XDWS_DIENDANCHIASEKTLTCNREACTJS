@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useHistory } from "react-router-dom";
-// react-router components
-import { Route, Switch, Redirect, useLocation } from "react-router-dom";
+import { useHistory, Route, Switch, Redirect, useLocation } from "react-router-dom";
 
 // @mui material components
 import { ThemeProvider } from "@mui/material/styles";
@@ -38,26 +36,22 @@ export default function App() {
   const { pathname } = useLocation();
   const history = useHistory();
 
-
   useEffect(() => {
     // Lấy dữ liệu người dùng từ local storage
     const userData = localStorage.getItem("user"); 
     if (!userData) {
       history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
-      localStorage.removeItem("user")
       return;
     }
 
     const user = JSON.parse(userData); // Chuyển đổi chuỗi JSON thành đối tượng
     if (user.role !== "admin") {
       alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
-      localStorage.removeItem("user")
-      history.push("/authentication/sign-in"); // Có thể điều hướng đến trang đăng nhập hoặc trang khác
+      localStorage.removeItem("user");
+      history.push("/authentication/sign-in"); // Điều hướng đến trang đăng nhập
     }
-    
   }, [history]);
-  
-  // Cache for the rtl
+
   useMemo(() => {
     const cacheRtl = createCache({
       key: "rtl",
@@ -67,7 +61,6 @@ export default function App() {
     setRtlCache(cacheRtl);
   }, []);
 
-  // Open sidenav when mouse enter on mini sidenav
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
       setMiniSidenav(dispatch, false);
@@ -75,7 +68,6 @@ export default function App() {
     }
   };
 
-  // Close sidenav when mouse leave mini sidenav
   const handleOnMouseLeave = () => {
     if (onMouseEnter) {
       setMiniSidenav(dispatch, true);
@@ -83,15 +75,12 @@ export default function App() {
     }
   };
 
-  // Change the openConfigurator state
   const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
 
-  // Setting the dir attribute for the body element
   useEffect(() => {
     document.body.setAttribute("dir", direction);
   }, [direction]);
 
-  // Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -103,7 +92,6 @@ export default function App() {
         return getRoutes(route.collapse);
       }
 
-        
       if (route.route) {
         return <Route exact path={route.route} component={route.component} key={route.key} />;
       }
@@ -135,35 +123,10 @@ export default function App() {
     </VuiBox>
   );
 
-  return direction === "rtl" ? (
-    <CacheProvider value={rtlCache}>
-      <ThemeProvider theme={themeRTL}>
-        <CssBaseline />
-        {layout === "/authentication/sign-in" && (
-          <>
-            <Sidenav
-              color={sidenavColor}
-              brand=""
-              brandName="SHARE CODE"
-              routes={routes}
-              onMouseEnter={handleOnMouseEnter}
-              onMouseLeave={handleOnMouseLeave}
-            />
-            <Configurator />
-            {configsButton}
-          </>
-        )}
-        {layout === "vr" && <Configurator />}
-        <Switch>
-          {getRoutes(routes)}
-          <Redirect from="*" to="/authentication/sign-in" />
-        </Switch>
-      </ThemeProvider>
-    </CacheProvider>
-  ) : (
-    <ThemeProvider theme={theme}>
+  return (
+    <ThemeProvider theme={direction === "rtl" ? themeRTL : theme}>
       <CssBaseline />
-      {layout === "/authentication/sign-in" && (
+      {layout !== "/authentication/sign-in" && layout !== "vr" && (
         <>
           <Sidenav
             color={sidenavColor}
@@ -177,11 +140,11 @@ export default function App() {
           {configsButton}
         </>
       )}
-      {layout === "vr" && <Configurator />}
       <Switch>
         {getRoutes(routes)}
-        <Redirect from="*" to="/authentication/sign-in" />
+        <Redirect from="*" to="/dashboard" />
       </Switch>
     </ThemeProvider>
   );
+  
 }
