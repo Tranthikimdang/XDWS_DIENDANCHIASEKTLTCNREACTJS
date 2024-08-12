@@ -14,24 +14,19 @@ function FormAddCmt() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [user, setUser] = useState(""); // User state
-  const [article, setArticle] = useState(""); // Article state
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     const storedArticle = JSON.parse(localStorage.getItem('article'));
     if (storedUser) {
       setUser(storedUser);
-    }
-    if (storedArticle) {
-      setArticle(storedArticle);
-    }
+    }   
   }, []);
 
   const onSubmit = async (data) => {
     const currentDate = new Date().toISOString().split('T')[0]; 
     const commentData = {
       ...data,
-      articleId: article?.id,
       userId: user?.id,
       created_date: currentDate,
       updated_date: currentDate
@@ -70,7 +65,7 @@ function FormAddCmt() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label className='text-light form-label' style={smallFontStyle}>Article ID</label>
-            <input className='form-control bg-dark text-light' value={article?.no || ''} readOnly />
+            <input className='form-control bg-dark text-light'  />
           </div>
           <div>
             <label className='text-light form-label' style={smallFontStyle}>User Name</label>
