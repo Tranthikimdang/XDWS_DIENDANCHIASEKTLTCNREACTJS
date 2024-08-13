@@ -47,7 +47,7 @@ const handleDelete = (ordinal) => {
 
 export default {
   columns: [
-    { name: "stt", align: "left" },
+    { name: "no", align: "left" },
     { name: "name", align: "left" },
     { name: "action", align: "left" },
   ],
