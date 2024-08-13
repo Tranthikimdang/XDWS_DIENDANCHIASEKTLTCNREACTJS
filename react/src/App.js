@@ -91,8 +91,7 @@ export default function App() {
   useEffect(() => {
     document.body.setAttribute("dir", direction);
   }, [direction]);
-
-  // Setting page scroll to 0 when changing the route
+// Setting page scroll to 0 when changing the route
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -140,7 +139,7 @@ export default function App() {
     <CacheProvider value={rtlCache}>
       <ThemeProvider theme={themeRTL}>
         <CssBaseline />
-        {layout === "/authentication/sign-in" && (
+        {layout === "dashboard" && (
           <>
             <Sidenav
               color={sidenavColor}
@@ -157,14 +156,14 @@ export default function App() {
         {layout === "vr" && <Configurator />}
         <Switch>
           {getRoutes(routes)}
-          <Redirect from="*" to="/authentication/sign-in" />
+          <Redirect from="*" to="/dashboard" />
         </Switch>
       </ThemeProvider>
     </CacheProvider>
   ) : (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {layout === "/authentication/sign-in" && (
+      {layout === "dashboard" && (
         <>
           <Sidenav
             color={sidenavColor}
@@ -181,7 +180,7 @@ export default function App() {
       {layout === "vr" && <Configurator />}
       <Switch>
         {getRoutes(routes)}
-        <Redirect from="*" to="/authentication/sign-in" />
+        <Redirect from="*" to="/dashboard" />
       </Switch>
     </ThemeProvider>
   );

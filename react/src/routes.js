@@ -42,23 +42,13 @@ const routes = [
    
   {
     type: "collapse",
-    name: "Sign In",
-    key: "sign-in",
-    route: "/authentication/sign-in",
-    component: SignIn,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Sign In",
-    key: "sign-in",
-    route: "/authentication/sign-in",
+    name: "Dashboard",
+    key: "dashboard",
+    route: "/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
-    component: SignIn,
+    component: Dashboard,
     noCollapse: true,
   },
-
-
   {
     type: "collapse",
     name: "Article Management",
@@ -101,7 +91,7 @@ const routes = [
     name: "Profile",
     key: "profile",
     route: "/profile",
-    icon: <BsFillPersonFill size="15px" color="inherit" />,
+icon: <BsFillPersonFill size="15px" color="inherit" />,
     component: Profile,
     noCollapse: true,
   },

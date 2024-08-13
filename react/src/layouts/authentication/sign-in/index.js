@@ -26,7 +26,7 @@ function Login() {
   const navigate = useHistory();
   const form = useRef();
   const history = useHistory();
-
+  
   localStorage.removeItem("user");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
@@ -85,7 +85,7 @@ function Login() {
 
   const responseGoogle = async (response) => {
     const email = response.wt.cu;
-
+    
     try {
       const emailExists = await loginAPI.checkEmailExists(email);
       const generateRandomPassword = () => {
@@ -99,7 +99,7 @@ function Login() {
       }
 
       // Tiếp tục nếu email không tồn tại
-
+      
       const newUser = {
         name: response.wt.Ad,
         email: response.wt.cu,
@@ -108,20 +108,22 @@ function Login() {
         phone: "", // Cung cấp thông tin nếu cần
         role: "user"
       };
-
-      console.log(newUser);
-
-
+      
 
       await loginAPI.addUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
-      history.push("/");
+      
+      
       // Gửi email sau khi thêm người dùng mới thành công
-      // sendEmail({
-      //   name: newUser.name,
-      //   email: newUser.email,
-      //   message: `Mật khẩu của bạn là: ${generatedPassword}`,
-      // });
+
+      sendEmail({
+        name: newUser.name,
+        email: newUser.email,
+        message: `Mật khẩu của bạn là: ${generatedPassword}`,
+      });
+
+      // history.push("/");
+      
     } catch (error) {
       console.error("Error during Google login:", error);
     }
@@ -141,7 +143,7 @@ function Login() {
       )
       .then(
         (result) => {
-          alert("Message sent successfully...");
+          alert("Đăng ký thành công, kiểm tra email để nhận mật khẩu");
         },
         (error) => {
           alert("An error occurred, please try again.");
@@ -261,13 +263,7 @@ function Login() {
               cookiePolicy={"single_host_origin"}
               render={(renderProps) => (
                 <button
-                  className="btn btn-light"
-                  style={{
-                    outline: 'none',
-                    boxShadow: 'none',
-                    backgroundColor: '#f8f9fa',
-                    border: '0px solid #ced4da'
-                  }}
+                  className="google-login-btn"
                   onClick={renderProps.onClick}
                   disabled={renderProps.disabled}
                 >
