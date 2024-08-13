@@ -26,7 +26,7 @@ function Login() {
   const navigate = useHistory();
   const form = useRef();
   const history = useHistory();
-  
+
   localStorage.removeItem("user");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
@@ -85,7 +85,7 @@ function Login() {
 
   const responseGoogle = async (response) => {
     const email = response.wt.cu;
-    
+
     try {
       const emailExists = await loginAPI.checkEmailExists(email);
       const generateRandomPassword = () => {
@@ -99,7 +99,7 @@ function Login() {
       }
 
       // Tiếp tục nếu email không tồn tại
-      
+
       const newUser = {
         name: response.wt.Ad,
         email: response.wt.cu,
@@ -108,7 +108,10 @@ function Login() {
         phone: "", // Cung cấp thông tin nếu cần
         role: "user"
       };
-      
+
+      console.log(newUser);
+
+
 
       await loginAPI.addUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
@@ -258,7 +261,13 @@ function Login() {
               cookiePolicy={"single_host_origin"}
               render={(renderProps) => (
                 <button
-                  className="google-login-btn"
+                  className="btn btn-light"
+                  style={{
+                    outline: 'none',
+                    boxShadow: 'none',
+                    backgroundColor: '#f8f9fa',
+                    border: '0px solid #ced4da'
+                  }}
                   onClick={renderProps.onClick}
                   disabled={renderProps.disabled}
                 >

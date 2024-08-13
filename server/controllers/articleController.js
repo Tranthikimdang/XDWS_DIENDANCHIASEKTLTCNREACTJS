@@ -39,6 +39,8 @@ const addArticle = async (req, res) => {
       title,
       content,
       view: 0,
+      created_at: new Date(), // Tự động gán thời gian tạo
+      updated_at: new Date(), // Tự động gán thời gian cập nhật
       is_deleted: false
     };
 
@@ -55,15 +57,21 @@ const addArticle = async (req, res) => {
   });
 };
 
+const formatDateTime = (date) => {
+  return new Date(date).toLocaleString(); // Chuyển đổi thành chuỗi định dạng dễ đọc
+};
+
 const getList = async (req, res) => {
   try {
     const articles = await Article.getList();
-    const host = req.protocol + '://' + req.get('host'); // http://localhost:4000
+    const host = req.protocol + '://' + req.get('host');
 
     const updatedItems = articles.map(item => {
       return {
         ...item,
-        image: host + '/' + item?.image?.replace(/\\/g, '/'), // Cập nhật đường dẫn ảnh
+        image: host + '/' + item?.image?.replace(/\\/g, '/'),
+        created_at: formatDateTime(item.created_at),
+        updated_at: formatDateTime(item.updated_at),
       };
     });
 
@@ -78,6 +86,7 @@ const getList = async (req, res) => {
     res.status(500).json({ status: 500, error: error.message });
   }
 };
+
 
 const getArticleById = async (req, res) => {
   const { id } = req.params;
@@ -124,8 +133,7 @@ const updateArticle = async (req, res) => {
       title,
       content,
       view: 0,
-      created_at: false,
-      updated_at: false,
+      updated_at: new Date(), // Tự động gán thời gian cập nhật
       is_deleted: false
     };
 
