@@ -91,7 +91,7 @@ const routes = [
     name: "Profile",
     key: "profile",
     route: "/profile",
-    icon: <BsFillPersonFill size="15px" color="inherit" />,
+icon: <BsFillPersonFill size="15px" color="inherit" />,
     component: Profile,
     noCollapse: true,
   },

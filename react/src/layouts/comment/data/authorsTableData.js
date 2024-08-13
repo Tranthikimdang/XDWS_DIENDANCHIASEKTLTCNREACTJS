@@ -11,7 +11,6 @@ export default {
     { name: "title", align: "left" },
     { name: "image", align: "left" },
     { name: "content", align: "center" },
-    { name: "created_date", align: "center" },
     { name: "action", align: "center" },
   ],
 
