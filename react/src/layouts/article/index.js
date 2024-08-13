@@ -181,7 +181,6 @@ function Article() {
                   <Table
                     columns={columns}
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-
                       return {
                         ...row,
                         no: page * rowsPerPage + index + 1,
@@ -205,7 +204,11 @@ function Article() {
                               <div className="col">
                                 <VuiBox display="flex" flexDirection="column">
                                   <VuiTypography variant="caption" fontWeight="medium" color="white">
-                                    <strong>{row.title.toUpperCase()}</strong>
+                                    <strong>
+                                      {row.title?.length > 10
+                                        ? `${row.title.toUpperCase()?.substring(0, 10)}...`
+                                        : row.title.toUpperCase()}
+                                    </strong>
                                   </VuiTypography>
                                   <VuiTypography variant="caption" color="text">
                                     {row.categories_id}
@@ -228,8 +231,8 @@ function Article() {
                             </VuiTypography>
                           </VuiBox>
                         ),
-                        content: removeSpecificHtmlTags(row.content, 'p')?.length > 20
-                          ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 20)}...`
+                        content: removeSpecificHtmlTags(row.content, 'p','strong')?.length > 10
+                          ? `${removeSpecificHtmlTags(row.content, 'p','strong')?.substring(0, 10)}...`
                           : removeSpecificHtmlTags(row.content, 'p'),
                         action: (
                           <div className="action-buttons">

@@ -123,9 +123,7 @@ function Header() {
                 onChange={handleSetTabValue}
                 sx={{ background: "transparent", display: "flex", justifyContent: "flex-end" }}
               >
-                <Tab label="OVERVIEW" icon={<IoCube color="white" size="16px" />} />
-                <Tab label="TEAMS" icon={<IoDocument color="white" size="16px" />} />
-                <Tab label="PROJECTS" icon={<IoBuild color="white" size="16px" />} />
+              
               </Tabs>
             </AppBar>
           </Grid>
