@@ -9,6 +9,8 @@ import Table from "examples/Tables/Table";
 import authorsArticleData from "layouts/article/data/authorsArticleData";
 import ConfirmDialog from './data/FormDeleteArticle';
 import apis from "../../apis/articleApi";
+import userApi from "../../apis/userApi";
+
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
@@ -21,6 +23,7 @@ function Article() {
   const { columns } = authorsArticleData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
+  const [users, setUsers] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -28,18 +31,6 @@ function Article() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [user, setUser] = useState(""); // Khai báo state name
-
-  useEffect(() => {
-    // Lấy thông tin người dùng từ localStorage
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      setUser(user)
-      // setName(user.name);
-    }
-    console.log(user);
-
-  }, []);
 
   // Lấy danh sách bài viết từ API
   useEffect(() => {
@@ -61,7 +52,24 @@ function Article() {
     fetchArticle();
   }, []);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await userApi.getList();
+        if (response.status === 200) {
+          const user = response.data || [];
+          setUsers(user);
+          console.log("Fetched users:", user);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchUser();
+  }, []);
 
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
@@ -227,12 +235,12 @@ function Article() {
                         Author: (
                           <VuiBox display="flex" flexDirection="column">
                             <VuiTypography variant="button" color="white" fontWeight="medium">
-                              {user?.name}
+                              {users?.filter(u => row?.user_id == u.id)?.[0]?.name}
                             </VuiTypography>
                           </VuiBox>
                         ),
-                        content: removeSpecificHtmlTags(row.content, 'p','strong')?.length > 10
-                          ? `${removeSpecificHtmlTags(row.content, 'p','strong')?.substring(0, 10)}...`
+                        content: removeSpecificHtmlTags(row.content, 'p', 'strong')?.length > 10
+                          ? `${removeSpecificHtmlTags(row.content, 'p', 'strong')?.substring(0, 10)}...`
                           : removeSpecificHtmlTags(row.content, 'p'),
                         action: (
                           <div className="action-buttons">
