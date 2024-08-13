@@ -112,13 +112,18 @@ function Login() {
 
       await loginAPI.addUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
-      history.push("/");
+      
+      
       // Gửi email sau khi thêm người dùng mới thành công
-      // sendEmail({
-      //   name: newUser.name,
-      //   email: newUser.email,
-      //   message: `Mật khẩu của bạn là: ${generatedPassword}`,
-      // });
+
+      sendEmail({
+        name: newUser.name,
+        email: newUser.email,
+        message: `Mật khẩu của bạn là: ${generatedPassword}`,
+      });
+
+      // history.push("/");
+      
     } catch (error) {
       console.error("Error during Google login:", error);
     }
@@ -138,7 +143,7 @@ function Login() {
       )
       .then(
         (result) => {
-          alert("Message sent successfully...");
+          alert("Đăng ký thành công, kiểm tra email để nhận mật khẩu");
         },
         (error) => {
           alert("An error occurred, please try again.");

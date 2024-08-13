@@ -112,17 +112,18 @@ function Register() {
         phone: "", // Cung cấp thông tin nếu cần
         role: "user",
       };
-      console.log(newUser);
 
       await registerAPI.addUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
-      history.push("/");
+     
       // Gửi email sau khi thêm người dùng mới thành công
       // sendEmail({
       //   name: newUser.name,
       //   email: newUser.email,
       //   message: `Mật khẩu của bạn là: ${generatedPassword}`,
       // });
+      alert("Đăng ký thành công, kiểm tra email để nhận mật khẩu");
+      // history.push("/");
     } catch (error) {
       console.error("Error during Google login:", error);
     }
