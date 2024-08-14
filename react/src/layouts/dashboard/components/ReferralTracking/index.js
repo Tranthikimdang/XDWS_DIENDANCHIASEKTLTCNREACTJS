@@ -21,19 +21,19 @@ function ReferralTracking() {
   const { info, gradients } = colors;
   const { cardContent } = gradients;
   const [articles, setArticles] = useState([]);
-  const [newArticles,setNewArticles] = useState([])
+  const [newArticles, setNewArticles] = useState([])
 
   useEffect(() => {
     const fetchArticle = async () => {
-		console.log(formatDate());
+      console.log(formatDate());
       try {
         const response = await apis.getList();
         if (response.status === 200) {
           const article = response.data || [];
-          const newArticles = article.filter((a) =>{
-			return  a.created_date == formatDate()
-		  });
-		  setNewArticles(newArticles)
+          const newArticles = article.filter((a) => {
+            return a.update_at == formatDate()
+          });
+          setNewArticles(newArticles)
           setArticles(article);
         }
       } catch (error) {
@@ -65,9 +65,9 @@ function ReferralTracking() {
           sx={{ width: "100%" }}
           mb="40px"
         >
-          <VuiTypography variant="lg" color="white" mr="auto" fontWeight="bold">
+          {/* <VuiTypography variant="lg" color="white" mr="auto" fontWeight="bold">
             Bài viết mới
-          </VuiTypography>
+          </VuiTypography> */}
           <VuiBox
             display="flex"
             justifyContent="center"
@@ -127,14 +127,14 @@ function ReferralTracking() {
                 },
               })}
             >
-              <VuiTypography color="text" variant="button" fontWeight="regular" mb="5px">
+              {/* <VuiTypography color="text" variant="button" fontWeight="regular" mb="5px">
                 Bài viết mới
-              </VuiTypography>
-              <VuiTypography color="white" variant="lg" fontWeight="bold">
+              </VuiTypography> */}
+              {/* <VuiTypography color="white" variant="lg" fontWeight="bold">
                 {newArticles.length} 
-              </VuiTypography>
+              </VuiTypography> */}
             </VuiBox>
-            <VuiBox
+            {/* <VuiBox
               display="flex"
               width="220px"
               p="20px 22px"
@@ -157,9 +157,41 @@ function ReferralTracking() {
               <VuiTypography color="white" variant="lg" fontWeight="bold">
 			  {articles.length} 
               </VuiTypography>
+            </VuiBox> */}
+
+            <VuiBox
+              display="flex"
+              width="500px"
+              height="500px"
+              p="24px"
+              justifyContent="center"
+              alignItems="center"
+              sx={({ breakpoints }) => ({
+                background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
+                borderRadius: "50%",
+                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
+                [breakpoints.up("xl")]: {
+                  maxWidth: "200px !important",
+                  height: "200px",
+                },
+                [breakpoints.up("xxl")]: {
+                  minWidth: "250px",
+                  height: "250px",
+                },
+              })}
+            >
+              <VuiBox display="flex" flexDirection="column" alignItems="center">
+                <VuiTypography color="white" variant="h3" fontWeight="bold" mb="10px">
+                  {articles.length}
+                </VuiTypography>
+                <VuiTypography color="text" variant="h6" fontWeight="regular">
+                 <strong>Tổng số bài viết</strong> 
+                </VuiTypography>
+              </VuiBox>
             </VuiBox>
+
           </Stack>
-          <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
+          {/* <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
             <CircularProgress
               variant="determinate"
               value={(newArticles.length / articles.length) * 100 }
@@ -203,7 +235,7 @@ function ReferralTracking() {
                 </VuiTypography>
               </VuiBox>
             </VuiBox>
-          </VuiBox>
+          </VuiBox> */}
         </VuiBox>
       </VuiBox>
     </Card>
