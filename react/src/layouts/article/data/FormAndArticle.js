@@ -118,11 +118,11 @@ function FormAndArticle() {
                 style={smallFontStyle}
                 {...register("categories_id", { required: "Category is required" })}
               >
-                <option style={smallFontStyle}>
+                <option style={smallFontStyle} value="">
                   Open this select menu
                 </option>
                 {cates.map((cate) => (
-                  
+
                   <option style={smallFontStyle} key={cate?.key} value={cate?.key}>
                     {cate?.name}
                   </option>
@@ -130,7 +130,6 @@ function FormAndArticle() {
               </select>
               {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
             </div>
-
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
