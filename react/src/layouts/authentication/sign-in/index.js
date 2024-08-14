@@ -263,7 +263,13 @@ function Login() {
               cookiePolicy={"single_host_origin"}
               render={(renderProps) => (
                 <button
-                  className="google-login-btn"
+                className="btn btn-light"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                  backgroundColor: '#f8f9fa',
+                  border: '0px solid #ced4da'
+                }}
                   onClick={renderProps.onClick}
                   disabled={renderProps.disabled}
                 >
