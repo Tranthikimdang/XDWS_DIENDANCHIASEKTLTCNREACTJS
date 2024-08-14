@@ -86,7 +86,7 @@ function DefaultNavbar({ transparent, light, action }) {
           transform: "translate(-50%, 0px)",
         })}
       >
-        <VuiBox component={Link} to="/" py={transparent ? 1.5 : 0.75} lineHeight={1}>
+        <VuiBox component={Link} to="/authentication/sign-in" py={transparent ? 1.5 : 0.75} lineHeight={1}>
           <VuiTypography
             variant="button"
             textGradient={true}
@@ -98,13 +98,13 @@ function DefaultNavbar({ transparent, light, action }) {
               margin: "0 auto",
             }}
           >
-            SHARE CODE 
+            VISION UI FREE
           </VuiTypography>
         </VuiBox>
         <VuiBox color="inherit" display={{ xs: "none", lg: "flex" }} m={0} p={0}>
-          {/* <DefaultNavbarLink icon="donut_large" name="dashboard" route="/dashboard" />
-          <DefaultNavbarLink icon="person" name="profile" route="/profile" />
-          <DefaultNavbarLink icon="key" name="sign in" route="/authentication/sign-in" /> */}
+          <DefaultNavbarLink icon="donut_large" name="dashboard" route="/authentication/sign-in" />
+          <DefaultNavbarLink icon="person" name="profile" route="/authentication/sign-in" />
+          <DefaultNavbarLink icon="key" name="sign in" route="/authentication/sign-in" />
           <div >
               <GoogleAuth/>
             </div>

@@ -6,7 +6,6 @@ import api from '../../../apis/articleApi';
 import categoriesApi from '../../../apis/categoriesApi';
 import { Editor } from "@tinymce/tinymce-react";
 import { Snackbar, Alert } from "@mui/material";
-
 function FormAndArticle() {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const history = useHistory();
@@ -119,10 +118,11 @@ function FormAndArticle() {
                 style={smallFontStyle}
                 {...register("categories_id", { required: "Category is required" })}
               >
-                <option value="" disabled style={smallFontStyle}>
+                <option style={smallFontStyle}>
                   Open this select menu
                 </option>
                 {cates.map((cate) => (
+                  
                   <option style={smallFontStyle} key={cate?.key} value={cate?.key}>
                     {cate?.name}
                   </option>

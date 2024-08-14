@@ -121,6 +121,11 @@ function FormViewArticle() {
     history.goBack(); // Navigate back to the previous page
   };
 
+  const smallFontStyle = {
+    fontSize: '0.9rem',
+    color: '#ffffff'
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -160,13 +165,13 @@ function FormViewArticle() {
                       )}
                     </Grid>
                     <Grid item xs={6}>
-                      <VuiTypography variant="h3" gutterBottom style={{ color: "#ffffff" }}>
+                      <VuiTypography variant="h3"  gutterBottom style={smallFontStyle}>
                         {article.title}
                       </VuiTypography>
-                      <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
+                      <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
                         <strong>Article category: </strong> {article.categories_id}
                       </VuiTypography>
-                      <VuiTypography variant="subtitle1" style={{ color: "#ffffff" }}>
+                      <VuiTypography variant="subtitle1" style={smallFontStyle}>
                         <strong>Author: </strong>  {users?.filter(u => article?.user_id == u.id)?.[0]?.name}
                       </VuiTypography>
                       {/* <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
@@ -177,7 +182,7 @@ function FormViewArticle() {
                       </VuiTypography> */}
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: "30px" }}> 
-                      <VuiTypography variant="body1" paragraph style={{ color: "#e0e0e0" }}>
+                      <VuiTypography variant="body1" paragraph style={smallFontStyle}>
                       <strong>Content: </strong>
                       {removeSpecificHtmlTags(article.content, "p")}
                     </VuiTypography>
