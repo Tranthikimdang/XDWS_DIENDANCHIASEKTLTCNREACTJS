@@ -104,16 +104,16 @@ icon: <BsFillPersonFill size="15px" color="inherit" />,
     component: Profile,
     noCollapse: true,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Sign In",
-  //   key: "sign-in",
-  //   route: "/authentication/sign-in",
-  //   icon: <IoIosDocument size="15px" color="inherit" />,
-  //   component: SignIn,
-  //   noCollapse: true,
+  {
+    type: "collapse",
+    name: "Sign In",
+    key: "sign-in",
+    route: "/authentication/sign-in",
+    icon: <IoIosDocument size="15px" color="inherit" />,
+    component: SignIn,
+    noCollapse: true,
 
-  // },
+  },
 
   {
     key: "commentDetail",
