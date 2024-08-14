@@ -32,6 +32,7 @@ function Category() {
     const fetchCategories = async () => {
       try {
         const response = await apis.getList();
+        
         if (response.status == 200) {
           console.log(response.data);
           const categories = response.data || [];
