@@ -165,7 +165,7 @@ function FormViewArticle() {
                       )}
                     </Grid>
                     <Grid item xs={6}>
-                      <VuiTypography variant="h3"  gutterBottom style={smallFontStyle}>
+                      <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
                         {article.title}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
@@ -181,11 +181,11 @@ function FormViewArticle() {
                         <strong>Date: </strong> {new Date(article.updated_at).toLocaleDateString()}
                       </VuiTypography> */}
                     </Grid>
-                    <Grid item xs={12} style={{ marginTop: "30px" }}> 
+                    <Grid item xs={12} style={{ marginTop: "30px" }}>
                       <VuiTypography variant="body1" paragraph style={smallFontStyle}>
-                      <strong>Content: </strong>
-                      {removeSpecificHtmlTags(article.content, "p")}
-                    </VuiTypography>
+                        <strong>Content: </strong>
+                        {removeSpecificHtmlTags(article.content, "p")}
+                      </VuiTypography>
                     </Grid>
                     <Grid item xs={12}>
                       <Box display="flex" justifyContent="flex-end" mt={3}>
