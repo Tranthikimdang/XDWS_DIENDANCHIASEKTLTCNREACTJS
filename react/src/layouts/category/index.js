@@ -32,6 +32,7 @@ function Category() {
     const fetchCategories = async () => {
       try {
         const response = await apis.getList();
+        
         if (response.status == 200) {
           console.log(response.data);
           const categories = response.data || [];
@@ -150,7 +151,7 @@ function Category() {
                 rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                   console.log(row);
                   return {
-                    stt: page * rowsPerPage + index + 1,
+                    no: page * rowsPerPage + index + 1,
                     name: row.name,
                     action: (
                       <div>
@@ -184,7 +185,8 @@ function Category() {
                 })}
                 />
                 </VuiBox>
-                <div className="d-flex justify-content-end p-2 custom-pagination">
+                
+                <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
                       className="btn btn-light"

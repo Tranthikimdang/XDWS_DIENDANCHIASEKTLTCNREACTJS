@@ -13,7 +13,6 @@ import FormAddUser from "layouts/user/data/formAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
 import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
-
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
 import FormDeleteCate from "layouts/category/data/FormDeleteCate";
@@ -38,9 +37,11 @@ import { BsJournals } from "react-icons/bs";
 import { BsBellFill } from "react-icons/bs";
 import { FaUserShield } from "react-icons/fa";
 const routes = [
-  
- 
-   
+  {
+    route: "/authentication/sign-in",
+
+    component: SignIn,
+  },
   {
     type: "collapse",
     name: "Dashboard",
@@ -92,7 +93,7 @@ const routes = [
     name: "Profile",
     key: "profile",
     route: "/profile",
-icon: <BsFillPersonFill size="15px" color="inherit" />,
+    icon: <BsFillPersonFill size="15px" color="inherit" />,
     component: Profile,
     noCollapse: true,
   },
@@ -104,7 +105,6 @@ icon: <BsFillPersonFill size="15px" color="inherit" />,
     icon: <IoIosDocument size="15px" color="inherit" />,
     component: SignIn,
     noCollapse: true,
-
   },
 
   {
@@ -117,7 +117,7 @@ icon: <BsFillPersonFill size="15px" color="inherit" />,
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
-    hidden: true, 
+    hidden: true,
   },
   {
     key: "formeditcmt",
@@ -196,16 +196,13 @@ icon: <BsFillPersonFill size="15px" color="inherit" />,
     route: "/formdeleteArticle",
     component: FormDeleteArticle,
     hidden: true, // Ẩn mục này
-  }
-  ,
+  },
   {
     key: "signup",
     route: "/signup",
     component: SignUp,
     hidden: true, // Ẩn mục này
-  }
-
+  },
 ];
-
 
 export default routes;
