@@ -147,6 +147,19 @@ function Article() {
               </VuiTypography>
               <Link to="/formandarticle">
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddArticleSuccess}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-plus"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
+                    />
+                  </svg>
                   Add
                 </button>
               </Link>
@@ -214,7 +227,7 @@ function Article() {
                                     {row.categories_id}
                                   </VuiTypography>
                                   <div className="style-scope ytd-video-meta-block" style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <span className="inline-metadata-item">{row.view}</span>
+
                                     <span className="inline-metadata-item style-scope ytd-video-meta-block">
                                       {row.updated_at}
                                     </span>
