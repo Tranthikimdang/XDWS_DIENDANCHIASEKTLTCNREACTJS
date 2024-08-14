@@ -17,7 +17,7 @@ function ConfirmDialog({ open, onClose, onConfirm, itemTitle }) {
       <DialogTitle>Confirm Delete</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
-          Are you sure you want to delete the post titled "{itemTitle}"?
+          Are you sure you want to delete the post title "{itemTitle}"?
         </VuiTypography>
       </DialogContent>
       <DialogActions>
