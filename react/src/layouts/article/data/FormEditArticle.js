@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import api from "../../../apis/articleApi";
 import categoriesApi from '../../../apis/categoriesApi';
-import { Editor } from "@tinymce/tinymce-react"; // Thay thế bằng đường dẫn thực tế tới Editor
+import { Editor } from "@tinymce/tinymce-react";
 import { Snackbar, Alert } from "@mui/material";
 import { useHistory } from 'react-router-dom';
 
@@ -17,17 +17,14 @@ function FormEditArticle() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [cates, setCates] = useState([]);
-  const [user, setUser] = useState(""); // Khai báo state name
+  const [user, setUser] = useState("");
 
   useEffect(() => {
-    // Lấy thông tin người dùng từ localStorage
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
-      setUser(user)
-      // setName(user.name);
+      setUser(user);
     }
     console.log(user);
-
   }, []);
 
   useEffect(() => {
@@ -45,7 +42,7 @@ function FormEditArticle() {
 
     fetchCategories();
   }, []);
-  
+
   const {
     register,
     handleSubmit,
@@ -57,9 +54,6 @@ function FormEditArticle() {
       image: data?.image || "",
       title: data?.title || "",
       categories_id: data?.categories_id || "",
-      
-
-     
     },
   });
 
@@ -68,8 +62,22 @@ function FormEditArticle() {
   useEffect(() => {
     if (data) {
       setValue("content", data.content || "");
+      setValue("categories_id", data.categories_id || ""); // Set default category
     }
   }, [data, setValue]);
+
+  useEffect(() => {
+    if (data) {
+      console.log("Article data categories_id:", data.categories_id);
+      setValue("content", data.content || "");
+      setValue("categories_id", data.categories_id || ""); // Đặt giá trị mặc định cho danh mục
+    }
+  }, [data, setValue]);
+  
+  useEffect(() => {
+    console.log("Categories:", cates);
+  }, [cates]);
+  
 
   const onSubmit = async (formData) => {
     try {
@@ -85,13 +93,13 @@ function FormEditArticle() {
 
       const response = await api.updateArticle(data.id, formDataWithImage);
       console.log('Article added successfully:', response);
-      setSnackbarMessage("Article added successfully.");
+      setSnackbarMessage("Article updated successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setTimeout(() => history.push('/article'), 500);
     } catch (error) {
       console.error("Error updating article:", error);
-      setSnackbarMessage("Failed to add Article.");
+      setSnackbarMessage("Failed to update Article.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -125,9 +133,9 @@ function FormEditArticle() {
           encType="multipart/form-data"
         >
           <div className="row">
-          <div className='col-6 mb-3'>
+            <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Username</label>
-              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} />
+              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} readOnly />
             </div>
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Title</label>
@@ -145,11 +153,10 @@ function FormEditArticle() {
                 Image
               </label>
               <input
-                className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""
-                  }`}
+                className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""}`}
                 type="file"
                 {...register("image", { required: "Image is required" })}
-                onChange={handleImageChange} // Add onChange handler
+                onChange={handleImageChange}
               />
               {errors.image && (
                 <div className="invalid-feedback">{errors.image.message}</div>
@@ -170,11 +177,17 @@ function FormEditArticle() {
                 Category
               </label>
               <select
-                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`} style={smallFontStyle}
-                {...register("categories_id", { required: "Category is required" })}>
-                <option style={smallFontStyle}>Open this select menu</option>
-                {cates.length && cates.map((cate) => (
-                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>{cate?.name}</option>
+                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
+                style={smallFontStyle}
+                {...register("categories_id", { required: "Category is required" })}
+              >
+                <option value="" disabled style={smallFontStyle}>
+                  Open this select menu
+                </option>
+                {cates.map((cate) => (
+                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>
+                    {cate?.name}
+                  </option>
                 ))}
               </select>
               {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
@@ -192,7 +205,7 @@ function FormEditArticle() {
                 toolbar:
                   "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat",
                 tinycomments_mode: "embedded",
-                content_css: "/path/to/dark-theme-tinymce.css", // Use the downloaded CSS file path
+                content_css: false,
                 body_class: "my-editor",
                 tinycomments_author: "Author name",
                 mergetags_list: [
@@ -200,17 +213,16 @@ function FormEditArticle() {
                   { value: "Email", title: "Email" },
                 ],
                 ai_request: (request, respondWith) =>
-                  respondWith.string(() => Promise.reject("See docs to implement AI Assistant")),
+                  respondWith.string(() =>
+                    Promise.reject("See docs to implement AI Assistant")
+                  ),
               }}
-              initialValue=""
+              initialValue={data?.content || ""}
               onEditorChange={(content) => setValue("content", content)}
             />
             {errors.content && (
-              <span className="text-danger" style={smallFontStyle}>
-                {errors.content.message}
-              </span>
+              <span className="text-danger">{errors.content.message}</span>
             )}
-
           </div>
           <div className="d-flex justify-content mt-3">
             <button className="text-light btn btn-outline-info me-2" type="submit">Edit Article</button>

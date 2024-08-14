@@ -5,7 +5,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Footer from "examples/Footer";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/user/data/authorsTableData";
 import ConfirmDialog from './data/FormDeleteUser';
@@ -198,8 +197,6 @@ function User() {
           </Card>
         </VuiBox>
       </VuiBox>
-      <Footer />
-
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}

@@ -43,7 +43,7 @@ function FormAndArticle() {
 
     fetchCategories();
   }, []);
-  
+
 
   const onSubmit = async (data) => {
     const formData = new FormData();
@@ -90,12 +90,12 @@ function FormAndArticle() {
               <label className='text-light form-label' style={smallFontStyle}>Title</label>
               <input
                 className={`form-control bg-dark text-light ${errors.title ? 'is-invalid' : ''}`}
-                {...register('title', { required: 'Title is required', minLength: 3, maxLength: 20 })}
+                {...register('title', { required: 'Title is required', minLength: 3 })}
                 style={smallFontStyle}
               />
               {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
               {errors.title && errors.title.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Title must be at least 3 characters long</span>}
-              {errors.title && errors.title.type === 'maxLength' && <span className="text-danger" style={smallFontStyle}>Title must be less than 20 characters long</span>}
+
             </div>
           </div>
           <div className="row">
@@ -115,22 +115,29 @@ function FormAndArticle() {
                 Category
               </label>
               <select
-                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`} style={smallFontStyle}
-                {...register("categories_id", { required: "Category is required" })}>
-                <option style={smallFontStyle}>Open this select menu</option>
-                {cates.length && cates.map((cate) => (
-                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>{cate?.name}</option>
+                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
+                style={smallFontStyle}
+                {...register("categories_id", { required: "Category is required" })}
+              >
+                <option value="" disabled style={smallFontStyle}>
+                  Open this select menu
+                </option>
+                {cates.map((cate) => (
+                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>
+                    {cate?.name}
+                  </option>
                 ))}
               </select>
               {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
             </div>
+
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
               Content
             </label>
             <Editor
-               apiKey= "w8d8xdljziohzromzltpcfb782uwno43s83axici5dyzam4y"
+              apiKey="w8d8xdljziohzromzltpcfb782uwno43s83axici5dyzam4y"
               init={{
                 plugins:
                   "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
