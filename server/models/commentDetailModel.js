@@ -1,4 +1,4 @@
-const { collection, addDoc, getDocs, doc, deleteDoc, getDoc } = require('firebase/firestore/lite');
+const { collection, addDoc, getDocs, doc,updateDoc, deleteDoc, getDoc } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig.js');
 
 const addComment = async (commentDetail) => {
@@ -18,6 +18,17 @@ const getAllComment = async () => {
     return comment;
   } catch (e) {
     throw new Error('Error getting documents: ' + e.message);
+  }
+};
+
+const updatedComment = async (id, updatedData) => {
+  try {
+    const commentDetailDoc = doc(db, 'commentDetails', id);
+    await updateDoc(commentDetailDoc, updatedData);
+    return `Article with id ${id} updated successfully.`;
+  } catch (e) {
+    console.error('Error updating document:', e);
+    throw new Error('Error updating document: ' + e.message);
   }
 };
 
@@ -69,6 +80,7 @@ const getCommentsByArticleId = async (articleId) => {
 module.exports = {
   addComment,
   getAllComment,
+  updatedComment,
   deleteComment,
   getCommentById,
   getCommentsByArticleId
