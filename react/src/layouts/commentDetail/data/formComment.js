@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
-import { useHistory } from 'react-router-dom';
+import { useHistory,useLocation } from 'react-router-dom';
 import api from '../../../apis/commentDetailApi';
 import { Snackbar, Alert } from "@mui/material";
 
@@ -14,6 +14,10 @@ function FormAddCmt() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [user, setUser] = useState(""); // User state
+
+  const location = useLocation();
+  const { id } = location.state || {};
+  console.log(id);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -27,6 +31,7 @@ function FormAddCmt() {
     const currentDate = new Date().toISOString().split('T')[0]; 
     const commentData = {
       ...data,
+      article_id:id,
       user_name: user?.name,  
       created_date: currentDate,
       updated_date: currentDate
@@ -40,7 +45,7 @@ function FormAddCmt() {
       setSnackbarMessage("Comment added.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/commentDetail'), 1000); 
+      setTimeout(() => history.push('/commentDetail',{ id:id }), 1000); 
     } catch (error) {
       console.error('Error adding comment:', error);
       setSnackbarMessage("Failed to add comment.");
@@ -82,7 +87,7 @@ function FormAddCmt() {
           </div>            
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/commentDetail')}>Back</button>
+            <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/commentDetail',{ id: id })}>Back</button>
           </div>
         </form>
       </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import { Link, useParams } from 'react-router-dom';
+import { Link,useLocation } from 'react-router-dom';
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -15,7 +15,6 @@ import './index.css';
 
 function CommentDetail() {
   const { columns } = authorsTableData;
-  const { articleId } = useParams(); 
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
@@ -26,13 +25,19 @@ function CommentDetail() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const location = useLocation();
+  const { id } = location.state || {};
+  console.log(id);
+
   useEffect(() => {
     const fetchCommentsByArticle = async () => {
       try {
         setLoading(true);
-        const response = await apis.getList(articleId);
+        const response = await apis.getList(id);
         if (response.status === 200) {
-          setRows(response.data || []);
+         const newData = response.data?.filter(cmt=>cmt.article_id == id)
+         console.log(newData);
+          setRows(newData || []);
         }
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -42,7 +47,7 @@ function CommentDetail() {
     };
 
     fetchCommentsByArticle();
-  }, [articleId]);
+  }, []);
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -102,7 +107,7 @@ function CommentDetail() {
               <VuiTypography variant="lg" color="white">
                 Comment Detail Table
               </VuiTypography>
-              <Link to={`/formAddCmt`}>
+              <Link to={{ pathname: "/formAddCmt", state: { id: id } }}>
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
                     <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
@@ -159,7 +164,7 @@ function CommentDetail() {
                         '#' : page * rowsPerPage + index + 1,
                         action: (
                           <div> 
-                            <Link to={{ pathname: "/formEditCmt" , state: { data: row } }}>
+                            <Link to={{ pathname: "/formEditCmt" , state: { id: id } }}>
                               <button className="text-light btn btn-outline-warning me-2" type="button" >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
                                   <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />

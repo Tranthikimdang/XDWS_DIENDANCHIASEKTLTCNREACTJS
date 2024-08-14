@@ -8,7 +8,8 @@ import { Snackbar, Alert } from "@mui/material";
 
 function FormEditCmt() {
   const location = useLocation();
-  const { data } = location.state || {};
+  const { data , id} = location.state || {};
+  
   const history = useHistory();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -44,8 +45,9 @@ function FormEditCmt() {
     const currentDate = new Date().toISOString().split('T')[0]; 
       const requestData = {
         user_name: user.name, 
+        article_id:id,
         content: formData.content,
-        created_date: data.created_date,         
+        created_date: formData.created_date,         
         updated_date: currentDate  
       };
   
@@ -54,7 +56,7 @@ function FormEditCmt() {
       setSnackbarMessage("Comment updated successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/commentDetail'), 500);
+      setTimeout(() => history.push('/commentDetail', { id:id }), 500);
     } catch (error) {
       console.error("Error updating comment:", error.response ? error.response.data : error.message);
       setSnackbarMessage("Failed to update comment.");
@@ -91,7 +93,7 @@ function FormEditCmt() {
           </div>            
           <div className='mt-3'>
             <button className='text-light btn btn-outline-info' type="submit">Update</button>
-            <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/commentDetail')}>Back</button>
+            <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/commentDetail' , { id: id })}>Back</button>
           </div>
         </form>
       </div>
