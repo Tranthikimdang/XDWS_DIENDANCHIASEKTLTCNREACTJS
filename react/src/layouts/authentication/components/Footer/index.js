@@ -29,7 +29,7 @@ function Footer() {
       pb={0}
       sx={{ mt: "auto" }} // Ensure the footer is pushed to the bottom
     >
-      <VuiBox item xs={12} sx={{ textAlign: "center" }}>
+      {/* <VuiBox item xs={12} sx={{ textAlign: "center" }}>
         <VuiTypography
           variant="button"
           sx={{ textAlign: "center", fontWeight: "400 !important" }}
@@ -47,7 +47,7 @@ function Footer() {
             React JS
           </VuiTypography>
         </VuiTypography>
-      </VuiBox>
+      </VuiBox> */}
      
     </VuiBox>
   );
