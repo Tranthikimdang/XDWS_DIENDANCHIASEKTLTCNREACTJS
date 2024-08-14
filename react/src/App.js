@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-
+import { useHistory } from "react-router-dom";
 
 // react-router components
-import { useHistory, Route, Switch, Redirect, useLocation } from "react-router-dom";
+import { Route, Switch, Redirect, useLocation } from "react-router-dom";
 
 
 // @mui material components
@@ -86,8 +86,6 @@ export default function App() {
     document.body.setAttribute("dir", direction);
   }, [direction]);
 
-// Setting page scroll to 0 when changing the route
-
   useEffect(() => {
     document.documentElement.scrollTop = 0;
     document.scrollingElement.scrollTop = 0;
@@ -130,10 +128,42 @@ export default function App() {
     </VuiBox>
   );
 
-  return (
-    <ThemeProvider theme={direction === "rtl" ? themeRTL : theme}>
+
+  return direction === "rtl" ? (
+    <CacheProvider value={rtlCache}>
+      <ThemeProvider theme={themeRTL}>
+        <CssBaseline />
+        {layout === "dashboard" && (
+          <>
+            <Sidenav
+              color={sidenavColor}
+              brand=""
+              brandName="SHARE CODE"
+              routes={routes}
+              onMouseEnter={handleOnMouseEnter}
+              onMouseLeave={handleOnMouseLeave}
+            />
+            <Configurator />
+            {configsButton}
+          </>
+        )}
+        {layout === "vr" && <Configurator />}
+        <Switch>
+          {getRoutes(routes)}
+          <Redirect from="*" to="/dashboard" />
+        </Switch>
+      </ThemeProvider>
+    </CacheProvider>
+  ) : (
+    <ThemeProvider theme={theme}>
       <CssBaseline />
-      {layout !== "/authentication/sign-in" && layout !== "vr" && (
+      {layout === "dashboard" && (
+
+  // return (
+  //   <ThemeProvider theme={direction === "rtl" ? themeRTL : theme}>
+  //     <CssBaseline />
+  //     {layout !== "/authentication/sign-in" && layout !== "vr" && (
+
         <>
           <Sidenav
             color={sidenavColor}
@@ -154,5 +184,4 @@ export default function App() {
     </ThemeProvider>
   );
 }
-
 

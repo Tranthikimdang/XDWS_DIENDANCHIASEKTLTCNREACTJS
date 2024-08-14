@@ -170,97 +170,104 @@ function Register() {
       image={bgSignIn}
     >
       <VuiBox component="form" role="form">
-        {["name", "email", "password", "confirmPassword", "location", "phone"].map((field) => (
-          <VuiBox mb={2} key={field}>
-            <VuiBox mb={1} ml={0.5}>
-              <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, " $1")}
-              </VuiTypography>
-            </VuiBox>
-            <GradientBorder
-              minWidth="100%"
-              padding="1px"
-              borderRadius={borders.borderRadius.lg}
-              backgroundImage={radialGradient(
-                palette.gradients.borderLight.main,
-                palette.gradients.borderLight.state,
-                palette.gradients.borderLight.angle
-              )}
-            >
-              <VuiInput
-                type={field === "confirmPassword" || field === "password" ? "password" : "text"}
-                name={field}
-                placeholder={`Your ${field}...`}
-                value={formData[field]}
-                onChange={handleChange}
-              />
-            </GradientBorder>
-            {errors[field] && (
-              <VuiTypography variant="caption" color="red">
-                {errors[field]}
-              </VuiTypography>
-            )}
-          </VuiBox>
-        ))}
-
-        <VuiBox display="flex" alignItems="center">
-          <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />
-          <VuiTypography
-            variant="caption"
-            color="white"
-            fontWeight="medium"
-            onClick={handleSetRememberMe}
-            sx={{ cursor: "pointer", userSelect: "none" }}
-          >
-            &nbsp;&nbsp;&nbsp;&nbsp;Remember me
+  <VuiBox display="flex" flexWrap="wrap" justifyContent="space-between">
+    {["name", "email", "password", "confirmPassword", "location", "phone"].map((field, index) => (
+      <VuiBox 
+        mb={2} 
+        key={field} 
+        flexBasis="calc(50% - 8px)" // Chiều rộng 50% trừ đi khoảng cách giữa các cột
+      >
+        <VuiBox mb={1} ml={0.5}>
+          <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
+            {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, " $1")}
           </VuiTypography>
         </VuiBox>
-
-        <VuiBox display="flex" alignItems="center" justifyContent="center">
-          <Link to="/authentication/sign-in" style={{ textDecoration: "none" }}>
-            <VuiTypography
-              variant="caption"
-              color=""
-              fontWeight="medium"
-              sx={{ cursor: "pointer", userSelect: "none" }}
-            >
-              Already have an account? Sign in.
-            </VuiTypography>
-          </Link>
-        </VuiBox>
-
-        <VuiBox mt={4} mb={1}>
-          <VuiButton color="info" fullWidth onClick={handleRegister}>
-            SIGN UP
-          </VuiButton>
-        </VuiBox>
-
-        <VuiBox mt={4} mb={1} textAlign="center">
-          <div className="google-login-btn">
-            <GoogleLogin
-              clientId="YOUR_GOOGLE_CLIENT_ID"
-              buttonText=""
-              onSuccess={responseGoogle}
-              onFailure={responseGoogle}
-              cookiePolicy={"single_host_origin"}
-              render={(renderProps) => (
-                <button
-                  className="google-login-btn"
-                  onClick={renderProps.onClick}
-                  disabled={renderProps.disabled}
-                >
-                  <img
-                    className="google-icon"
-                    src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                    alt="Google"
-                  />
-                  Sign up with Google
-                </button>
-              )}
-            />
-          </div>
-        </VuiBox>
+        <GradientBorder
+          minWidth="100%"
+          padding="1px"
+          borderRadius={borders.borderRadius.lg}
+          backgroundImage={radialGradient(
+            palette.gradients.borderLight.main,
+            palette.gradients.borderLight.state,
+            palette.gradients.borderLight.angle
+          )}
+        >
+          <VuiInput
+            type={field === "confirmPassword" || field === "password" ? "password" : "text"}
+            name={field}
+            placeholder={`Your ${field}...`}
+            value={formData[field]}
+            onChange={handleChange}
+          />
+        </GradientBorder>
+        {errors[field] && (
+          <VuiTypography variant="caption" color="red">
+            {errors[field]}
+          </VuiTypography>
+        )}
       </VuiBox>
+    ))}
+  </VuiBox>
+
+  <VuiBox display="flex" alignItems="center">
+    <VuiSwitch color="info" checked={rememberMe} onChange={handleSetRememberMe} />
+    <VuiTypography
+      variant="caption"
+      color="white"
+      fontWeight="medium"
+      onClick={handleSetRememberMe}
+      sx={{ cursor: "pointer", userSelect: "none" }}
+    >
+      &nbsp;&nbsp;&nbsp;&nbsp;Remember me
+    </VuiTypography>
+  </VuiBox>
+
+  <VuiBox display="flex" alignItems="center" justifyContent="center">
+    <Link to="/authentication/sign-in" style={{ textDecoration: "none" }}>
+      <VuiTypography
+        variant="caption"
+        color=""
+        fontWeight="medium"
+        sx={{ cursor: "pointer", userSelect: "none" }}
+      >
+        Already have an account? Sign in.
+      </VuiTypography>
+    </Link>
+  </VuiBox>
+
+  <VuiBox mt={4} mb={1}>
+    <VuiButton color="info" fullWidth onClick={handleRegister}>
+      SIGN UP
+    </VuiButton>
+  </VuiBox>
+
+  <VuiBox mt={4} mb={1} textAlign="center">
+    <div className="google-login-btn">
+      <GoogleLogin
+        clientId="YOUR_GOOGLE_CLIENT_ID"
+        buttonText=""
+        onSuccess={responseGoogle}
+        onFailure={responseGoogle}
+        cookiePolicy={"single_host_origin"}
+        render={(renderProps) => (
+          <button
+            className="google-login-btn"
+            onClick={renderProps.onClick}
+            disabled={renderProps.disabled}
+          >
+            <img
+              className="google-icon"
+              src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+              alt="Google"
+            />
+            Sign up with Google
+          </button>
+        )}
+      />
+    </div>
+  </VuiBox>
+</VuiBox>
+
     </CoverLayout>
   );
 }
