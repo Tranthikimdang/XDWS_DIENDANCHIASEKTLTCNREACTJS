@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Stack } from "@mui/material";
+import moment from 'moment'
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import colors from "assets/theme/base/colors";
@@ -14,7 +15,7 @@ const formatDate = () => {
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng 0-11 nên cần +1
   const day = String(date.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
+  return `${day}/${month}/${year}`;
 };
 
 function ReferralTracking() {
@@ -29,9 +30,10 @@ function ReferralTracking() {
       try {
         const response = await apis.getList();
         if (response.status === 200) {
+
           const article = response.data || [];
           const newArticles = article.filter((a) => {
-            return a.update_at == formatDate()
+            return moment(a.created_at, "DD/MM/YYYY").toDate().getTime() == moment(formatDate(), "DD/MM/YYYY").toDate().getTime()
           });
           setNewArticles(newArticles)
           setArticles(article);
@@ -65,9 +67,9 @@ function ReferralTracking() {
           sx={{ width: "100%" }}
           mb="40px"
         >
-          {/* <VuiTypography variant="lg" color="white" mr="auto" fontWeight="bold">
+          <VuiTypography variant="lg" color="white" mr="auto" fontWeight="bold">
             Bài viết mới
-          </VuiTypography> */}
+          </VuiTypography>
           <VuiBox
             display="flex"
             justifyContent="center"
@@ -127,14 +129,14 @@ function ReferralTracking() {
                 },
               })}
             >
-              {/* <VuiTypography color="text" variant="button" fontWeight="regular" mb="5px">
+              <VuiTypography color="text" variant="button" fontWeight="regular" mb="5px">
                 Bài viết mới
-              </VuiTypography> */}
-              {/* <VuiTypography color="white" variant="lg" fontWeight="bold">
-                {newArticles.length} 
-              </VuiTypography> */}
+              </VuiTypography>
+              <VuiTypography color="white" variant="lg" fontWeight="bold">
+                {newArticles.length}
+              </VuiTypography>
             </VuiBox>
-            {/* <VuiBox
+            <VuiBox
               display="flex"
               width="220px"
               p="20px 22px"
@@ -155,46 +157,17 @@ function ReferralTracking() {
                 Tổng số bài viết
               </VuiTypography>
               <VuiTypography color="white" variant="lg" fontWeight="bold">
-			  {articles.length} 
+                {articles.length}
               </VuiTypography>
-            </VuiBox> */}
-
-            <VuiBox
-              display="flex"
-              width="500px"
-              height="500px"
-              p="24px"
-              justifyContent="center"
-              alignItems="center"
-              sx={({ breakpoints }) => ({
-                background: linearGradient(cardContent.main, cardContent.state, cardContent.deg),
-                borderRadius: "50%",
-                boxShadow: "0 8px 20px rgba(0, 0, 0, 0.15)",
-                [breakpoints.up("xl")]: {
-                  maxWidth: "200px !important",
-                  height: "200px",
-                },
-                [breakpoints.up("xxl")]: {
-                  minWidth: "250px",
-                  height: "250px",
-                },
-              })}
-            >
-              <VuiBox display="flex" flexDirection="column" alignItems="center">
-                <VuiTypography color="white" variant="h3" fontWeight="bold" mb="10px">
-                  {articles.length}
-                </VuiTypography>
-                <VuiTypography color="text" variant="h6" fontWeight="regular">
-                 <strong>Tổng số bài viết</strong> 
-                </VuiTypography>
-              </VuiBox>
             </VuiBox>
 
+
+
           </Stack>
-          {/* <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
+          <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
             <CircularProgress
               variant="determinate"
-              value={(newArticles.length / articles.length) * 100 }
+              value={(newArticles.length / articles.length) * 100}
               size={window.innerWidth >= 1024 ? 200 : window.innerWidth >= 768 ? 170 : 200}
               color="success"
             />
@@ -216,7 +189,7 @@ function ReferralTracking() {
                 justifyContent="center"
                 alignItems="center"
               >
-               
+
                 <VuiTypography
                   color="white"
                   variant="d5"
@@ -228,14 +201,14 @@ function ReferralTracking() {
                     },
                   })}
                 >
-                  {((newArticles.length / articles.length) * 10).toFixed(1) }
+                  {((newArticles.length / articles.length) * 10).toFixed(1)}
                 </VuiTypography>
                 <VuiTypography color="text" variant="button">
                   Total article
                 </VuiTypography>
               </VuiBox>
             </VuiBox>
-          </VuiBox> */}
+          </VuiBox>
         </VuiBox>
       </VuiBox>
     </Card>
