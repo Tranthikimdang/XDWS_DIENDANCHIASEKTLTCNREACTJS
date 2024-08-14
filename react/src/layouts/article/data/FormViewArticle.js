@@ -202,7 +202,7 @@ function FormViewArticle() {
                 </Paper>
               ) : (
                 <VuiTypography variant="h5" color="text.secondary" align="center">
-                  Article not found.
+                  Loading article details...
                 </VuiTypography>
               )}
 

@@ -10,7 +10,6 @@ import authorsArticleData from "layouts/article/data/authorsArticleData";
 import ConfirmDialog from './data/FormDeleteArticle';
 import apis from "../../apis/articleApi";
 import userApi from "../../apis/userApi";
-
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
@@ -232,8 +231,8 @@ function Article() {
                             </VuiTypography>
                           </VuiBox>
                         ),
-                        content: removeSpecificHtmlTags(row.content, 'p', 'strong')?.length > 10
-                          ? `${removeSpecificHtmlTags(row.content, 'p', 'strong')?.substring(0, 10)}...`
+                        content: removeSpecificHtmlTags(row.content, 'p')?.length > 10
+                          ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 10)}...`
                           : removeSpecificHtmlTags(row.content, 'p'),
                         action: (
                           <div className="action-buttons">
@@ -267,33 +266,53 @@ function Article() {
                     })}
                   />
                 </VuiBox>
-                <Snackbar
-                  open={snackbarOpen}
-                  autoHideDuration={3000}
-                  onClose={handleSnackbarClose}
-                  anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                >
-                  <Alert
-                    onClose={handleSnackbarClose}
-                    severity={snackbarSeverity}
-                    sx={{ width: "100%" }}
-                  >
-                    {snackbarMessage}
-                  </Alert>
-                </Snackbar>
-                <ConfirmDialog
-                  open={openDialog}
-                  onClose={cancelDelete}
-                  onConfirm={confirmDelete}
-                  itemTitle={deleteTitle} // Pass the article title to ConfirmDialog
-                />
+                <div className="d-flex justify-content-center p-2 custom-pagination">
+                  <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+                    <button
+                      className="btn btn-light"
+                      onClick={() => handleChangePage(null, page - 1)}
+                      disabled={page === 0}
+                    >
+                      &laquo;
+                    </button>
+                    <span className="btn btn-light disabled">
+                      Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+                    </span>
+                    <button
+                      className="btn btn-light"
+                      onClick={() => handleChangePage(null, page + 1)}
+                      disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+                    >
+                      &raquo;
+                    </button>
+                  </div>
+                </div>
               </>
             )}
           </Card>
         </VuiBox>
       </VuiBox>
+      {/* Dialog for delete confirmation */}
+      <ConfirmDialog
+        open={openDialog}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        itemId={deleteId}
+      />
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 }
+
 
 export default Article;

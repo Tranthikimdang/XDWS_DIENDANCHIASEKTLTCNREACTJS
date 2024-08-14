@@ -115,11 +115,17 @@ function FormAndArticle() {
                 Category
               </label>
               <select
-                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`} style={smallFontStyle}
-                {...register("categories_id", { required: "Category is required" })}>
-                <option value="" style={smallFontStyle}>Open this select menu</option>
-                {cates.length > 0 && cates.map((cate) => (
-                  <option style={smallFontStyle} key={cate.id} value={cate.id}>{cate.name}</option>
+                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
+                style={smallFontStyle}
+                {...register("categories_id", { required: "Category is required" })}
+              >
+                <option value="" disabled style={smallFontStyle}>
+                  Open this select menu
+                </option>
+                {cates.map((cate) => (
+                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>
+                    {cate?.name}
+                  </option>
                 ))}
               </select>
               {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
