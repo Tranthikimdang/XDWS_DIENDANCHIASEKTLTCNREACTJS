@@ -164,7 +164,7 @@ function Comment() {
                           : removeSpecificHtmlTags(row.content, 'p'),
                         action: (
                           <div>                            
-                            <Link to="/commentDetail">
+                            <Link  to={{ pathname: "/commentDetail", state: { id: row.id } }}>
                               <button className="text-light btn btn-outline-primary me-2" type="submit">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
