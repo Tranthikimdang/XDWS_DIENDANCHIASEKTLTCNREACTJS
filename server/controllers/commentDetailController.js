@@ -36,13 +36,13 @@ const listComment = async (req, res) => {
 
 const updatedComment = async (req, res) => {
   const { id } = req.params;
-  const { user_name, content, created_date, updated_date , article_id } = req.body;
+  const { user_name, content, created_date, updated_date  } = req.body;
 
   if (!user_name || !content || !created_date || !updated_date) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  const newComment = { user_name, content, created_date, updated_date , article_id};
+  const newComment = { user_name, content, created_date, updated_date };
 
   try {
     const updated = await CommentDetail.updatedComment(id, newComment);
