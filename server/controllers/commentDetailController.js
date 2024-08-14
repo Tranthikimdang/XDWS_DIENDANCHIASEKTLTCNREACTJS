@@ -1,13 +1,13 @@
 const CommentDetail = require('../models/commentDetailModel.js');
 
 const createComment = async (req, res) => {
-  const { article_id, user_name, content, created_date, updated_date } = req.body;
+  const {  user_name, content, created_date, updated_date } = req.body;
 
-  if (!article_id || !user_name || !content || !created_date || !updated_date) {
+  if ( !user_name || !content || !created_date || !updated_date) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  const newComment = { article_id, user_name, content, created_date, updated_date };
+  const newComment = { user_name, content, created_date, updated_date };
 
   try {
     const id = await CommentDetail.addComment(newComment);
@@ -31,6 +31,30 @@ const listComment = async (req, res) => {
     res.status(500).json({ status: 500, error: 'Internal Server Error', message: error.message });
   }
 };
+
+const updatedComment = async (req, res) => {
+  const { id } = req.params;
+  const { user_name, content, created_date, updated_date } = req.body;
+
+  if (!user_name || !content || !created_date || !updated_date) {
+    return res.status(400).json({ error: 'All fields are required.' });
+  }
+
+  const newComment = { user_name, content, created_date, updated_date };
+
+  try {
+    const updated = await CommentDetail.updatedComment(id, newComment);
+    if (updated) {
+      res.status(200).json({ status: 200, message: "Comment updated successfully." });
+    } else {
+      res.status(404).json({ status: 404, error: "Comment not found." });
+    }
+  } catch (error) {
+    console.error('Error updating comment:', error.message);
+    res.status(500).json({ status: 500, error: error.message });
+  }
+};
+
 
 const deleteComment = async (req, res) => {
   const { id } = req.params;
@@ -73,6 +97,7 @@ const getCommentsByArticleId = async (req, res) => {
 module.exports = {
   createComment,
   listComment,
+  updatedComment,
   deleteComment,
   getOneCmt,
   getCommentsByArticleId

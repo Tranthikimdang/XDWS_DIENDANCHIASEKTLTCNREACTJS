@@ -20,6 +20,15 @@ const getList = async () => {
   }
 };
 
+const updateComment = async (id, commentData) => {
+  try {
+    const response = await axios.put(`${API_URL}/commentDetails/${id}`, commentData);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const deleteComment = async (id) => {
   try {
     const response = await axios.delete(`${API_URL}/commentDetails/${id}`);
@@ -57,6 +66,7 @@ const getCommentsByArticleId = async (articleId) => {
 export default {
   addComment,
   getList,
+  updateComment,
   deleteComment,
   getCommentById,
   getCommentsByArticleId

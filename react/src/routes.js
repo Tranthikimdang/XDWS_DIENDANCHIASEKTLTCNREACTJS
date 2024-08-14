@@ -24,6 +24,7 @@ import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
 import FormAddCmt from "layouts/commentDetail/data/formComment";
+import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
 // Vision UI Dashboard React icons
@@ -116,6 +117,12 @@ const routes = [
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
+    hidden: true, 
+  },
+  {
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
     hidden: true, 
   },
   {
