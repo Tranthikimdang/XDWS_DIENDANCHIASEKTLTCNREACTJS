@@ -15,7 +15,7 @@ import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import apis from "../../../apis/articleApi";
-
+import userApi from "../../../apis/userApi";
 function FormViewArticle() {
   const { id } = useParams(); // Get article index ID from URL
   const history = useHistory(); // Initialize history object for navigation
@@ -25,7 +25,7 @@ function FormViewArticle() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [idMapping, setIdMapping] = useState({}); // State to hold the index-to-real-ID mapping
-
+  const [users, setUsers] = useState([]);
   // Chuyển đổi đường dẫn hình ảnh sang định dạng URL hợp lệ
   const sanitizeImagePath = (path) => path.replace(/\\/g, "/");
   const getImageUrl = (path) => `${process.env.REACT_APP_BASE_URL}/${sanitizeImagePath(path)}`;
@@ -52,6 +52,25 @@ function FormViewArticle() {
     };
 
     fetchArticles();
+  }, []);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await userApi.getList();
+        if (response.status === 200) {
+          const user = response.data || [];
+          setUsers(user);
+          console.log("Fetched users:", user);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   // Fetch specific article details using the real ID
@@ -105,86 +124,95 @@ function FormViewArticle() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3} style={{ backgroundColor: "#000000", minHeight: "100vh" }}>
-        <VuiBox mb={3}>
-          <Card variant="outlined" style={{ padding: "24px", backgroundColor: "#212121", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)" }}>
-            {loading ? (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="300px"
-              >
-                <CircularProgress color="primary" size={60} />
-              </Box>
-            ) : article ? (
-              <Grid container spacing={4}>
-                <Grid item xs={12} md={8}>
-                  <Paper elevation={3} style={{ padding: "24px", borderRadius: "12px", backgroundColor: "#424242" }}>
-                    {article.image && (
-                      <img
-                        src={(article.image)}
-                        alt="Article"
-                        style={{
-                          width: "100%",
-                          maxHeight: "500px",
-                          objectFit: "cover",
-                          borderRadius: "12px",
-                          boxShadow: "0 6px 12px rgba(0, 0, 0, 0.3)",
-                        }}
-                      />
-                    )}
+      <Card >
+        <VuiBox>
+          <VuiBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
+            <VuiTypography>
+              {loading ? (
+                <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  height="300px"
+                >
+                  <CircularProgress color="primary" size={60} />
+                </Box>
+              ) : article ? (
+                <Paper elevation={3} style={{
+                  padding: "24px",
+                  borderRadius: "12px",
+                  background: "linear-gradient(to bottom right, #19215c, #080d2d)"
+                }}>
+                  <Grid container>
+                    <Grid item xs={6}>
+                      {article.image && (
+                        <img
+                          src={(article.image)}
+                          alt="Article"
+                          style={{
+                            width: "400px",
+                            maxHeight: "300px",
+                            objectFit: "cover",
+                            borderRadius: "12px",
+                            boxShadow: "0 6px 12px rgba(0, 0, 0, 0.3)",
+                          }}
+                        />
+                      )}
+                    </Grid>
+                    <Grid item xs={6}>
+                      <VuiTypography variant="h3" gutterBottom style={{ color: "#ffffff" }}>
+                        {article.title}
+                      </VuiTypography>
+                      <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
+                        <strong>Article category: </strong> {article.categories_id}
+                      </VuiTypography>
+                      <VuiTypography variant="subtitle1" style={{ color: "#ffffff" }}>
+                        <strong>Author: </strong>  {users?.filter(u => article?.user_id == u.id)?.[0]?.name}
+                      </VuiTypography>
+                      {/* <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
+                        <strong>Views: </strong> {article.view}
+                      </VuiTypography>
+                      <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
+                        <strong>Date: </strong> {new Date(article.updated_at).toLocaleDateString()}
+                      </VuiTypography> */}
+                    </Grid>
+                    <Grid item xs={12} style={{ marginTop: "30px" }}> 
+                      <VuiTypography variant="body1" paragraph style={{ color: "#e0e0e0" }}>
+                      <strong>Content: </strong>
+                      {removeSpecificHtmlTags(article.content, "p")}
+                    </VuiTypography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Box display="flex" justifyContent="flex-end" mt={3}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handleBackButtonClick}
+                          startIcon={
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-return-left" viewBox="0 0 16 16">
+                              <path fillRule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
+                            </svg>
+                          }
+                        >
+                          Back
+                        </Button>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              ) : (
+                <VuiTypography variant="h5" color="text.secondary" align="center">
+                  Loading article details...
+                </VuiTypography>
+              )}
 
-                  </Paper>
-                  <VuiTypography variant="body1" paragraph style={{ color: "#e0e0e0" }}>
-                    {removeSpecificHtmlTags(article.content, "p")}
-                  </VuiTypography>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Paper elevation={3} style={{ padding: "24px", borderRadius: "12px", backgroundColor: "#424242" }}>
-                    <VuiTypography variant="h3" gutterBottom style={{ color: "#ffffff" }}>
-                      {article.title}
-                    </VuiTypography>
-                    <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
-                      <strong>Category:</strong> {article.category}
-                    </VuiTypography>
-                    <VuiTypography variant="subtitle1" style={{ color: "#ffffff" }}>
-                      <strong>Author:</strong> {article.name} ({article.email})
-                    </VuiTypography>
-                    <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
-                      <strong>Views:</strong> {article.view}
-                    </VuiTypography>
-                    <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
-                      <strong>Created Date:</strong> {new Date(article.created_date).toLocaleDateString()}
-                    </VuiTypography>
-                  </Paper>
-                </Grid>
-              </Grid>
-            ) : (
-              <VuiTypography variant="h5" color="text.secondary" align="center">
-                Article not found.
-              </VuiTypography>
-            )}
 
-            <Box display="flex" justifyContent="flex-end" mt={3}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleBackButtonClick}
-                startIcon={
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-return-left" viewBox="0 0 16 16">
-                    <path fillRule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
-                  </svg>
-                }
-              >
-                Back
-              </Button>
-            </Box>
-          </Card>
 
+            </VuiTypography>
+
+          </VuiBox>
         </VuiBox>
-
-      </VuiBox>
+      </Card>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}

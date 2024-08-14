@@ -1,6 +1,9 @@
 const multer = require('multer');
 const path = require('path');
 const Article = require('../models/articleModel'); // Đảm bảo đường dẫn đúng đến model của bạn
+const { log } = require('console');
+const moment = require('moment')
+const firebase = require("firebase/firestore")
 
 // Cấu hình lưu trữ tệp tin
 const storage = multer.diskStorage({
@@ -66,14 +69,17 @@ const getList = async (req, res) => {
     const articles = await Article.getList();
     const host = req.protocol + '://' + req.get('host');
 
+
     const updatedItems = articles.map(item => {
       return {
         ...item,
         image: host + '/' + item?.image?.replace(/\\/g, '/'),
-        created_at: formatDateTime(item.created_at),
-        updated_at: formatDateTime(item.updated_at),
+        created_at: item.created_at?.seconds ? moment.unix(item.created_at?.seconds).format('DD/MM/YYYY') : null,
+        updated_at: item.updated_at?.seconds ? moment.unix(item.updated_at?.seconds).format('DD/MM/YYYY') : null,
       };
     });
+
+    // console.log(updatedItems);
 
     res.status(200).json({
       data: updatedItems,
