@@ -21,7 +21,6 @@ function FormAddCmt() {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
-    // const storedArticle = JSON.parse(localStorage.getItem('article'));
     if (storedUser) {
       setUser(storedUser);
     }   
