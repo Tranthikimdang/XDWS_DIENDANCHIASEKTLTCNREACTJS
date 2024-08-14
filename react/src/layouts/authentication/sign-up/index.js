@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useHistory, Link } from "react-router-dom";
 import { GoogleLogin } from "react-google-login";
 import VuiBox from "components/VuiBox";
@@ -13,6 +13,7 @@ import borders from "assets/theme/base/borders";
 import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
 import registerAPI from "../../../apis/loginApi"; // API cho đăng ký
+import emailjs from "emailjs-com";
 
 // Import custom styles
 import "./styles.css";
@@ -71,31 +72,86 @@ function Register() {
     try {
       // Kiểm tra email đã tồn tại
       const emailExists = await registerAPI.checkEmailExists(formData.email);
-      
-      if (emailExists) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          email: "Tài khoản đã tồn tại với email này.", // Thông báo lỗi
-        }));
-        return;
-      }else{
-        // await registerAPI.addUser(formData);
-        
-      history.push("/authentication/sign-in");
-      }
 
-      
+      if (emailExists) {
+        alert("An account already exists with this email.");
+        return;
+      } else {
+        await registerAPI.addUser(formData);
+        alert("Account created successfully, sign in?");
+        history.push("/authentication/sign-in");
+      }
     } catch (error) {
-      alert("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.");
+      alert("An error occurred during registration. Please try again.");
       console.error("Registration error:", error);
     }
   };
 
   const responseGoogle = async (response) => {
-    console.log(response);
-    // Bạn có thể thêm logic xử lý đăng nhập Google ở đây
+    const email = response.wt.cu;
+
+    try {
+      const emailExists = await registerAPI.checkEmailExists(email);
+      const generateRandomPassword = () => {
+        return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
+      };
+      const generatedPassword = generateRandomPassword();
+
+      if (emailExists) {
+        alert("Tài khoản đã tồn tại với email này.");
+        return;
+      }
+
+      // Tiếp tục nếu email không tồn tại
+
+      const newUser = {
+        name: response.wt.Ad,
+        email: response.wt.cu,
+        password: generatedPassword,
+        location: "", // Cung cấp thông tin nếu cần
+        phone: "", // Cung cấp thông tin nếu cần
+        role: "user",
+      };
+
+      await registerAPI.addUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+     
+      // Gửi email sau khi thêm người dùng mới thành công
+      // sendEmail({
+      //   name: newUser.name,
+      //   email: newUser.email,
+      //   message: `Mật khẩu của bạn là: ${generatedPassword}`,
+      // });
+      alert("Đăng ký thành công, kiểm tra email để nhận mật khẩu");
+      // history.push("/");
+    } catch (error) {
+      console.error("Error during Google login:", error);
+    }
   };
 
+  const sendEmail = (data) => {
+    emailjs
+      .send(
+        process.env.REACT_APP_SERVICE_ID,
+        process.env.REACT_APP_TEMPLATE_ID,
+        {
+          to_name: data.name,
+          to_email: data.email,
+          message: data.message,
+        },
+        process.env.REACT_APP_PUBLIC_KEY
+      )
+      .then(
+        (result) => {
+          alert("Message sent successfully...");
+          console.log(result.text);
+        },
+        (error) => {
+          alert("An error occurred, please try again.");
+          console.log(error.text);
+        }
+      );
+  };
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -118,7 +174,7 @@ function Register() {
           <VuiBox mb={2} key={field}>
             <VuiBox mb={1} ml={0.5}>
               <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-                {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1')}
+                {field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, " $1")}
               </VuiTypography>
             </VuiBox>
             <GradientBorder
@@ -131,16 +187,19 @@ function Register() {
                 palette.gradients.borderLight.angle
               )}
             >
-               <VuiInput
-        type={field === "confirmPassword" || field === "password" ? "password" : "text"}
-        name={field}
-        placeholder={`Your ${field}...`}
-        value={formData[field]}
-        onChange={handleChange}
-      />
-              
+              <VuiInput
+                type={field === "confirmPassword" || field === "password" ? "password" : "text"}
+                name={field}
+                placeholder={`Your ${field}...`}
+                value={formData[field]}
+                onChange={handleChange}
+              />
             </GradientBorder>
-            {errors[field] && <VuiTypography variant="caption" color="red">{errors[field]}</VuiTypography>}
+            {errors[field] && (
+              <VuiTypography variant="caption" color="red">
+                {errors[field]}
+              </VuiTypography>
+            )}
           </VuiBox>
         ))}
 
@@ -161,7 +220,7 @@ function Register() {
           <Link to="/authentication/sign-in" style={{ textDecoration: "none" }}>
             <VuiTypography
               variant="caption"
-              color="blue"
+              color=""
               fontWeight="medium"
               sx={{ cursor: "pointer", userSelect: "none" }}
             >
@@ -183,8 +242,8 @@ function Register() {
               buttonText=""
               onSuccess={responseGoogle}
               onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-              render={renderProps => (
+              cookiePolicy={"single_host_origin"}
+              render={(renderProps) => (
                 <button
                   className="google-login-btn"
                   onClick={renderProps.onClick}

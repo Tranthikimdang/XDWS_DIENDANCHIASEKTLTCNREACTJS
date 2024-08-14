@@ -6,9 +6,9 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import VuiTypography from 'components/VuiTypography';
 
-function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
+function ConfirmDialog({ open, onClose, onConfirm, itemTitle }) {
   const handleConfirm = () => {
-    onConfirm(itemId);
+    onConfirm();
     onClose();
   };
 
@@ -17,7 +17,7 @@ function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
       <DialogTitle>Confirm Delete</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
-          Are you sure you want to delete item {itemId}?
+          Are you sure you want to delete the post title "{itemTitle}"?
         </VuiTypography>
       </DialogContent>
       <DialogActions>

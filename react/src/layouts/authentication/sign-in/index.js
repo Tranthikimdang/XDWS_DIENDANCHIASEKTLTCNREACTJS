@@ -43,7 +43,7 @@ function Login() {
       errors.email = "Email is required.";
       valid = false;
     } else if (!validateEmailFormat(email)) {
-      errors.email = "Invalid email format."; // Thêm thông báo lỗi cho định dạng email không hợp lệ
+      errors.email = "Invalid email format."; 
       valid = false;
     }
 
@@ -66,7 +66,7 @@ function Login() {
       if (user) {
         // Lưu thông tin người dùng vào localStorage
         if (user.role !== "admin") {
-          alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
+          alert("You do not have admin rights."); // Thông báo nếu không phải admin
           localStorage.removeItem("user");
           history.push("/authentication/sign-in"); // Có thể điều hướng đến trang đăng nhập hoặc trang khác
         } else {
@@ -94,7 +94,7 @@ function Login() {
       const generatedPassword = generateRandomPassword();
 
       if (emailExists) {
-        alert("Tài khoản đã tồn tại với email này.")
+        alert("An account already exists with this email.")
         return;
       }
 
@@ -108,18 +108,22 @@ function Login() {
         phone: "", // Cung cấp thông tin nếu cần
         role: "user"
       };
-      console.log(newUser);
       
 
       await loginAPI.addUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
-      history.push("/");
+      
+      
       // Gửi email sau khi thêm người dùng mới thành công
-      // sendEmail({
-      //   name: newUser.name,
-      //   email: newUser.email,
-      //   message: `Mật khẩu của bạn là: ${generatedPassword}`,
-      // });
+
+      sendEmail({
+        name: newUser.name,
+        email: newUser.email,
+        message: `Mật khẩu của bạn là: ${generatedPassword}`,
+      });
+
+      // history.push("/");
+      
     } catch (error) {
       console.error("Error during Google login:", error);
     }
@@ -139,15 +143,15 @@ function Login() {
       )
       .then(
         (result) => {
-          alert("Message sent successfully...");
-          console.log(result.text);
+          alert("Đăng ký thành công, kiểm tra email để nhận mật khẩu");
         },
         (error) => {
           alert("An error occurred, please try again.");
-          console.log(error.text);
         }
       );
   };
+
+
   return (
     <CoverLayout
       title="Nice to see you!"
@@ -259,7 +263,13 @@ function Login() {
               cookiePolicy={"single_host_origin"}
               render={(renderProps) => (
                 <button
-                  className="google-login-btn"
+                className="btn btn-light"
+                style={{
+                  outline: 'none',
+                  boxShadow: 'none',
+                  backgroundColor: '#f8f9fa',
+                  border: '0px solid #ced4da'
+                }}
                   onClick={renderProps.onClick}
                   disabled={renderProps.disabled}
                 >
