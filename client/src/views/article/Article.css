@@ -10,6 +10,13 @@
   background-color: #fff;
   transition: all 0.3s ease;
 }
+._heading_juuyp_22 {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.4;
+  color: #242424;
+  font-family: 'Segoe UI', Roboto;
+}
 
 .typography-header {
   margin-bottom: 16px; /* Space below the header */

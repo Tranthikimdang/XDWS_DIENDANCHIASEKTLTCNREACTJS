@@ -30,17 +30,16 @@ const Article = () => {
 
   return (
     <PageContainer title="Article" description="This is Article">
-      <Box sx={{ padding: 3 }}>
-        <Typography variant="h4" component="h1" gutterBottom className="typography-header">
-          <strong>Bài viết nổi bật</strong>
-        </Typography>
-        <Typography variant="body1" paragraph className="typography-body">
-          Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
-        </Typography>
-
+       <Box sx={{ padding: { xs: '10px'} }}>
         <Grid container spacing={3}>
-          {/* Left column */}
-          <Grid item xs={12} md={8}>
+          <Grid sx={{ marginBottom: { xs: '50px', md: '100px' }, marginTop: '50px' }}>
+            <h1 className="_heading_juuyp_22">Bài viết nổi bật</h1>
+            <Typography variant="body1" paragraph className="typography-body">
+              Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
+            </Typography>
+          </Grid>
+          {/* Cột bên trái */}
+          <Grid md={8}>
             {[...Array(3)].map((_, index) => (
               <Card
                 key={index}
@@ -120,8 +119,8 @@ const Article = () => {
             ))}
           </Grid>
 
-          {/* Right column */}
-          <Grid item xs={12} md={4}>
+          {/* Cột bên phải */}
+          <Grid md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
                 Xem các bài viết theo chủ đề
