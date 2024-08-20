@@ -78,7 +78,7 @@ const Header = (props) => {
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
-        <Button
+        {/* <Button
           variant="contained"
           color="primary"
           onClick={props.onAddQuestionClick} // Add your handler here
@@ -98,14 +98,14 @@ const Header = (props) => {
           }}
         >
           <IconMenu width="20" height="20" />
-        </IconButton>
+        </IconButton>*/}
 
         <Search>
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-        </Search>
+        </Search> 
 
         <Box flexGrow={1} />
 

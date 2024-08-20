@@ -16,6 +16,7 @@ const Home = () => {
     <PageContainer title="Dashboard" description="this is Dashboard">
       <Box>
         <Grid container spacing={3}>
+          <h1>Đây là trang dashboard</h1>
           {/* <Grid item xs={12} lg={8}>
             <SalesOverview />
           </Grid> */}
