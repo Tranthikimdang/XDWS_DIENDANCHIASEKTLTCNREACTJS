@@ -11,6 +11,16 @@
   transition: all 0.3s ease;
 }
 
+.typography-header {
+  margin-bottom: 16px; /* Space below the header */
+  line-height: 1.2; /* Adjust line height if needed */
+}
+
+.typography-body {
+  margin: 0; /* Remove default margin if needed */
+  line-height: 1.6; /* Increase line height for better readability */
+}
+
 
 .article-info {
   flex: 1;
@@ -117,6 +127,10 @@
   font-size: 1.2em;
   font-weight: bold;
   color: #333;
+}
+.sidebar .category-item:hover {
+  color: #0056b3; /* Darker blue text color on hover */
+  background-color: rgba(0, 123, 255, 0.1); /* Light blue background on hover */
 }
 
 .category-list {

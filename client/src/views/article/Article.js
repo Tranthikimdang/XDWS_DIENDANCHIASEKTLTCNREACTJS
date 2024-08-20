@@ -29,17 +29,16 @@ const Article = () => {
   ];
 
   return (
-    <PageContainer title="Article" description="this is Article">
-      <Box sx={{ padding: 2 }}>
+    <PageContainer title="Article" description="This is Article">
+      <Box sx={{ padding: 3 }}>
         <Typography variant="h4" component="h1" gutterBottom className="typography-header">
           <strong>Bài viết nổi bật</strong>
         </Typography>
-
-        <Typography variant="body1" paragraph>
+        <Typography variant="body1" paragraph className="typography-body">
           Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
         </Typography>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           {/* Left column */}
           <Grid item xs={12} md={8}>
             {[...Array(3)].map((_, index) => (
@@ -49,11 +48,10 @@ const Article = () => {
                   display: 'flex',
                   mb: 3,
                   flexDirection: { xs: 'column', md: 'row' },
-                  border: '1px solid #ddd', // Thêm border ở đây
-                  borderRadius: '8px' // Tùy chọn, làm cho border có góc bo tròn
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
                 }}
               >
-
                 <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -61,13 +59,11 @@ const Article = () => {
                         src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
                         alt="Kimdang.dev"
                         className="author-image"
-                        style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 10 }}
                       />
                       <Typography variant="body1" component="span" className="author-name">
                         <strong>Kimdang.dev</strong>
                       </Typography>
                     </Box>
-
                     <Typography variant="h5" component="h2" className="article-title">
                       Mình đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày
                     </Typography>
@@ -92,21 +88,22 @@ const Article = () => {
                     component="img"
                     sx={{
                       width: { xs: '100%', md: 200 },
-                      height: { xs: 200, md: 'auto' }, /* Adjust height to maintain aspect ratio */
-                      objectFit: 'cover'
+                      height: { xs: 200, md: 'auto' },
+                      objectFit: 'cover',
                     }}
                     image="https://files.fullstack.edu.vn/f8-prod/blog_posts/10850/667550d384026.png"
                     alt="Minh đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày"
                   />
                   <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                    <IconBookmark />
-                    <IconButton aria-label="more" aria-controls="menu" aria-haspopup="true" onClick={handleClick}>
+                    <IconButton aria-label="bookmark">
+                      <IconBookmark />
+                    </IconButton>
+                    <IconButton aria-label="more" onClick={handleClick}>
                       <IconDots />
                     </IconButton>
                     <Menu
                       id="menu"
                       anchorEl={anchorEl}
-                      keepMounted
                       open={Boolean(anchorEl)}
                       onClose={handleClose}
                     >
@@ -126,7 +123,7 @@ const Article = () => {
           {/* Right column */}
           <Grid item xs={12} md={4}>
             <div className="sidebar">
-              <Typography variant="h6" component="h3">
+              <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
                 Xem các bài viết theo chủ đề
               </Typography>
               <ul className="category-list">
