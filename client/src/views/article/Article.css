@@ -90,9 +90,9 @@
   
   .sidebar {
     padding: 20px;
-    background-color: #fff;
+    /* background-color: #fff;
     border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
   }
   
   .sidebar h3 {
@@ -101,27 +101,39 @@
     font-weight: bold;
     color: #333;
   }
-  
   .category-list {
-    list-style: none;
+    list-style-type: none;
     padding: 0;
-    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
   
   .category-item {
-    background-color: #f0f0f0;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 10px;
-    font-size: 0.9em;
-    color: #555;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    background-color: #f1f1f1;
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: inline-block;
   }
   
-  .category-item:hover {
-    background-color: #e0e0e0;
+  .category-item span {
+    font-weight: bold;
+    color: #333;
   }
+
+  /* Icon Button Styles */
+.icon-group .MuiIconButton-root {
+  color: #777;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-group .MuiIconButton-root:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
   
   .dot {
     margin: 0 8px; /* Điều chỉnh khoảng cách giữa dấu chấm và các phần tử bên cạnh */
