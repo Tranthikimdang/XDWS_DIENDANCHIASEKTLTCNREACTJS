@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Box, Typography, IconButton, Menu, MenuItem } from '@mui/material';
+import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
 import { IconBookmark, IconDots } from '@tabler/icons';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -8,6 +8,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
 import './Article.css';
+
 const Article = () => {
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -29,7 +30,7 @@ const Article = () => {
 
   return (
     <PageContainer title="Article" description="this is Article">
-      <Box>
+      <Box sx={{ padding: 2 }}>
         <Typography variant="h4" component="h1" gutterBottom className="typography-header">
           <strong>Bài viết nổi bật</strong>
         </Typography>
@@ -38,36 +39,66 @@ const Article = () => {
           Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
         </Typography>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={4}>
           {/* Left column */}
           <Grid item xs={12} md={8}>
             {[...Array(3)].map((_, index) => (
-              <div className="featured-article" key={index}>
-                <div className="article-info">
-                  <div className="author-info">
-                    <img
-                      src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-                      alt="Kimdang.dev"
-                      className="author-image"
-                    />
-                    <span className="author-name">Kimdang.dev</span>
-                  </div>
+              <Card
+                key={index}
+                sx={{
+                  display: 'flex',
+                  mb: 3,
+                  flexDirection: { xs: 'column', md: 'row' },
+                  border: '1px solid #ddd', // Thêm border ở đây
+                  borderRadius: '8px' // Tùy chọn, làm cho border có góc bo tròn
+                }}
+              >
 
-                  <Typography variant="h5" component="h2" className="article-title">
-                    Mình đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày
-                  </Typography>
-                  <Typography variant="body2" paragraph className="article-description">
-                    Xin chào mọi người mình là Kimdang.dev, mình đã làm một dự án website front-end với hơn 100 bài học và 200 bài viết. Bài viết này...
-                  </Typography>
-                  <div className="article-meta">
-                    <span className="category-badge">Front-end</span>
-                    <span className="article-time">2 tháng trước </span>
-                    <span className="dot"> · </span>
-                    <span className="reading-time">4 phút đọc</span>
-                  </div>
-                </div>
-                <div className="article-thumbnail">
-                  <div className="icon-group" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <CardContent>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                      <img
+                        src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                        alt="Kimdang.dev"
+                        className="author-image"
+                        style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 10 }}
+                      />
+                      <Typography variant="body1" component="span" className="author-name">
+                        <strong>Kimdang.dev</strong>
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="h5" component="h2" className="article-title">
+                      Mình đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày
+                    </Typography>
+                    <Typography variant="body2" paragraph className="article-description">
+                      Xin chào mọi người mình là Kimdang.dev, mình đã làm một dự án website front-end với hơn 100 bài học và 200 bài viết. Bài viết này...
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                      <Typography variant="body2" color="textSecondary" className="category-badge">
+                        Front-end
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                        2 tháng trước
+                      </Typography>
+                      <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                        4 phút đọc
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
+                  <CardMedia
+                    component="img"
+                    sx={{
+                      width: { xs: '100%', md: 200 },
+                      height: { xs: 200, md: 'auto' }, /* Adjust height to maintain aspect ratio */
+                      objectFit: 'cover'
+                    }}
+                    image="https://files.fullstack.edu.vn/f8-prod/blog_posts/10850/667550d384026.png"
+                    alt="Minh đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày"
+                  />
+                  <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
                     <IconBookmark />
                     <IconButton aria-label="more" aria-controls="menu" aria-haspopup="true" onClick={handleClick}>
                       <IconDots />
@@ -78,7 +109,6 @@ const Article = () => {
                       keepMounted
                       open={Boolean(anchorEl)}
                       onClose={handleClose}
-
                     >
                       {menuItems.map((item, i) => (
                         <MenuItem key={i} onClick={handleClose}>
@@ -87,15 +117,9 @@ const Article = () => {
                         </MenuItem>
                       ))}
                     </Menu>
-                  </div>
-                  <div className="thumbnail-wrapper">
-                    <img
-                      src="https://files.fullstack.edu.vn/f8-prod/blog_posts/10850/667550d384026.png"
-                      alt="Minh đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày"
-                    />
-                  </div>
-                </div>
-              </div>
+                  </Box>
+                </Box>
+              </Card>
             ))}
           </Grid>
 
