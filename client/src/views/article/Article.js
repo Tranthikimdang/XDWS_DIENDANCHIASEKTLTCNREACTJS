@@ -32,7 +32,7 @@ const Article = () => {
     <PageContainer title="Article" description="This is Article">
        <Box sx={{ padding: { xs: '10px'} }}>
         <Grid container spacing={3}>
-          <Grid sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '50px' }}>
+          <Grid sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <h1 className="_heading_juuyp_22">Bài viết nổi bật</h1>
             <Typography variant="body1" paragraph className="typography-body">
               Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.

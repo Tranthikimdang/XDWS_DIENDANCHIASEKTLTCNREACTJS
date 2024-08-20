@@ -1,7 +1,7 @@
 import React from 'react';
 import { Grid, Box } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 // components
 // import SalesOverview from './components/SalesOverview';
 // import YearlyBreakup from './components/YearlyBreakup';
@@ -15,8 +15,8 @@ const Home = () => {
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
       <Box>
-        <Grid container spacing={3}>
-          <h1>Đây là trang dashboard</h1>
+        <Grid container spacing={3} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+          
         </Grid>
       </Box>
     </PageContainer>
