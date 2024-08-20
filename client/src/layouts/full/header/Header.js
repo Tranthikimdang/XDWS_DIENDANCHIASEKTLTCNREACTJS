@@ -8,7 +8,6 @@ import {
   IconButton,
   Badge,
   InputBase,
-  Button,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
@@ -24,10 +23,12 @@ const Header = (props) => {
     background: theme.palette.background.paper,
     justifyContent: 'center',
     backdropFilter: 'blur(4px)',
+    borderBottom: `1px solid ${theme.palette.divider}`, // Add this line for a bottom border
     [theme.breakpoints.up('lg')]: {
       minHeight: '70px',
     },
   }));
+
   const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
     width: '100%',
     color: theme.palette.text.secondary,
@@ -78,15 +79,6 @@ const Header = (props) => {
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
-        
-        {/* <Button
-          variant="contained"
-          color="primary"
-          onClick={props.onAddQuestionClick} // Add your handler here
-        >
-          Ask Question
-        </Button> */}
-
         <IconButton
           color="inherit"
           aria-label="menu"
@@ -142,7 +134,7 @@ const Header = (props) => {
 Header.propTypes = {
   sx: PropTypes.object,
   toggleMobileSidebar: PropTypes.func,
-  onAddQuestionClick: PropTypes.func, // Define the new prop for the add question click handler
+  onAddQuestionClick: PropTypes.func,
 };
 
 export default Header;
