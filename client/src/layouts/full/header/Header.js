@@ -78,13 +78,14 @@ const Header = (props) => {
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
+        
         {/* <Button
           variant="contained"
           color="primary"
           onClick={props.onAddQuestionClick} // Add your handler here
         >
           Ask Question
-        </Button>
+        </Button> */}
 
         <IconButton
           color="inherit"
@@ -98,7 +99,7 @@ const Header = (props) => {
           }}
         >
           <IconMenu width="20" height="20" />
-        </IconButton>*/}
+        </IconButton>
 
         <Search>
           <SearchIconWrapper>
