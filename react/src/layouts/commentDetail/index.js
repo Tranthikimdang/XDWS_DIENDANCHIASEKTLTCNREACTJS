@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
+<<<<<<< Updated upstream
 import { Link,useLocation } from 'react-router-dom';
+=======
+>>>>>>> Stashed changes
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -8,13 +11,18 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/commentDetail/data/authorsTableData";
 import ConfirmDialog from './data/formDeleteComment';
-import apis from "../../apis/commentDetailApi";
-import { Alert, Snackbar } from "@mui/material";
+import apis from "../../apis/commentDetailApi"; // Adjust import path
+import { Snackbar, IconButton } from "@mui/material";
 import { ClipLoader } from "react-spinners";
+import CloseIcon from '@mui/icons-material/Close';
 import './index.css';
 
 function CommentDetail() {
   const { columns } = authorsTableData;
+<<<<<<< Updated upstream
+=======
+  const { articleId } = useParams(); // Get articleId from URL
+>>>>>>> Stashed changes
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
@@ -53,8 +61,13 @@ function CommentDetail() {
     setDeleteId(id);
     setOpenDialog(true);
   };
+<<<<<<< Updated upstream
   
   const confirmDelete = async (deleteId) => {
+=======
+
+  const confirmDelete = async () => {
+>>>>>>> Stashed changes
     try {
       await apis.deleteComment(deleteId);
       setRows(rows.filter((comment) => comment.id !== deleteId));
@@ -70,22 +83,12 @@ function CommentDetail() {
     }
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
+  const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
 
   const cancelDelete = () => {
     setOpenDialog(false);
-  };
-
-  const handleAddCommentSuccess = () => {
-    fetchCommentsByArticle();
-    setSnackbarMessage("Comment added successfully.");
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -107,6 +110,7 @@ function CommentDetail() {
               <VuiTypography variant="lg" color="white">
                 Comment Detail Table
               </VuiTypography>
+<<<<<<< Updated upstream
               <Link to={{ pathname: "/formAddCmt", state: { id: id } }}>
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
@@ -115,6 +119,8 @@ function CommentDetail() {
                   Add
                 </button>
               </Link>
+=======
+>>>>>>> Stashed changes
             </VuiBox>
             {loading ? (
               <div
@@ -138,7 +144,7 @@ function CommentDetail() {
                   fontSize: '18px'
                 }}
               >
-                Chưa có bình luận nào
+                No comments available
               </div>
             ) : (
               <>
@@ -158,6 +164,7 @@ function CommentDetail() {
                 >
                   <Table
                     columns={columns}
+<<<<<<< Updated upstream
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                       return {
                         ...row,
@@ -214,13 +221,52 @@ function CommentDetail() {
                       &raquo;
                     </button>
                   </div>
+=======
+                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
+                      ...row,
+                      '#': page * rowsPerPage + index + 1,
+                      action: (
+                        <button
+                          className="text-light btn btn-outline-danger"
+                          type="button"
+                          onClick={() => handleDelete(row.id)}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            className="bi bi-trash"
+                            viewBox="0 0 16 16"
+                          >
+                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zM8 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zM11.5 5.5A.5.5 0 0 1 12 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zM13.5 2a.5.5 0 0 1 .5.5v.5h1a.5.5 0 0 1 0 1H1a.5.5 0 0 1 0-1h1V2.5A.5.5 0 0 1 2.5 2h11zM3 4v10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4H3z" />
+                          </svg>
+                        </button>
+                      ),
+                    }))}
+                  />
+                </VuiBox>
+                <div style={{ display: "flex", justifyContent: "space-between", padding: "1rem" }}>
+                  <button
+                    onClick={(event) => handleChangePage(event, page - 1)}
+                    disabled={page === 0}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={(event) => handleChangePage(event, page + 1)}
+                    disabled={(page + 1) * rowsPerPage >= rows.length}
+                  >
+                    Next
+                  </button>
+>>>>>>> Stashed changes
                 </div>
               </>
             )}
             <ConfirmDialog
               open={openDialog}
               onClose={() => setOpenDialog(false)}
-              onConfirm={() => confirmDelete(deleteId)}
+              onConfirm={confirmDelete}
               onCancel={cancelDelete}
             />
           </Card>
@@ -231,7 +277,15 @@ function CommentDetail() {
         autoHideDuration={500}
         onClose={handleSnackbarClose}
         message={snackbarMessage}
+<<<<<<< Updated upstream
         action={<button className='btn btn-outline-secondary' onClick={handleSnackbarClose}>Close</button>}
+=======
+        action={
+          <IconButton size="small" aria-label="close" color="inherit" onClick={handleSnackbarClose}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        }
+>>>>>>> Stashed changes
         severity={snackbarSeverity}
       />
     </DashboardLayout>
