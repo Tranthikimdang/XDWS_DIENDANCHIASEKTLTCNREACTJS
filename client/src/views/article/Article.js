@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia } from '@mui/material';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import PageContainer from 'src/components/container/PageContainer';
-// icons
 import { IconBookmark, IconDots } from '@tabler/icons';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
-// api
 import categoriesApi from '../../apis/categoriesApi';
 import apis from '../../apis/articleApi';
 import userApi from '../../apis/userApi';
-
 import './Article.css';
 
 const Article = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
   const [anchorEl, setAnchorEl] = useState(null);
   const [cates, setCates] = useState([]);
   const [articles, setArticles] = useState([]);
@@ -28,6 +27,10 @@ const Article = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleCardClick = (articleId) => {
+    navigate(`/article/${articleId}`); // Navigate to article detail page
   };
 
   useEffect(() => {
@@ -108,7 +111,7 @@ const Article = () => {
           </Grid>
 
           {/* Left Column */}
-          <Grid item md={8} >
+          <Grid item md={8}>
             {articles.map((article) => (
               <Card
                 key={article?.id}
@@ -118,7 +121,9 @@ const Article = () => {
                   flexDirection: { xs: 'column', md: 'row' },
                   border: '1px solid #ddd',
                   borderRadius: '8px',
+                  cursor: 'pointer', // Add cursor pointer
                 }}
+                onClick={() => handleCardClick(article.id)} // Handle card click
               >
                 <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                   <CardContent>
