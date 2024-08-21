@@ -7,13 +7,14 @@ import userApi from "../../../apis/userApi";
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
-
+import './style.css';
 
 const ArticleDetail = () => {
   const { id } = useParams(); // Assuming the article ID comes from the route parameters
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
+
   useEffect(() => {
     const fetchArticle = async () => {
       try {
@@ -30,6 +31,7 @@ const ArticleDetail = () => {
 
     fetchArticle();
   }, [id]);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -72,7 +74,19 @@ const ArticleDetail = () => {
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={3}>
         {/* Left Sidebar */}
-        <Grid item xs={2} sx={{ textAlign: 'flex' }}>
+        <Grid
+          item
+          xs={2}
+          sx={{
+            position: 'sticky',    // Làm cho sidebar "dính" khi cuộn trang
+            top: '85px',           // Giữ khoảng cách 16px từ đỉnh trang khi "dính"
+            alignSelf: 'start',    // Đảm bảo nó dính từ đầu khi có lưới bố cục
+            backgroundColor: 'white', // Đảm bảo nó luôn hiển thị rõ ràng
+            zIndex: 1,             // Đảm bảo nó nổi lên trên các thành phần khác
+            padding: '16px',       // Khoảng cách bên trong cho đẹp
+          }}
+          
+        >
           <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
             {users?.filter(u => article?.user_id === u.id)?.[0]?.name}
           </Typography>
@@ -97,7 +111,11 @@ const ArticleDetail = () => {
         </Grid>
 
         {/* Main Content */}
-        <Grid item xs={10}>
+        <Grid
+          item
+          xs={10} // Adjust width to fill the remaining space
+          
+        >
           <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
             {article.title}
           </Typography>
@@ -238,7 +256,6 @@ const ArticleDetail = () => {
               </Link>
             </Box>
             <Divider sx={{ marginBottom: '20px' }} />
-
           </Box>
         </Grid>
       </Grid>
