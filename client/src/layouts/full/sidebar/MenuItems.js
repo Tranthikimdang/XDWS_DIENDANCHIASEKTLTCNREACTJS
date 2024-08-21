@@ -24,22 +24,6 @@ const Menuitems = [
     href: '/article',
   },
 
-  // {
-  //   navlabel: true,
-  //   subheader: 'Code',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Tag',
-  //   icon: IconTag,
-  //   href: '/ui/typography',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Questions',
-  //   icon: IconBrandHipchat,
-  //   href: '/ui/shadow',
-  // },
   {
     navlabel: true,
     subheader: 'Auth',
@@ -56,22 +40,7 @@ const Menuitems = [
     icon: IconUserPlus,
     href: '/auth/register',
   },
-  // {
-  //   navlabel: true,
-  //   subheader: 'Extra',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Icons',
-  //   icon: IconMoodHappy,
-  //   href: '/icons',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Sample Page',
-  //   icon: IconAperture,
-  //   href: '/sample-page',
-  // },
+  
 ];
 
 export default Menuitems;

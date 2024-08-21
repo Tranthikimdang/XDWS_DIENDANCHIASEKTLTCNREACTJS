@@ -1,44 +1,26 @@
 import React from 'react';
-import { Grid, Box } from '@mui/material';
+import { Grid, Box, Typography } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-
-// components
-// import SalesOverview from './components/SalesOverview';
-// import YearlyBreakup from './components/YearlyBreakup';
-// import RecentTransactions from './components/RecentTransactions';
-// import ProductPerformance from './components/ProductPerformance';
-// import Blog from './components/Blog';
-// import MonthlyEarnings from './components/MonthlyEarnings';
-
+import Article from '../article/Article';
 
 const Home = () => {
   return (
-    <PageContainer title="Dashboard" description="this is Dashboard">
+    <PageContainer title="Home" description="This is the dashboard">
       <Box>
         <Grid container spacing={3}>
-          <h1>Đây là trang dashboard</h1>
-          {/* <Grid item xs={12} lg={8}>
-            <SalesOverview />
-          </Grid> */}
-          {/* <Grid item xs={12} lg={4}>
-            <Grid container spacing={3}>
-              <Grid item xs={12}>
-                <YearlyBreakup />
-              </Grid>
-              <Grid item xs={12}>
-                <MonthlyEarnings />
-              </Grid>
-            </Grid>
-          </Grid> */}
-          {/* <Grid item xs={12} lg={4}>
-            <RecentTransactions />
-          </Grid>
-          <Grid item xs={12} lg={8}>
-            <ProductPerformance />
+          <Grid item xs={12}>
+            <Typography 
+              variant="h1" // Adjusted for a larger size
+              component="h1" 
+              gutterBottom 
+              align="left" // Aligned to the left
+            >
+              Top Questions
+            </Typography>
           </Grid>
           <Grid item xs={12}>
-            <Blog />
-          </Grid> */}
+            <Article />
+          </Grid>
         </Grid>
       </Box>
     </PageContainer>

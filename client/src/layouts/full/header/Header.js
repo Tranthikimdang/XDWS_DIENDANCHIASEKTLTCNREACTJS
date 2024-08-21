@@ -8,7 +8,6 @@ import {
   IconButton,
   Badge,
   InputBase,
-  Button,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
@@ -28,6 +27,7 @@ const Header = (props) => {
       minHeight: '70px',
     },
   }));
+
   const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
     width: '100%',
     color: theme.palette.text.secondary,
@@ -78,14 +78,6 @@ const Header = (props) => {
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
-        {/* <Button
-          variant="contained"
-          color="primary"
-          onClick={props.onAddQuestionClick} // Add your handler here
-        >
-          Ask Question
-        </Button>
-
         <IconButton
           color="inherit"
           aria-label="menu"
@@ -98,29 +90,22 @@ const Header = (props) => {
           }}
         >
           <IconMenu width="20" height="20" />
-        </IconButton>*/}
+        </IconButton>
 
         <Search>
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-        </Search> 
+        </Search>
 
         <Box flexGrow={1} />
 
         <Stack spacing={1} direction="row" alignItems="center">
           <IconButton
             size="large"
-            aria-label="show 11 new notifications"
+            aria-label="show new notifications"
             color="inherit"
-            aria-controls="msgs-menu"
-            aria-haspopup="true"
-            sx={{
-              ...(typeof anchorEl2 === 'object' && {
-                color: 'primary.main',
-              }),
-            }}
           >
             <Badge variant="dot" color="primary">
               <IconBellRinging size="21" stroke="1.5" />
@@ -139,9 +124,7 @@ const Header = (props) => {
 };
 
 Header.propTypes = {
-  sx: PropTypes.object,
   toggleMobileSidebar: PropTypes.func,
-  onAddQuestionClick: PropTypes.func, // Define the new prop for the add question click handler
 };
 
 export default Header;
