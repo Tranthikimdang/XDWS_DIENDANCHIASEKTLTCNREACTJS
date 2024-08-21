@@ -89,63 +89,90 @@ const Home = () => {
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
       <Box>
-        <Grid container spacing={3} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+        <Grid >
           <Carousel variant="dark">
             {/* Carousel Item 1 */}
             <Carousel.Item>
-              <StyledBox>
-                <Grid container spacing={3} alignItems="center">
+              <StyledBox sx={{ background: 'linear-gradient(90deg, #0072ff 0%, #00c6ff 100%)', borderRadius: '20px', padding: '20px' }}>
+                <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} md={6}>
-                    <Typography variant="h4" component="h2" fontWeight="bold">
-                      Mở bán khóa JavaScript Pro
+                    <Typography variant="h4" component="h2" fontWeight="bold" sx={{ color: '#fff' }}>
+                      Học JavaScript Miễn Phí!
                     </Typography>
-                    <SubText>
-                      Từ 08/08/2024 khóa học sẽ có giá 1.399k (-200k nếu pre-order khóa HTML CSS Pro).
-                      Khi full khóa học sẽ trở về giá gốc.
+                    <SubText sx={{ color: '#fff' }}>
+                      Khóa học JavaScript từ cơ bản tới nâng cao. Kết quả của khóa học này là bạn có thể làm hầu hết các dự án thường gặp với JavaScript.
                     </SubText>
-                    <ActionButton variant="contained">Học thử miễn phí</ActionButton>
+                    <ActionButton
+                      variant="outlined"
+                      sx={{
+                        color: '#fff',
+                        borderColor: '#fff',
+                        width: '100%',
+                        padding: '15px 0',
+                        marginTop: '15px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          backgroundColor: '#fff',
+                          color: '#0072ff',
+                          borderColor: '#fff',
+                        },
+                      }}
+                    >
+                      Đăng Ký Ngay
+                    </ActionButton>
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <DiscountText>1.199K</DiscountText>
-                    <Typography variant="h6" style={{ textAlign: 'right', textDecoration: 'line-through', color: '#ccc' }}>
-                      3.299K
-                    </Typography>
+                  <Grid item xs={12} md={6} sx={{ textAlign: 'right' }}>
+                    <ImageBox sx={{ maxWidth: '80%', margin: '0 auto' }}>
+                      <img src="/path-to-your-image2.png" alt="JavaScript" style={{ width: '100%', borderRadius: '10px' }} />
+                    </ImageBox>
                   </Grid>
                 </Grid>
-                <ImageBox>
-                  <img src="/path-to-your-image1.png" alt="JavaScript Pro" style={{ width: '100%' }} />
-                </ImageBox>
               </StyledBox>
             </Carousel.Item>
-
             {/* Carousel Item 2 */}
             <Carousel.Item>
-              <StyledBox>
-                <Grid container spacing={3} alignItems="center">
+              <StyledBox sx={{ background: 'linear-gradient(90deg, #0072ff 0%, #00c6ff 100%)', borderRadius: '20px', padding: '20px' }}>
+                <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} md={6}>
-                    <Typography variant="h4" component="h2" fontWeight="bold">
-                      Mở bán khóa HTML CSS Pro
+                    <Typography variant="h4" component="h2" fontWeight="bold" sx={{ color: '#fff' }}>
+                      Học JavaScript Miễn Phí!
                     </Typography>
-                    <SubText>
-                      Từ 08/08/2024 khóa học sẽ có giá 1.199k (-200k nếu pre-order khóa JavaScript Pro).
-                      Khi full khóa học sẽ trở về giá gốc.
+                    <SubText sx={{ color: '#fff' }}>
+                      Khóa học JavaScript từ cơ bản tới nâng cao. Kết quả của khóa học này là bạn có thể làm hầu hết các dự án thường gặp với JavaScript.
                     </SubText>
-                    <ActionButton variant="contained">Học thử miễn phí</ActionButton>
+                    <ActionButton
+                      variant="outlined"
+                      sx={{
+                        color: '#fff',
+                        borderColor: '#fff',
+                        width: '100%',
+                        padding: '15px 0',
+                        marginTop: '15px',
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        '&:hover': {
+                          backgroundColor: '#fff',
+                          color: '#0072ff',
+                          borderColor: '#fff',
+                        },
+                      }}
+                    >
+                      Đăng Ký Ngay
+                    </ActionButton>
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <DiscountText>999K</DiscountText>
-                    <Typography variant="h6" style={{ textAlign: 'right', textDecoration: 'line-through', color: '#ccc' }}>
-                      2.499K
-                    </Typography>
+                  <Grid item xs={12} md={6} sx={{ textAlign: 'right' }}>
+                    <ImageBox sx={{ maxWidth: '80%', margin: '0 auto' }}>
+                      <img src="/path-to-your-image2.png" alt="JavaScript" style={{ width: '100%', borderRadius: '10px' }} />
+                    </ImageBox>
                   </Grid>
                 </Grid>
-                <ImageBox>
-                  <img src="/path-to-your-image2.png" alt="HTML CSS Pro" style={{ width: '100%' }} />
-                </ImageBox>
               </StyledBox>
             </Carousel.Item>
           </Carousel>
         </Grid>
+
+
 
         {/* Featured Posts Section */}
         <Grid container spacing={3} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
@@ -155,7 +182,7 @@ const Home = () => {
             </Typography>
           </Grid>
           {featuredPosts.map((post, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid item xs={12} sm={6} md={3} key={index}>
               <Card>
                 <CardMedia
                   component="img"
@@ -175,12 +202,15 @@ const Home = () => {
             </Grid>
           ))}
         </Grid>
+
       </Box>
     </PageContainer>
   );
 };
 
 export default Home;
+
+
 
 
 
