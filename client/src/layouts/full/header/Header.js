@@ -8,6 +8,7 @@ import {
   IconButton,
   Badge,
   InputBase,
+  Typography, // Import Typography
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
@@ -98,7 +99,7 @@ const Header = (props) => {
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-        </Search> 
+        </Search>
 
         <Box flexGrow={1} />
 
@@ -124,6 +125,11 @@ const Header = (props) => {
             <HelpIcon />
           </IconButton>
 
+          {/* Display user name here */}
+          <Typography variant="body1" sx={{ ml: 2, color: 'text.primary' }}>
+            {props.userName}
+          </Typography>
+
           <Profile />
         </Stack>
       </ToolbarStyled>
@@ -135,6 +141,7 @@ Header.propTypes = {
   sx: PropTypes.object,
   toggleMobileSidebar: PropTypes.func,
   onAddQuestionClick: PropTypes.func,
+  userName: PropTypes.string, // Add userName prop type
 };
 
 export default Header;

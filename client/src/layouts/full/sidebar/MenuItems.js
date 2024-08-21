@@ -30,13 +30,13 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Login',
+    title: 'LogOut',
     icon: IconLogin,
     href: '/auth/login',
   },
   {
     id: uniqueId(),
-    title: 'Add User',
+    title: 'Register',
     icon: IconUserPlus,
     href: '/auth/register',
   },
