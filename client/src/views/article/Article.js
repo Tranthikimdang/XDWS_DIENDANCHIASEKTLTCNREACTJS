@@ -108,7 +108,7 @@ const Article = () => {
           </Grid>
 
           {/* Left Column */}
-          <Grid item md={8}>
+          <Grid item md={8} >
             {articles.map((article) => (
               <Card
                 key={article?.id}
