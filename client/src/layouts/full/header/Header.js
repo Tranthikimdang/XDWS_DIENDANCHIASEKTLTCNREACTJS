@@ -23,6 +23,7 @@ const Header = (props) => {
     background: theme.palette.background.paper,
     justifyContent: 'center',
     backdropFilter: 'blur(4px)',
+    borderBottom: `1px solid ${theme.palette.divider}`, // Add this line for a bottom border
     [theme.breakpoints.up('lg')]: {
       minHeight: '70px',
     },
@@ -97,15 +98,22 @@ const Header = (props) => {
             <SearchIcon />
           </SearchIconWrapper>
           <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-        </Search>
+        </Search> 
 
         <Box flexGrow={1} />
 
         <Stack spacing={1} direction="row" alignItems="center">
           <IconButton
             size="large"
-            aria-label="show new notifications"
+            aria-label="show 11 new notifications"
             color="inherit"
+            aria-controls="msgs-menu"
+            aria-haspopup="true"
+            sx={{
+              ...(typeof anchorEl2 === 'object' && {
+                color: 'primary.main',
+              }),
+            }}
           >
             <Badge variant="dot" color="primary">
               <IconBellRinging size="21" stroke="1.5" />
@@ -124,7 +132,9 @@ const Header = (props) => {
 };
 
 Header.propTypes = {
+  sx: PropTypes.object,
   toggleMobileSidebar: PropTypes.func,
+  onAddQuestionClick: PropTypes.func,
 };
 
 export default Header;
