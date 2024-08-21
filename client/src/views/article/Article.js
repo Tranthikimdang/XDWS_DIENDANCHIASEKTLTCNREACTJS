@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
 import { IconBookmark, IconDots } from '@tabler/icons';
@@ -7,14 +7,33 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
+// api
+import categoriesApi from '../../apis/categoriesApi';
+
 import './Article.css';
 
 const Article = () => {
   const [anchorEl, setAnchorEl] = useState(null);
-
+  const [cates, setCates] = useState([]);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesApi.getList();
+        if (response.status === 200) {
+          const categories = response.data || [];
+          setCates(categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -28,9 +47,38 @@ const Article = () => {
     { icon: <FlagIcon />, text: 'Báo cáo bài viết' },
   ];
 
+  // Sample data for the articles
+  const articles = [
+    {
+      id: 1,
+      author: 'Kimdang.dev',
+      title: 'Mình đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày',
+      description: 'Xin chào mọi người mình là Kimdang.dev, mình đã làm một dự án website front-end với hơn 100 bài học và 200 bài viết...',
+      category: 'Front-end',
+      time: '2 tháng trước',
+      readTime: '4 phút đọc',
+      image: 'https://files.fullstack.edu.vn/f8-prod/blog_posts/10850/667550d384026.png',
+      authorImage: 'http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg',
+    },
+    {
+      id: 2,
+      author: 'Kimdang.dev',
+      title: 'Mình đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày',
+      description: 'Xin chào mọi người mình là Kimdang.dev, mình đã làm một dự án website front-end với hơn 100 bài học và 200 bài viết...',
+      category: 'Front-end',
+      time: '2 tháng trước',
+      readTime: '4 phút đọc',
+      image: 'https://files.fullstack.edu.vn/f8-prod/blog_posts/10850/667550d384026.png',
+      authorImage: 'http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg',
+    },
+    // Add more articles here...
+  ];
+
+ 
+
   return (
     <PageContainer title="Article" description="This is Article">
-       <Box sx={{ padding: { xs: '10px'} }}>
+      <Box sx={{ padding: { xs: '10px'} }}>
         <Grid container spacing={3}>
           <Grid sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <h1 className="_heading_juuyp_22">Bài viết nổi bật</h1>
@@ -38,11 +86,12 @@ const Article = () => {
               Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
             </Typography>
           </Grid>
-          {/* Cột bên trái */}
-          <Grid md={8}>
-            {[...Array(3)].map((_, index) => (
+
+          {/* Left Column */}
+          <Grid item md={8}>
+            {articles.map((article) => (
               <Card
-                key={index}
+                key={article.id}
                 sx={{
                   display: 'flex',
                   mb: 3,
@@ -55,29 +104,29 @@ const Article = () => {
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                       <img
-                        src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-                        alt="Kimdang.dev"
+                        src={article.authorImage}
+                        alt={article.author}
                         className="author-image"
                       />
                       <Typography variant="body1" component="span" className="author-name">
-                        <strong>Kimdang.dev</strong>
+                        <strong>{article.author}</strong>
                       </Typography>
                     </Box>
                     <Typography variant="h5" component="h2" className="article-title">
-                      Mình đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày
+                      {article.title}
                     </Typography>
                     <Typography variant="body2" paragraph className="article-description">
-                      Xin chào mọi người mình là Kimdang.dev, mình đã làm một dự án website front-end với hơn 100 bài học và 200 bài viết. Bài viết này...
+                      {article.description}
                     </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                       <Typography variant="body2" color="textSecondary" className="category-badge">
-                        Front-end
+                        {article.category}
                       </Typography>
                       <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                        2 tháng trước
+                        {article.time}
                       </Typography>
                       <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                        4 phút đọc
+                        {article.readTime}
                       </Typography>
                     </Box>
                   </CardContent>
@@ -90,8 +139,8 @@ const Article = () => {
                       height: { xs: 200, md: 'auto' },
                       objectFit: 'cover',
                     }}
-                    image="https://files.fullstack.edu.vn/f8-prod/blog_posts/10850/667550d384026.png"
-                    alt="Minh đã làm thế nào để hoàn thành một dự án website chỉ trong 15 ngày"
+                    image={article.image}
+                    alt={article.title}
                   />
                   <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
                     <IconButton aria-label="bookmark">
@@ -119,17 +168,18 @@ const Article = () => {
             ))}
           </Grid>
 
-          {/* Cột bên phải */}
-          <Grid md={4}>
+          {/* Right Column */}
+          <Grid item md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
                 Xem các bài viết theo chủ đề
               </Typography>
               <ul className="category-list">
-                <li className="category-item"><strong>Front-end / Mobile apps</strong></li>
-                <li className="category-item"><strong>Back-end / Devops</strong></li>
-                <li className="category-item"><strong>UI / UX / Design</strong></li>
-                <li className="category-item"><strong>Others</strong></li>
+              {cates.map((cate) => (
+                  <li  key={cate?.key} value={cate?.key} className="category-item">
+                    <strong>{cate?.name}</strong>
+                  </li>
+                ))}
               </ul>
             </div>
           </Grid>
