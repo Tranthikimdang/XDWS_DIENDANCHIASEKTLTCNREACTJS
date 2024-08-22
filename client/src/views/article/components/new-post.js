@@ -167,19 +167,20 @@ const Newpost = () => {
             {/* Buttons for Publish and Back */}
             <Grid item xs={12}>
               <Box display="flex" justifyContent="space-between" mt={3}>
-                <Button 
-                  variant="contained" 
-                  color="primary" 
-                  type="submit"
-                >
-                  Add Article
-                </Button>
+               
                 <Button 
                   variant="outlined" 
                   color="secondary" 
                   onClick={() => navigate('/article')}
                 >
                   Back
+                </Button>
+                 <Button 
+                  variant="contained" 
+                  color="primary" 
+                  type="submit"
+                >
+                  Add Article
                 </Button>
               </Box>
             </Grid>
