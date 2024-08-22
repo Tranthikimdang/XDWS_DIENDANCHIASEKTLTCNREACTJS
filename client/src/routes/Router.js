@@ -15,9 +15,11 @@ const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')))
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')))
 const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')))
+
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
+const UserList = Loadable(lazy(() => import('../views/User/User'))); // Import the UserList component
 
 const Router = [
   {
@@ -33,6 +35,7 @@ const Router = [
       { path: '/icons', exact: true, element: <Icons /> },
       { path: '/ui/typography', exact: true, element: <TypographyPage /> },
       { path: '/ui/shadow', exact: true, element: <Shadow /> },
+      { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
       { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

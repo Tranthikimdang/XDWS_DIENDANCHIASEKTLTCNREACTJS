@@ -85,11 +85,11 @@ const Article = () => {
   }, []);
 
   const menuItems = [
-    { icon: <FacebookIcon />, text: 'Chia sẻ lên Facebook' },
-    { icon: <TwitterIcon />, text: 'Chia sẻ lên Twitter' },
-    { icon: <EmailIcon />, text: 'Chia sẻ tới Email' },
-    { icon: <LinkIcon />, text: 'Sao chép liên kết' },
-    { icon: <FlagIcon />, text: 'Báo cáo bài viết' },
+    { icon: <FacebookIcon />, text: 'Share on Facebook' },
+    { icon: <TwitterIcon />, text: 'Share on Twitter' },
+    { icon: <EmailIcon />, text: 'Share via Email' },
+    { icon: <LinkIcon />, text: 'Copy Link' },
+    { icon: <FlagIcon />, text: 'Report Article' },
   ];
 
   const removeSpecificHtmlTags = (html, tag) => {
@@ -103,10 +103,10 @@ const Article = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
-              Bài viết nổi bật
+              Featured Articles
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
-              Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
+              A collection of articles sharing experiences of self-learning programming online and web development techniques.
             </Typography>
           </Grid>
 
@@ -191,7 +191,7 @@ const Article = () => {
           <Grid item md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Xem các bài viết theo chủ đề
+                Browse by Category
               </Typography>
               <ul className="category-list">
                 {cates.map((cate) => (
