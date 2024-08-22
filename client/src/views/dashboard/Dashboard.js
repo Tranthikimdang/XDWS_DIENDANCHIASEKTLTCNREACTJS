@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Carousel } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import { Box, Button, Typography, Grid, Card, CardContent, CardMedia } from '@mui/material';
 import { styled } from '@mui/system';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -57,10 +58,15 @@ const ImageBox = styled(Box)(({ theme }) => ({
 }));
 
 const Home = () => {
+  const navigate = useNavigate();
   const [cates, setCates] = useState([]);
   const [articles, setArticles] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleCardClick = (articleId) => {
+    navigate(`/article/${articleId}`); // Navigate to article detail page
+  };
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -277,7 +283,9 @@ const Home = () => {
           </Grid>
           {articles.slice(0, 8).map((article) => (
             <Grid item xs={12} sm={6} md={3} key={article?.id}>
-              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+               onClick={() => handleCardClick(article.id)} // Handle card click
+              >
                 <CardMedia
                   component="img"
                   height="140"
