@@ -6,7 +6,7 @@ import { Box, Button, Typography, Grid, Card, CardContent, CardMedia } from '@mu
 import { styled } from '@mui/system';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-//api
+// api
 import categoriesApi from '../../apis/categoriesApi';
 import apis from '../../apis/articleApi';
 import userApi from '../../apis/userApi';
@@ -24,7 +24,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
 const DiscountText = styled(Typography)(({ theme }) => ({
   fontSize: '40px',
   fontWeight: 'bold',
-  color: '#FFC0CB',  // light pink color
+  color: '#FFC0CB', // light pink color
   textAlign: 'right',
 }));
 
@@ -117,50 +117,50 @@ const Home = () => {
     <PageContainer title="Dashboard" description="this is Dashboard">
       <Box>
         {/* Banner */}
-        <Grid >
+        <Grid>
           <Carousel
             variant="dark"
             indicators={false}
             interval={5000}
             nextIcon={
               <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                right: '30px', // Adjust spacing from the right side
-                transform: 'translateY(-50%)',
-                width: '40px',
-                height: '40px',
-                backgroundColor: '#fff',
-                borderRadius: '50%',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 1,
-              }}
-            >
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  right: '30px',
+                  transform: 'translateY(-50%)',
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: '#fff',
+                  borderRadius: '50%',
+                  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1,
+                }}
+              >
                 <ArrowForwardIcon sx={{ color: '#333', fontSize: '20px' }} />
               </Box>
             }
             prevIcon={
               <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '30px', // Adjust spacing from the left side
-                transform: 'translateY(-50%)',
-                width: '40px',
-                height: '40px',
-                backgroundColor: '#fff',
-                borderRadius: '50%',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 1,
-              }}
-            >
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '30px',
+                  transform: 'translateY(-50%)',
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: '#fff',
+                  borderRadius: '50%',
+                  boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 1,
+                }}
+              >
                 <ArrowBackIcon sx={{ color: '#333', fontSize: '20px' }} />
               </Box>
             }
@@ -169,7 +169,7 @@ const Home = () => {
             <Carousel.Item>
               <StyledBox
                 sx={{
-                  background: 'linear-gradient(90deg, #f94f4f 0%, #ff8a00 100%)',
+                  background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)', // Blue gradient background
                   borderRadius: '20px',
                   padding: '20px',
                 }}
@@ -177,29 +177,47 @@ const Home = () => {
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} md={8}>
                     <Typography variant="h4" component="h2" fontWeight="bold" sx={{ color: '#fff' }}>
-                    Chào Mừng Đến Với Nền Tảng Chia Sẻ Kiến Thức!
+                      Chào Mừng Đến Với Diễn Đàn Chia Sẻ Code!
                     </Typography>
                     <SubText sx={{ color: '#fff' }}>
-                    Nền tảng của chúng tôi là nơi các chuyên gia và người học có thể kết nối, chia sẻ kiến thức và kinh nghiệm trong nhiều lĩnh vực khác nhau. Khám phá các khóa học miễn phí, bài viết hữu ích, và tài liệu chất lượng để nâng cao kỹ năng và mở rộng hiểu biết của bạn.
+                      Kết nối với các lập trình viên khác, chia sẻ code, và học hỏi từ cộng đồng lập trình đa dạng của chúng tôi. Tham gia các cuộc thảo luận, nhận sự trợ giúp, và cùng nhau phát triển kỹ năng lập trình của bạn.
                     </SubText>
+                    <ActionButton
+                      variant="contained"
+                      href="/" // Example link
+                      sx={{
+                        textTransform: 'none',
+                        backgroundColor: '#0057e6', // A vibrant blue color
+                        color: '#ffffff', // White text for contrast
+                        border: '2px solid #0044cc', // Optional: border to make the button stand out
+                        '&:hover': {
+                          backgroundColor: '#0044cc', // Slightly darker blue on hover
+                        },
+                        padding: '10px 20px',
+                        borderRadius: '30px', // Rounded corners
+                      }}
+                    >
+                      Tham Gia Cộng Đồng
+                    </ActionButton>
                   </Grid>
-                  <Grid item xs={12} md={6} sx={{ textAlign: 'center' }}>
+                  <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
                     <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
                       <img
-                        src="https://files.fullstack.edu.vn/f8-prod/banners/36/6454dee96205c.png"
-                        alt="JavaScript"
-                        style={{ width: '100%', borderRadius: '10px' }}
+                        src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg" // Replace with your image URL
+                        alt="Diễn đàn chia sẻ code"
+                        style={{ width: '400px',marginLeft: '-237px', borderRadius: '10px' }}
                       />
                     </ImageBox>
                   </Grid>
                 </Grid>
               </StyledBox>
             </Carousel.Item>
+
             {/* Carousel Item 2 */}
             <Carousel.Item>
               <StyledBox
                 sx={{
-                  background: 'linear-gradient(90deg, #f94f4f 0%, #ff8a00 100%)',
+                  background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)', // Blue gradient background
                   borderRadius: '20px',
                   padding: '20px',
                 }}
@@ -207,36 +225,35 @@ const Home = () => {
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} md={6}>
                     <Typography variant="h4" component="h2" fontWeight="bold" sx={{ color: '#fff' }}>
-                      Học JavaScript Miễn Phí!
+                      Chia Sẻ Mã Code Của Bạn!
                     </Typography>
                     <SubText sx={{ color: '#fff' }}>
-                      Khóa học JavaScript từ cơ bản tới nâng cao. Kết quả của khóa học này là bạn có thể làm hầu hết các dự án thường gặp với JavaScript.
+                      Đăng tải mã nguồn của bạn, nhận phản hồi từ cộng đồng, và cải thiện khả năng lập trình của bạn. Tạo một bộ sưu tập mã nguồn và chia sẻ chúng với thế giới.
                     </SubText>
                     <ActionButton
-                      variant="outlined"
+                      variant="contained"
+                      href="/" // Example link
                       sx={{
-                        color: '#fff',
-                        borderColor: '#fff',
-                        width: 'auto',
-                        padding: '10px 20px',
-                        marginTop: '20px',
-                        fontWeight: 'bold',
+                        textTransform: 'none',
+                        backgroundColor: '#0057e6', // A vibrant blue color
+                        color: '#ffffff', // White text for contrast
+                        border: '2px solid #0044cc', // Optional: border to make the button stand out
                         '&:hover': {
-                          backgroundColor: '#fff',
-                          color: '#f94f4f',
-                          borderColor: '#fff',
+                          backgroundColor: '#0044cc', // Slightly darker blue on hover
                         },
+                        padding: '10px 20px',
+                        borderRadius: '30px', // Rounded corners
                       }}
                     >
-                      Đăng Ký Ngay
+                      Tham Gia Cộng Đồng
                     </ActionButton>
                   </Grid>
                   <Grid item xs={12} md={6} sx={{ textAlign: 'center' }}>
                     <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
                       <img
-                        src="https://files.fullstack.edu.vn/f8-prod/banners/Banner_04_2.png"
-                        alt="JavaScript"
-                        style={{ width: '100%', borderRadius: '10px' }}
+                        src="https://files.fullstack.edu.vn/f8-prod/banners/36/6454dee96205c.png" // Replace with your image URL
+                        alt="Chia sẻ code"
+                        style={{ width: '400px',marginLeft: '-400px', borderRadius: '10px' }}
                       />
                     </ImageBox>
                   </Grid>
@@ -245,6 +262,8 @@ const Home = () => {
             </Carousel.Item>
           </Carousel>
         </Grid>
+
+
 
         {/* Featured Posts Section */}
         <Grid container spacing={3} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
@@ -256,7 +275,7 @@ const Home = () => {
               Xem tất cả &gt;
             </Box>
           </Grid>
-          {articles.map((article) => (
+          {articles.slice(0, 8).map((article) => (
             <Grid item xs={12} sm={6} md={3} key={article?.id}>
               <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <CardMedia
@@ -271,7 +290,7 @@ const Home = () => {
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto' }}>
                     <Typography variant="body2" color="textSecondary">
-                      {users?.find(u => article?.user_id === u.id)?.name}
+                      {users.find(u => article.user_id === u.id)?.name}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
                       {article.updated_at}
