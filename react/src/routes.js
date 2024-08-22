@@ -1,22 +1,17 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "layouts/dashboard";
 import Comment from "layouts/comment";
+import CommentDetail from "layouts/commentDetail";
 import Category from "layouts/category";
 import Profile from "layouts/profile";
 import Article from "layouts/article";
 import User from "layouts/user";
-import Announcement from "layouts/announcement";
-import Authority from "layouts/authority";
 import SignIn from "layouts/authentication/sign-in";
+import SignUp from "layouts/authentication/sign-up";
 
 import FormAddUser from "layouts/user/data/formAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
 import FormDeleteUser from "layouts/user/data/FormDeleteUser";
-
-import FormAuthority from "layouts/authority/data/formAuthority";
-import FormAnnouncement from "../src/layouts/announcement/data/formAunouncement";
-import AuthorityDetail from "../src/layouts/authorityDetail";
-import FormAddUserAuthory from "../src/layouts/authorityDetail/data/formAddUser";
 
 import FormAddCate from "layouts/category/data/FormAddCate";
 import FormEditCate from "layouts/category/data/FormEditCate";
@@ -27,8 +22,9 @@ import FormViewArticle from "layouts/article/data/FormViewArticle";
 import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
-import FormAddCmt from "layouts/comment/data/formComment";
-import FormDeleteCmt from "layouts/comment/data/formDeleteComment";
+import FormAddCmt from "layouts/commentDetail/data/formComment";
+import FormEditCmt from "layouts/commentDetail/data/formEditComment";
+import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
 // Vision UI Dashboard React icons
 import { IoIosDocument } from "react-icons/io";
@@ -41,7 +37,11 @@ import { BsJournals } from "react-icons/bs";
 import { BsBellFill } from "react-icons/bs";
 import { FaUserShield } from "react-icons/fa";
 const routes = [
-  
+  {
+    route: "/authentication/sign-in",
+
+    component: SignIn,
+  },
   {
     type: "collapse",
     name: "Dashboard",
@@ -87,24 +87,6 @@ const routes = [
     component: User,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Announcement",
-    key: "announcement",
-    route: "/announcement",
-    icon: <BsBellFill size="15px" color="inherit" />,
-    component: Announcement,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Authority Management",
-    key: "authority",
-    route: "/authority",
-    icon: <FaUserShield size="15px" color="inherit" />,
-    component: Authority,
-    noCollapse: true,
-  },
   { type: "title", title: "Account Pages", key: "account-pages" },
   {
     type: "collapse",
@@ -124,13 +106,24 @@ const routes = [
     component: SignIn,
     noCollapse: true,
   },
- 
-  // router form thêm sửa xóa
+
+  {
+    key: "commentDetail",
+    route: "/commentDetail",
+    component: CommentDetail,
+    hidden: true, // Ẩn mục này
+  },
   {
     key: "formaddcmt",
     route: "/formaddcmt",
     component: FormAddCmt,
-    hidden: true, // Ẩn mục này
+    hidden: true,
+  },
+  {
+    key: "formeditcmt",
+    route: "/formeditcmt",
+    component: FormEditCmt,
+    hidden: true, 
   },
   {
     key: "formdeletecmt",
@@ -205,36 +198,11 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formauthority",
-    route: "/formauthority",
-    component: FormAuthority,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "FormAnnouncement",
-    route: "/formAunouncement",
-    component: FormAnnouncement,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "authorityDetail",
-    route: "/authorityDetail",
-    component: AuthorityDetail,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formAddUserAuthory",
-    route: "/formAddUserAuthory",
-    component: FormAddUserAuthory,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formAddUserAuthory",
-    route: "/authorityDetail/:id",
-    component: AuthorityDetail,
+    key: "signup",
+    route: "/signup",
+    component: SignUp,
     hidden: true, // Ẩn mục này
   },
 ];
-
 
 export default routes;

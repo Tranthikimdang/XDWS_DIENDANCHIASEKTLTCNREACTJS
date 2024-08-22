@@ -1,5 +1,7 @@
+
 const { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where } = require('firebase/firestore/lite');
 const db = require('../config/firebaseconfig.js');
+
 
 // Add a new user
 const addUser = async (user) => {
@@ -29,7 +31,7 @@ const updateUser = async (id, updatedData) => {
   try {
     const userDoc = doc(db, 'users', id);
     await updateDoc(userDoc, updatedData);
-    return `Category with id ${id} updated successfully.`;
+    return `User with id ${id} updated successfully.`;
   } catch (e) {
     console.error('Error updating user:', e.message);
     throw new Error('Error updating user: ' + e.message);
@@ -48,18 +50,19 @@ const deleteUser = async (id) => {
   }
 };
 
-const getOneUser = async (email) => {
+const getOneUserByEmail = async (email) => {
   try {
-    const q = query(collection(db, 'users'), where('email', '==', email));
-    const querySnapshot = await getDocs(q);
-    if (querySnapshot.empty) {
-      throw new Error('No user found with the provided email.');
+    const usersCollection = collection(db, 'users');
+    const userDocs = await getDocs(query(usersCollection, where("email", "==", email)));
+    
+    if (userDocs.empty) {
+      return null; // Trả về null nếu không tìm thấy người dùng
     }
-    const user = querySnapshot.docs[0].data();
-    return user;
+    
+    return userDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }))[0]; // Trả về người dùng đầu tiên tìm thấy
   } catch (e) {
-    console.error('Error getting user:', e.message);
-    throw new Error('Error getting user: ' + e.message);
+    console.error('Error getting user by email:', e.message);
+    throw new Error('Error getting user by email: ' + e.message);
   }
 };
 
@@ -68,5 +71,5 @@ module.exports = {
   getAllUsers,
   updateUser,
   deleteUser,
-  getOneUser
+  getOneUserByEmail
 };

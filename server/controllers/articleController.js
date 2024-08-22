@@ -1,6 +1,9 @@
 const multer = require('multer');
 const path = require('path');
 const Article = require('../models/articleModel'); // Đảm bảo đường dẫn đúng đến model của bạn
+const { log } = require('console');
+const moment = require('moment')
+const firebase = require("firebase/firestore")
 
 // Cấu hình lưu trữ tệp tin
 const storage = multer.diskStorage({
@@ -22,24 +25,26 @@ const addArticle = async (req, res) => {
     }
 
     // Lấy các trường dữ liệu từ req.body và req.file (tệp tin)
-    const { title, category, view, created_date, name, email, content } = req.body;
+    const { categories_id, user_id, title, content, view, created_at, updated_at, is_deleted } = req.body;
     const image = req.file ? `assets\\uploads\\${req.file.filename}` : null; // Đường dẫn đến tệp tin đã lưu trữ
-    console.log(req.file);
     // Kiểm tra tất cả các trường cần thiết
-    if (!title || !category || !view || !created_date || !name || !email || !content) {
+    console.clear()
+
+    if (!categories_id || !user_id || !title || !content) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
     // Xử lý giá trị trường
     const newArticle = {
+      categories_id,
+      user_id,
       image,
       title,
-      category,
-      view,
-      created_date,
-      name,
-      email,
-      content
+      content,
+      view: 0,
+      created_at: new Date(), // Tự động gán thời gian tạo
+      updated_at: new Date(), // Tự động gán thời gian cập nhật
+      is_deleted: false
     };
 
     try {
@@ -55,18 +60,26 @@ const addArticle = async (req, res) => {
   });
 };
 
+const formatDateTime = (date) => {
+  return new Date(date).toLocaleString(); // Chuyển đổi thành chuỗi định dạng dễ đọc
+};
+
 const getList = async (req, res) => {
   try {
     const articles = await Article.getList();
-    const host = req.protocol + '://' + req.get('host'); // http://localhost:4000
-    console.log(articles);
+    const host = req.protocol + '://' + req.get('host');
+
 
     const updatedItems = articles.map(item => {
       return {
         ...item,
-        image: host + '/' + item?.image?.replace(/\\/g, '/'), // Cập nhật đường dẫn ảnh
+        image: host + '/' + item?.image?.replace(/\\/g, '/'),
+        created_at: item.created_at?.seconds ? moment.unix(item.created_at?.seconds).format('DD/MM/YYYY') : null,
+        updated_at: item.updated_at?.seconds ? moment.unix(item.updated_at?.seconds).format('DD/MM/YYYY') : null,
       };
     });
+
+    // console.log(updatedItems);
 
     res.status(200).json({
       data: updatedItems,
@@ -79,6 +92,7 @@ const getList = async (req, res) => {
     res.status(500).json({ status: 500, error: error.message });
   }
 };
+
 
 const getArticleById = async (req, res) => {
   const { id } = req.params;
@@ -108,7 +122,6 @@ const getArticleById = async (req, res) => {
 
 const updateArticle = async (req, res) => {
   const { id } = req.params;
-
   // Xử lý tệp tin với multer
   upload.single('image')(req, res, async (err) => {
     if (err) {
@@ -116,18 +129,18 @@ const updateArticle = async (req, res) => {
     }
 
     // Xử lý dữ liệu bài viết
-    const { title, category, view, created_date, name, email, content } = req.body;
+    const { categories_id, user_id, title, content, view, created_at, updated_at, is_deleted } = req.body;
     // const image = req.file ? req.file.path : null; // Đường dẫn đến tệp tin đã lưu trữ nếu có
     const image = req.file ? `assets\\uploads\\${req.file.filename}` : null; // Đường dẫn đến tệp tin đã lưu trữ
     const articleData = {
       image: image || undefined, // Cập nhật image chỉ khi có hình ảnh mới
+      categories_id,
+      user_id,
       title,
-      category,
-      view,
-      created_date,
-      name,
-      email,
-      content
+      content,
+      view: 0,
+      updated_at: new Date(), // Tự động gán thời gian cập nhật
+      is_deleted: false
     };
 
     try {
@@ -148,7 +161,6 @@ const updateArticle = async (req, res) => {
 
 const deleteArticle = async (req, res) => {
   const { id } = req.params;
-
   try {
     const deleted = await Article.deleteArticle(id);
     if (deleted) {

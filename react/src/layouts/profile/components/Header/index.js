@@ -23,6 +23,18 @@ import { useEffect, useState } from "react";
 function Header() {
   const [tabsOrientation, setTabsOrientation] = useState("horizontal");
   const [tabValue, setTabValue] = useState(0);
+  const [userInfo, setUserInfo] = useState({ name: "User", email: "user@example.com" }); // Default values
+
+  useEffect(() => {
+    // Load user info from local storage
+    const storedUserInfo = JSON.parse(localStorage.getItem("user"));
+    if (storedUserInfo) {
+      setUserInfo({
+        name: storedUserInfo.name || "User",
+        email: storedUserInfo.email || "user@example.com",
+      });
+    }
+  }, []);
 
   useEffect(() => {
     // A function that sets the orientation state of the tabs.
@@ -32,15 +44,10 @@ function Header() {
         : setTabsOrientation("horizontal");
     }
 
-    /** 
-     The event listener that's calling the handleTabsOrientation function when resizing the window.
-    */
+    // Event listener for window resize
     window.addEventListener("resize", handleTabsOrientation);
-
-    // Call the handleTabsOrientation function to set the state with the initial value.
     handleTabsOrientation();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleTabsOrientation);
   }, [tabsOrientation]);
 
@@ -49,12 +56,7 @@ function Header() {
   return (
     <VuiBox position="relative">
       <DashboardNavbar light />
-      <Card
-        sx={{
-          px: 3,
-          mt: 2,
-        }}
-      >
+      <Card sx={{ px: 3, mt: 2 }}>
         <Grid
           container
           alignItems="center"
@@ -62,9 +64,6 @@ function Header() {
           sx={({ breakpoints }) => ({
             [breakpoints.up("xs")]: {
               gap: "16px",
-            },
-            [breakpoints.up("xs")]: {
-              gap: "0px",
             },
             [breakpoints.up("xl")]: {
               gap: "0px",
@@ -109,10 +108,10 @@ function Header() {
               })}
             >
               <VuiTypography variant="lg" color="white" fontWeight="bold">
-                Mark Johnson
+                {userInfo.name}
               </VuiTypography>
               <VuiTypography variant="button" color="text" fontWeight="regular">
-                mark@simmmple.com
+                {userInfo.email}
               </VuiTypography>
             </VuiBox>
           </Grid>
@@ -124,9 +123,7 @@ function Header() {
                 onChange={handleSetTabValue}
                 sx={{ background: "transparent", display: "flex", justifyContent: "flex-end" }}
               >
-                <Tab label="OVERVIEW" icon={<IoCube color="white" size="16px" />} />
-                <Tab label="TEAMS" icon={<IoDocument color="white" size="16px" />} />
-                <Tab label="PROJECTS" icon={<IoBuild color="white" size="16px" />} />
+              
               </Tabs>
             </AppBar>
           </Grid>
