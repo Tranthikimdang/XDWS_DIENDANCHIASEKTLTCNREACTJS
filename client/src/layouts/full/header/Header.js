@@ -8,7 +8,7 @@ import {
   IconButton,
   Badge,
   InputBase,
-  Typography, // Import Typography
+  Typography,
 } from '@mui/material';
 import PropTypes from 'prop-types';
 
@@ -18,64 +18,67 @@ import { IconBellRinging, IconMenu } from '@tabler/icons';
 import SearchIcon from '@mui/icons-material/Search';
 import HelpIcon from '@mui/icons-material/Help';
 
+// Styled components
+const AppBarStyled = styled(AppBar)(({ theme }) => ({
+  boxShadow: 'none',
+  background: theme.palette.background.paper,
+  justifyContent: 'center',
+  backdropFilter: 'blur(4px)',
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  [theme.breakpoints.up('lg')]: {
+    minHeight: '70px',
+  },
+}));
+
+const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
+  width: '100%',
+  color: theme.palette.text.secondary,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+}));
+
+const Search = styled('div')(({ theme }) => ({
+  position: 'relative',
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: theme.palette.grey[200],
+  '&:hover': {
+    backgroundColor: theme.palette.grey[300],
+  },
+  marginRight: theme.spacing(2),
+  marginLeft: 0,
+  width: '100%',
+  [theme.breakpoints.up('sm')]: {
+    marginLeft: theme.spacing(3),
+    width: 'auto',
+  },
+}));
+
+const SearchIconWrapper = styled('div')(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: '100%',
+  position: 'absolute',
+  pointerEvents: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: 'inherit',
+  '& .MuiInputBase-input': {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: '20ch',
+    },
+  },
+}));
+
 const Header = (props) => {
-  const AppBarStyled = styled(AppBar)(({ theme }) => ({
-    boxShadow: 'none',
-    background: theme.palette.background.paper,
-    justifyContent: 'center',
-    backdropFilter: 'blur(4px)',
-    borderBottom: `1px solid ${theme.palette.divider}`, // Add this line for a bottom border
-    [theme.breakpoints.up('lg')]: {
-      minHeight: '70px',
-    },
-  }));
-
-  const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
-    width: '100%',
-    color: theme.palette.text.secondary,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  }));
-
-  const Search = styled('div')(({ theme }) => ({
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: theme.palette.grey[200],
-    '&:hover': {
-      backgroundColor: theme.palette.grey[300],
-    },
-    marginRight: theme.spacing(2),
-    marginLeft: 0,
-    width: '100%',
-    [theme.breakpoints.up('sm')]: {
-      marginLeft: theme.spacing(3),
-      width: 'auto',
-    },
-  }));
-
-  const SearchIconWrapper = styled('div')(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  }));
-
-  const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: 'inherit',
-    '& .MuiInputBase-input': {
-      padding: theme.spacing(1, 1, 1, 0),
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      transition: theme.transitions.create('width'),
-      width: '100%',
-      [theme.breakpoints.up('md')]: {
-        width: '20ch',
-      },
-    },
-  }));
+  const { userName, toggleMobileSidebar } = props;
 
   return (
     <AppBarStyled position="sticky" color="default">
@@ -83,7 +86,7 @@ const Header = (props) => {
         <IconButton
           color="inherit"
           aria-label="menu"
-          onClick={props.toggleMobileSidebar}
+          onClick={toggleMobileSidebar}
           sx={{
             display: {
               lg: 'none',
@@ -106,15 +109,8 @@ const Header = (props) => {
         <Stack spacing={1} direction="row" alignItems="center">
           <IconButton
             size="large"
-            aria-label="show 11 new notifications"
+            aria-label="show new notifications"
             color="inherit"
-            aria-controls="msgs-menu"
-            aria-haspopup="true"
-            sx={{
-              ...(typeof anchorEl2 === 'object' && {
-                color: 'primary.main',
-              }),
-            }}
           >
             <Badge variant="dot" color="primary">
               <IconBellRinging size="21" stroke="1.5" />
@@ -127,7 +123,7 @@ const Header = (props) => {
 
           {/* Display user name here */}
           <Typography variant="body1" sx={{ ml: 2, color: 'text.primary' }}>
-            {props.userName}
+            Welcome, {userName}
           </Typography>
 
           <Profile />
@@ -140,8 +136,7 @@ const Header = (props) => {
 Header.propTypes = {
   sx: PropTypes.object,
   toggleMobileSidebar: PropTypes.func,
-  onAddQuestionClick: PropTypes.func,
-  userName: PropTypes.string, // Add userName prop type
+  userName: PropTypes.string,
 };
 
 export default Header;

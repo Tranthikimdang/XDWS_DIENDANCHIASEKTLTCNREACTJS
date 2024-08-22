@@ -172,3 +172,6 @@ const AuthRegister = ({ subtext, subtitle }) => {
 };
 
 export default AuthRegister;
+
+
+
