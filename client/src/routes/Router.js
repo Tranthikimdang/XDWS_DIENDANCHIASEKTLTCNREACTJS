@@ -10,6 +10,7 @@ const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')))
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')))
 const Article = Loadable(lazy(() => import('../views/article/Article')))
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))) // Import the ArticleDetail component
+const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))) // Import the ArticleDetail component
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')))
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')))
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')))
@@ -27,6 +28,7 @@ const Router = [
       { path: '/home', exact: true, element: <Dashboard /> },
       { path: '/article', exact: true, element: <Article /> },
       { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
+      { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
       { path: '/sample-page', exact: true, element: <SamplePage /> },
       { path: '/icons', exact: true, element: <Icons /> },
       { path: '/ui/typography', exact: true, element: <TypographyPage /> },

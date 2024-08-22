@@ -11,7 +11,7 @@ import {
   ListItemText
 } from '@mui/material';
 
-import { IconListCheck, IconMail, IconUser } from '@tabler/icons';
+import { IconListCheck, IconMail, IconUser, IconPencil } from '@tabler/icons';
 
 import ProfileImg from 'src/assets/images/profile/user-1.jpg';
 
@@ -48,9 +48,6 @@ const Profile = () => {
           }}
         />
       </IconButton>
-      {/* ------------------------------------------- */}
-      {/* Message Dropdown */}
-      {/* ------------------------------------------- */}
       <Menu
         id="msgs-menu"
         anchorEl={anchorEl2}
@@ -82,6 +79,12 @@ const Profile = () => {
             <IconListCheck width={20} />
           </ListItemIcon>
           <ListItemText>My Tasks</ListItemText>
+        </MenuItem>
+        <MenuItem component={Link} to="/new-post">
+          <ListItemIcon>
+            <IconPencil width={20} />
+          </ListItemIcon>
+          <ListItemText>Write Blog</ListItemText>
         </MenuItem>
         <Box mt={1} py={1} px={2}>
           <Button to="/auth/login" variant="outlined" color="primary" component={Link} fullWidth>
