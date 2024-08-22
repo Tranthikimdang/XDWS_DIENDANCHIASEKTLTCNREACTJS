@@ -1,6 +1,5 @@
 import {
-  IconHome, IconLogin, IconUserPlus, IconBook2
-
+  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers
 } from '@tabler/icons';
 
 import { uniqueId } from 'lodash';
@@ -10,7 +9,6 @@ const Menuitems = [
     navlabel: true,
     subheader: 'Home',
   },
-
   {
     id: uniqueId(),
     title: 'Home',
@@ -23,7 +21,12 @@ const Menuitems = [
     icon: IconBook2,
     href: '/article',
   },
-
+  {
+    id: uniqueId(),
+    title: 'Users',
+    icon: IconUsers,
+    href: '/user', 
+  },
   {
     navlabel: true,
     subheader: 'Auth',
@@ -40,7 +43,6 @@ const Menuitems = [
     icon: IconUserPlus,
     href: '/auth/register',
   },
-  
 ];
 
 export default Menuitems;

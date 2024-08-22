@@ -114,10 +114,10 @@ const Home = () => {
   }, []);
 
   return (
-    <PageContainer title="Dashboard" description="this is Dashboard">
+    <PageContainer title="Dashboard" description="This is the Dashboard">
       <Box>
         {/* Banner */}
-        <Grid >
+        <Grid>
           <Carousel
             variant="dark"
             indicators={false}
@@ -177,10 +177,10 @@ const Home = () => {
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} md={8}>
                     <Typography variant="h4" component="h2" fontWeight="bold" sx={{ color: '#fff' }}>
-                    Chào Mừng Đến Với Nền Tảng Chia Sẻ Kiến Thức!
+                      Welcome to the Knowledge Sharing Platform!
                     </Typography>
                     <SubText sx={{ color: '#fff' }}>
-                    Nền tảng của chúng tôi là nơi các chuyên gia và người học có thể kết nối, chia sẻ kiến thức và kinh nghiệm trong nhiều lĩnh vực khác nhau. Khám phá các khóa học miễn phí, bài viết hữu ích, và tài liệu chất lượng để nâng cao kỹ năng và mở rộng hiểu biết của bạn.
+                      Our platform is where experts and learners can connect, share knowledge and experience in various fields. Explore free courses, useful articles, and high-quality resources to enhance your skills and expand your understanding.
                     </SubText>
                   </Grid>
                   <Grid item xs={12} md={6} sx={{ textAlign: 'center' }}>
@@ -207,10 +207,10 @@ const Home = () => {
                 <Grid container spacing={2} alignItems="center">
                   <Grid item xs={12} md={6}>
                     <Typography variant="h4" component="h2" fontWeight="bold" sx={{ color: '#fff' }}>
-                      Học JavaScript Miễn Phí!
+                      Learn JavaScript for Free!
                     </Typography>
                     <SubText sx={{ color: '#fff' }}>
-                      Khóa học JavaScript từ cơ bản tới nâng cao. Kết quả của khóa học này là bạn có thể làm hầu hết các dự án thường gặp với JavaScript.
+                      JavaScript course from basics to advanced. By the end of this course, you will be able to handle most common projects with JavaScript.
                     </SubText>
                     <ActionButton
                       variant="outlined"
@@ -228,7 +228,7 @@ const Home = () => {
                         },
                       }}
                     >
-                      Đăng Ký Ngay
+                      Register Now
                     </ActionButton>
                   </Grid>
                   <Grid item xs={12} md={6} sx={{ textAlign: 'center' }}>
@@ -250,10 +250,10 @@ const Home = () => {
         <Grid container spacing={3} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
           <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h5" component="h2" fontWeight="bold">
-              Bài viết nổi bật
+              Featured Articles
             </Typography>
             <Box component="a" href="/article" sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}>
-              Xem tất cả &gt;
+              View All &gt;
             </Box>
           </Grid>
           {articles.map((article) => (
