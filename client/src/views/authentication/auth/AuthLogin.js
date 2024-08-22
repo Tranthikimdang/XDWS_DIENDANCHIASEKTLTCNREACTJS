@@ -10,7 +10,6 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
-import { signInWithGoogle } from '../../config/firebaseconfig'; // Import signInWithGoogle
 
 const AuthLogin = ({ title, subtitle, subtext }) => (
     <>
@@ -66,19 +65,6 @@ const AuthLogin = ({ title, subtitle, subtext }) => (
                 type="submit"
             >
                 Sign In
-            </Button>
-        </Box>
-
-        {/* Nút đăng nhập bằng Google */}
-        <Box mt={2}>
-            <Button
-                color="secondary"
-                variant="contained"
-                size="large"
-                fullWidth
-                onClick={signInWithGoogle}  // Gọi hàm đăng nhập Google khi nhấn nút
-            >
-                Sign in with Google
             </Button>
         </Box>
         {subtitle}
