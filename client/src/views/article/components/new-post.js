@@ -101,7 +101,7 @@ const Newpost = () => {
             {/* Content Editor */}
             <Grid item xs={12}>
               <Editor
-                apiKey="w8d8xdljziohzromzltpcfb782uwno43s83axici5dyzam4y"
+                apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
                 init={{
                   height: 500,
                   menubar: false,
