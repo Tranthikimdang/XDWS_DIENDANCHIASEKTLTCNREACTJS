@@ -41,21 +41,21 @@ export default function App() {
   const { pathname } = useLocation();
   const history = useHistory();
 
-  useEffect(() => {
-    // Lấy dữ liệu người dùng từ local storage
-    const userData = localStorage.getItem("user"); 
-    if (!userData) {
-      history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
-      return;
-    }
+  // useEffect(() => {
+  //   // Lấy dữ liệu người dùng từ local storage
+  //   const userData = localStorage.getItem("user"); 
+  //   if (!userData) {
+  //     history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
+  //     return;
+  //   }
 
-    const user = JSON.parse(userData); // Chuyển đổi chuỗi JSON thành đối tượng
-    if (user.role !== "admin") {
-      alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
-      localStorage.removeItem("user");
-      history.push("/authentication/sign-in"); // Điều hướng đến trang đăng nhập
-    }
-  }, [history]);
+  //   const user = JSON.parse(userData); // Chuyển đổi chuỗi JSON thành đối tượng
+  //   if (user.role !== "admin") {
+  //     alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
+  //     localStorage.removeItem("user");
+  //     history.push("/authentication/sign-in"); // Điều hướng đến trang đăng nhập
+  //   }
+  // }, [history]);
 
   useMemo(() => {
     const cacheRtl = createCache({
