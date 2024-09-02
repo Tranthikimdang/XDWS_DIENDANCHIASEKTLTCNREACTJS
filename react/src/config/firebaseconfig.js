@@ -1,7 +1,7 @@
-const { initializeApp } = require("firebase/app");
-const { getFirestore } = require("firebase/firestore/lite");
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
 
-
+// Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBmL5rAJDEWlV2yzcxNthYN6oL1wqRnmyc",
   authDomain: "diendanghotrolaptrinh.firebaseapp.com",
@@ -13,8 +13,11 @@ const firebaseConfig = {
   measurementId: "G-E6LG4TQMMG",
 };
 
+// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
+
+// Khởi tạo Firestore
 const db = getFirestore(app);
 
-module.exports = db;
-
+// Export db
+export default db;
