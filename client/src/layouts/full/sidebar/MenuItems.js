@@ -1,5 +1,5 @@
 import {
-  IconHome, IconLogin, IconUserPlus, IconBook2
+  IconHome, IconLogin, IconUserPlus, IconBook2, IconUser
 
 } from '@tabler/icons';
 
@@ -46,16 +46,25 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
+    title: 'Profile',
+    icon: IconUser,
+    href: '/profileClient',
+  },
+  {
+    id: uniqueId(),
     title: 'Login',
     icon: IconLogin,
     href: '/auth/login',
   },
-  {
-    id: uniqueId(),
-    title: 'Add User',
-    icon: IconUserPlus,
-    href: '/auth/register',
-  },
+  
+  // {
+  //   id: uniqueId(),
+  //   title: 'Add User',
+  //   icon: IconUserPlus,
+  //   href: '/auth/register',
+  // },
+
+  
   // {
   //   navlabel: true,
   //   subheader: 'Extra',
