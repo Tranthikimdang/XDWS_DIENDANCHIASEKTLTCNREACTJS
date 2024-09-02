@@ -2,7 +2,6 @@ import React, { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import Loadable from '../layouts/full/shared/loadable/Loadable';
 
-
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -10,14 +9,17 @@ const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')))
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')))
 const Article = Loadable(lazy(() => import('../views/article/Article')))
-const Profile = Loadable(lazy(() => import('../views/profile/Profile')))
+const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))) // Import the ArticleDetail component
+const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))) // Import the ArticleDetail component
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')))
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')))
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')))
 const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')))
+
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
+const UserList = Loadable(lazy(() => import('../views/User/User'))); // Import the UserList component
 
 const Router = [
   {
@@ -27,12 +29,14 @@ const Router = [
       { path: '/', element: <Navigate to="/home" /> },
       { path: '/home', exact: true, element: <Dashboard /> },
       { path: '/article', exact: true, element: <Article /> },
+      { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
+      { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
       { path: '/sample-page', exact: true, element: <SamplePage /> },
       { path: '/icons', exact: true, element: <Icons /> },
       { path: '/ui/typography', exact: true, element: <TypographyPage /> },
       { path: '/ui/shadow', exact: true, element: <Shadow /> },
+      { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
       { path: '*', element: <Navigate to="/auth/404" /> },
-      { path: '/profileClient', exact: true, element: <Profile /> },
     ],
   },
   {

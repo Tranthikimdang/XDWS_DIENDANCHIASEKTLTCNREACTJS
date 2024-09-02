@@ -1,6 +1,7 @@
 const { initializeApp } = require("firebase/app");
 const { getFirestore } = require("firebase/firestore/lite");
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyBmL5rAJDEWlV2yzcxNthYN6oL1wqRnmyc",
   authDomain: "diendanghotrolaptrinh.firebaseapp.com",
@@ -16,5 +17,4 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 module.exports = db;
-
 

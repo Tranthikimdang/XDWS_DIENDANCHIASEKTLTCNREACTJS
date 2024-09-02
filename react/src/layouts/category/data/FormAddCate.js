@@ -71,11 +71,10 @@ function FormAddCate() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label className='text-light form-label'>Category name</label>
-            <input className='form-control bg-dark text-light' {...register('name', { required: true, minLength: 3, maxLength: 20 })} />
+            <input className='form-control bg-dark text-light' {...register('name', { required: true, minLength: 3 })} />
             {errors.name && <span className='text-danger'>{errors.name.message}</span>}
             {errors.name && errors.name.type === 'required' && <span className='text-danger'>Name is required</span>}
             {errors.name && errors.name.type === 'minLength' && <span className='text-danger'>Name must be at least 3 characters long</span>}
-            {errors.name && errors.name.type === 'maxLength' && <span className='text-danger'>Name must be less than 20 characters long</span>}
           </div>
           
           <div className='mt-3'>

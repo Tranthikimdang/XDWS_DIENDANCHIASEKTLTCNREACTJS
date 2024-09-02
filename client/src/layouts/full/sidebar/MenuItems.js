@@ -1,6 +1,5 @@
 import {
-  IconHome, IconLogin, IconUserPlus, IconBook2, IconUser
-
+  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers
 } from '@tabler/icons';
 
 import { uniqueId } from 'lodash';
@@ -10,7 +9,6 @@ const Menuitems = [
     navlabel: true,
     subheader: 'Home',
   },
-
   {
     id: uniqueId(),
     title: 'Home',
@@ -23,64 +21,28 @@ const Menuitems = [
     icon: IconBook2,
     href: '/article',
   },
-
-  // {
-  //   navlabel: true,
-  //   subheader: 'Code',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Tag',
-  //   icon: IconTag,
-  //   href: '/ui/typography',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Questions',
-  //   icon: IconBrandHipchat,
-  //   href: '/ui/shadow',
-  // },
+  {
+    id: uniqueId(),
+    title: 'Users',
+    icon: IconUsers,
+    href: '/user', 
+  },
   {
     navlabel: true,
     subheader: 'Auth',
   },
   {
     id: uniqueId(),
-    title: 'Profile',
-    icon: IconUser,
-    href: '/profileClient',
-  },
-  {
-    id: uniqueId(),
-    title: 'Login',
+    title: 'LogOut',
     icon: IconLogin,
     href: '/auth/login',
   },
-  
-  // {
-  //   id: uniqueId(),
-  //   title: 'Add User',
-  //   icon: IconUserPlus,
-  //   href: '/auth/register',
-  // },
-
-  
-  // {
-  //   navlabel: true,
-  //   subheader: 'Extra',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Icons',
-  //   icon: IconMoodHappy,
-  //   href: '/icons',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Sample Page',
-  //   icon: IconAperture,
-  //   href: '/sample-page',
-  // },
+  {
+    id: uniqueId(),
+    title: 'Register',
+    icon: IconUserPlus,
+    href: '/auth/register',
+  },
 ];
 
 export default Menuitems;

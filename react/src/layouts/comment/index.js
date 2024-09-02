@@ -232,7 +232,7 @@ function Comment() {
 }
 
 function ImageLoader({ src, alt, defaultImageUrl }) {
-  const [imageSrc, setImageSrc] = useState(src);
+  const [imageSrc, setImageSrc] = useState(src.replace(/\\/g, "/"));  // Replace backslashes with forward slashes
   const [loading, setLoading] = useState(true);
 
   const handleError = () => {
@@ -261,5 +261,7 @@ function ImageLoader({ src, alt, defaultImageUrl }) {
     </div>
   );
 }
+
+
 
 export default Comment;

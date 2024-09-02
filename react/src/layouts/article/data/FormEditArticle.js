@@ -198,7 +198,7 @@ function FormEditArticle() {
               Content
             </label>
             <Editor
-              apiKey="w8d8xdljziohzromzltpcfb782uwno43s83axici5dyzam4y"
+              apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
               init={{
                 plugins:
                   "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",

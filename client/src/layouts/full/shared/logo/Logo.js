@@ -5,7 +5,6 @@ import { styled } from '@mui/material';
 const LinkStyled = styled(Link)(() => ({
   height: '70px',
   width: '150px',
-  overflow: 'hidden',
   display: 'flex',
   alignItems: 'center',
   textDecoration: 'none',
@@ -15,12 +14,15 @@ const LogoImage = styled('img')(() => ({
   height: '70px',
 }));
 
-const LogoText = styled('span')(() => ({
+const LogoText = styled('span')({
   fontSize: '24px',
   fontWeight: 'bold',
   marginLeft: '10px',
-  color: '#11142D', // You can adjust the color as needed
-}));
+  color: '#11142D', // Adjust the color as needed
+  whiteSpace: 'nowrap', // Prevents text from wrapping
+  display: 'flex', // Aligns text on the same line as the image
+  alignItems: 'center', // Vertically center text with the image
+});
 
 const Logo = () => {
   return (
