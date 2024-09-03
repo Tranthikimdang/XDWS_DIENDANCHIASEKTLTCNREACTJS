@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useHistory, Link } from "react-router-dom"; // Import useNavigate from react-router-dom
 import { GoogleLogin } from "react-google-login"; // or import from "react-oauth/google"
 import VuiBox from "components/VuiBox";
@@ -29,13 +29,26 @@ function Login() {
   const form = useRef();
   const history = useHistory();
 
-  localStorage.removeItem("user");
+  // localStorage.removeItem("user");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
   const validateEmailFormat = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+  useEffect(() => {
+    // Lấy dữ liệu người dùng từ local storage
+    const userData = localStorage.getItem("user"); 
+    if (!userData) {
+      history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
+      return;
+    }
+
+    const user = JSON.parse(userData); // Chuyển đổi chuỗi JSON thành đối tượng
+    if (user.role == "admin") {
+      history.push("/dashboard"); 
+    }
+  }, [history]);
 
   const validate = () => {
     let valid = true;
