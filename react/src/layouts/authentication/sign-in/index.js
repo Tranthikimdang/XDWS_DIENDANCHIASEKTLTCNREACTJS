@@ -55,15 +55,15 @@ function Login() {
     let errors = {};
 
     if (!email) {
-      errors.email = "Email is required.";
+      errors.email = "Bạn chưa điền Email";
       valid = false;
     } else if (!validateEmailFormat(email)) {
-      errors.email = "Invalid email format.";
+      errors.email = "Sai định dạng email";
       valid = false;
     }
 
     if (!password) {
-      errors.password = "Password is required.";
+      errors.password = "Bạn chưa điền mật khẩu";
       valid = false;
     }
 
@@ -88,7 +88,7 @@ function Login() {
       if (user) {
         // Lưu thông tin người dùng vào localStorage
         if (user.role !== "admin") {
-          alert("You do not have admin rights."); // Thông báo nếu không phải admin
+          alert("Bạn không có quyền quản trị"); // Thông báo nếu không phải admin
           history.push("/authentication/sign-in"); // Điều hướng đến trang đăng nhập
         } else {
           localStorage.setItem("user", JSON.stringify(user));
@@ -96,11 +96,11 @@ function Login() {
           navigate.push("/dashboard");
         }
       } else {
-        alert("Invalid email or password");
+        alert("Email hoặc mật khẩu chưa hợp lệ");
       }
     } catch (error) {
-      alert("An error occurred during login. Please try again.");
-      console.error("Login error:", error);
+      alert("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.");
+      console.error("Lỗi đăng nhập:", error);
     }
   };
   
@@ -115,7 +115,7 @@ function Login() {
       const generatedPassword = generateRandomPassword();
 
       if (emailExists) {
-        alert("An account already exists with this email.");
+        alert("Đã có tài khoản được tạo bằng email này.");
         return;
       }
 
@@ -143,7 +143,7 @@ function Login() {
 
       // history.push("/");
     } catch (error) {
-      console.error("Error during Google login:", error);
+      console.error("Lỗi khi đăng nhập Google:", error);
     }
   };
 
@@ -164,18 +164,18 @@ function Login() {
           alert("Đăng ký thành công, kiểm tra email để nhận mật khẩu");
         },
         (error) => {
-          alert("An error occurred, please try again.");
+          alert("Đã xảy ra lỗi, vui lòng thử lại.");
         }
       );
   };
 
   return (
     <CoverLayout
-      title="Nice to see you!"
+      title="Đăng nhập quản trị"
       color="white"
-      description="Enter your email and password to log in"
-      premotto="INSPIRED BY THE FUTURE:"
-      motto="THE SHARE CODE DASHBOARD"
+      description="Nhập email và mật khẩu của bạn để đăng nhập vào trang quản trị."
+      premotto="LẤY CẢM HỨNG TỪ TƯƠNG LAI:"
+      motto="QUẢN TRỊ WEB CHIA SẼ CODE"
       image={bgSignIn}
     >
       <VuiBox component="form" role="form">
@@ -197,10 +197,13 @@ function Login() {
           >
             <VuiInput
               type="email"
-              placeholder="Your email..."
+              placeholder="abc@gmail.com..."
               fontWeight="500"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              sx={({ typography: { size } }) => ({
+                fontSize: size.sm,
+              })}
             />
           </GradientBorder>
           {errors.email && ( // ADD HERE: Hiển thị lỗi password nếu có
@@ -212,7 +215,7 @@ function Login() {
         <VuiBox mb={2}>
           <VuiBox mb={1} ml={0.5}>
             <VuiTypography component="label" variant="button" color="white" fontWeight="medium">
-              Password
+              Mật khẩu
             </VuiTypography>
           </VuiBox>
           <GradientBorder
@@ -227,7 +230,7 @@ function Login() {
           >
             <VuiInput
               type="password"
-              placeholder="Your password..."
+              placeholder="Mật khẩu của bạn..."
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               sx={({ typography: { size } }) => ({
@@ -250,7 +253,7 @@ function Login() {
             onClick={handleSetRememberMe}
             sx={{ cursor: "pointer", userSelect: "none" }}
           >
-            &nbsp;&nbsp;&nbsp;&nbsp;Remember me
+            &nbsp;&nbsp;&nbsp;&nbsp;Ghi nhớ tôi?
           </VuiTypography>
         </VuiBox>
         {/* <VuiBox display="flex" alignItems="center" justifyContent="center">
@@ -267,7 +270,7 @@ function Login() {
         </VuiBox> */}
         <VuiBox mt={4} mb={1}>
           <VuiButton color="info" fullWidth onClick={handleLogin}>
-            LOGIN
+            Đăng nhập
           </VuiButton>
         </VuiBox>
         {/* <VuiBox mt={4} mb={1} textAlign="center">
