@@ -14,6 +14,8 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
 import loginAPI from "../../../apis/loginApi";
 import emailjs from "emailjs-com";
+import db from "../../../config/firebaseconfig";
+import { collection, getDocs } from "firebase/firestore";
 
 // Import custom styles
 import "./styles.css"; // Make sure to import your custom CSS file
@@ -26,7 +28,7 @@ function Login() {
   const navigate = useHistory();
   const form = useRef();
   const history = useHistory();
-  
+
   localStorage.removeItem("user");
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
@@ -43,7 +45,7 @@ function Login() {
       errors.email = "Email is required.";
       valid = false;
     } else if (!validateEmailFormat(email)) {
-      errors.email = "Invalid email format."; 
+      errors.email = "Invalid email format.";
       valid = false;
     }
 
@@ -58,17 +60,23 @@ function Login() {
 
   const handleLogin = async () => {
     if (!validate()) return;
+  
     try {
-      const users = await loginAPI.getList();
-
-      const user = users.data.find((user) => user.email === email && user.password === password);
-
+      // Lấy danh sách người dùng từ Firestore
+      const usersCollection = collection(db, "users");
+      const snapshot = await getDocs(usersCollection);
+      const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  
+      console.log(users);
+  
+      // Tìm người dùng có email và password khớp
+      const user = users.find((user) => user.email === email && user.password === password);
+  
       if (user) {
         // Lưu thông tin người dùng vào localStorage
         if (user.role !== "admin") {
           alert("You do not have admin rights."); // Thông báo nếu không phải admin
-          localStorage.removeItem("user");
-          history.push("/authentication/sign-in"); // Có thể điều hướng đến trang đăng nhập hoặc trang khác
+          history.push("/authentication/sign-in"); // Điều hướng đến trang đăng nhập
         } else {
           localStorage.setItem("user", JSON.stringify(user));
           // Chuyển hướng đến dashboard
@@ -82,10 +90,10 @@ function Login() {
       console.error("Login error:", error);
     }
   };
-
+  
   const responseGoogle = async (response) => {
     const email = response.wt.cu;
-    
+
     try {
       const emailExists = await loginAPI.checkEmailExists(email);
       const generateRandomPassword = () => {
@@ -94,26 +102,24 @@ function Login() {
       const generatedPassword = generateRandomPassword();
 
       if (emailExists) {
-        alert("An account already exists with this email.")
+        alert("An account already exists with this email.");
         return;
       }
 
       // Tiếp tục nếu email không tồn tại
-      
+
       const newUser = {
         name: response.wt.Ad,
         email: response.wt.cu,
         password: generatedPassword,
         location: "", // Cung cấp thông tin nếu cần
         phone: "", // Cung cấp thông tin nếu cần
-        role: "user"
+        role: "user",
       };
-      
 
       await loginAPI.addUser(newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
-      
-      
+
       // Gửi email sau khi thêm người dùng mới thành công
 
       sendEmail({
@@ -123,7 +129,6 @@ function Login() {
       });
 
       // history.push("/");
-      
     } catch (error) {
       console.error("Error during Google login:", error);
     }
@@ -150,7 +155,6 @@ function Login() {
         }
       );
   };
-
 
   return (
     <CoverLayout
@@ -236,7 +240,7 @@ function Login() {
             &nbsp;&nbsp;&nbsp;&nbsp;Remember me
           </VuiTypography>
         </VuiBox>
-        <VuiBox display="flex" alignItems="center" justifyContent="center">
+        {/* <VuiBox display="flex" alignItems="center" justifyContent="center">
           <Link to="/signup" style={{ textDecoration: "none" }}>
             <VuiTypography
               variant="caption"
@@ -247,13 +251,13 @@ function Login() {
               Don't have an account? Sign up.
             </VuiTypography>
           </Link>
-        </VuiBox>
+        </VuiBox> */}
         <VuiBox mt={4} mb={1}>
           <VuiButton color="info" fullWidth onClick={handleLogin}>
             LOGIN
           </VuiButton>
         </VuiBox>
-        <VuiBox mt={4} mb={1} textAlign="center">
+        {/* <VuiBox mt={4} mb={1} textAlign="center">
           <div className="google-login-btn">
             <GoogleLogin
               clientId="YOUR_GOOGLE_CLIENT_ID"
@@ -283,7 +287,7 @@ function Login() {
               )}
             />
           </div>
-        </VuiBox>
+        </VuiBox> */}
       </VuiBox>
     </CoverLayout>
   );
