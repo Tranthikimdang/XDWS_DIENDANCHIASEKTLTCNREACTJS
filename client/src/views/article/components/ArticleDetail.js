@@ -226,7 +226,7 @@ const ArticleDetail = () => {
                     component="img"
                     alt="Image 1"
                     height="140"
-                    image="https://files.fullstack.edu.vn/f8-prod/blog_posts/65/6139fe28a9844.png"
+                    image="https://files.fullstack.edu.vn/f8-prod/blog_posts/279/6153f692d366e.jpg"
                     title="Image 1"
                   />
                 </Card>

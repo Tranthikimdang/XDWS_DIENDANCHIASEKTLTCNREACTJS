@@ -11,7 +11,8 @@ import ConfirmDialog from "./data/FormDeleteCate";
 import apis from "../../apis/categoriesApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
-
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import db from "../../config/firebaseconfig.js";
 function Category() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
@@ -27,26 +28,26 @@ function Category() {
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
   };
-
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading(true);
       try {
-        const response = await apis.getList();
-        
-        if (response.status == 200) {
-          console.log(response.data);
-          const categories = response.data || [];
-          setRows(categories);
-        }
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        const categoriesList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setRows(categoriesList);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchCategories();
   }, []);
+  
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -54,19 +55,19 @@ function Category() {
   };
 
   const confirmDelete = async (deleteId) => {
-    try {
-      await apis.deleteCategory(deleteId);
-      setRows(rows.filter((category) => category.id !== deleteId));
-      setOpenDialog(false);
-      setSnackbarMessage("Category deleted successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      setSnackbarMessage("Failed to delete category.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
+    // try {
+    //   await apis.deleteCategory(deleteId);
+    //   setRows(rows.filter((category) => category.id !== deleteId));
+    //   setOpenDialog(false);
+    //   setSnackbarMessage("Category deleted successfully.");
+    //   setSnackbarSeverity("success");
+    //   setSnackbarOpen(true);
+    // } catch (error) {
+    //   console.error("Error deleting category:", error);
+    //   setSnackbarMessage("Failed to delete category.");
+    //   setSnackbarSeverity("error");
+    //   setSnackbarOpen(true);
+    // }
   };
 
   const handleSnackbarClose = (event, reason) => {

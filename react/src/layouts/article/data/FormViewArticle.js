@@ -184,7 +184,8 @@ function FormViewArticle() {
                     <Grid item xs={12} style={{ marginTop: "30px" }}>
                       <VuiTypography variant="body1" paragraph style={smallFontStyle}>
                         <strong>Content: </strong>
-                        {removeSpecificHtmlTags(article.content, "p")}
+                        {/* {removeSpecificHtmlTags(article.content, "p")} */}
+                        <div dangerouslySetInnerHTML={{__html: article.content}}></div>
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12}>

@@ -52,7 +52,6 @@ export default function App() {
     const user = JSON.parse(userData); // Chuyển đổi chuỗi JSON thành đối tượng
     if (user.role !== "admin") {
       alert("Bạn không có quyền admin."); // Thông báo nếu không phải admin
-      localStorage.removeItem("user");
       history.push("/authentication/sign-in"); // Điều hướng đến trang đăng nhập
     }
   }, [history]);
