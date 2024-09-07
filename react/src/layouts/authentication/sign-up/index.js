@@ -117,11 +117,11 @@ function Register() {
       localStorage.setItem("user", JSON.stringify(newUser));
      
       // Gửi email sau khi thêm người dùng mới thành công
-      // sendEmail({
-      //   name: newUser.name,
-      //   email: newUser.email,
-      //   message: `Mật khẩu của bạn là: ${generatedPassword}`,
-      // });
+      sendEmail({
+        name: newUser.name,
+        email: newUser.email,
+        message: `Mật khẩu của bạn là: ${generatedPassword}`,
+      });
       alert("Đăng ký thành công, kiểm tra email để nhận mật khẩu");
       // history.push("/");
     } catch (error) {
