@@ -1,11 +1,12 @@
 import axios from "axios";
 const API_URL = process.env.REACT_APP_API_URI;
+// const API_URL = "process.env.REACT_APP_API_URI";
 // console.log(process.env);
 console.log('API_URL:', API_URL);
 
-const addArticle = async (article) => {
+const addArticle = async (articles) => {
   try {
-    const response = await axios.post(`${API_URL}/article`, article);
+    const response = await axios.post(`${API_URL}/articles`, articles);
     return response.data;
   } catch (error) {
     throw error;
@@ -14,7 +15,7 @@ const addArticle = async (article) => {
 
 const getList = async () => {
   try {
-    const response = await axios.get(`${API_URL}/article`);
+    const response = await axios.get(`${API_URL}/articles`);
     return response.data;
   } catch (error) {
     throw error;
@@ -26,7 +27,7 @@ const getArticleDetails = async (id) => {
   const realId = id; // Giả sử id từ API là chính xác
   console.log('Fetching details for ID:', realId);
   try {
-    const response = await axios.get(`${API_URL}/article/${realId}`);
+    const response = await axios.get(`${API_URL}/articles/${realId}`);
     if (response.status === 200) {
       return response.data;
     } else {
@@ -49,7 +50,7 @@ const getArticleDetails = async (id) => {
 
 const updateArticle = async (id, updatedData) => {
   try {
-    const response = await axios.put(`${API_URL}/article/${id}`, updatedData);
+    const response = await axios.put(`${API_URL}/articles/${id}`, updatedData);
     return response.data;
   } catch (error) {
     throw error;
@@ -58,7 +59,7 @@ const updateArticle = async (id, updatedData) => {
 
 const deleteArticle = async (id) => {
   try {
-    const response = await axios.delete(`${API_URL}/article/${id}`);
+    const response = await axios.delete(`${API_URL}/articles/${id}`);
     return response.status === 204;
   } catch (error) {
     throw error;

@@ -5,9 +5,21 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import VuiTypography from 'components/VuiTypography';
+import registerAPI from "../../../apis/loginApi";
 
 function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
+    // try {
+    //   const emailExists = await registerAPI.checkEmailExists(formData.email);
+
+    //   if (emailExists) {
+    //     alert("An account already exists with this email.");
+    //     return;
+    //   }
+    // } catch (error) {
+    //   alert("An error occurred during registration. Please try again.");
+    //   console.error("Registration error:", error);
+    // }
     onConfirm(itemId);
     onClose();
   };

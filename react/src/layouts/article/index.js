@@ -9,11 +9,11 @@ import Table from "examples/Tables/Table";
 import authorsArticleData from "layouts/article/data/authorsArticleData";
 import ConfirmDialog from './data/FormDeleteArticle';
 import apis from "../../apis/articleApi";
+import userApi from "../../apis/userApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 
-// Chuyển đổi đường dẫn hình ảnh sang định dạng URL hợp lệ
 const sanitizeImagePath = (path) => path.replace(/\\/g, '/');
 const getImageUrl = (path) => `/assets/uploads/${sanitizeImagePath(path)}`;
 
@@ -21,7 +21,9 @@ function Article() {
   const { columns } = authorsArticleData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
+  const [users, setUsers] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
+  const [deleteTitle, setDeleteTitle] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -29,13 +31,11 @@ function Article() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Lấy danh sách bài viết từ API
   useEffect(() => {
     const fetchArticle = async () => {
       try {
         const response = await apis.getList();
         if (response.status === 200) {
-          console.log(response.data);
           const article = response.data || [];
           setRows(article);
         }
@@ -49,27 +49,46 @@ function Article() {
     fetchArticle();
   }, []);
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await userApi.getList();
+        if (response.status === 200) {
+          const user = response.data || [];
+          setUsers(user);
+          console.log("Fetched users:", user);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
   };
+
   const handleView = async (id) => {
     try {
       const articleDetails = await apis.getArticleDetails(id);
       console.log("Article details:", articleDetails);
-      // Hiển thị chi tiết bài viết hoặc chuyển đến trang chi tiết bài viết
     } catch (error) {
       console.error("Error fetching article details:", error);
-      // Xử lý hiển thị lỗi cho người dùng, ví dụ: hiển thị thông báo lỗi
     }
   };
-  const handleDelete = (id) => {
+
+
+  const handleDelete = (id, title) => {
     setDeleteId(id);
+    setDeleteTitle(title);
     setOpenDialog(true);
   };
 
-
-
-  const confirmDelete = async (deleteId) => {
+  const confirmDelete = async () => {
     try {
       await apis.deleteArticle(deleteId);
       setRows(rows.filter((article) => article.id !== deleteId));
@@ -95,8 +114,6 @@ function Article() {
   const cancelDelete = () => {
     setOpenDialog(false);
   };
-
-
 
   const removeSpecificHtmlTags = (htmlString, tag) => {
     const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
@@ -130,8 +147,18 @@ function Article() {
               </VuiTypography>
               <Link to="/formandarticle">
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddArticleSuccess}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus" viewBox="0 0 16 16">
-                    <path fillRule="evenodd" d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-plus"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
+                    />
                   </svg>
                   Add
                 </button>
@@ -167,32 +194,42 @@ function Article() {
                   <Table
                     columns={columns}
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                      console.log(row);
                       return {
-                        id : page * rowsPerPage + index + 1,
+                        ...row,
+                        no: page * rowsPerPage + index + 1,
                         fuction: (
                           <div className="container">
                             <div className="row">
                               <div className="col">
                                 <img
-                                  src={row.image}  // Sử dụng hàm getImageUrl để lấy đường dẫn chính xác
+                                  src={row.image}
                                   alt="Image"
-                                  style={{ width: '160px', height: '93.99px' }}
+                                  style={{
+                                    width: '100px',
+                                    height: '50px',
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+                                  }}
                                 />
-
                               </div>
                               <div className="col">
                                 <VuiBox display="flex" flexDirection="column">
                                   <VuiTypography variant="caption" fontWeight="medium" color="white">
-                                    <strong>{row.title.toUpperCase()}</strong>
+                                    <strong>
+                                      {row.title?.length > 10
+                                        ? `${row.title.toUpperCase()?.substring(0, 10)}...`
+                                        : row.title.toUpperCase()}
+                                    </strong>
                                   </VuiTypography>
                                   <VuiTypography variant="caption" color="text">
-                                    {row.category}
+                                    {row.categories_id}
                                   </VuiTypography>
                                   <div className="style-scope ytd-video-meta-block" style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <span className="inline-metadata-item">{row.view}</span>
+
                                     <span className="inline-metadata-item style-scope ytd-video-meta-block">
-                                      {new Date(row.created_date).toLocaleDateString()}
+                                      {row.updated_at}
                                     </span>
                                   </div>
                                 </VuiBox>
@@ -203,15 +240,12 @@ function Article() {
                         Author: (
                           <VuiBox display="flex" flexDirection="column">
                             <VuiTypography variant="button" color="white" fontWeight="medium">
-                              {row.name}
-                            </VuiTypography>
-                            <VuiTypography variant="caption" color="text">
-                              {row.email}
+                              {users?.filter(u => row?.user_id == u.id)?.[0]?.name}
                             </VuiTypography>
                           </VuiBox>
                         ),
-                        content: removeSpecificHtmlTags(row.content, 'p')?.length > 20
-                          ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 20)}...`
+                        content: removeSpecificHtmlTags(row.content, 'p')?.length > 10
+                          ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 10)}...`
                           : removeSpecificHtmlTags(row.content, 'p'),
                         action: (
                           <div className="action-buttons">
@@ -230,19 +264,22 @@ function Article() {
                                 </svg>
                               </button>
                             </Link>
-                            <button className="text-light btn btn-outline-danger" type="button" onClick={() => handleDelete(row.id)}>
+                            <button
+                              className="text-light btn btn-outline-danger"
+                              type="button"
+                              onClick={() => handleDelete(row.id, row.title)}
+                            >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
                                 <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                               </svg>
                             </button>
                           </div>
                         ),
-
                       };
                     })}
                   />
                 </VuiBox>
-                <div className="d-flex justify-content-end p-2 custom-pagination">
+                <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
                       className="btn btn-light"
@@ -268,15 +305,17 @@ function Article() {
           </Card>
         </VuiBox>
       </VuiBox>
+      {/* Dialog for delete confirmation */}
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        itemId={deleteId}
+        itemTitle={deleteTitle} // Pass the article title to ConfirmDialog
       />
+
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={3000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
@@ -284,8 +323,9 @@ function Article() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </DashboardLayout >
+    </DashboardLayout>
   );
 }
+
 
 export default Article;

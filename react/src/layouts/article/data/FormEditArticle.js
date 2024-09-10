@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import api from "../../../apis/articleApi";
-import { Editor } from "@tinymce/tinymce-react"; // Thay thế bằng đường dẫn thực tế tới Editor
+import categoriesApi from '../../../apis/categoriesApi';
+import { Editor } from "@tinymce/tinymce-react";
 import { Snackbar, Alert } from "@mui/material";
 import { useHistory } from 'react-router-dom';
 
@@ -15,6 +16,32 @@ function FormEditArticle() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [cates, setCates] = useState([]);
+  const [user, setUser] = useState("");
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setUser(user);
+    }
+    console.log(user);
+  }, []);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await categoriesApi.getList();
+        if (response.status === 200) {
+          const categories = response.data || [];
+          setCates(categories);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const {
     register,
@@ -23,14 +50,10 @@ function FormEditArticle() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: data?.name || "",
+      user_id: data?.user_id || "",
       image: data?.image || "",
       title: data?.title || "",
-      category: data?.category || "",
-      view: data?.view || "",
-      created_date: data?.created_date || "",
-      email: data?.email || "",
-      content: data?.content || "",
+      categories_id: data?.categories_id || "",
     },
   });
 
@@ -39,8 +62,22 @@ function FormEditArticle() {
   useEffect(() => {
     if (data) {
       setValue("content", data.content || "");
+      setValue("categories_id", data.categories_id || ""); // Set default category
     }
   }, [data, setValue]);
+
+  useEffect(() => {
+    if (data) {
+      console.log("Article data categories_id:", data.categories_id);
+      setValue("content", data.content || "");
+      setValue("categories_id", data.categories_id || ""); // Đặt giá trị mặc định cho danh mục
+    }
+  }, [data, setValue]);
+  
+  useEffect(() => {
+    console.log("Categories:", cates);
+  }, [cates]);
+  
 
   const onSubmit = async (formData) => {
     try {
@@ -56,13 +93,13 @@ function FormEditArticle() {
 
       const response = await api.updateArticle(data.id, formDataWithImage);
       console.log('Article added successfully:', response);
-      setSnackbarMessage("Article added successfully.");
+      setSnackbarMessage("Article updated successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setTimeout(() => history.push('/article'), 500);
     } catch (error) {
       console.error("Error updating article:", error);
-      setSnackbarMessage("Failed to add Article.");
+      setSnackbarMessage("Failed to update Article.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -95,114 +132,73 @@ function FormEditArticle() {
           method="post"
           encType="multipart/form-data"
         >
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Name
-            </label>
-            <input
-              className={`form-control bg-dark text-light ${errors.name ? "is-invalid" : ""
-                }`}
-              {...register("name", {
-                required: "Name is required",
-                minLength: 3,
-                maxLength: 20,
-              })}
-              style={smallFontStyle}
-            />
-            {errors.name && (
-              <div className="invalid-feedback">
-                {errors.name.message ||
-                  (errors.name.type === "minLength" &&
-                    "Name must be at least 3 characters long") ||
-                  (errors.name.type === "maxLength" &&
-                    "Name must be less than 20 characters long")}
-              </div>
-            )}
+          <div className="row">
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Username</label>
+              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} readOnly />
+            </div>
+            <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Title</label>
+              <input
+                className={`form-control bg-dark text-light`}
+                {...register("title", { required: "Title is required" })}
+                style={smallFontStyle}
+              />
+              {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
+            </div>
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Image
-            </label>
-            <input
-              className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""
-                }`}
-              type="file"
-              {...register("image", { required: "Image is required" })}
-              onChange={handleImageChange} // Add onChange handler
-            />
-            {errors.image && (
-              <div className="invalid-feedback">{errors.image.message}</div>
-            )}
-            {imagePreview && (
-              <div className="mt-2">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="img-thumbnail"
-                  style={{ maxWidth: "160px", height: "auto" }}
-                />
-              </div>
-            )}
-          </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Email
-            </label>
-            <input
-              className={`form-control bg-dark text-light ${errors.email ? "is-invalid" : ""
-                }`}
-              type="email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^\S+@\S+$/i,
-                  message: "Invalid email address",
-                },
-              })}
-              style={smallFontStyle}
-            />
-            {errors.email && (
-              <div className="invalid-feedback">{errors.email.message}</div>
-            )}
-          </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>
-              Category
-            </label>
-            <select
-              style={smallFontStyle}
-              className="form-control bg-dark text-light"
-              {...register("category", { required: "Category is required" })}
-            >
-              <option value="" disabled>
-                Select category
-              </option>
-              <option value="React" style={smallFontStyle}>
-                React
-              </option>
-              <option value="AnotherCategory" style={smallFontStyle}>
-                Another Category
-              </option>
-            </select>
-            {errors.category && (
-              <span className="text-danger">{errors.category.message}</span>
-            )}
-          </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>Title</label>
-            <input
-              className={`form-control bg-dark text-light`}
-              {...register("title", { required: "Title is required" })}
-              style={smallFontStyle}
-            />
-            {errors.title && <span className="text-danger">{errors.title.message}</span>}
+          <div className="row">
+            <div className="col-6 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Image
+              </label>
+              <input
+                className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""}`}
+                type="file"
+                {...register("image", { required: "Image is required" })}
+                onChange={handleImageChange}
+              />
+              {errors.image && (
+                <div className="invalid-feedback">{errors.image.message}</div>
+              )}
+              {imagePreview && (
+                <div className="mt-2">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="img-thumbnail"
+                    style={{ maxWidth: "160px", height: "auto" }}
+                  />
+                </div>
+              )}
+            </div>
+            <div className="col-6 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Category
+              </label>
+              <select
+                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
+                style={smallFontStyle}
+                {...register("categories_id", { required: "Category is required" })}
+              >
+                <option value="" disabled style={smallFontStyle}>
+                  Open this select menu
+                </option>
+                {cates.map((cate) => (
+                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>
+                    {cate?.name}
+                  </option>
+                ))}
+              </select>
+              {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
+            </div>
           </div>
           <div className="mb-3">
             <label className="text-light form-label" style={smallFontStyle}>
               Content
             </label>
             <Editor
-              apiKey="owarvk3rl1z5v44dvx9b06crntnsgrgjcja6mayprjqj5qaa"
+              apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
               init={{
                 plugins:
                   "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount checklist mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
@@ -221,38 +217,22 @@ function FormEditArticle() {
                     Promise.reject("See docs to implement AI Assistant")
                   ),
               }}
-              initialValue={data?.content || ""} // Set initial value
+              initialValue={data?.content || ""}
               onEditorChange={(content) => setValue("content", content)}
             />
             {errors.content && (
               <span className="text-danger">{errors.content.message}</span>
             )}
           </div>
-          <div className='mb-3'>
-            <label className='text-light form-label' style={smallFontStyle}>View</label>
-            <input
-              className={`form-control bg-dark text-light ${errors.view ? 'is-invalid' : ''}`}
-              {...register('view', { required: 'View is required', minLength: 3, maxLength: 20 })}
-              style={smallFontStyle}
-            />
-            {errors.view && <div className='invalid-feedback'>
-              {errors.view.message || (errors.view.type === 'minLength' && 'View must be at least 3 characters long') || (errors.view.type === 'maxLength' && 'View must be less than 20 characters long')}
-            </div>}
-          </div>
-          <div className="mb-3">
-            <label className='text-light form-label' style={smallFontStyle}>Date</label>
-            <input
-              className="form-control bg-dark text-light"
-              type="date"
-              {...register("created_date", { required: "Created Date is required" })}
-            />
-            {errors.created_date && (
-              <span className="text-danger">{errors.created_date.message}</span>
-            )}
-          </div>
-          <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Edit</button>
-            <Link to="/article" className='btn btn-outline-light ms-3'>Back</Link>
+          <div className="d-flex justify-content mt-3">
+            <button className="text-light btn btn-outline-info me-2" type="submit">Edit Article</button>
+            <button
+              className="text-light btn btn-outline-secondary"
+              type="button"
+              onClick={() => history.push("/article")}
+            >
+              Back
+            </button>
           </div>
         </form>
       </div>

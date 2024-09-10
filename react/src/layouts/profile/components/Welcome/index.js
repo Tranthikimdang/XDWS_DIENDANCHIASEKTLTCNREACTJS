@@ -47,7 +47,7 @@ const Welcome = () => {
         <VuiBox justifySelf="flex-end">
           <VuiTypography
             component="a"
-            href="#"
+            href="/dashboard"
             variant="button"
             color="white"
             fontWeight="regular"

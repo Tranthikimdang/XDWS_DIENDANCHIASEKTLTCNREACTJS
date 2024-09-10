@@ -2,7 +2,6 @@
 
 # dependencies
 /react/node_modules
-/server/node_modules
 /client/node_modules
 # testing
 /coverage
@@ -22,8 +21,8 @@ yarn-debug.log*
 yarn-error.log*
 
 /react/package-lock.json
-/server/package-lock.json
 /client/package-lock.json
+
 yarn.lock
 
 commit.sh

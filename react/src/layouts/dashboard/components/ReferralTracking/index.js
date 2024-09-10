@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Stack } from "@mui/material";
+import moment from 'moment'
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import colors from "assets/theme/base/colors";
@@ -14,26 +15,27 @@ const formatDate = () => {
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Tháng 0-11 nên cần +1
   const day = String(date.getDate()).padStart(2, "0");
 
-  return `${year}-${month}-${day}`;
+  return `${day}/${month}/${year}`;
 };
 
 function ReferralTracking() {
   const { info, gradients } = colors;
   const { cardContent } = gradients;
   const [articles, setArticles] = useState([]);
-  const [newArticles,setNewArticles] = useState([])
+  const [newArticles, setNewArticles] = useState([])
 
   useEffect(() => {
     const fetchArticle = async () => {
-		console.log(formatDate());
+      console.log(formatDate());
       try {
         const response = await apis.getList();
         if (response.status === 200) {
+
           const article = response.data || [];
-          const newArticles = article.filter((a) =>{
-			return  a.created_date == formatDate()
-		  });
-		  setNewArticles(newArticles)
+          const newArticles = article.filter((a) => {
+            return moment(a.created_at, "DD/MM/YYYY").toDate().getTime() == moment(formatDate(), "DD/MM/YYYY").toDate().getTime()
+          });
+          setNewArticles(newArticles)
           setArticles(article);
         }
       } catch (error) {
@@ -131,7 +133,7 @@ function ReferralTracking() {
                 Bài viết mới
               </VuiTypography>
               <VuiTypography color="white" variant="lg" fontWeight="bold">
-                {newArticles.length} 
+                {newArticles.length}
               </VuiTypography>
             </VuiBox>
             <VuiBox
@@ -155,14 +157,17 @@ function ReferralTracking() {
                 Tổng số bài viết
               </VuiTypography>
               <VuiTypography color="white" variant="lg" fontWeight="bold">
-			  {articles.length} 
+                {articles.length}
               </VuiTypography>
             </VuiBox>
+
+
+
           </Stack>
           <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
             <CircularProgress
               variant="determinate"
-              value={(newArticles.length / articles.length) * 100 }
+              value={(newArticles.length / articles.length) * 100}
               size={window.innerWidth >= 1024 ? 200 : window.innerWidth >= 768 ? 170 : 200}
               color="success"
             />
@@ -184,7 +189,7 @@ function ReferralTracking() {
                 justifyContent="center"
                 alignItems="center"
               >
-               
+
                 <VuiTypography
                   color="white"
                   variant="d5"
@@ -196,7 +201,7 @@ function ReferralTracking() {
                     },
                   })}
                 >
-                  {((newArticles.length / articles.length) * 10).toFixed(1) }
+                  {((newArticles.length / articles.length) * 10).toFixed(1)}
                 </VuiTypography>
                 <VuiTypography color="text" variant="button">
                   Total article

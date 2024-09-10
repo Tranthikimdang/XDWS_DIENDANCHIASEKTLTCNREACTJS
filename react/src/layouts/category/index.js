@@ -10,7 +10,9 @@ import authorsTableData from "layouts/category/data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
 import apis from "../../apis/categoriesApi";
 import { Alert, Snackbar } from "@mui/material";
-
+import { ClipLoader } from "react-spinners";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import db from "../../config/firebaseconfig.js";
 function Category() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
@@ -19,27 +21,33 @@ function Category() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
   };
-
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading(true);
       try {
-        const response = await apis.getList();
-        if (response.status == 200) {
-          console.log(response.data);
-          const categories = response.data || [];
-          setRows(categories);
-        }
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        const categoriesList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setRows(categoriesList);
       } catch (error) {
         console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
+  
     fetchCategories();
   }, []);
+  
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -47,19 +55,19 @@ function Category() {
   };
 
   const confirmDelete = async (deleteId) => {
-    try {
-      await apis.deleteCategory(deleteId);
-      setRows(rows.filter((category) => category.id !== deleteId));
-      setOpenDialog(false);
-      setSnackbarMessage("Category deleted successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error deleting category:", error);
-      setSnackbarMessage("Failed to delete category.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
+    // try {
+    //   await apis.deleteCategory(deleteId);
+    //   setRows(rows.filter((category) => category.id !== deleteId));
+    //   setOpenDialog(false);
+    //   setSnackbarMessage("Category deleted successfully.");
+    //   setSnackbarSeverity("success");
+    //   setSnackbarOpen(true);
+    // } catch (error) {
+    //   console.error("Error deleting category:", error);
+    //   setSnackbarMessage("Failed to delete category.");
+    //   setSnackbarSeverity("error");
+    //   setSnackbarOpen(true);
+    // }
   };
 
   const handleSnackbarClose = (event, reason) => {
@@ -71,6 +79,15 @@ function Category() {
 
   const cancelDelete = () => {
     setOpenDialog(false);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
 
@@ -103,6 +120,19 @@ function Category() {
                 </button>
               </Link>
             </VuiBox>
+            {loading ? (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100px',
+                }}
+              >
+                <ClipLoader size={50} color={"#123abc"} loading={loading} />
+              </div>
+            ) : (
+            <>
             <VuiBox
               sx={{
                 "& th": {
@@ -119,11 +149,11 @@ function Category() {
             >
               <Table
                 columns={columns}
-                rows={rows.map((row, index) => {
+                rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                   console.log(row);
                   return {
-                    ...row,
-                    id: index + 1,  // Thay thế ID bằng index + 1
+                    no: page * rowsPerPage + index + 1,
+                    name: row.name,
                     action: (
                       <div>
                         <Link to={{ pathname: "/formeditcate", state: { data: row } }}>
@@ -154,12 +184,35 @@ function Category() {
                     ),
                   };
                 })}
-              />
-            </VuiBox>
+                />
+                </VuiBox>
+                
+                <div className="d-flex justify-content-center p-2 custom-pagination">
+                  <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+                    <button
+                      className="btn btn-light"
+                      onClick={() => handleChangePage(null, page - 1)}
+                      disabled={page === 0}
+                    >
+                      &laquo;
+                    </button>
+                    <span className="btn btn-light disabled">
+                      Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+                    </span>
+                    <button
+                      className="btn btn-light"
+                      onClick={() => handleChangePage(null, page + 1)}
+                      disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+                    >
+                      &raquo;
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </Card>
         </VuiBox>
       </VuiBox>
-
       {/* Dialog for delete confirmation */}
       <ConfirmDialog
         open={openDialog}
