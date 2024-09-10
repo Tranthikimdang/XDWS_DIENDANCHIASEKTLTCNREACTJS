@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Box,
@@ -173,7 +173,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
               htmlFor="username"
               mb="5px"
             >
-              Username
+             Họ và tên
             </Typography>
             <CustomTextField
               id="username"
@@ -193,7 +193,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
               htmlFor="password"
               mb="5px"
             >
-              Password
+              Mật khẩu
             </Typography>
             <CustomTextField
               id="password"
@@ -210,52 +210,55 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox checked={rememberMe} onChange={handleSetRememberMe} />}
-                label="Remember this Device"
+                label="Ghi nhớ tôi?"
               />
             </FormGroup>
             <Typography
               component={Link}
-              to="/"
+              to="/auth/register"
               fontWeight="500"
               sx={{
                 textDecoration: 'none',
                 color: 'primary.main',
               }}
             >
-              Forgot Password?
+              Đăng ký tài khoảng?
             </Typography>
           </Stack>
         </Stack>
         <Box mt={3}>
           <Button color="primary" variant="contained" size="large" fullWidth type="submit">
-            Sign In
+            Đăng nhập
           </Button>
         </Box>
         <Box mt={4} mb={1} textAlign="center">
-          <div className="google-login-btn m-3 border-0">
-            <GoogleLogin
-              clientId="270409308877-e62406gshlngurigob9c051l4b6lr4ds.apps.googleusercontent.com"
-              buttonText=""
-              onSuccess={responseGoogle}
-              onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-              render={(renderProps) => (
-                <button
-                  className="google-login-btn btn border-0 btn-outline-info"
-                  onClick={renderProps.onClick}
-                  disabled={renderProps.disabled}
-                >
-                  <img
-                    className="google-icon"
-                    src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                    alt="Google"
-                    style={{ width: '24px', height: '24px', marginRight: '8px' }}
-                  />
-                  Sign up with Google
-                </button>
-              )}
-            />
-          </div>
+        <div className="google-login-btn m-3 border-0">
+                    <GoogleLogin
+                    
+                      clientId="270409308877-6u9dv3fmnf2kdn7gb0d6aqbegrnlmqvo.apps.googleusercontent.com"
+                      buttonText=""
+                      onSuccess={responseGoogle}
+                      onFailure={responseGoogle}
+                      cookiePolicy={'single_host_origin'}
+                      redirectUri={process.env.REACT_APP_REDIRECT_URI}
+                      ux_mode="popup"
+                      render={(renderProps) => (
+                        <button
+                        className="google-login-btn btn border-0 btn-outline-info" 
+                          onClick={renderProps.onClick}
+                          disabled={renderProps.disabled}
+                        >
+                          <img
+                            className="google-icon"
+                            src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+                            alt="Google"
+                            style={{ width: '24px', height: '24px', marginRight: '8px' }}
+                          />
+                          Đăng nhập với Google
+                        </button>
+                      )}
+                    />
+                  </div>
         </Box>
         {subtitle}
       </form>

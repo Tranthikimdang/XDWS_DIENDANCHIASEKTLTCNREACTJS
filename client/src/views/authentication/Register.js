@@ -229,7 +229,7 @@ const AuthRegister = ({ subtext }) => {
               <div className="text-center mb-4">
                 <Logo />
               </div>
-              <h3 className="text-center mb-4">Register</h3>
+              <h3 className="text-center mb-4">Đăng ký</h3>
               {subtext}
               {errors && Object.keys(errors).length > 0 && (
                 <Alert variant="danger" className="text-center">
@@ -238,13 +238,13 @@ const AuthRegister = ({ subtext }) => {
               )}
               <Form onSubmit={handleRegister}>
                 <Form.Group controlId="formName">
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>Họ tên</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="Enter your name"
+                    placeholder="Tên của bạn"
                   />
                 </Form.Group>
                 <Form.Group controlId="formEmail">
@@ -254,39 +254,39 @@ const AuthRegister = ({ subtext }) => {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Enter your email"
+                    placeholder="Nhập mail"
                   />
                 </Form.Group>
                 <Form.Group controlId="formPhone">
-                  <Form.Label>Phone</Form.Label>
+                  <Form.Label>Số điện thoại</Form.Label>
                   <Form.Control
                     type="text"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    placeholder="Enter your phone number"
+                    placeholder="Nhập số điện thoại"
                   />
                 </Form.Group>
                 <Form.Group controlId="formLocation">
-                  <Form.Label>Location</Form.Label>
+                  <Form.Label>Địa chỉ</Form.Label>
                   <Form.Control
                     type="text"
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
-                    placeholder="Enter your location"
+                    placeholder="Nhập địa chỉ"
                   />
                 </Form.Group>
 
                 <Form.Group controlId="formPassword">
-                  <Form.Label>Password</Form.Label>
+                  <Form.Label>Mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      placeholder="Enter your password"
+                      placeholder="Nhập password"
                       className="mb-3"
                     />
                     <Button
@@ -304,14 +304,14 @@ const AuthRegister = ({ subtext }) => {
                   </div>
                 </Form.Group>
                 <Form.Group controlId="formConfirmPassword">
-                  <Form.Label>Confirm Password</Form.Label>
+                  <Form.Label>Xác nhận mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showConfirmPassword ? 'text' : 'password'}
                       name="confirmPassword"
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      placeholder="Confirm your password"
+                      placeholder="Xác nhận"
                       className="mb-3"
                     />
                     <Button
@@ -330,7 +330,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Button type="submit" variant="primary" className="w-100 mt-3">
-                  Register
+                  Đăng ký
                 </Button>
                 <div
                   style={{
@@ -371,8 +371,8 @@ const AuthRegister = ({ subtext }) => {
               </Form>
 
               <div className="text-center mt-3">
-                <span>Already have an account? </span>
-                <Link to="/auth/login">Sign in</Link>
+                <span>Bạn đã có tài khoảng? </span>
+                <Link to="/auth/login">Đăng nhập</Link>
               </div>
             </Card>
           </Col>

@@ -36,32 +36,14 @@ const Login2 = () => {
           <Grid item xs={12} sm={8} md={6} lg={4}>
             <Card elevation={9} sx={{ p: 4 }}>
               <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
+                <div className="text-center mb-4">
                 <Logo />
+              </div>
+              
               </Box>
+              <h1  display="flex" justifyContent="center" className="text-center mb-4">Đăng nhập</h1>
               <AuthLogin
-                subtext={
-                  <Typography variant="subtitle1" textAlign="center" color="textSecondary" mb={1}>
-                    Your Social Campaigns
-                  </Typography>
-                }
-                subtitle={
-                  <Stack direction="row" spacing={1} justifyContent="center" mt={3}>
-                    <Typography color="textSecondary" variant="h6" fontWeight="500">
-                      New to Modernize?
-                    </Typography>
-                    <Typography
-                      component={Link}
-                      to="/auth/register"
-                      fontWeight="500"
-                      sx={{
-                        textDecoration: 'none',
-                        color: 'primary.main',
-                      }}
-                    >
-                      Create an account
-                    </Typography>
-                  </Stack>
-                }
+
               />
             </Card>
           </Grid>
