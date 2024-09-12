@@ -33,7 +33,7 @@
     "react-bootstrap": "^2.10.4",
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
-    "react-hook-form": "^7.52.2",
+    "react-hook-form": "^7.53.0",
     "react-router": "^6.3.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
