@@ -10,8 +10,11 @@ import authorsTableData from "layouts/category/data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
+
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db, storage } from '../../../src/config/firebaseconfig'; // Nhập đúng
+import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
+
 
 function Category() {
   const { columns } = authorsTableData;
@@ -55,19 +58,25 @@ function Category() {
   };
 
   const confirmDelete = async (deleteId) => {
-    // try {
-    //   await apis.deleteCategory(deleteId);
-    //   setRows(rows.filter((category) => category.id !== deleteId));
-    //   setOpenDialog(false);
-    //   setSnackbarMessage("Category deleted successfully.");
-    //   setSnackbarSeverity("success");
-    //   setSnackbarOpen(true);
-    // } catch (error) {
-    //   console.error("Error deleting category:", error);
-    //   setSnackbarMessage("Failed to delete category.");
-    //   setSnackbarSeverity("error");
-    //   setSnackbarOpen(true);
-    // }
+    try {
+      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của cate
+      const articleRef = doc(db, "categories", deleteId);
+      await deleteDoc(articleRef); // Thực hiện xóa cate từ Firestore
+
+      // Cập nhật lại danh sách cate sau khi xóa
+      setRows(rows.filter((row) => row.id !== deleteId));
+
+      // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
+      setOpenDialog(false);
+      setSnackbarMessage("Article deleted successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error deleting article:", error);
+      setSnackbarMessage("Failed to delete the article.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
   };
 
   const handleSnackbarClose = (event, reason) => {

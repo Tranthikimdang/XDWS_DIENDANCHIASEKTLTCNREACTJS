@@ -14,8 +14,9 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
 import loginAPI from "../../../apis/loginApi";
 import emailjs from "emailjs-com";
-import db from "../../../config/firebaseconfig";
 import { collection, getDocs } from "firebase/firestore";
+import { db, storage } from '../../../config/firebaseconfig'; // Nhập đúng
+
 
 // Import custom styles
 import "./styles.css"; // Make sure to import your custom CSS file
