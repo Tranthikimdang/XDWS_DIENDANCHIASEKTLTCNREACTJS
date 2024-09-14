@@ -8,11 +8,11 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/category/data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
-import apis from "../../apis/categoriesApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import db from "../../config/firebaseconfig.js";
+import { db, storage } from '../../../src/config/firebaseconfig'; // Nhập đúng
+
 function Category() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);

@@ -54,15 +54,17 @@ function FormViewArticle() {
     fetchArticles();
   }, []);
 
+  // Fetch users from Firebase
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const response = await userApi.getList();
-        if (response.status === 200) {
-          const user = response.data || [];
-          setUsers(user);
-          console.log("Fetched users:", user);
-        }
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const usersList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUsers(usersList);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
@@ -70,9 +72,8 @@ function FormViewArticle() {
       }
     };
 
-    fetchUser();
+    fetchUsers();
   }, []);
-
   // Fetch specific article details using the real ID
   useEffect(() => {
     const fetchArticleDetails = async () => {
@@ -185,7 +186,7 @@ function FormViewArticle() {
                       <VuiTypography variant="body1" paragraph style={smallFontStyle}>
                         <strong>Content: </strong>
                         {/* {removeSpecificHtmlTags(article.content, "p")} */}
-                        <div dangerouslySetInnerHTML={{__html: article.content}}></div>
+                        <div dangerouslySetInnerHTML={{ __html: article.content }}></div>
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12}>
