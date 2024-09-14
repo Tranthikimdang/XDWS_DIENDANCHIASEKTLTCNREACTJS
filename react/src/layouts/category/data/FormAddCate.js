@@ -107,37 +107,6 @@ function FormAddCate() {
 }
 
 
-//   return (
-//     <DashboardLayout>
-//       <DashboardNavbar />
-//       <div className='container'>
-//         <form onSubmit={handleSubmit(onSubmit)}>
-//           <div>
-//             <label className='text-light form-label'>Category name</label>
-//             <input className='form-control bg-dark text-light' {...register('name', { required: true, minLength: 3 })} />
-//             {errors.name && <span className='text-danger'>{errors.name.message}</span>}
-//             {errors.name && errors.name.type === 'required' && <span className='text-danger'>Name is required</span>}
-//             {errors.name && errors.name.type === 'minLength' && <span className='text-danger'>Name must be at least 3 characters long</span>}
-//           </div>
-          
-//           <div className='mt-3'>
-//             <button className='text-light btn btn-outline-info' type="submit">Add</button>
-//             <Link to="/category" className='btn btn-outline-light ms-3'>Back</Link>
-//           </div>
-//         </form>
-//       </div>
-//       <Snackbar
-//         open={snackbarOpen}
-//         autoHideDuration={3000}
-//         onClose={handleSnackbarClose}
-//         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-//       >
-//         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
-//           {snackbarMessage}
-//         </Alert>
-//       </Snackbar>
-//     </DashboardLayout>
-//   );
-// }
+
 
 export default FormAddCate;
