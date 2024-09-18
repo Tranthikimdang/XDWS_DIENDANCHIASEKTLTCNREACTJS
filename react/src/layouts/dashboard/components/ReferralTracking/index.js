@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, Stack, CircularProgress } from "@mui/material";
 import moment from 'moment';
+import { Card, Stack } from "@mui/material";
+import moment from 'moment'
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import colors from "assets/theme/base/colors";
@@ -9,6 +11,8 @@ import linearGradient from "assets/theme/functions/linearGradient";
 // Import Firestore
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../config/firebaseconfig"; // Đường dẫn tới file cấu hình Firebase
+import CircularProgress from "@mui/material/CircularProgress";
+import apis from "../../../../apis/articleApi";
 
 const formatDate = () => {
   const date = new Date();
@@ -53,6 +57,32 @@ function ReferralTracking() {
 
     fetchArticles();
   }, []);
+
+  const [newArticles, setNewArticles] = useState([])
+
+  useEffect(() => {
+    const fetchArticle = async () => {
+      console.log(formatDate());
+      try {
+        const response = await apis.getList();
+        if (response.status === 200) {
+
+          const article = response.data || [];
+          const newArticles = article.filter((a) => {
+            return moment(a.created_at, "DD/MM/YYYY").toDate().getTime() == moment(formatDate(), "DD/MM/YYYY").toDate().getTime()
+          });
+          setNewArticles(newArticles)
+          setArticles(article);
+        }
+      } catch (error) {
+        console.error("Error fetching article:", error);
+      }
+    };
+
+    fetchArticle();
+  }, []);
+
+  console.log(articles);
 
   return (
     <Card
@@ -166,6 +196,10 @@ function ReferralTracking() {
                 {articles.length}
               </VuiTypography>
             </VuiBox>
+
+
+
+
           </Stack>
           <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
             <CircularProgress
@@ -192,6 +226,8 @@ function ReferralTracking() {
                 justifyContent="center"
                 alignItems="center"
               >
+
+
                 <VuiTypography
                   color="white"
                   variant="d5"

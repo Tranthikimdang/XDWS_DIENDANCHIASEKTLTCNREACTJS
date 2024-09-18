@@ -8,6 +8,16 @@
 // import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 // import { collection, addDoc, getDocs } from "firebase/firestore";
 // import { db, storage } from '../../../config/firebaseconfig.js'; // Nhập đúng
+import React, { useState, useEffect } from 'react';
+import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import { useForm } from 'react-hook-form';
+import api from '../../../apis/categoriesApi';
+import { Snackbar, Alert } from "@mui/material";
+import { useHistory } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import db from "../../../config/firebaseconfig.js";
 
 // function FormAddCate() {
 //   const { register, handleSubmit, formState: { errors }, setError } = useForm();

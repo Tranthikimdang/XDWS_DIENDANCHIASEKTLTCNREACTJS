@@ -8,6 +8,7 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Table from "examples/Tables/Table";
 import authorsTableData from "layouts/category/data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
+import apis from "../../apis/categoriesApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 
@@ -16,6 +17,7 @@ import { db, storage } from '../../../src/config/firebaseconfig'; // Nhập đú
 import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
 
 
+import db from "../../config/firebaseconfig.js";
 function Category() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);

@@ -45,6 +45,7 @@ import { barChartOptionsDashboard } from "layouts/dashboard/data/barChartOptions
 import { db, storage } from '../../config/firebaseconfig'; 
 
 
+
 function Dashboard() {
   const { gradients } = colors;
   const { cardContent } = gradients;
@@ -73,6 +74,8 @@ function Dashboard() {
             </Grid>
             <Grid item xs={12} md={6} xl={3}></Grid>]
             <MiniStatisticsCard
+            <Grid item xs={12} md={6} xl={3}>
+              <MiniStatisticsCard
                 title={{ text: "new clients" }}
                 count="+3,462"
                 percentage={{ color: "error", text: "-2%" }}
@@ -149,6 +152,8 @@ function Dashboard() {
                   </VuiBox>
                   <VuiTypography variant="lg" color="white" fontWeight="bold" mb="5px"></VuiTypography>
                   Active Users
+                  <VuiTypography variant="lg" color="white" fontWeight="bold" mb="5px">
+                    Active Users
                   </VuiTypography>
                   <VuiBox display="flex" alignItems="center" mb="40px">
                     <VuiTypography variant="button" color="success" fontWeight="bold">
@@ -275,3 +280,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
