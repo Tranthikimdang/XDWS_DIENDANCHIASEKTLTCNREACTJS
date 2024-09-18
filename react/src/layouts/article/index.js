@@ -5,17 +5,34 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Tooltip from "@mui/material/Tooltip";
 import Table from "examples/Tables/Table";
 import authorsArticleData from "layouts/article/data/authorsArticleData";
 import ConfirmDialog from './data/FormDeleteArticle';
-import apis from "../../apis/articleApi";
-import userApi from "../../apis/userApi";
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, Snackbar, TablePagination } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
+//firebase 
+import { ref, getDownloadURL } from "firebase/storage";
+import { collection, getDocs } from "firebase/firestore";
+import { db, storage } from '../../../src/config/firebaseconfig'; // Verify this path
+import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
 
-const sanitizeImagePath = (path) => path.replace(/\\/g, '/');
-const getImageUrl = (path) => `/assets/uploads/${sanitizeImagePath(path)}`;
+const sanitizeImagePath = (path) => path.replace(/\\/g, '/'); // Convert backslashes to forward slashes
+
+const getImageUrl = async (path) => {
+  try {
+    if (!path) throw new Error("Image path is undefined"); // Kiểm tra giá trị path
+    const imageRef = ref(storage, `images/${path}`);
+    const url = await getDownloadURL(imageRef);
+    return url;
+  } catch (error) {
+    console.error("Error getting image URL:", error);
+    return null;
+  }
+};
+
+
 
 function Article() {
   const { columns } = authorsArticleData;
@@ -31,33 +48,43 @@ function Article() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  // Fetch articles from Firebase
   useEffect(() => {
-    const fetchArticle = async () => {
+    const fetchArticles = async () => {
+      setLoading(true);
       try {
-        const response = await apis.getList();
-        if (response.status === 200) {
-          const article = response.data || [];
-          setRows(article);
-        }
+        const querySnapshot = await getDocs(collection(db, "articles"));
+        const articlesList = await Promise.all(
+          querySnapshot.docs.map(async (doc) => {
+            const articleData = { id: doc.id, ...doc.data() };
+            const imageUrl = await getImageUrl(articleData.image); // Đảm bảo giá trị hợp lệ
+            return { ...articleData, image: imageUrl };
+          })
+        );
+        setRows(articlesList);
       } catch (error) {
-        console.error("Error fetching article:", error);
+        console.error("Error fetching articles:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchArticle();
+    fetchArticles();
   }, []);
 
+
+
+  // Fetch users from Firebase
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const response = await userApi.getList();
-        if (response.status === 200) {
-          const user = response.data || [];
-          setUsers(user);
-          console.log("Fetched users:", user);
-        }
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const usersList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUsers(usersList);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
@@ -65,7 +92,7 @@ function Article() {
       }
     };
 
-    fetchUser();
+    fetchUsers();
   }, []);
 
   const handleEdit = (id) => {
@@ -74,13 +101,11 @@ function Article() {
 
   const handleView = async (id) => {
     try {
-      const articleDetails = await apis.getArticleDetails(id);
-      console.log("Article details:", articleDetails);
+      console.log("View Article with ID:", id);
     } catch (error) {
       console.error("Error fetching article details:", error);
     }
   };
-
 
   const handleDelete = (id, title) => {
     setDeleteId(id);
@@ -90,15 +115,21 @@ function Article() {
 
   const confirmDelete = async () => {
     try {
-      await apis.deleteArticle(deleteId);
-      setRows(rows.filter((article) => article.id !== deleteId));
+      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
+      const articleRef = doc(db, "articles", deleteId);
+      await deleteDoc(articleRef); // Thực hiện xóa bài viết từ Firestore
+
+      // Cập nhật lại danh sách bài viết sau khi xóa
+      setRows(rows.filter((row) => row.id !== deleteId));
+
+      // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
       setOpenDialog(false);
       setSnackbarMessage("Article deleted successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error deleting Article:", error);
-      setSnackbarMessage("Failed to delete Article.");
+      console.error("Error deleting article:", error);
+      setSnackbarMessage("Failed to delete the article.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -143,10 +174,10 @@ function Article() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Article table
+                Article Table
               </VuiTypography>
               <Link to="/formandarticle">
-                <button className='text-light btn btn-outline-info' type="button" onClick={handleAddArticleSuccess}>
+                <button className='text-light btn btn-outline-info' onClick={handleAddArticleSuccess}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -194,53 +225,66 @@ function Article() {
                   <Table
                     columns={columns}
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                      const authorName = users.find(u => u.id === row.user_id)?.name || 'Unknown';
                       return {
                         ...row,
                         no: page * rowsPerPage + index + 1,
                         fuction: (
-                          <div className="container">
-                            <div className="row">
-                              <div className="col">
-                                <img
-                                  src={row.image}
-                                  alt="Image"
-                                  style={{
-                                    width: '100px',
-                                    height: '50px',
-                                    objectFit: 'cover',
-                                    objectPosition: 'center',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
-                                  }}
-                                />
-                              </div>
-                              <div className="col">
-                                <VuiBox display="flex" flexDirection="column">
-                                  <VuiTypography variant="caption" fontWeight="medium" color="white">
-                                    <strong>
-                                      {row.title?.length > 10
-                                        ? `${row.title.toUpperCase()?.substring(0, 10)}...`
-                                        : row.title.toUpperCase()}
-                                    </strong>
-                                  </VuiTypography>
-                                  <VuiTypography variant="caption" color="text">
-                                    {row.categories_id}
-                                  </VuiTypography>
-                                  <div className="style-scope ytd-video-meta-block" style={{ display: 'flex', flexDirection: 'column' }}>
+                          <div
+                            className="article-row"
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '10px',
+                              borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+                              height: '70px', // Fixed height to avoid expanding/collapsing
+                            }}
+                          >
+                            <div className="image-column" style={{ flex: '0 0 100px' }}>
+                              <img
+                                src={row.image}
+                                alt={
+                                  row.title
+                                    ? row.title.length > 10
+                                      ? `${row.title.substring(0, 10).toUpperCase()}...`
+                                      : row.title.toUpperCase()
+                                    : "Image of the article"
+                                }
+                                style={{
+                                  width: '100px',
+                                  height: '50px',
+                                  objectFit: 'cover',
+                                  objectPosition: 'center',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                }}
+                              />
 
-                                    <span className="inline-metadata-item style-scope ytd-video-meta-block">
-                                      {row.updated_at}
-                                    </span>
-                                  </div>
-                                </VuiBox>
-                              </div>
+
+                            </div>
+
+                            <div className="content-column" style={{ flex: 1, marginLeft: '10px' }}>
+                              <VuiBox display="flex" flexDirection="column">
+                                <VuiTypography variant="caption" fontWeight="medium" color="white" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  <strong>
+                                    {row.title?.length > 10
+                                      ? `${row.title.toUpperCase()?.substring(0, 10)}...`
+                                      : row.title.toUpperCase()}
+                                  </strong>
+                                </VuiTypography>
+                                <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                  {row.categories_id}
+                                </VuiTypography>
+                              </VuiBox>
                             </div>
                           </div>
                         ),
+
                         Author: (
-                          <VuiBox display="flex" flexDirection="column">
+                          <VuiBox>
                             <VuiTypography variant="button" color="white" fontWeight="medium">
-                              {users?.filter(u => row?.user_id == u.id)?.[0]?.name}
+                              {authorName}
                             </VuiTypography>
                           </VuiBox>
                         ),
@@ -249,36 +293,90 @@ function Article() {
                           : removeSpecificHtmlTags(row.content, 'p'),
                         action: (
                           <div className="action-buttons">
-                            <Link to={`/formviewarticle/${index + 1}`}>
-                              <button className="text-light btn btn-outline-info me-2" type="button" onClick={() => handleView(row.id)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
-                                  <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-                                  <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
-                                </svg>
-                              </button>
+                            <Link to={`/formviewarticle/${row.id}`}>
+                              <Tooltip title="Xem bài viết" placement="top">
+                                <button
+                                  className="text-light btn btn-outline-info me-2"
+                                  type="button"
+                                  onClick={() => handleView(row.id)}
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    className="bi bi-eye"
+                                    viewBox="0 0 16 16"
+                                  >
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                  </svg>
+                                </button>
+                              </Tooltip>
                             </Link>
                             <Link to={{ pathname: "/formeditarticle", state: { data: row } }}>
-                              <button className="text-light btn btn-outline-warning me-2" type="button" onClick={() => handleEdit(row.id)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
-                                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                              <Tooltip title="Sửa bài viết" placement="top">
+                                <button
+                                  className="text-light btn btn-outline-warning me-2"
+                                  type="button"
+                                  onClick={() => handleEdit(row.id)}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
+                                    <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                  </svg>
+                                </button>
+                              </Tooltip>
+                            </Link>
+                            <Tooltip title="Xóa bài viết" placement="top">
+                              <button
+                                className="text-light btn btn-outline-danger me-2"
+                                type="button"
+                                onClick={() => handleDelete(row.id, row.title)}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="currentColor"
+                                  className="bi bi-trash"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                                 </svg>
                               </button>
-                            </Link>
-                            <button
-                              className="text-light btn btn-outline-danger"
-                              type="button"
-                              onClick={() => handleDelete(row.id, row.title)}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                              </svg>
-                            </button>
+                            </Tooltip>
+                            <Tooltip title="Duyệt bài viết" placement="top">
+                              <button
+                                className="text-light btn btn-outline-success me-2"
+                                type="button"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
+                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                  <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
+                                </svg>
+                              </button>
+                            </Tooltip>
+                            <Tooltip title="Không duyệt bài viết" placement="top">
+                              <button
+                                className="text-light btn btn-outline-secondary"
+                                type="button"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-square" viewBox="0 0 16 16">
+                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
+                                </svg>
+                              </button>
+                            </Tooltip>
+
+
                           </div>
                         ),
                       };
                     })}
                   />
                 </VuiBox>
+
                 <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
@@ -305,14 +403,13 @@ function Article() {
           </Card>
         </VuiBox>
       </VuiBox>
-      {/* Dialog for delete confirmation */}
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        itemTitle={deleteTitle} // Pass the article title to ConfirmDialog
+        title={`Delete ${deleteTitle}`}
+        content="Are you sure you want to delete this article?"
       />
-
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -326,6 +423,5 @@ function Article() {
     </DashboardLayout>
   );
 }
-
 
 export default Article;

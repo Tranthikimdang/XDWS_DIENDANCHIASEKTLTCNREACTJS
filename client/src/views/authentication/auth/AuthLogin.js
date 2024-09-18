@@ -14,7 +14,7 @@ import { GoogleLogin } from 'react-google-login';
 import { collection, getDocs } from 'firebase/firestore';
 import db from '../../../config/firebaseconfig';
 import emailjs from 'emailjs-com';
-import FacebookLogin from '@greatsumini/react-facebook-login';
+
 
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
