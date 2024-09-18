@@ -49,19 +49,6 @@ function FormAndArticle() {
     fetchCategories();
   }, []);
 
-   // Kiểm tra token người dùng
-   useEffect(() => {
-    const auth = getAuth();
-    auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        const token = await user.getIdToken();
-        console.log("User token:", token);
-      } else {
-        console.log("No user is logged in");
-      }
-    });
-  }, []);
-
   useEffect(() => {
     // Thiết lập highlight.js khi nội dung Quill thay đổi
     document.querySelectorAll("pre").forEach((block) => {
@@ -74,17 +61,9 @@ function FormAndArticle() {
       if (data.image && data.image.length > 0) {
         const file = data.image[0];
         const storageRef = ref(storage, `images/${file.name}`);
-  
-        // Kiểm tra quá trình upload
-        await uploadBytes(storageRef, file).then((snapshot) => {
-          console.log('Uploaded a file!', snapshot);
-        }).catch((uploadError) => {
-          console.error("Error uploading file:", uploadError);
-          throw new Error("Failed to upload image.");
-        });
-  
+        await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
-  
+
         await addDoc(collection(db, "articles"), {
           user_id: user.id,
           image_url: downloadURL,
@@ -92,7 +71,7 @@ function FormAndArticle() {
           title: data.title,
           content: data.content,
         });
-  
+
         setSnackbarMessage("Article added successfully.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -103,13 +82,11 @@ function FormAndArticle() {
         setSnackbarOpen(true);
       }
     } catch (error) {
-      console.error("Error adding article:", error);  // Log lỗi chi tiết hơn
-      setSnackbarMessage("Failed to add article. Please try again.");
+      setSnackbarMessage("Failed to add article.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
-  
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
