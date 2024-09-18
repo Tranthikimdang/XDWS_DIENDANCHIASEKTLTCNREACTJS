@@ -99,7 +99,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Sign In",
+    name: "Logout",
     key: "sign-in",
     route: "/authentication/sign-in",
     icon: <IoIosDocument size="15px" color="inherit" />,
