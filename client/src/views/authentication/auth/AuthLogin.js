@@ -16,6 +16,7 @@ import db from '../../../config/firebaseconfig';
 import emailjs from 'emailjs-com';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 
+
 const AuthLogin = ({ title, subtitle, subtext }) => {
   const [rememberMe, setRememberMe] = useState(true);
   const [email, setEmail] = useState('');
@@ -232,6 +233,21 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
             Đăng nhập
           </Button>
         </Box>
+        <Box mt={3}>
+        <Typography
+
+              component={Link}
+              to="/auth/forgot-password"
+              fontWeight="500"
+              sx={{
+                textDecoration: 'none',
+                color: 'primary.main'
+              }}
+            >
+              Quên mật khẩu?
+            </Typography>
+        </Box>
+        
         <Box mt={4} mb={1} textAlign="center">
         <div className="google-login-btn m-3 border-0">
                     <GoogleLogin
