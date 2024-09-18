@@ -34,7 +34,7 @@ const ResetPassword = () => {
             });
             alert("Đặt lại mật khẩu thành công!"); // Thay toast bằng alert
             setTimeout(() => {
-                navigate("/login");
+                navigate("/auth/login");
             }, 2000);
         } catch (error) {
             console.error("Lỗi khi đặt lại mật khẩu:", error);
