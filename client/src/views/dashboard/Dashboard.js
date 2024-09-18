@@ -68,23 +68,23 @@ const Home = () => {
     navigate(`/article/${articleId}`); // Navigate to article detail page
   };
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await apis.getList();
-        if (response.status === 200) {
-          setArticles(response.data || []);
-          console.log("Fetched articles:", response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching articles:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchArticles = async () => {
+  //     try {
+  //       const response = await apis.getList();
+  //       if (response.status === 200) {
+  //         setArticles(response.data || []);
+  //         console.log("Fetched articles:", response.data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching articles:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchArticles();
-  }, []);
+  //   fetchArticles();
+  // }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
