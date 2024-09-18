@@ -49,6 +49,7 @@ function FormAndArticle() {
     fetchCategories();
   }, []);
 
+
   useEffect(() => {
     // Thiết lập highlight.js khi nội dung Quill thay đổi
     document.querySelectorAll("pre").forEach((block) => {
@@ -61,8 +62,10 @@ function FormAndArticle() {
       if (data.image && data.image.length > 0) {
         const file = data.image[0];
         const storageRef = ref(storage, `images/${file.name}`);
+
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
+
 
         await addDoc(collection(db, "articles"), {
           user_id: user.id,
@@ -71,6 +74,7 @@ function FormAndArticle() {
           title: data.title,
           content: data.content,
         });
+
 
         setSnackbarMessage("Article added successfully.");
         setSnackbarSeverity("success");
@@ -82,11 +86,14 @@ function FormAndArticle() {
         setSnackbarOpen(true);
       }
     } catch (error) {
+      console.error("Error adding article:", error);  // Log lỗi chi tiết hơn
+      setSnackbarMessage("Failed to add article. Please try again.");
       setSnackbarMessage("Failed to add article.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
+
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {

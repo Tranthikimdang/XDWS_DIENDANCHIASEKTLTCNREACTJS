@@ -7,8 +7,7 @@ import { useHistory } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import { db, storage } from '../../../config/firebaseconfig.js'; // Nhập đúng
-
+import { db, storage } from '../../../config/firebaseconfig.js';
 function FormAddCate() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
   const history = useHistory();

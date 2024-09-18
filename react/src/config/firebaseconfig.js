@@ -1,9 +1,7 @@
-// firebaseconfig.js
-
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage"; // Thêm dòng này
-
+// Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBmL5rAJDEWlV2yzcxNthYN6oL1wqRnmyc",
   authDomain: "diendanghotrolaptrinh.firebaseapp.com",
@@ -15,8 +13,11 @@ const firebaseConfig = {
   measurementId: "G-E6LG4TQMMG",
 };
 
+// Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
+
+// Khởi tạo Firestore
 const db = getFirestore(app);
 const storage = getStorage(app); // Khởi tạo Firebase Storage
-
+// Export db
 export { db, storage }; // Xuất db và storage

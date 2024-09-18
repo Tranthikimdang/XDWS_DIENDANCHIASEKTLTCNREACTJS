@@ -1,8 +1,8 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "layouts/dashboard";
 import Comment from "layouts/comment";
-import CommentDetail from "layouts/commentDetail";
 import questions from "layouts/questions";
+import CommentDetail from "layouts/commentDetail";
 import Category from "layouts/category";
 import Profile from "layouts/profile";
 import Article from "layouts/article";
@@ -119,7 +119,7 @@ const routes = [
     component: SignIn,
     noCollapse: true,
   },
-  //commentdetail
+
   {
     key: "commentDetail",
     route: "/commentDetail",
@@ -144,29 +144,23 @@ const routes = [
     component: FormDeleteCmt,
     hidden: true, // Ẩn mục này
   },
-  // questions
-  {
-    key: "questions",
-    route: "/questions",
-    component: questions,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formaddcmt",
-    route: "/formaddcmt",
-    component: FormAddCmt,
+   // questions
+   {
+    key: "formaddquestions",
+    route: "/formAddQuestions",
+    component: FormAddQuestions,
     hidden: true,
   },
   {
-    key: "formeditcmt",
-    route: "/formeditcmt",
-    component: FormEditCmt,
+    key: "formeditquestions",
+    route: "/formEditQuestions",
+    component: FormEditQuestions,
     hidden: true, 
   },
   {
-    key: "formdeletecmt",
-    route: "/formdeletecmt",
-    component: FormDeleteCmt,
+    key: "formdeletequestions",
+    route: "/formDeleteQuestions",
+    component: FormDeleteQuestions,
     hidden: true, // Ẩn mục này
   },
   //cate

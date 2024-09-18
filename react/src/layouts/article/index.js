@@ -5,6 +5,7 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
 import Table from "examples/Tables/Table";
 import authorsArticleData from "layouts/article/data/authorsArticleData";
@@ -32,8 +33,6 @@ const getImageUrl = async (path) => {
   }
 };
 
-
-
 function Article() {
   const { columns } = authorsArticleData;
   const [openDialog, setOpenDialog] = useState(false);
@@ -53,6 +52,7 @@ function Article() {
     const fetchArticles = async () => {
       setLoading(true);
       try {
+
         const querySnapshot = await getDocs(collection(db, "articles"));
         const articlesList = await Promise.all(
           querySnapshot.docs.map(async (doc) => {
@@ -68,7 +68,6 @@ function Article() {
         setLoading(false);
       }
     };
-
     fetchArticles();
   }, []);
 
@@ -106,6 +105,7 @@ function Article() {
       console.error("Error fetching article details:", error);
     }
   };
+
 
   const handleDelete = (id, title) => {
     setDeleteId(id);
@@ -315,7 +315,7 @@ function Article() {
                               </Tooltip>
                             </Link>
                             <Link to={{ pathname: "/formeditarticle", state: { data: row } }}>
-                              <Tooltip title="Sửa bài viết" placement="top">
+                            <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
                                   type="button"
@@ -345,7 +345,7 @@ function Article() {
                                   <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                                 </svg>
                               </button>
-                            </Tooltip>
+                              </Tooltip>
                             <Tooltip title="Duyệt bài viết" placement="top">
                               <button
                                 className="text-light btn btn-outline-success me-2"
@@ -402,7 +402,7 @@ function Article() {
             )}
           </Card>
         </VuiBox>
-      </VuiBox>
+      </VuiBox>             
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
@@ -410,7 +410,7 @@ function Article() {
         title={`Delete ${deleteTitle}`}
         content="Are you sure you want to delete this article?"
       />
-      <Snackbar
+       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
