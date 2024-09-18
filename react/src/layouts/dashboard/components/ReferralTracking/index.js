@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, Stack } from "@mui/material";
-import moment from 'moment'
+import { Card, Stack, CircularProgress } from "@mui/material";
+import moment from 'moment';
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import colors from "assets/theme/base/colors";
 import { FaEllipsisH } from "react-icons/fa";
 import linearGradient from "assets/theme/functions/linearGradient";
-import CircularProgress from "@mui/material/CircularProgress";
-import apis from "../../../../apis/articleApi";
+// Import Firestore
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../../config/firebaseconfig"; // Đường dẫn tới file cấu hình Firebase
 
 const formatDate = () => {
   const date = new Date();
@@ -22,31 +23,36 @@ function ReferralTracking() {
   const { info, gradients } = colors;
   const { cardContent } = gradients;
   const [articles, setArticles] = useState([]);
-  const [newArticles, setNewArticles] = useState([])
+  const [newArticles, setNewArticles] = useState([]);
 
   useEffect(() => {
-    const fetchArticle = async () => {
-      console.log(formatDate());
+    const fetchArticles = async () => {
       try {
-        const response = await apis.getList();
-        if (response.status === 200) {
-
-          const article = response.data || [];
-          const newArticles = article.filter((a) => {
-            return moment(a.created_at, "DD/MM/YYYY").toDate().getTime() == moment(formatDate(), "DD/MM/YYYY").toDate().getTime()
-          });
-          setNewArticles(newArticles)
-          setArticles(article);
-        }
+        const querySnapshot = await getDocs(collection(db, "articles"));
+        const articleList = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            created_at: data.created_at && data.created_at.toDate ? data.created_at.toDate() : data.created_at, // Xử lý trường hợp không phải Timestamp
+          };
+        });
+    
+        // Lọc bài viết theo ngày hiện tại
+        const newArticles = articleList.filter((a) =>
+          moment(a.created_at).format("DD/MM/YYYY") === formatDate()
+        );
+    
+        setNewArticles(newArticles);
+        setArticles(articleList);
       } catch (error) {
-        console.error("Error fetching article:", error);
+        console.error("Error fetching articles:", error);
       }
     };
+    
 
-    fetchArticle();
+    fetchArticles();
   }, []);
-
-  console.log(articles);
 
   return (
     <Card
@@ -160,9 +166,6 @@ function ReferralTracking() {
                 {articles.length}
               </VuiTypography>
             </VuiBox>
-
-
-
           </Stack>
           <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
             <CircularProgress
@@ -189,7 +192,6 @@ function ReferralTracking() {
                 justifyContent="center"
                 alignItems="center"
               >
-
                 <VuiTypography
                   color="white"
                   variant="d5"

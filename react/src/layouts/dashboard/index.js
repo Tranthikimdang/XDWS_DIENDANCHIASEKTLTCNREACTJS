@@ -41,6 +41,10 @@ import { lineChartOptionsDashboard } from "layouts/dashboard/data/lineChartOptio
 import { barChartDataDashboard } from "layouts/dashboard/data/barChartData";
 import { barChartOptionsDashboard } from "layouts/dashboard/data/barChartOptions";
 
+//Firestore
+import { db, storage } from '../../config/firebaseconfig'; 
+
+
 function Dashboard() {
   const { gradients } = colors;
   const { cardContent } = gradients;
@@ -67,8 +71,8 @@ function Dashboard() {
                 icon={{ color: "info", component: <IoGlobe size="22px" color="white" /> }}
               />
             </Grid>
-            <Grid item xs={12} md={6} xl={3}>
-              <MiniStatisticsCard
+            <Grid item xs={12} md={6} xl={3}></Grid>]
+            <MiniStatisticsCard
                 title={{ text: "new clients" }}
                 count="+3,462"
                 percentage={{ color: "error", text: "-2%" }}
@@ -143,8 +147,8 @@ function Dashboard() {
                       barChartOptions={barChartOptionsDashboard}
                     />
                   </VuiBox>
-                  <VuiTypography variant="lg" color="white" fontWeight="bold" mb="5px">
-                    Active Users
+                  <VuiTypography variant="lg" color="white" fontWeight="bold" mb="5px"></VuiTypography>
+                  Active Users
                   </VuiTypography>
                   <VuiBox display="flex" alignItems="center" mb="40px">
                     <VuiTypography variant="button" color="success" fontWeight="bold">
