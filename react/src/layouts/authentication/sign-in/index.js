@@ -14,6 +14,7 @@ import CoverLayout from "layouts/authentication/components/CoverLayout";
 import bgSignIn from "assets/images/signInImage.png";
 import loginAPI from "../../../apis/loginApi";
 import emailjs from "emailjs-com";
+import { db, storage } from '../../../config/firebaseconfig'; // Verify this path
 import { collection, getDocs } from "firebase/firestore";
 import { db, storage } from '../../../config/firebaseconfig'; // Nhập đúng
 

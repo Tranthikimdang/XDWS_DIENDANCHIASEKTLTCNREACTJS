@@ -1,6 +1,7 @@
 import React, { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 import Loadable from '../layouts/full/shared/loadable/Loadable';
+import Profile from 'src/views/profile/Profile';
 
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
@@ -36,6 +37,7 @@ const Router = [
       { path: '/ui/typography', exact: true, element: <TypographyPage /> },
       { path: '/ui/shadow', exact: true, element: <Shadow /> },
       { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
+      { path: '/profile', exact: true, element: <Profile /> },
       // { path: '*', element: <Navigate to="/auth/404" /> },
     ],
   },

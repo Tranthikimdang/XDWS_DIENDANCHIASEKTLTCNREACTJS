@@ -5,7 +5,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
 import Table from "examples/Tables/Table";
 import authorsArticleData from "layouts/article/data/authorsArticleData";

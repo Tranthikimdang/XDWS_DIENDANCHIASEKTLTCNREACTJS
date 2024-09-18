@@ -3,7 +3,6 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
-import { Editor } from "@tinymce/tinymce-react";
 import { Snackbar, Alert } from "@mui/material";
 import { useHistory } from 'react-router-dom';
 

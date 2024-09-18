@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Avatar,
   Box,
@@ -17,11 +17,18 @@ import ProfileImg from 'src/assets/images/profile/user-1.jpg';
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
+  const navigate = useNavigate();
+  
   const handleClick2 = (event) => {
     setAnchorEl2(event.currentTarget);
   };
   const handleClose2 = () => {
     setAnchorEl2(null);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user'); 
+    navigate('/home'); 
   };
 
   return (
@@ -62,33 +69,39 @@ const Profile = () => {
           },
         }}
       >
-        <MenuItem>
+        <MenuItem component={Link} to="/profile">
           <ListItemIcon>
             <IconUser width={20} />
           </ListItemIcon>
-          <ListItemText>My Profile</ListItemText>
+          <ListItemText>Thông tin cá nhân</ListItemText>
+        </MenuItem>
+        <MenuItem component={Link} to="/">
+          <ListItemIcon>
+            <IconUser width={20} />
+          </ListItemIcon>
+          <ListItemText>Admin</ListItemText>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <IconMail width={20} />
           </ListItemIcon>
-          <ListItemText>My Account</ListItemText>
+          <ListItemText>Thông báo</ListItemText>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <IconListCheck width={20} />
           </ListItemIcon>
-          <ListItemText>My Tasks</ListItemText>
+          <ListItemText>Câu hỏi</ListItemText>
         </MenuItem>
         <MenuItem component={Link} to="/new-post">
           <ListItemIcon>
             <IconPencil width={20} />
           </ListItemIcon>
-          <ListItemText>Write Blog</ListItemText>
+          <ListItemText>Thêm câu hỏi</ListItemText>
         </MenuItem>
         <Box mt={1} py={1} px={2}>
-          <Button to="/auth/login" variant="outlined" color="primary" component={Link} fullWidth>
-            Logout
+           <Button onClick={handleLogout} variant="outlined" color="primary" fullWidth>
+            Đăng xuất
           </Button>
         </Box>
       </Menu>
