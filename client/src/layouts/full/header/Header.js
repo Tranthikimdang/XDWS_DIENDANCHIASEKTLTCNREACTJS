@@ -84,7 +84,7 @@ const Header = (props) => {
   const userNamelocal = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).name : '';
   const navigate = useNavigate();
   const handleLogin = () => {
-    navigate('/login'); // Điều hướng tới trang login
+    navigate('/auth/login'); // Điều hướng tới trang login
   };
   return (
     <AppBarStyled position="sticky" color="default">
