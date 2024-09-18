@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Box } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import userApi from '../../apis/userApi';
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 const Profile = () => {

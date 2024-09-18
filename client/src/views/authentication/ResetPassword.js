@@ -22,7 +22,7 @@ const ResetPassword = () => {
         const confirmPassword = data.get("confirmpassword");
 
         if (newPassword !== confirmPassword) {
-            alert("Mật khẩu mới và xác nhận mật khẩu không trùng khớp!"); // Thay toast bằng alert
+            alert("Mật khẩu mới và xác nhận mật khẩu không trùng khớp!"); 
             return;
         }
 
@@ -32,13 +32,13 @@ const ResetPassword = () => {
             await updateDoc(userRef, {
                 password: newPassword, // Cập nhật mật khẩu
             });
-            alert("Đặt lại mật khẩu thành công!"); // Thay toast bằng alert
+            alert("Đặt lại mật khẩu thành công!"); 
             setTimeout(() => {
                 navigate("/auth/login");
             }, 2000);
         } catch (error) {
             console.error("Lỗi khi đặt lại mật khẩu:", error);
-            alert("Đặt lại mật khẩu thất bại, vui lòng thử lại!"); // Thay toast bằng alert
+            alert("Đặt lại mật khẩu thất bại, vui lòng thử lại!"); 
         }
     };
 
