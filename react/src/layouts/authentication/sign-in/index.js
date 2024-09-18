@@ -40,6 +40,7 @@ function Login() {
   useEffect(() => {
     // Lấy dữ liệu người dùng từ local storage
     const userData = localStorage.getItem("user"); 
+    localStorage.removeItem("user"); 
     if (!userData) {
       history.push("/authentication/sign-in"); // Nếu không có, điều hướng đến trang đăng nhập
       return;
