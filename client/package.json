@@ -9,6 +9,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
     "@fortawesome/free-solid-svg-icons": "^6.6.0",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@greatsumini/react-facebook-login": "^3.3.3",
     "@mui/icons-material": "^5.16.7",
     "@mui/lab": "5.0.0-alpha.106",
     "@mui/material": "^5.10.12",
