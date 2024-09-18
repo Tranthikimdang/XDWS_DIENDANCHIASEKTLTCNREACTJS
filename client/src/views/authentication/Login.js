@@ -43,7 +43,6 @@ const Login2 = () => {
               </Box>
               <h1  display="flex" justifyContent="center" className="text-center mb-4">Đăng nhập</h1>
               <AuthLogin
-
               />
             </Card>
           </Grid>
