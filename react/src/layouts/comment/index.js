@@ -13,6 +13,8 @@ import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
 import './index.css';
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import db from "../../config/firebaseconfig.js";
 
 function Comment() {
   const { columns } = authorsTableData;
@@ -28,13 +30,14 @@ function Comment() {
 
   useEffect(() => {
     const fetchComment = async () => {
+      setLoading(true);
       try {
-        const response = await apis.getList();
-        if (response.status === 200) {
-          const comments = response.data || [];
-          setRows(comments);
-          console.log("Fetched comments:", comments);
-        }
+        const querySnapshot = await getDocs(collection(db, "articles"));
+        const articlesList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setRows(articlesList);
       } catch (error) {
         console.error("Error fetching comments:", error);
       } finally {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import { Link,useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
@@ -12,6 +12,8 @@ import apis from "../../apis/commentDetailApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
+import { collection, doc, getDocs , deleteDoc  } from "firebase/firestore";
+import db from "../../config/firebaseconfig.js";
 
 function CommentDetail() {
   const { columns } = authorsTableData;
@@ -31,14 +33,17 @@ function CommentDetail() {
 
   useEffect(() => {
     const fetchCommentsByArticle = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await apis.getList(id);
-        if (response.status === 200) {
-         const newData = response.data?.filter(cmt=>cmt.article_id == id)
-         console.log(newData);
-          setRows(newData || []);
-        }
+        const querySnapshot = await getDocs(collection(db, "commentDetails"));
+        const commentsList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        
+        const filteredComments = commentsList.filter(cmt => cmt.article_id == id);
+    
+        setRows(filteredComments || []); 
       } catch (error) {
         console.error("Error fetching comments:", error);
       } finally {
@@ -47,23 +52,25 @@ function CommentDetail() {
     };
 
     fetchCommentsByArticle();
+
   }, []);
 
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
   };
-  
+
   const confirmDelete = async (deleteId) => {
     try {
-      await apis.deleteComment(deleteId);
-      setRows(rows.filter((comment) => comment.id !== deleteId));
+      const commentDocRef = doc(db, "commentDetails", deleteId);
+      await deleteDoc(commentDocRef);
+      setRows((prevRows) => prevRows.filter((comment) => comment.id !== deleteId));
       setOpenDialog(false);
       setSnackbarMessage("Comment deleted successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error deleting comment:", error);
+      console.error("Error deleting comment:", error.message);
       setSnackbarMessage("Failed to delete comment.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -91,7 +98,7 @@ function CommentDetail() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -160,16 +167,16 @@ const handleChangeRowsPerPage = (event) => {
                     rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                       return {
                         ...row,
-                        '#' : page * rowsPerPage + index + 1,
+                        '#': page * rowsPerPage + index + 1,
                         action: (
                           <div>
-<Link to={{ pathname: "/formEditCmt" , state: { data: row } }}>
+                            <Link to={{ pathname: "/formEditCmt", state: { data: row } }}>
                               <button className="text-light btn btn-outline-warning me-2" type="button" >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
                                   <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
                                 </svg>
                               </button>
-                            </Link>                           
+                            </Link>
                             <button
                               className="text-light btn btn-outline-danger"
                               type="button"
@@ -207,7 +214,7 @@ const handleChangeRowsPerPage = (event) => {
                     </span>
                     <button
                       className="btn btn-light"
-onClick={() => handleChangePage(null, page + 1)}
+                      onClick={() => handleChangePage(null, page + 1)}
                       disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
                     >
                       &raquo;
