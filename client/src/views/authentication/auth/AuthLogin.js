@@ -14,6 +14,7 @@ import { GoogleLogin } from 'react-google-login';
 import { collection, getDocs } from 'firebase/firestore';
 import db from '../../../config/firebaseconfig';
 import emailjs from 'emailjs-com';
+import FacebookLogin from '@greatsumini/react-facebook-login';
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
   const [rememberMe, setRememberMe] = useState(true);
@@ -77,59 +78,59 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
 
   const responseGoogle = async (response) => {
     console.log(response);
-    if (!response || !response.profileObj) {
-      console.error('Response không hợp lệ:', response);
-      return;
-    }
+    // if (!response || !response.profileObj) {
+    //   console.error('Response không hợp lệ:', response);
+    //   return;
+    // }
 
-    const email = response.profileObj.email; // Lấy email từ response
+    // const email = response.profileObj.email; // Lấy email từ response
 
-    try {
-      // Kiểm tra xem người dùng đã tồn tại trong localStorage chưa
-      const storedUserData = localStorage.getItem('users'); // Giả sử bạn lưu danh sách người dùng ở đây
-      const users = storedUserData ? JSON.parse(storedUserData) : [];
+    // try {
+    //   // Kiểm tra xem người dùng đã tồn tại trong localStorage chưa
+    //   const storedUserData = localStorage.getItem('users'); // Giả sử bạn lưu danh sách người dùng ở đây
+    //   const users = storedUserData ? JSON.parse(storedUserData) : [];
 
-      const existingUser = users.find((user) => user.email === email);
+    //   const existingUser = users.find((user) => user.email === email);
 
-      if (existingUser) {
-        // Nếu người dùng đã tồn tại, lưu thông tin vào localStorage và chuyển hướng
-        localStorage.setItem('user', JSON.stringify(existingUser));
-        navigate('/home'); // Chuyển hướng đến trang dashboard
-        return;
-      }
+    //   if (existingUser) {
+    //     // Nếu người dùng đã tồn tại, lưu thông tin vào localStorage và chuyển hướng
+    //     localStorage.setItem('user', JSON.stringify(existingUser));
+    //     navigate('/home'); // Chuyển hướng đến trang dashboard
+    //     return;
+    //   }
 
-      // Tạo một mật khẩu ngẫu nhiên cho người dùng mới
-      const generateRandomPassword = () => {
-        return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
-      };
-      const generatedPassword = generateRandomPassword();
+    //   // Tạo một mật khẩu ngẫu nhiên cho người dùng mới
+    //   const generateRandomPassword = () => {
+    //     return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
+    //   };
+    //   const generatedPassword = generateRandomPassword();
 
-      const newUser = {
-        name: response.profileObj.name,
-        email: email,
-        password: generatedPassword,
-        location: '', // Cung cấp thông tin nếu cần
-        phone: '', // Cung cấp thông tin nếu cần
-        role: 'user',
-      };
+    //   const newUser = {
+    //     name: response.profileObj.name,
+    //     email: email,
+    //     password: generatedPassword,
+    //     location: '', // Cung cấp thông tin nếu cần
+    //     phone: '', // Cung cấp thông tin nếu cần
+    //     role: 'user',
+    //   };
 
-      // Lưu người dùng mới vào localStorage
-      users.push(newUser);
-      // localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem('users', JSON.stringify(newUser));
+    //   // Lưu người dùng mới vào localStorage
+    //   users.push(newUser);
+    //   // localStorage.setItem("users", JSON.stringify(users));
+    //   localStorage.setItem('users', JSON.stringify(newUser));
 
-      // Gửi email thông báo mật khẩu cho người dùng
-      sendEmail({
-        name: newUser.name,
-        email: newUser.email,
-        message: `Mật khẩu của bạn là: ${generatedPassword}`,
-      });
+    //   // Gửi email thông báo mật khẩu cho người dùng
+    //   sendEmail({
+    //     name: newUser.name,
+    //     email: newUser.email,
+    //     message: `Mật khẩu của bạn là: ${generatedPassword}`,
+    //   });
 
-      alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-      navigate('/dashboard'); // Chuyển hướng đến trang dashboard
-    } catch (error) {
-      console.error('Lỗi khi đăng nhập Google:', error);
-    }
+    //   alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+    //   navigate('/dashboard'); // Chuyển hướng đến trang dashboard
+    // } catch (error) {
+    //   console.error('Lỗi khi đăng nhập Google:', error);
+    // }
   };
 
   const sendEmail = (data) => {
@@ -235,7 +236,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
         <div className="google-login-btn m-3 border-0">
                     <GoogleLogin
                     
-                      clientId="270409308877-6u9dv3fmnf2kdn7gb0d6aqbegrnlmqvo.apps.googleusercontent.com"
+                    clientId = "377354154325-optua6nsafe99lnk5it29j2v20bsfi25.apps.googleusercontent.com" 
                       buttonText=""
                       onSuccess={responseGoogle}
                       onFailure={responseGoogle}
