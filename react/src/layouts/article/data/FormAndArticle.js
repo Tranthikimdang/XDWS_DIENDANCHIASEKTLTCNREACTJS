@@ -3,11 +3,14 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import { Editor } from "@tinymce/tinymce-react";
+import ReactQuill from 'react-quill'; // Import ReactQuill
+import 'react-quill/dist/quill.snow.css'; // Import CSS
 import { Snackbar, Alert } from "@mui/material";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from '../../../config/firebaseconfig.js'; // Nhập đúng
+import { db, storage } from '../../../config/firebaseconfig.js';
+import hljs from 'highlight.js'; // Import highlight.js
+import 'highlight.js/styles/monokai-sublime.css'; // Import theme CSS
 
 function FormAndArticle() {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -20,12 +23,10 @@ function FormAndArticle() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Lấy thông tin người dùng từ localStorage
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
       setUser(user);
     }
-    console.log(user);
   }, []);
 
   useEffect(() => {
@@ -37,7 +38,7 @@ function FormAndArticle() {
           id: doc.id,
           ...doc.data(),
         }));
-        setCates(categoriesList); // Set the fetched categories
+        setCates(categoriesList);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -48,16 +49,42 @@ function FormAndArticle() {
     fetchCategories();
   }, []);
 
+   // Kiểm tra token người dùng
+   useEffect(() => {
+    const auth = getAuth();
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const token = await user.getIdToken();
+        console.log("User token:", token);
+      } else {
+        console.log("No user is logged in");
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    // Thiết lập highlight.js khi nội dung Quill thay đổi
+    document.querySelectorAll("pre").forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
+
   const onSubmit = async (data) => {
     try {
       if (data.image && data.image.length > 0) {
-        // Upload image to Firebase Storage
         const file = data.image[0];
         const storageRef = ref(storage, `images/${file.name}`);
-        await uploadBytes(storageRef, file);
+  
+        // Kiểm tra quá trình upload
+        await uploadBytes(storageRef, file).then((snapshot) => {
+          console.log('Uploaded a file!', snapshot);
+        }).catch((uploadError) => {
+          console.error("Error uploading file:", uploadError);
+          throw new Error("Failed to upload image.");
+        });
+  
         const downloadURL = await getDownloadURL(storageRef);
-
-        // Add article to Firestore with image URL
+  
         await addDoc(collection(db, "articles"), {
           user_id: user.id,
           image_url: downloadURL,
@@ -65,7 +92,7 @@ function FormAndArticle() {
           title: data.title,
           content: data.content,
         });
-
+  
         setSnackbarMessage("Article added successfully.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -76,11 +103,13 @@ function FormAndArticle() {
         setSnackbarOpen(true);
       }
     } catch (error) {
-      setSnackbarMessage("Failed to add article.");
+      console.error("Error adding article:", error);  // Log lỗi chi tiết hơn
+      setSnackbarMessage("Failed to add article. Please try again.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
+  
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -98,7 +127,6 @@ function FormAndArticle() {
       <DashboardNavbar />
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-          {/* Form fields */}
           <div className="row">
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Name</label>
@@ -152,26 +180,10 @@ function FormAndArticle() {
             <label className="text-light form-label" style={smallFontStyle}>
               Content
             </label>
-            <Editor
-              apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
-              init={{
-                plugins: "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
-                toolbar: "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
-                tinycomments_mode: "embedded",
-                content_css: "/path/to/dark-theme-tinymce.css",
-                body_class: "my-editor",
-                tinycomments_author: "Author name",
-                mergetags_list: [
-                  { value: "First.Name", title: "First Name" },
-                  { value: "Email", title: "Email" },
-                ],
-                ai_request: (request, respondWith) =>
-                  respondWith.string(() =>
-                    Promise.reject("See docs to implement AI Assistant")
-                  ),
-              }}
-              initialValue=""
-              onEditorChange={(content) => setValue("content", content)}
+            <ReactQuill
+              theme="snow"
+              onChange={(content) => setValue("content", content)}
+              style={{ backgroundColor: '#fff', color: '#000' }}
             />
             {errors.content && (
               <span className="text-danger" style={smallFontStyle}>
