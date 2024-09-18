@@ -13,11 +13,10 @@ import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import { db, storage } from '../../../src/config/firebaseconfig'; // Nhập đúng
+import db,  { storage } from '../../../src/config/firebaseconfig'; // Nhập đúng
 import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
 
 
-import db from "../../config/firebaseconfig.js";
 function Category() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);

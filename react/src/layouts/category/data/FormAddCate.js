@@ -123,15 +123,13 @@ import db from "../../../config/firebaseconfig.js";
 
 // export default FormAddCate;
 
-import React, { useState, useEffect } from 'react';
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import { useForm } from 'react-hook-form';
-import { Snackbar, Alert } from "@mui/material";
-import { useHistory } from 'react-router-dom';
-import { Link } from "react-router-dom";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import { collection, addDoc, getDocs } from "firebase/firestore";
-import { db } from '../../../config/firebaseconfig.js'; // Ensure Firebase is correctly configured
+// import { useForm } from 'react-hook-form';
+// import { Snackbar, Alert } from "@mui/material";
+// import { useHistory } from 'react-router-dom';
+// import { Link } from "react-router-dom";
+// import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+// import { collection, addDoc, getDocs } from "firebase/firestore";
+// import { db } from '../../../config/firebaseconfig.js'; // Ensure Firebase is correctly configured
 
 function FormAddCate() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();

@@ -1,8 +1,9 @@
+
+
+
 import React, { useEffect, useState } from "react";
 import { Card, Stack, CircularProgress } from "@mui/material";
 import moment from 'moment';
-import { Card, Stack } from "@mui/material";
-import moment from 'moment'
 import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import colors from "assets/theme/base/colors";
@@ -10,8 +11,7 @@ import { FaEllipsisH } from "react-icons/fa";
 import linearGradient from "assets/theme/functions/linearGradient";
 // Import Firestore
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../../../../config/firebaseconfig"; // Đường dẫn tới file cấu hình Firebase
-import CircularProgress from "@mui/material/CircularProgress";
+import  db  from "../../../../config/firebaseconfig"; // Đường dẫn tới file cấu hình Firebase
 import apis from "../../../../apis/articleApi";
 
 const formatDate = () => {
@@ -53,12 +53,9 @@ function ReferralTracking() {
         console.error("Error fetching articles:", error);
       }
     };
-    
 
     fetchArticles();
   }, []);
-
-  const [newArticles, setNewArticles] = useState([])
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -66,12 +63,11 @@ function ReferralTracking() {
       try {
         const response = await apis.getList();
         if (response.status === 200) {
-
           const article = response.data || [];
           const newArticles = article.filter((a) => {
-            return moment(a.created_at, "DD/MM/YYYY").toDate().getTime() == moment(formatDate(), "DD/MM/YYYY").toDate().getTime()
+            return moment(a.created_at, "DD/MM/YYYY").toDate().getTime() === moment(formatDate(), "DD/MM/YYYY").toDate().getTime();
           });
-          setNewArticles(newArticles)
+          setNewArticles(newArticles);
           setArticles(article);
         }
       } catch (error) {
@@ -83,6 +79,8 @@ function ReferralTracking() {
   }, []);
 
   console.log(articles);
+
+  const progressValue = articles.length > 0 ? (newArticles.length / articles.length) * 100 : 0;
 
   return (
     <Card
@@ -99,7 +97,7 @@ function ReferralTracking() {
         <VuiBox
           display="flex"
           alignItems="center"
-          justifyContent="space-beetween"
+          justifyContent="space-between"
           sx={{ width: "100%" }}
           mb="40px"
         >
@@ -196,15 +194,11 @@ function ReferralTracking() {
                 {articles.length}
               </VuiTypography>
             </VuiBox>
-
-
-
-
           </Stack>
           <VuiBox sx={{ position: "relative", display: "inline-flex" }}>
             <CircularProgress
               variant="determinate"
-              value={(newArticles.length / articles.length) * 100}
+              value={progressValue}
               size={window.innerWidth >= 1024 ? 200 : window.innerWidth >= 768 ? 170 : 200}
               color="success"
             />
@@ -226,8 +220,6 @@ function ReferralTracking() {
                 justifyContent="center"
                 alignItems="center"
               >
-
-
                 <VuiTypography
                   color="white"
                   variant="d5"
@@ -239,7 +231,7 @@ function ReferralTracking() {
                     },
                   })}
                 >
-                  {((newArticles.length / articles.length) * 10).toFixed(1)}
+                  {(progressValue / 10).toFixed(1)}
                 </VuiTypography>
                 <VuiTypography color="text" variant="button">
                   Total article
