@@ -10,24 +10,24 @@ const Profile = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await userApi.getList();
-        if (response.status === 200) {
-          setUsers(response.data || []);
-          console.log('Fetched users:', response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // const fetchUsers = async () => {
+    //   try {
+    //     const response = await userApi.getList();
+    //     if (response.status === 200) {
+    //       setUsers(response.data || []);
+    //       console.log('Fetched users:', response.data);
+    //     }
+    //   } catch (error) {
+    //     console.error('Error fetching users:', error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
     
     const storedUser = JSON.parse(localStorage.getItem('user')); // Lấy dữ liệu từ localStorage
     setUser(storedUser);
 
-    fetchUsers();
+    // fetchUsers();
   }, []);
 
   // Nếu user chưa được load, trả về một thông báo loading
