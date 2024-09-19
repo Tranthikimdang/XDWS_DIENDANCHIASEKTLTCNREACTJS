@@ -260,10 +260,7 @@ function Article() {
                                   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                                 }}
                               />
-
-
                             </div>
-
                             <div className="content-column" style={{ flex: 1, marginLeft: '10px' }}>
                               <VuiBox display="flex" flexDirection="column">
                                 <VuiTypography variant="caption" fontWeight="medium" color="white" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -315,7 +312,7 @@ function Article() {
                               </Tooltip>
                             </Link>
                             <Link to={{ pathname: "/formeditarticle", state: { data: row } }}>
-                            <Tooltip title="Sửa bài viết" placement="top">
+                              <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
                                   type="button"
@@ -345,7 +342,7 @@ function Article() {
                                   <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                                 </svg>
                               </button>
-                              </Tooltip>
+                            </Tooltip>
                             <Tooltip title="Duyệt bài viết" placement="top">
                               <button
                                 className="text-light btn btn-outline-success me-2"
@@ -368,15 +365,12 @@ function Article() {
                                 </svg>
                               </button>
                             </Tooltip>
-
-
                           </div>
                         ),
                       };
                     })}
                   />
                 </VuiBox>
-
                 <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
@@ -402,7 +396,7 @@ function Article() {
             )}
           </Card>
         </VuiBox>
-      </VuiBox>             
+      </VuiBox>
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
@@ -410,7 +404,7 @@ function Article() {
         title={`Delete ${deleteTitle}`}
         content="Are you sure you want to delete this article?"
       />
-       <Snackbar
+      <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
