@@ -17,7 +17,7 @@ import { useHistory } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import db from "../../../config/firebaseconfig.js";
+import   { db, storage } from "../../../config/firebaseconfig.js";
 
 // function FormAddCate() {
 //   const { register, handleSubmit, formState: { errors }, setError } = useForm();

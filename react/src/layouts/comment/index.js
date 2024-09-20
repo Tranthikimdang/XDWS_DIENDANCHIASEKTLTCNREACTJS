@@ -14,7 +14,7 @@ import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
 import './index.css';
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import db from "../../config/firebaseconfig.js";
+import { db, storage } from '../../../src/config/firebaseconfig';
 
 function Comment() {
   const { columns } = authorsTableData;

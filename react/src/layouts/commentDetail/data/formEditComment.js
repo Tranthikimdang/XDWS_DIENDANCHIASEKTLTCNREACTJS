@@ -7,7 +7,7 @@ import { useLocation, useHistory } from "react-router-dom";
 import api from "../../../apis/commentDetailApi";
 import { Snackbar, Alert } from "@mui/material";
 import { collection, addDoc, getDocs ,updateDoc , doc  } from "firebase/firestore";
-import db from "../../../config/firebaseconfig.js";
+import { db, storage } from '../../../config/firebaseconfig';
 
 function FormEditCmt() {
   const location = useLocation();

@@ -11,7 +11,7 @@ import { FaEllipsisH } from "react-icons/fa";
 import linearGradient from "assets/theme/functions/linearGradient";
 // Import Firestore
 import { collection, getDocs } from "firebase/firestore";
-import  db  from "../../../../config/firebaseconfig"; // Đường dẫn tới file cấu hình Firebase
+import  { db, storage }  from "../../../../config/firebaseconfig"; // Đường dẫn tới file cấu hình Firebase
 import apis from "../../../../apis/articleApi";
 
 const formatDate = () => {
