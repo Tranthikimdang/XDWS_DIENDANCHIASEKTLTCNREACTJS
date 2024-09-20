@@ -1,3 +1,5 @@
+<<<<<<< HEAD:react/src/layouts/questions/index.js
+=======
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
 import { Link,useLocation } from 'react-router-dom';
@@ -238,3 +240,4 @@ onClick={() => handleChangePage(null, page + 1)}
 }
 
 export default CommentDetail;
+>>>>>>> origin/phinhpc05786:client/src/admin/src/layouts/commentDetail/index.js

@@ -4,7 +4,6 @@ import Loadable from '../layouts/full/shared/loadable/Loadable';
 import Profile from 'src/views/profile/Profile';
 import ForgotPassword from "../views/authentication/ForgotPassword";
 import ResetPassword from "../views/authentication/ResetPassword";
-import DashboardAdmin from "../admin/src/layouts/dashboard/index";
 
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
@@ -41,7 +40,6 @@ const Router = [
       { path: '/ui/shadow', exact: true, element: <Shadow /> },
       { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
       { path: '/profile', exact: true, element: <Profile /> },
-      { path: '/dashboard', exact: true, element: <DashboardAdmin /> },
       
       // { path: '*', element: <Navigate to="/auth/404" /> },
     ],

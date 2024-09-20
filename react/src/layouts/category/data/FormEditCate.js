@@ -163,7 +163,7 @@ import { Snackbar, Alert } from "@mui/material";
 import api from "../../../apis/categoriesApi";
 // Import Firebase Firestore functions
 import { doc, updateDoc } from "firebase/firestore";
-import  db from "../../../config/firebaseconfig";
+import  { db, storage } from "../../../config/firebaseconfig";
 
 function FormEditCate() {
   const location = useLocation();

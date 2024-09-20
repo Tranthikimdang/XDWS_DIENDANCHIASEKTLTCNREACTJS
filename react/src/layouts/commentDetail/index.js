@@ -12,7 +12,7 @@ import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 import { collection, doc, getDocs, deleteDoc } from "firebase/firestore";
-import db from "../../config/firebaseconfig.js";
+import { db, storage } from '../../../src/config/firebaseconfig';
 
 function CommentDetail() {
   const { columns } = authorsTableData;
