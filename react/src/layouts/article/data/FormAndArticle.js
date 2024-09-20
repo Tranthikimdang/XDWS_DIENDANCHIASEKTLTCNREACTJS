@@ -3,24 +3,25 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import ReactQuill from 'react-quill'; // Import ReactQuill
-import 'react-quill/dist/quill.snow.css'; // Import CSS
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { Snackbar, Alert } from "@mui/material";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from '../../../config/firebaseconfig.js';
-import hljs from 'highlight.js'; // Import highlight.js
-import 'highlight.js/styles/monokai-sublime.css'; // Import theme CSS
+import hljs from 'highlight.js';
+import 'highlight.js/styles/monokai-sublime.css';
 
 function FormAndArticle() {
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
   const history = useHistory();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [cates, setCates] = useState([]);
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const selectedCategoryId = watch("categories_id");
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -49,9 +50,7 @@ function FormAndArticle() {
     fetchCategories();
   }, []);
 
-
   useEffect(() => {
-    // Thiết lập highlight.js khi nội dung Quill thay đổi
     document.querySelectorAll("pre").forEach((block) => {
       hljs.highlightElement(block);
     });
@@ -66,15 +65,17 @@ function FormAndArticle() {
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
 
-
         await addDoc(collection(db, "articles"), {
           user_id: user.id,
           image_url: downloadURL,
           categories_id: data.categories_id,
           title: data.title,
           content: data.content,
+          view: data.view || 0, // Ensure view is provided, default to 0 if not
+          created_at: new Date(), // Set the current date/time
+          is_deleted: data.is_deleted || false, // Default to false if not provided
+          updated_at: new Date(), // Set the current date/time
         });
-
 
         setSnackbarMessage("Article added successfully.");
         setSnackbarSeverity("success");
@@ -86,14 +87,12 @@ function FormAndArticle() {
         setSnackbarOpen(true);
       }
     } catch (error) {
-      console.error("Error adding article:", error);  // Log lỗi chi tiết hơn
+      console.error("Error adding article:", error.message);
       setSnackbarMessage("Failed to add article. Please try again.");
-      setSnackbarMessage("Failed to add article.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
-
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -106,6 +105,8 @@ function FormAndArticle() {
     fontSize: '0.9rem'
   };
 
+  const selectedCategory = cates.find(cate => cate.id === selectedCategoryId);
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -114,7 +115,7 @@ function FormAndArticle() {
           <div className="row">
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Name</label>
-              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} readOnly />
+              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name || ''} readOnly />
             </div>
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Title</label>

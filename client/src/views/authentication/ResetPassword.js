@@ -9,7 +9,8 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Card, CardContent } from "@mui/material";
-import db from '../../config/firebaseconfig'; 
+import { db, storage } from '../../config/firebaseconfig';
+
 
 const ResetPassword = () => {
     const { userId } = useParams(); // Lấy userId từ URL
