@@ -85,7 +85,6 @@ function CommentDetail() {
     }
     setSnackbarOpen(false);
   };
-
   const cancelDelete = () => {
     setOpenDialog(false);
   };
@@ -208,35 +207,35 @@ function CommentDetail() {
                       Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
                     </span>
                     <button
-                      className="btn btn-light"
-                      onClick={() => handleChangePage(null, page + 1)}
-                      disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
-                    >
-                      &raquo;
-                    </button>
-                  </div>
+                    className="btn btn-light"
+                    onClick={() => handleChangePage(null, page + 1)}
+                    disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+                  >
+                    &raquo;
+                  </button>
                 </div>
-              </>
-            )}
-            <ConfirmDialog
-              open={openDialog}
-              onClose={() => setOpenDialog(false)}
-              onConfirm={() => confirmDelete(deleteId)}
-              onCancel={cancelDelete}
-            />
-          </Card>
-        </VuiBox>
+              </div>
+            </>
+          )}
+          <ConfirmDialog
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+            onConfirm={() => confirmDelete(deleteId)}
+            onCancel={cancelDelete}
+          />
+        </Card>
       </VuiBox>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000} // Increased duration for better visibility
-        onClose={handleSnackbarClose}
-        message={snackbarMessage}
-        action={<button className='btn btn-outline-secondary' onClick={handleSnackbarClose}>Close</button>}
-        severity={snackbarSeverity}
-      />
-    </DashboardLayout>
-  );
+    </VuiBox>
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={5000} // Increased duration for better visibility
+      onClose={handleSnackbarClose}
+      message={snackbarMessage}
+      action={<button className='btn btn-outline-secondary' onClick={handleSnackbarClose}>Close</button>}
+      severity={snackbarSeverity}
+    />
+  </DashboardLayout>
+);
 }
 
 export default CommentDetail;
