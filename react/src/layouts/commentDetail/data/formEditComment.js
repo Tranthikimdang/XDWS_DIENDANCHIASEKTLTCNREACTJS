@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import { useLocation, useHistory } from "react-router-dom";
 import api from "../../../apis/commentDetailApi";
 import { Snackbar, Alert } from "@mui/material";
+import { collection, addDoc, getDocs ,updateDoc , doc  } from "firebase/firestore";
+import db from "../../../config/firebaseconfig.js";
 
 function FormEditCmt() {
   const location = useLocation();
@@ -41,29 +43,37 @@ function FormEditCmt() {
   }, [data, setValue]);
 
   const onSubmit = async (formData) => {
-    try {
-    const currentDate = new Date().toISOString().split('T')[0]; 
-      const requestData = {
-        user_name: user.name, 
-        content: formData.content,
-        created_date: data.created_date,         
-        updated_date: currentDate  
-      };
+    const currentDate = new Date().toISOString().split('T')[0];
+    
+    const updatedCommentData = {
+      ...formData,
+      user_name: user?.name || "Khiemm",  
+      created_date: data?.created_date || currentDate, 
+      updated_date: currentDate
+    };
   
-      const response = await api.updateComment(data.id, requestData);
-      console.log("Comment updated successfully:", response);
+    console.log('Updated comment data:', updatedCommentData);
+  
+    try {
+      const commentDocRef = doc(db, "commentDetails", data?.id);
+      await updateDoc(commentDocRef, updatedCommentData);
+  
+      console.log("Comment updated successfully");
+  
       setSnackbarMessage("Comment updated successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/commentDetail' ,{ id:id } ), 500);
+  
+      setTimeout(() => history.push('/commentDetail', { id: id }), 1000);
+  
     } catch (error) {
-      console.error("Error updating comment:", error.response ? error.response.data : error.message);
+      console.error("Error updating comment:", error.message);
+      
       setSnackbarMessage("Failed to update comment.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
-  
   
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
