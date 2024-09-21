@@ -12,7 +12,7 @@ import {
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
 import { GoogleLogin } from 'react-google-login';
 import { collection, getDocs } from 'firebase/firestore';
-import db from '../../../config/firebaseconfig';
+import { db, storage } from '../../../config/firebaseconfig';
 import emailjs from 'emailjs-com';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 
@@ -175,7 +175,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
               htmlFor="username"
               mb="5px"
             >
-             Họ và tên
+              Họ và tên
             </Typography>
             <CustomTextField
               id="username"
@@ -234,25 +234,25 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
           </Button>
         </Box>
         <Box mt={3}>
-        <Typography
+          <Typography
 
-              component={Link}
-              to="/auth/forgot-password"
-              fontWeight="500"
-              sx={{
-                textDecoration: 'none',
-                color: 'primary.main'
-              }}
-            >
-              Quên mật khẩu?
-            </Typography>
+            component={Link}
+            to="/auth/forgot-password"
+            fontWeight="500"
+            sx={{
+              textDecoration: 'none',
+              color: 'primary.main'
+            }}
+          >
+            Quên mật khẩu?
+          </Typography>
         </Box>
-        
+
         <Box mt={4} mb={1} textAlign="center">
         <div className="google-login-btn m-3 border-0">
                     <GoogleLogin
                     
-                    clientId = "270409308877-hv65523hch5694hsa6atdjpn0qumls70.apps.googleusercontent.com" 
+                    clientId = "377354154325-optua6nsafe99lnk5it29j2v20bsfi25.apps.googleusercontent.com" 
                       buttonText=""
                       onSuccess={responseGoogle}
                       onFailure={responseGoogle}

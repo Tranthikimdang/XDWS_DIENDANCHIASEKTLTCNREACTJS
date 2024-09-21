@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
-import db from '../../config/firebaseconfig';
+import { db, storage } from '../../config/firebaseconfig';
 import Logo from 'src/layouts/full/shared/logo/Logo';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import emailjs from 'emailjs-com';
