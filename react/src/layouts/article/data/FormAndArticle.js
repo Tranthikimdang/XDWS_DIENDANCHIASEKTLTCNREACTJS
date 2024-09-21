@@ -1,65 +1,94 @@
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import api from '../../../apis/articleApi';
-import categoriesApi from '../../../apis/categoriesApi';
-import { Editor } from "@tinymce/tinymce-react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { Snackbar, Alert } from "@mui/material";
-function FormAndArticle() {
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
-  const history = useHistory();
+import { collection, getDocs, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from '../../../config/firebaseconfig.js';
+import hljs from 'highlight.js';
+import 'highlight.js/styles/monokai-sublime.css';
 
+function FormAndArticle() {
+  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
+  const history = useHistory();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [cates, setCates] = useState([]);
-  const [user, setUser] = useState(""); // Khai báo state name
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const selectedCategoryId = watch("categories_id");
 
   useEffect(() => {
-    // Lấy thông tin người dùng từ localStorage
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
-      setUser(user)
-      // setName(user.name);
+      setUser(user);
     }
-    console.log(user);
-
   }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading(true);
       try {
-        const response = await categoriesApi.getList();
-        if (response.status === 200) {
-          const categories = response.data || [];
-          setCates(categories);
-        }
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        const categoriesList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCates(categoriesList);
       } catch (error) {
         console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    document.querySelectorAll("pre").forEach((block) => {
+      hljs.highlightElement(block);
+    });
+  });
 
   const onSubmit = async (data) => {
-    const formData = new FormData();
-    formData.append('user_id', user.id);
-    formData.append('image', data.image[0]); // File input is an array
-    formData.append('categories_id', data.categories_id);
-    formData.append('title', data.title);
-    formData.append('content', data.content);
-
     try {
-      const response = await api.addArticle(formData);
-      setSnackbarMessage("Article added successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-      setTimeout(() => history.push('/article'), 500);
+      if (data.image && data.image.length > 0) {
+        const file = data.image[0];
+        const storageRef = ref(storage, `images/${file.name}`);
+
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await addDoc(collection(db, "articles"), {
+          user_id: user.id,
+          image_url: downloadURL,
+          categories_id: data.categories_id,
+          title: data.title,
+          content: data.content,
+          view: data.view || 0, // Ensure view is provided, default to 0 if not
+          created_at: new Date(), // Set the current date/time
+          is_deleted: data.is_deleted || false, // Default to false if not provided
+          updated_at: new Date(), // Set the current date/time
+        });
+
+        setSnackbarMessage("Article added successfully.");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+        setTimeout(() => history.push('/article'), 500);
+      } else {
+        setSnackbarMessage("Image is required.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
     } catch (error) {
-      setSnackbarMessage("Failed to add article.");
+      console.error("Error adding article:", error.message);
+      setSnackbarMessage("Failed to add article. Please try again.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -76,14 +105,17 @@ function FormAndArticle() {
     fontSize: '0.9rem'
   };
 
+  const selectedCategory = cates.find(cate => cate.id === selectedCategoryId);
+
   return (
     <DashboardLayout>
+      <DashboardNavbar />
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <div className="row">
             <div className='col-6 mb-3'>
-              <label className='text-light form-label' style={smallFontStyle}>Username</label>
-              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} />
+              <label className='text-light form-label' style={smallFontStyle}>Name</label>
+              <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name || ''} readOnly />
             </div>
             <div className='col-6 mb-3'>
               <label className='text-light form-label' style={smallFontStyle}>Title</label>
@@ -94,7 +126,6 @@ function FormAndArticle() {
               />
               {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
               {errors.title && errors.title.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Title must be at least 3 characters long</span>}
-
             </div>
           </div>
           <div className="row">
@@ -122,9 +153,8 @@ function FormAndArticle() {
                   Open this select menu
                 </option>
                 {cates.map((cate) => (
-
-                  <option style={smallFontStyle} key={cate?.key} value={cate?.key}>
-                    {cate?.name}
+                  <option style={smallFontStyle} key={cate.id} value={cate.id}>
+                    {cate.name}
                   </option>
                 ))}
               </select>
@@ -135,35 +165,11 @@ function FormAndArticle() {
             <label className="text-light form-label" style={smallFontStyle}>
               Content
             </label>
-            <Editor
-              apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
-              init={{
-                plugins:
-                  "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount mediaembed casechange export formatpainter pageembed linkchecker a11ychecker tinymcespellchecker permanentpen powerpaste advtable advcode editimage advtemplate ai mentions tinycomments tableofcontents footnotes mergetags autocorrect typography inlinecss markdown",
-                toolbar:
-                  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
-                tinycomments_mode: "embedded",
-                content_css: "/path/to/dark-theme-tinymce.css",
-                body_class: "my-editor",
-                tinycomments_author: "Author name",
-                mergetags_list: [
-                  { value: "First.Name", title: "First Name" },
-                  { value: "Email", title: "Email" },
-                ],
-                ai_request: (request, respondWith) =>
-                  respondWith.string(() =>
-                    Promise.reject("See docs to implement AI Assistant")
-                  ),
-              }}
-              initialValue=""
-              onEditorChange={(content) => setValue("content", content)}
+            <ReactQuill
+              theme="snow"
+              onChange={(content) => setValue("content", content)}
+              style={{ backgroundColor: '#fff', color: '#000' }}
             />
-            {errors.content && (
-              <span className="text-danger" style={smallFontStyle}>
-                {errors.content.message}
-              </span>
-            )}
-
             {errors.content && (
               <span className="text-danger" style={smallFontStyle}>
                 {errors.content.message}
@@ -182,10 +188,9 @@ function FormAndArticle() {
           </div>
         </form>
       </div>
-
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >

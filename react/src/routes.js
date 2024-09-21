@@ -1,6 +1,7 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "layouts/dashboard";
 import Comment from "layouts/comment";
+import questions from "layouts/questions";
 import CommentDetail from "layouts/commentDetail";
 import Category from "layouts/category";
 import Profile from "layouts/profile";
@@ -22,6 +23,10 @@ import FormViewArticle from "layouts/article/data/FormViewArticle";
 import FormEditArticle from "layouts/article/data/FormEditArticle";
 import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
+import FormAddQuestions from "layouts/questions/data/formAddQuestions";
+import FormEditQuestions from "layouts/questions/data/formEditQuestions";
+import FormDeleteQuestions from "layouts/questions/data/formDeleteQuestions";
+
 import FormAddCmt from "layouts/commentDetail/data/formComment";
 import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
@@ -34,8 +39,7 @@ import { BsFillPersonPlusFill } from "react-icons/bs";
 import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
-import { BsBellFill } from "react-icons/bs";
-import { FaUserShield } from "react-icons/fa";
+import { FaQuestionCircle } from "react-icons/fa";
 const routes = [
   {
     route: "/authentication/sign-in",
@@ -76,6 +80,15 @@ const routes = [
     route: "/comment",
     icon: <BsFillPencilFill size="15px" color="inherit" />,
     component: Comment,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Questions Management",
+    key: "questions",
+    route: "/questions",
+    icon: <FaQuestionCircle size="15px" color="inherit" />,
+    component: questions,
     noCollapse: true,
   },
   {
@@ -131,6 +144,26 @@ const routes = [
     component: FormDeleteCmt,
     hidden: true, // Ẩn mục này
   },
+   // questions
+   {
+    key: "formaddquestions",
+    route: "/formAddQuestions",
+    component: FormAddQuestions,
+    hidden: true,
+  },
+  {
+    key: "formeditquestions",
+    route: "/formEditQuestions",
+    component: FormEditQuestions,
+    hidden: true, 
+  },
+  {
+    key: "formdeletequestions",
+    route: "/formDeleteQuestions",
+    component: FormDeleteQuestions,
+    hidden: true, // Ẩn mục này
+  },
+  //cate
   {
     key: "formaddcate",
     route: "/formaddcate",

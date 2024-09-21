@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { Card, CardContent } from '@mui/material';
 import { toast } from 'react-toastify'; // Thông báo khi gửi email thành công hoặc thất bại
-import db from '../../config/firebaseconfig'; // Import Firestore database
+import { db, storage } from '../../config/firebaseconfig'; // Import Firestore database
 import emailjs from 'emailjs-com';
 
 const ForgotPassword = () => {

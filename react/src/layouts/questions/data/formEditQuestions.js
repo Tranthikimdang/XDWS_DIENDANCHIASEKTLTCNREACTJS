@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
@@ -6,10 +5,8 @@ import { useForm } from "react-hook-form";
 import { useLocation, useHistory } from "react-router-dom";
 import api from "../../../apis/commentDetailApi";
 import { Snackbar, Alert } from "@mui/material";
-import { collection, addDoc, getDocs ,updateDoc , doc  } from "firebase/firestore";
-import { db, storage } from '../../../config/firebaseconfig';
 
-function FormEditCmt() {
+function formEditQuestions() {
   const location = useLocation();
   const { data , id } = location.state || {};
   const history = useHistory();
@@ -43,37 +40,29 @@ function FormEditCmt() {
   }, [data, setValue]);
 
   const onSubmit = async (formData) => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    
-    const updatedCommentData = {
-      ...formData,
-      user_name: user?.name || "Khiemm",  
-      created_date: data?.created_date || currentDate, 
-      updated_date: currentDate
-    };
-  
-    console.log('Updated comment data:', updatedCommentData);
-  
     try {
-      const commentDocRef = doc(db, "commentDetails", data?.id);
-      await updateDoc(commentDocRef, updatedCommentData);
+    const currentDate = new Date().toISOString().split('T')[0]; 
+      const requestData = {
+        user_name: user.name, 
+        content: formData.content,
+        created_date: data.created_date,         
+        updated_date: currentDate  
+      };
   
-      console.log("Comment updated successfully");
-  
+      const response = await api.updateComment(data.id, requestData);
+      console.log("Comment updated successfully:", response);
       setSnackbarMessage("Comment updated successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-  
-      setTimeout(() => history.push('/commentDetail', { id: id }), 1000);
-  
+      setTimeout(() => history.push('/commentDetail' ,{ id:id } ), 500);
     } catch (error) {
-      console.error("Error updating comment:", error.message);
-      
+      console.error("Error updating comment:", error.response ? error.response.data : error.message);
       setSnackbarMessage("Failed to update comment.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
+  
   
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -121,4 +110,4 @@ function FormEditCmt() {
   );
 }
 
-export default FormEditCmt;
+export default formEditQuestions;

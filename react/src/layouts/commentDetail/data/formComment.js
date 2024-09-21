@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { useHistory,useLocation } from 'react-router-dom';
 import api from '../../../apis/commentDetailApi';
 import { Snackbar, Alert } from "@mui/material";
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import { db, storage } from '../../../config/firebaseconfig';
 
 function FormAddCmt() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -27,33 +29,34 @@ function FormAddCmt() {
   }, []);
 
   const onSubmit = async (data) => {
-    const currentDate = new Date().toISOString().split('T')[0]; 
+    const currentDate = new Date().toISOString().split('T')[0];
+    
     const commentData = {
       ...data,
-      article_id:id,
-      user_name: user?.name,  
+      article_id: id || "",  
+      user_name: user?.name || "Khiem",
       created_date: currentDate,
       updated_date: currentDate
     };
-    
+  
     console.log('Comment data:', commentData);
-    
+  
     try {
-      const response = await api.addComment(commentData);
-      console.log('Comment added successfully:', response);
-      setSnackbarMessage("Comment added.");
+      const docRef = await addDoc(collection(db, "commentDetails"), commentData);
+      console.log("Document written with ID: ", docRef.id);
+  
+      setSnackbarMessage("Comment added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/commentDetail',{ id:id }), 1000); 
+      setTimeout(() => history.push('/commentDetail', { id: id }), 1000);
+  
     } catch (error) {
       console.error('Error adding comment:', error);
       setSnackbarMessage("Failed to add comment.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
-  };
-  
-  
+  };  
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {

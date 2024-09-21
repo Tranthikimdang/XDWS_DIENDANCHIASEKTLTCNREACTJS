@@ -1,33 +1,23 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from 'react';
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import { useForm } from "react-hook-form";
-import { useLocation, useHistory } from "react-router-dom";
-import api from "../../../apis/commentDetailApi";
+import { useForm } from 'react-hook-form';
+import { useHistory,useLocation } from 'react-router-dom';
+import api from '../../../apis/commentDetailApi';
 import { Snackbar, Alert } from "@mui/material";
-import { collection, addDoc, getDocs ,updateDoc , doc  } from "firebase/firestore";
-import { db, storage } from '../../../config/firebaseconfig';
 
-function FormEditCmt() {
-  const location = useLocation();
-  const { data , id } = location.state || {};
+function formAddQuestions() {
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const history = useHistory();
+  
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [user, setUser] = useState(""); 
+  const [user, setUser] = useState(""); // User state
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      content: data?.content || "",
-    },
-  });
+  const location = useLocation();
+  const { id } = location.state || {};
+  console.log(id);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -36,45 +26,35 @@ function FormEditCmt() {
     }   
   }, []);
 
-  useEffect(() => {
-    if (data) {
-      setValue("content", data.content);
-    }
-  }, [data, setValue]);
-
-  const onSubmit = async (formData) => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    
-    const updatedCommentData = {
-      ...formData,
-      user_name: user?.name || "Khiemm",  
-      created_date: data?.created_date || currentDate, 
+  const onSubmit = async (data) => {
+    const currentDate = new Date().toISOString().split('T')[0]; 
+    const commentData = {
+      ...data,
+      article_id:id,
+      user_name: user?.name,  
+      created_date: currentDate,
       updated_date: currentDate
     };
-  
-    console.log('Updated comment data:', updatedCommentData);
-  
+    
+    console.log('Comment data:', commentData);
+    
     try {
-      const commentDocRef = doc(db, "commentDetails", data?.id);
-      await updateDoc(commentDocRef, updatedCommentData);
-  
-      console.log("Comment updated successfully");
-  
-      setSnackbarMessage("Comment updated successfully.");
+      const response = await api.addComment(commentData);
+      console.log('Comment added successfully:', response);
+      setSnackbarMessage("Comment added.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-  
-      setTimeout(() => history.push('/commentDetail', { id: id }), 1000);
-  
+      setTimeout(() => history.push('/commentDetail',{ id:id }), 1000); 
     } catch (error) {
-      console.error("Error updating comment:", error.message);
-      
-      setSnackbarMessage("Failed to update comment.");
+      console.error('Error adding comment:', error);
+      setSnackbarMessage("Failed to add comment.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
   
+  
+
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -91,6 +71,10 @@ function FormEditCmt() {
       <DashboardNavbar />
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* <div>
+            <label className='text-light form-label' style={smallFontStyle}>Article ID</label>
+            <input className='form-control bg-dark text-light'  />
+          </div> */}
           <div>
             <label className='text-light form-label' style={smallFontStyle}>User Name</label>
             <input className='form-control bg-dark text-light' value={user?.name || ''} readOnly />
@@ -101,8 +85,8 @@ function FormEditCmt() {
             {errors.content && <span className='text-danger'>{errors.content.type === 'required' ? 'Content is required' : errors.content.type === 'minLength' ? 'Content must be at least 10 characters long' : 'Content must be less than 100 characters long'}</span>}
           </div>            
           <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Update</button>
-            <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/commentDetail' , {id : id} )}>Back</button>
+            <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/commentDetail',{ id: id })}>Back</button>
           </div>
         </form>
       </div>
@@ -121,4 +105,4 @@ function FormEditCmt() {
   );
 }
 
-export default FormEditCmt;
+export default formAddQuestions;
