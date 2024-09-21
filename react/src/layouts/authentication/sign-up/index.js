@@ -218,7 +218,7 @@ function Register() {
       onClick={handleSetRememberMe}
       sx={{ cursor: "pointer", userSelect: "none" }}
     >
-      &nbsp;&nbsp;&nbsp;&nbsp;Remember me
+      &nbsp;&nbsp;&nbsp;&nbsp;Ghi Nhớ
     </VuiTypography>
   </VuiBox>
 
@@ -230,14 +230,14 @@ function Register() {
         fontWeight="medium"
         sx={{ cursor: "pointer", userSelect: "none" }}
       >
-        Already have an account? Sign in.
+        Bạn đã có tài khoản? Đăng nhập.
       </VuiTypography>
     </Link>
   </VuiBox>
 
   <VuiBox mt={4} mb={1}>
     <VuiButton color="info" fullWidth onClick={handleRegister}>
-      SIGN UP
+     Đăng Ký
     </VuiButton>
   </VuiBox>
 
@@ -260,7 +260,7 @@ function Register() {
               src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
               alt="Google"
             />
-            Sign up with Google
+            Đăng Nhập Với Google
           </button>
         )}
       />

@@ -125,7 +125,7 @@ function FormAndArticle() {
                 style={smallFontStyle}
               />
               {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
-              {errors.title && errors.title.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Title must be at least 3 characters long</span>}
+              {errors.title && errors.title.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Tiêu đề phải dài ít nhất 3 ký tự</span>}
             </div>
           </div>
           <div className="row">
@@ -142,7 +142,7 @@ function FormAndArticle() {
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Category
+              Category
               </label>
               <select
                 className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
@@ -177,13 +177,13 @@ function FormAndArticle() {
             )}
           </div>
           <div className="d-flex justify-content mt-3">
-            <button className="text-light btn btn-outline-info me-2" type="submit">Add Article</button>
+            <button className="text-light btn btn-outline-info me-2" type="submit">Thêm Bài Viết</button>
             <button
               className="text-light btn btn-outline-secondary"
               type="button"
               onClick={() => history.push("/article")}
             >
-              Back
+              Quay Lại
             </button>
           </div>
         </form>

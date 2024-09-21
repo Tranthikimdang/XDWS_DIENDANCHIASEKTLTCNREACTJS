@@ -38,10 +38,10 @@ const Welcome = () => {
       <VuiBox display="flex" flexDirection="column" sx={{ height: "100%" }}>
         <VuiBox display="flex" flexDirection="column" mb="auto">
           <VuiTypography color="white" variant="h3" fontWeight="bold" mb="3px">
-            Welcome back!
+          Chào mừng trở lại!
           </VuiTypography>
           <VuiTypography color="white" variant="button" fontWeight="regular">
-            Nice to see you, Mark Johnson!
+          Rất vui được gặp
           </VuiTypography>
         </VuiBox>
         <VuiBox justifySelf="flex-end">
@@ -69,7 +69,7 @@ const Welcome = () => {
               },
             }}
           >
-            Tap to record
+           Nhấn để ghi lại
             <Icon sx={{ fontWeight: "bold", ml: "5px" }}>arrow_forward</Icon>
           </VuiTypography>
         </VuiBox>

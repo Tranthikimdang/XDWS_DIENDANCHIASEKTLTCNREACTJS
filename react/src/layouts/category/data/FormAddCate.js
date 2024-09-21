@@ -43,8 +43,8 @@ function FormAddCate() {
     
     if (isNameExists) {
       // Set error for duplicate category name with smaller font style
-      setError("name", { type: "manual", message: "Category name already exists." });
-      setSnackbarMessage("Category name already exists.");
+      setError("name", { type: "manual", message: "Tên danh mục đã tồn tại." });
+      setSnackbarMessage("Tên danh mục đã tồn tại.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;
@@ -85,7 +85,7 @@ function FormAddCate() {
       <div className='container'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <label className='text-light form-label'>Category name</label>
+            <label className='text-light form-label'>Tên Danh Mục</label>
             <input 
               className={`form-control bg-dark text-light`} 
               style={smallFontStyle} 
@@ -93,10 +93,10 @@ function FormAddCate() {
             />
             {/* Error message for required and minLength validations */}
             {errors.name && errors.name.type === 'required' && (
-              <span className='text-danger' style={smallFontStyle}>Name is required</span>
+              <span className='text-danger' style={smallFontStyle}>Bắt buộc nhập tên</span>
             )}
             {errors.name && errors.name.type === 'minLength' && (
-              <span className='text-danger' style={smallFontStyle}>Name must be at least 3 characters long</span>
+              <span className='text-danger' style={smallFontStyle}>Tên phải dài ít nhất 3 ký tự</span>
             )}
             {/* Error message for duplicate category name */}
             {errors.name && errors.name.type === 'manual' && (
@@ -105,8 +105,8 @@ function FormAddCate() {
           </div>
           
           <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            <Link to="/category" className='btn btn-outline-light ms-3'>Back</Link>
+            <button className='text-light btn btn-outline-info' type="submit">Thêm Danh Mục</button>
+            <Link to="/category" className='btn btn-outline-light ms-3'>Quay Lại</Link>
           </div>
         </form>
       </div>

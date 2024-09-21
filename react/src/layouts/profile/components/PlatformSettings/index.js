@@ -21,7 +21,7 @@ function PlatformSettings() {
     <Card sx={{ minHeight: "490px", height: "100%" }}>
       <VuiBox mb="26px">
         <VuiTypography variant="lg" fontWeight="bold" color="white" textTransform="capitalize">
-          platform settings
+        cài đặt nền tảng
         </VuiTypography>
       </VuiBox>
       <VuiBox lineHeight={1.25}>
@@ -32,7 +32,7 @@ function PlatformSettings() {
           color="text"
           textTransform="uppercase"
         >
-          account
+         Tài khoản
         </VuiTypography>
         <VuiBox display="flex" mb="14px">
           <VuiBox mt={0.25}>
@@ -40,7 +40,7 @@ function PlatformSettings() {
           </VuiBox>
           <VuiBox width="80%" ml={2}>
             <VuiTypography variant="button" fontWeight="regular" color="text">
-              Email me when someone follows me
+            Gửi email cho tôi khi có người theo dõi tôi
             </VuiTypography>
           </VuiBox>
         </VuiBox>
@@ -54,7 +54,7 @@ function PlatformSettings() {
           </VuiBox>
           <VuiBox width="80%" ml={2}>
             <VuiTypography variant="button" fontWeight="regular" color="text">
-              Email me when someone answers on my post
+            Gửi email cho tôi khi có người trả lời bài đăng của tôi
             </VuiTypography>
           </VuiBox>
         </VuiBox>
@@ -69,13 +69,13 @@ function PlatformSettings() {
           </VuiBox>
           <VuiBox width="80%" ml={2}>
             <VuiTypography variant="button" fontWeight="regular" color="text">
-              Email me when someone mentions me
+            Gửi email cho tôi khi ai đó nhắc đến tôi
             </VuiTypography>
           </VuiBox>
         </VuiBox>
         <VuiBox mb="6px">
           <VuiTypography variant="xxs" fontWeight="medium" color="text" textTransform="uppercase">
-            application
+          ứng dụng
           </VuiTypography>
         </VuiBox>
         <VuiBox display="flex" mb="14px">
@@ -88,7 +88,7 @@ function PlatformSettings() {
           </VuiBox>
           <VuiBox width="80%" ml={2}>
             <VuiTypography variant="button" fontWeight="regular" color="text">
-              New launches and projects
+            Ra mắt và dự án mới
             </VuiTypography>
           </VuiBox>
         </VuiBox>
@@ -102,7 +102,7 @@ function PlatformSettings() {
           </VuiBox>
           <VuiBox width="80%" ml={2}>
             <VuiTypography variant="button" fontWeight="regular" color="text">
-              Monthly product updates
+            Cập nhật sản phẩm hàng tháng
             </VuiTypography>
           </VuiBox>
         </VuiBox>
@@ -116,7 +116,7 @@ function PlatformSettings() {
           </VuiBox>
           <VuiBox width="80%" ml={2}>
             <VuiTypography variant="button" fontWeight="regular" color="text">
-              Subscribe to newsletter
+            Đăng ký nhận bản tin
             </VuiTypography>
           </VuiBox>
         </VuiBox>
@@ -126,7 +126,7 @@ function PlatformSettings() {
           </VuiBox>
           <VuiBox width="80%" ml={2}>
             <VuiTypography variant="button" fontWeight="regular" color="text">
-              Receive mails weekly
+            Nhận thư hàng tuần
             </VuiTypography>
           </VuiBox>
         </VuiBox>

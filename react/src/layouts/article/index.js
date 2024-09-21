@@ -173,7 +173,7 @@ function Article() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Article Table
+                Bảng Bài Viết
               </VuiTypography>
               <Link to="/formandarticle">
                 <button className='text-light btn btn-outline-info' onClick={handleAddArticleSuccess}>
@@ -190,7 +190,7 @@ function Article() {
                       d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
                     />
                   </svg>
-                  Add
+                  Thêm
                 </button>
               </Link>
             </VuiBox>
