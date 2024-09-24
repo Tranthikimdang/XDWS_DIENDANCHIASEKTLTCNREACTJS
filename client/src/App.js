@@ -5,18 +5,20 @@ import { baselightTheme } from "./theme/DefaultColors";
 import { useContext, useEffect, useState } from 'react';
 import storeContext from './store/context'
 function App() {
-  console.log(storeContext);
-  const [role, setRole] = useState(null)
+   const [role, setRole] = useState(null);
+  const [state] = useContext(storeContext);
 
-  const [state] = useContext(storeContext)
-  console.log(state);
-
+  // Kiểm tra trước khi truy cập state.user và state.user.role
   useEffect(() => {
-    setRole(state.user.role)
-  }, [state.user.role])
-  const user = JSON.parse(localStorage.getItem('user'))
+    if (state?.user?.role) {
+      setRole(state.user.role);
+    }
+  }, [state?.user?.role]);
 
-  const routing = useRoutes(renderRoutes(user.role));
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  // Kiểm tra role của user trước khi sử dụng
+  const routing = useRoutes(renderRoutes(user?.role || role));
   const theme = baselightTheme;
 
   return (
