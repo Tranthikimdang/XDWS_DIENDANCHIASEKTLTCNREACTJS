@@ -9,6 +9,8 @@ import Article from "layouts/article";
 import User from "layouts/user";
 import SignIn from "layouts/authentication/sign-in";
 import SignUp from "layouts/authentication/sign-up";
+import CatePro from "layouts/category_pro/index";
+import Product from "layouts/product/index"
 
 import FormAddUser from "layouts/user/data/formAddUser";
 import FormEditUser from "layouts/user/data/FormEditUser";
@@ -31,6 +33,15 @@ import FormAddCmt from "layouts/commentDetail/data/formComment";
 import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
+import FormAddCatePro from "layouts/category_pro/data/FormAddCate"
+import FormEditCatePro from "layouts/category_pro/data/FormEditCate"
+import FormDeleteCatePro from "layouts/category_pro/data/FormDeleteCate"
+
+import FormAddPro from "layouts/product/data/FormAddProduct"
+import FormViewPro from "layouts/product/data/FormViewProduct"
+import FormEditPro from "layouts/product/data/FormEditProduct"
+import FormDeletePro from "layouts/product/data/FormDeleteProduct"
+
 // Vision UI Dashboard React icons
 import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -48,7 +59,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Dashboard",
+    name: "Bản điều khiển",
     key: "dashboard",
     route: "/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
@@ -57,7 +68,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Article Management",
+    name: "Quản lý bài viêt",
     key: "article",
     route: "/article",
     icon: <BsJournals size="15px" color="inherit" />,
@@ -66,7 +77,16 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Category Management",
+    name: "Quản lý sản phẩm",
+    key: "product",
+    route: "/product",
+    icon: <BsJournals size="15px" color="inherit" />,
+    component: Product,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Danh mục bài viết",
     key: "category",
     route: "/category",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
@@ -75,7 +95,16 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Comment Management",
+    name: "Danh mục khóa học",
+    key: "category-pro",
+    route: "/categorypro",
+    icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
+    component: CatePro,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Quản lý bình luận",
     key: "comment",
     route: "/comment",
     icon: <BsFillPencilFill size="15px" color="inherit" />,
@@ -84,7 +113,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Questions Management",
+    name: "Quản lý câu hỏi",
     key: "questions",
     route: "/questions",
     icon: <FaQuestionCircle size="15px" color="inherit" />,
@@ -93,7 +122,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "User Management",
+    name: "Quản lý người dùng",
     key: "user",
     route: "/user",
     icon: <BsFillPersonPlusFill size="15px" color="inherit" />,
@@ -103,7 +132,7 @@ const routes = [
   { type: "title", title: "Account Pages", key: "account-pages" },
   {
     type: "collapse",
-    name: "Profile",
+    name: "Thông tin cá nhân",
     key: "profile",
     route: "/profile",
     icon: <BsFillPersonFill size="15px" color="inherit" />,
@@ -112,7 +141,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Logout",
+    name: "Đăng xuất",
     key: "sign-in",
     route: "/authentication/sign-in",
     icon: <IoIosDocument size="15px" color="inherit" />,
@@ -179,6 +208,27 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
+    key: "formaddcatepro",
+    route: "/formaddcatepro",
+    component: FormAddCatePro,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formeditcatepro",
+    route: "/formeditcatepro",
+    component: FormEditCatePro,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formdeletecatepro",
+    route: "/formdeletecatepro",
+    component: FormDeleteCatePro,
+    noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
     key: "formdeletecate",
     route: "/formdeletecate",
     component: FormDeleteCate,
@@ -228,6 +278,30 @@ const routes = [
     key: "formdeletearticle",
     route: "/formdeleteArticle",
     component: FormDeleteArticle,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formeaddpro",
+    route: "/formaddpro",
+    component: FormAddPro,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formviewpro",
+    route: "/formviewpro/:id", // Thêm :id để định tuyến theo params
+    component: FormViewPro,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formditpro",
+    route: "/formeditpro",
+    component: FormEditPro,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formdeletepro",
+    route: "/formdeleteArticle",
+    component: FormDeletePro,
     hidden: true, // Ẩn mục này
   },
   {
