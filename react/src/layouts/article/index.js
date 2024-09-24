@@ -5,7 +5,6 @@ import VuiBox from "components/VuiBox";
 import VuiTypography from "components/VuiTypography";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
 import Table from "examples/Tables/Table";
 import authorsArticleData from "layouts/article/data/authorsArticleData";
@@ -18,8 +17,6 @@ import { ref, getDownloadURL } from "firebase/storage";
 import { collection, getDocs } from "firebase/firestore";
 import { db, storage } from '../../../src/config/firebaseconfig'; // Verify this path
 import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
-
-const sanitizeImagePath = (path) => path.replace(/\\/g, '/'); // Convert backslashes to forward slashes
 
 const getImageUrl = async (path) => {
   try {
@@ -46,7 +43,8 @@ function Article() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-
+  const [cates, setCates] = useState([]);
+  const [catesMap, setCatesMap] = useState({});
   // Fetch articles from Firebase
   useEffect(() => {
     const fetchArticles = async () => {
@@ -70,7 +68,31 @@ function Article() {
     fetchArticles();
   }, []);
 
+  // Fetch categories from Firestore
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
 
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCatesMap(categoriesMap);
+
+        console.log("Fetched categories:", categoriesData);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Fetch users from Firebase
   useEffect(() => {
@@ -105,7 +127,6 @@ function Article() {
     }
   };
 
-
   const handleDelete = (id, title) => {
     setDeleteId(id);
     setDeleteTitle(title);
@@ -117,10 +138,8 @@ function Article() {
       // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
       const articleRef = doc(db, "articles", deleteId);
       await deleteDoc(articleRef); // Thực hiện xóa bài viết từ Firestore
-
       // Cập nhật lại danh sách bài viết sau khi xóa
       setRows(rows.filter((row) => row.id !== deleteId));
-
       // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
       setOpenDialog(false);
       setSnackbarMessage("Article deleted successfully.");
@@ -259,10 +278,7 @@ function Article() {
                                   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                                 }}
                               />
-
-
                             </div>
-
                             <div className="content-column" style={{ flex: 1, marginLeft: '10px' }}>
                               <VuiBox display="flex" flexDirection="column">
                                 <VuiTypography variant="caption" fontWeight="medium" color="white" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -273,13 +289,12 @@ function Article() {
                                   </strong>
                                 </VuiTypography>
                                 <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                  {row.categories_id}
+                                {catesMap[row.categories_id] || 'Unknown Category'}
                                 </VuiTypography>
                               </VuiBox>
                             </div>
                           </div>
                         ),
-
                         Author: (
                           <VuiBox>
                             <VuiTypography variant="button" color="white" fontWeight="medium">
@@ -314,7 +329,7 @@ function Article() {
                               </Tooltip>
                             </Link>
                             <Link to={{ pathname: "/formeditarticle", state: { data: row } }}>
-                            <Tooltip title="Sửa bài viết" placement="top">
+                              <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
                                   type="button"
@@ -344,7 +359,7 @@ function Article() {
                                   <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
                                 </svg>
                               </button>
-                              </Tooltip>
+                            </Tooltip>
                             <Tooltip title="Duyệt bài viết" placement="top">
                               <button
                                 className="text-light btn btn-outline-success me-2"
@@ -367,15 +382,12 @@ function Article() {
                                 </svg>
                               </button>
                             </Tooltip>
-
-
                           </div>
                         ),
                       };
                     })}
                   />
                 </VuiBox>
-
                 <div className="d-flex justify-content-center p-2 custom-pagination">
                   <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
                     <button
@@ -401,15 +413,15 @@ function Article() {
             )}
           </Card>
         </VuiBox>
-      </VuiBox>             
+      </VuiBox>
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Delete ${deleteTitle}`}
+        title={`Delete title ${deleteTitle}`}
         content="Are you sure you want to delete this article?"
       />
-       <Snackbar
+      <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}

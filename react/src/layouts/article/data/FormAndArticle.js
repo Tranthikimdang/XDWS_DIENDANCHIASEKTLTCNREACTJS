@@ -3,14 +3,11 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
 import { Snackbar, Alert } from "@mui/material";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from '../../../config/firebaseconfig.js';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/monokai-sublime.css';
+import { Editor } from "@tinymce/tinymce-react";
 
 function FormAndArticle() {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
@@ -23,6 +20,7 @@ function FormAndArticle() {
   const [loading, setLoading] = useState(true);
   const selectedCategoryId = watch("categories_id");
 
+  // Lấy thông tin người dùng từ localStorage
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
@@ -30,6 +28,7 @@ function FormAndArticle() {
     }
   }, []);
 
+  // Lấy danh sách categories từ Firestore
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
@@ -50,42 +49,41 @@ function FormAndArticle() {
     fetchCategories();
   }, []);
 
+  // Tích hợp highlight.js để highlight code trong bài viết
   useEffect(() => {
     document.querySelectorAll("pre").forEach((block) => {
       hljs.highlightElement(block);
     });
   });
 
+  // Xử lý logic khi submit form
   const onSubmit = async (data) => {
     try {
+      let downloadURL = '';
       if (data.image && data.image.length > 0) {
         const file = data.image[0];
         const storageRef = ref(storage, `images/${file.name}`);
-
         await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-
-        await addDoc(collection(db, "articles"), {
-          user_id: user.id,
-          image_url: downloadURL,
-          categories_id: data.categories_id,
-          title: data.title,
-          content: data.content,
-          view: data.view || 0, // Ensure view is provided, default to 0 if not
-          created_at: new Date(), // Set the current date/time
-          is_deleted: data.is_deleted || false, // Default to false if not provided
-          updated_at: new Date(), // Set the current date/time
-        });
-
-        setSnackbarMessage("Article added successfully.");
-        setSnackbarSeverity("success");
-        setSnackbarOpen(true);
-        setTimeout(() => history.push('/article'), 500);
-      } else {
-        setSnackbarMessage("Image is required.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
+        downloadURL = await getDownloadURL(storageRef);
       }
+
+      // Thêm bài viết mới vào Firestore
+      await addDoc(collection(db, "articles"), {
+        user_id: user.id,
+        image: downloadURL,
+        categories_id: data.categories_id,
+        title: data.title,
+        content: data.content, // Nội dung bao gồm mã code và hình ảnh
+        view: data.view || 0, // Mặc định view = 0 nếu không cung cấp
+        created_at: new Date(), // Thời gian tạo
+        is_deleted: data.is_deleted || false, // Mặc định là false nếu không cung cấp
+        updated_at: new Date(), // Thời gian cập nhật
+      });
+
+      setSnackbarMessage("Article added successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setTimeout(() => history.push('/article'), 500);
     } catch (error) {
       console.error("Error adding article:", error.message);
       setSnackbarMessage("Failed to add article. Please try again.");
@@ -121,12 +119,27 @@ function FormAndArticle() {
               <label className='text-light form-label' style={smallFontStyle}>Title</label>
               <input
                 className={`form-control bg-dark text-light ${errors.title ? 'is-invalid' : ''}`}
-                {...register('title', { required: 'Title is required', minLength: 3 })}
+                {...register('title', {
+                  required: 'Title is required', // Bắt lỗi tiêu đề bắt buộc
+                  minLength: {
+                    value: 5,
+                    message: 'Title must be at least 5 characters' // Độ dài tối thiểu
+                  },
+                  maxLength: {
+                    value: 100,
+                    message: 'Title cannot exceed 100 characters' // Độ dài tối đa
+                  },
+                  pattern: {
+                    value: /^[a-zA-Z0-9 ]+$/, // Regex để kiểm tra ký tự hợp lệ (chỉ cho phép chữ cái và số)
+                    message: 'Title can only contain letters and numbers' // Thông báo lỗi ký tự không hợp lệ
+                  }
+                })}
                 style={smallFontStyle}
               />
+              {/* Hiển thị lỗi nếu có */}
               {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
-              {errors.title && errors.title.type === 'minLength' && <span className="text-danger" style={smallFontStyle}>Title must be at least 3 characters long</span>}
             </div>
+
           </div>
           <div className="row">
             <div className='col-6 mb-3'>
@@ -165,10 +178,63 @@ function FormAndArticle() {
             <label className="text-light form-label" style={smallFontStyle}>
               Content
             </label>
-            <ReactQuill
-              theme="snow"
-              onChange={(content) => setValue("content", content)}
-              style={{ backgroundColor: '#fff', color: '#000' }}
+            <Editor
+              apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
+              init={{
+                height: 500,
+                menubar: false,
+                plugins: [
+                  "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
+                  "mediaembed casechange export formatpainter pageembed linkchecker",
+                  "a11ychecker tinymcespellchecker permanentpen powerpaste advtable",
+                  "advcode editimage advtemplate ai mentions tinycomments tableofcontents",
+                  "footnotes mergetags autocorrect typography inlinecss markdown",
+                ],
+                toolbar:
+                  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent | link image media table codesample | customInsertImage | removeformat | addcomment showcomments | spellcheckdialog a11ycheck typography",
+                tinycomments_mode: "embedded",
+                tinycomments_author: "Author name",
+                content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                body_class: "my-editor",
+                codesample_languages: [
+                  { text: 'HTML/XML', value: 'markup' },
+                  { text: 'JavaScript', value: 'javascript' },
+                  { text: 'CSS', value: 'css' },
+                  { text: 'Python', value: 'python' },
+                  { text: 'PHP', value: 'php' },
+                  { text: 'C++', value: 'cpp' },
+                ],
+                setup: (editor) => {
+                  // Thêm nút tùy chỉnh cho upload ảnh
+                  editor.ui.registry.addButton('customInsertImage', {
+                    text: 'Insert Image',
+                    icon: 'image',
+                    onAction: () => {
+                      // Tạo một input cho phép upload file
+                      const input = document.createElement('input');
+                      input.setAttribute('type', 'file');
+                      input.setAttribute('accept', 'image/*');
+                      input.click();
+
+                      input.onchange = async () => {
+                        const file = input.files[0];
+                        if (file) {
+                          const storageRef = ref(storage, `images/${file.name}`);
+                          try {
+                            await uploadBytes(storageRef, file);
+                            const downloadURL = await getDownloadURL(storageRef);
+                            // Chèn ảnh với kích thước nhỏ hơn
+                            editor.insertContent(`<img src="${downloadURL}" alt="${file.name}" style="width: 200px; height: auto;" />`);
+                          } catch (error) {
+                            console.error('Image upload failed:', error);
+                          }
+                        }
+                      };
+                    }
+                  });
+                },
+              }}
+              onEditorChange={(content) => setValue("content", content)}
             />
             {errors.content && (
               <span className="text-danger" style={smallFontStyle}>
@@ -177,7 +243,9 @@ function FormAndArticle() {
             )}
           </div>
           <div className="d-flex justify-content mt-3">
-            <button className="text-light btn btn-outline-info me-2" type="submit">Add Article</button>
+            <button className="btn btn-primary mx-2" type="submit">
+              Add
+            </button>
             <button
               className="text-light btn btn-outline-secondary"
               type="button"
@@ -190,10 +258,9 @@ function FormAndArticle() {
       </div>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={5000}
+        autoHideDuration={500}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
