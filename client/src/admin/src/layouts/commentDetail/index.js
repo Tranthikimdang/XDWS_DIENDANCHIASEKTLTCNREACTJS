@@ -1,5 +1,4 @@
-<<<<<<< HEAD:react/src/layouts/questions/index.js
-=======
+
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
 import { Link,useLocation } from 'react-router-dom';
@@ -84,6 +83,7 @@ function CommentDetail() {
   };
 
   const handleAddCommentSuccess = () => {
+    // eslint-disable-next-line no-undef
     fetchCommentsByArticle();
     setSnackbarMessage("Comment added successfully.");
     setSnackbarSeverity("success");
@@ -240,4 +240,4 @@ onClick={() => handleChangePage(null, page + 1)}
 }
 
 export default CommentDetail;
->>>>>>> origin/phinhpc05786:client/src/admin/src/layouts/commentDetail/index.js
+

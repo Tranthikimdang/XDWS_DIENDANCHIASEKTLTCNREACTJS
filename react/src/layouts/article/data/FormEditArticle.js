@@ -3,6 +3,9 @@ import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useLocation } from "react-router-dom";
+import api from "../../../apis/articleApi";
+import categoriesApi from '../../../apis/categoriesApi';
+import { Editor } from "@tinymce/tinymce-react";
 import { Snackbar, Alert } from "@mui/material";
 import { useHistory } from 'react-router-dom';
 
@@ -28,6 +31,11 @@ function FormEditArticle() {
     const fetchCategories = async () => {
       setLoading(true);
       try {
+        const response = await categoriesApi.getList();
+        if (response.status === 200) {
+          const categories = response.data || [];
+          setCates(categories);
+        }
         const querySnapshot = await getDocs(collection(db, "categories"));
         const categoriesList = querySnapshot.docs.map(doc => ({
           id: doc.id,
@@ -135,6 +143,7 @@ function FormEditArticle() {
         >
           <div className="row">
             <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Username</label>
               <label className='text-light form-label' style={smallFontStyle}>Name</label>
               <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name} readOnly />
             </div>
@@ -237,6 +246,7 @@ function FormEditArticle() {
           </div>
         </form>
       </div>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={500}
