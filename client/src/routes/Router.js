@@ -4,6 +4,7 @@ import Loadable from '../layouts/full/shared/loadable/Loadable';
 import Profile from 'src/views/profile/Profile';
 import ForgotPassword from "../views/authentication/ForgotPassword";
 import ResetPassword from "../views/authentication/ResetPassword";
+import DashboardAdmin from 'src/admin/src/layouts/dashboard';
 
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
@@ -40,13 +41,31 @@ const renderRoutes = (role) => {
   { path: '*', element: <>TRang không tồn tại</> },]
   if (!role) return routes
   if (role === 'admin') {
-    // Mang code giao diện thay vào đây
+    routes.push({
+      path: '/',
+      element: <FullLayout />,
+      children: [
+        { path: '/', element: <Navigate to="/home" /> },
+        { path: '/home', exact: true, element: <Dashboard /> },
+        { path: '/article', exact: true, element: <Article /> },
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
+        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/sample-page', exact: true, element: <SamplePage /> },
+        { path: '/icons', exact: true, element: <Icons /> },
+        { path: '/ui/typography', exact: true, element: <TypographyPage /> },
+        { path: '/ui/shadow', exact: true, element: <Shadow /> },
+        { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
+        { path: '/profile', exact: true, element: <Profile /> },
+
+        // { path: '*', element: <Navigate to="/auth/404" /> },
+      ],
+    })
     routes.push({
       path: '/admin',
       element: <BlankLayout />,
       children: [
         { path: '', element: <>admin</> },
-        { path: 'home', exact: true, element: <Dashboard /> },
+        { path: 'home', exact: true, element: <DashboardAdmin /> },
         { path: 'article', exact: true, element: <Article /> },
         { path: 'article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: 'new-post', exact: true, element: <Newpost /> }, // Add this route
