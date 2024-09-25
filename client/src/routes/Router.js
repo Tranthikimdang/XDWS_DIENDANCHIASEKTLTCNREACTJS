@@ -4,7 +4,8 @@ import Loadable from '../layouts/full/shared/loadable/Loadable';
 import Profile from 'src/views/profile/Profile';
 import ForgotPassword from "../views/authentication/ForgotPassword";
 import ResetPassword from "../views/authentication/ResetPassword";
-import DashboardAdmin from 'src/admin/src/layouts/dashboard';
+import DashboardAdmin from '../../src/admin/index';
+import ArticleAdmin from 'src/admin/layouts/article';
 
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
@@ -86,7 +87,7 @@ const renderRoutes = (role) => {
       children: [
         { path: '', element: <>admin</> },
         { path: 'dashboard', exact: true, element: <DashboardAdmin /> },
-        { path: 'article', exact: true, element: <Article /> },
+        { path: 'article', exact: true, element: <ArticleAdmin /> },
         { path: 'article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: 'new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: 'sample-page', exact: true, element: <SamplePage /> },
