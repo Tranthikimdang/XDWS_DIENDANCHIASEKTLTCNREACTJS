@@ -4,27 +4,28 @@ import renderRoutes from './routes/Router';
 import { baselightTheme } from "./theme/DefaultColors";
 import { useContext, useEffect, useState } from 'react';
 import storeContext from './store/context'
+import { VisionUIControllerProvider } from './context';
 function App() {
-   const [role, setRole] = useState(null);
-  const [state] = useContext(storeContext);
+  console.log(storeContext);
+  const [role, setRole] = useState(null)
 
-  // Kiểm tra trước khi truy cập state.user và state.user.role
+  const [state] = useContext(storeContext)
+  console.log(state);
+
   useEffect(() => {
-    if (state?.user?.role) {
-      setRole(state.user.role);
-    }
-  }, [state?.user?.role]);
+    setRole(state.user.role)
+  }, [state.user.role])
+  const user = JSON.parse(localStorage.getItem('user'))
 
-  const user = JSON.parse(localStorage.getItem('user'));
-
-  // Kiểm tra role của user trước khi sử dụng
-  const routing = useRoutes(renderRoutes(user?.role || role));
+  const routing = useRoutes(renderRoutes('admin'));
   const theme = baselightTheme;
 
   return (
     <ThemeProvider theme={theme}>
+      <VisionUIControllerProvider>
       <CssBaseline />
       {routing}
+      </VisionUIControllerProvider>
     </ThemeProvider>
   );
 }
