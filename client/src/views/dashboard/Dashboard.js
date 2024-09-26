@@ -7,10 +7,10 @@ import { Box, Button, Typography, Grid, Card, CardContent, CardMedia, CircularPr
 import { styled } from '@mui/system';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { collection, getDocs } from 'firebase/firestore';
 import { formatDistanceToNow } from 'date-fns';
 //firebase
 import { db } from '../../config/firebaseconfig';
+import { collection, getDocs } from 'firebase/firestore';
 
 const StyledBox = styled(Box)(({ theme }) => ({
     backgroundColor: '#8000ff',
@@ -280,7 +280,7 @@ const Home = () => {
                                         <CardMedia
                                             component="img"
                                             height="140"
-                                            image={article.thumbnailUrl || 'https://via.placeholder.com/150'}
+                                            image={article.image}
                                             alt={article.title}
                                         />
                                         <CardContent>

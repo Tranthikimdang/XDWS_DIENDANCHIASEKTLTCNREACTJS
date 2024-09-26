@@ -11,7 +11,7 @@ import {
   ListItemText
 } from '@mui/material';
 
-import { IconListCheck, IconMail, IconUser, IconPencil } from '@tabler/icons';
+import { IconListCheck, IconMail, IconUser, IconPencil, IconBook2 } from '@tabler/icons';
 
 import ProfileImg from 'src/assets/images/profile/user-1.jpg';
 
@@ -98,6 +98,12 @@ const Profile = () => {
             <IconPencil width={20} />
           </ListItemIcon>
           <ListItemText>Thêm câu hỏi</ListItemText>
+        </MenuItem>
+        <MenuItem component={Link} to="/new-post">
+          <ListItemIcon>
+            <IconBook2 width={20} />
+          </ListItemIcon>
+          <ListItemText>Thêm bài viết</ListItemText>
         </MenuItem>
         <Box mt={1} py={1} px={2}>
            <Button onClick={handleLogout} variant="outlined" color="primary" fullWidth>

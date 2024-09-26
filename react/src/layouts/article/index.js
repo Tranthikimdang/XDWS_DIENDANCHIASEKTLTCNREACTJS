@@ -13,22 +13,9 @@ import { Alert, Snackbar, TablePagination } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 //firebase 
-import { ref, getDownloadURL } from "firebase/storage";
-import { collection, getDocs } from "firebase/firestore";
-import { db, storage } from '../../../src/config/firebaseconfig'; // Verify this path
-import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
-
-const getImageUrl = async (path) => {
-  try {
-    if (!path) throw new Error("Image path is undefined"); // Kiểm tra giá trị path
-    const imageRef = ref(storage, `images/${path}`);
-    const url = await getDownloadURL(imageRef);
-    return url;
-  } catch (error) {
-    console.error("Error getting image URL:", error);
-    return null;
-  }
-};
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../src/config/firebaseconfig';
+import { doc, deleteDoc } from "firebase/firestore";
 
 function Article() {
   const { columns } = authorsArticleData;
@@ -45,20 +32,16 @@ function Article() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [cates, setCates] = useState([]);
   const [catesMap, setCatesMap] = useState({});
-  // Fetch articles from Firebase
+
+  // Fetch articles from Firestore
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "articles"));
-        const articlesList = await Promise.all(
-          querySnapshot.docs.map(async (doc) => {
-            const articleData = { id: doc.id, ...doc.data() };
-            const imageUrl = await getImageUrl(articleData.image); // Đảm bảo giá trị hợp lệ
-            return { ...articleData, image: imageUrl };
-          })
-        );
-        setRows(articlesList);
+        const articlesSnapshot = await getDocs(collection(db, 'articles'));
+        const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setRows(articlesData);
+        console.log("Fetched articles:", articlesData);
       } catch (error) {
         console.error("Error fetching articles:", error);
       } finally {
@@ -114,7 +97,7 @@ function Article() {
 
     fetchUsers();
   }, []);
-
+  //sửa 
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
   };
@@ -126,13 +109,12 @@ function Article() {
       console.error("Error fetching article details:", error);
     }
   };
-
+  //xóa 
   const handleDelete = (id, title) => {
     setDeleteId(id);
     setDeleteTitle(title);
     setOpenDialog(true);
   };
-
   const confirmDelete = async () => {
     try {
       // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
@@ -164,10 +146,8 @@ function Article() {
     setOpenDialog(false);
   };
 
-  const removeSpecificHtmlTags = (htmlString, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
-    return htmlString?.replace(regex, '');
-  };
+
+
 
   const handleAddArticleSuccess = () => {
     setSnackbarMessage("Article added successfully.");
@@ -177,11 +157,6 @@ function Article() {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
   };
 
   return (
@@ -261,7 +236,7 @@ function Article() {
                           >
                             <div className="image-column" style={{ flex: '0 0 100px' }}>
                               <img
-                                src={row.image}
+                                src={(row.image)}
                                 alt={
                                   row.title
                                     ? row.title.length > 10
@@ -289,7 +264,7 @@ function Article() {
                                   </strong>
                                 </VuiTypography>
                                 <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                {catesMap[row.categories_id] || 'Unknown Category'}
+                                  {catesMap[row.categories_id] || 'Unknown Category'}
                                 </VuiTypography>
                               </VuiBox>
                             </div>
@@ -302,9 +277,13 @@ function Article() {
                             </VuiTypography>
                           </VuiBox>
                         ),
-                        content: removeSpecificHtmlTags(row.content, 'p')?.length > 10
-                          ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 10)}...`
-                          : removeSpecificHtmlTags(row.content, 'p'),
+                        content: (
+                          <VuiBox>
+                            <VuiTypography variant="button" color="white" fontWeight="medium">
+                              {row.content}
+                            </VuiTypography>
+                          </VuiBox>
+                        ),
                         action: (
                           <div className="action-buttons">
                             <Link to={`/formviewarticle/${row.id}`}>

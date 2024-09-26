@@ -4,10 +4,11 @@ import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
 import { useHistory } from 'react-router-dom';
 import { Snackbar, Alert } from "@mui/material";
+import { Editor } from "@tinymce/tinymce-react";
+// firebase
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from '../../../config/firebaseconfig.js';
-import { Editor } from "@tinymce/tinymce-react";
+import { db, storage } from '../../../config/firebaseconfig.js'
 
 function FormAndArticle() {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm();
