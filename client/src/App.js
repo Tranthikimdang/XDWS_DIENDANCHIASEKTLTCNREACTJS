@@ -4,6 +4,7 @@ import renderRoutes from './routes/Router';
 import { baselightTheme } from "./theme/DefaultColors";
 import { useContext, useEffect, useState } from 'react';
 import storeContext from './store/context'
+import { VisionUIControllerProvider } from './context';
 function App() {
   console.log(storeContext);
   const [role, setRole] = useState(null)
@@ -16,13 +17,15 @@ function App() {
   }, [state.user.role])
   const user = JSON.parse(localStorage.getItem('user'))
 
-  const routing = useRoutes(renderRoutes(user.role));
+  const routing = useRoutes(renderRoutes('admin'));
   const theme = baselightTheme;
 
   return (
     <ThemeProvider theme={theme}>
+      <VisionUIControllerProvider>
       <CssBaseline />
       {routing}
+      </VisionUIControllerProvider>
     </ThemeProvider>
   );
 }
