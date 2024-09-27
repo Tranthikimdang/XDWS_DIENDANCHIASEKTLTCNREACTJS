@@ -138,80 +138,78 @@ const Article = () => {
                 <CircularProgress />
               </Box>
             ) : (
-              articles.map((article) => (
-                <Card
-                  key={article?.id}
-                  sx={{
-                    display: 'flex',
-                    mb: 3,
-                    flexDirection: { xs: 'column', md: 'row' },
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => handleCardClick(article.id)}
-                >
-                  <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="body1" component="span" className="author-name">
-                          <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
+              articles.map((article) =>
+                article.status == 1 && (
+                  <Card
+                    key={article?.id}
+                    sx={{
+                      display: 'flex',
+                      mb: 3,
+                      flexDirection: { xs: 'column', md: 'row' },
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                    }}
+                    onClick={() => handleCardClick(article.id)}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <Typography variant="body1" component="span" className="author-name">
+                            <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
+                          </Typography>
+                        </Box>
+                        <Typography variant="h5" component="h2" className="article-title">
+                          {article.title}
                         </Typography>
-                      </Box>
-                      <Typography variant="h5" component="h2" className="article-title">
-                        {article.title}
-                      </Typography>
-                      <Typography variant="body2" paragraph className="article-description">
-                        {removeSpecificHtmlTags(article.content, 'p').length > 100
-                          ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
-                          : removeSpecificHtmlTags(article.content, 'p')}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                        <Typography variant="body2" color="textSecondary" className="category-badge">
-                          {catesMap[article.categories_id] || 'Unknown Category'}
+                        <Typography variant="body2" paragraph className="article-description">
+                          {removeSpecificHtmlTags(article.content, 'p').length > 100
+                            ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
+                            : removeSpecificHtmlTags(article.content, 'p')}
                         </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                          {formatDate(article.updated_at)} {/* Display formatted date */}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
-                    <CardMedia
-                      component="img"
-                      sx={{
-                        width: { xs: '100%', md: 200 },
-                        height: { xs: 200, md: 'auto' },
-                        objectFit: 'cover',
-                      }}
-                      image={article.image}
-                      alt={article.title}
-                    />
-                    <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                      <IconButton aria-label="bookmark">
-                        <IconBookmark />
-                      </IconButton>
-                      <IconButton aria-label="more" onClick={handleClick}>
-                        <IconDots />
-                      </IconButton>
-                      <Menu
-                        id="menu"
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleClose}
-                      >
-                        {menuItems.map((item, i) => (
-                          <MenuItem key={i} onClick={handleClose}>
-                            {item.icon}
-                            <span style={{ marginLeft: 10 }}>{item.text}</span>
-                          </MenuItem>
-                        ))}
-                      </Menu>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" className="category-badge">
+                            {catesMap[article.categories_id] || 'Unknown Category'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                            {formatDate(article.updated_at)} {/* Display formatted date */}
+                          </Typography>
+                        </Box>
+                      </CardContent>
                     </Box>
-                  </Box>
-                </Card>
-              ))
+                    <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          width: { xs: '100%', md: 200 },
+                          height: { xs: 200, md: 'auto' },
+                          objectFit: 'cover',
+                        }}
+                        image={article.image}
+                        alt={article.title}
+                      />
+                      <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
+                        <IconButton aria-label="bookmark">
+                          <IconBookmark />
+                        </IconButton>
+                        <IconButton aria-label="more" onClick={handleClick}>
+                          <IconDots />
+                        </IconButton>
+                        <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                          {menuItems.map((item, i) => (
+                            <MenuItem key={i} onClick={handleClose}>
+                              {item.icon}
+                              <span style={{ marginLeft: 10 }}>{item.text}</span>
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </Box>
+                    </Box>
+                  </Card>
+                )
+              )
             )}
+
           </Grid>
 
           {/* Right Column */}

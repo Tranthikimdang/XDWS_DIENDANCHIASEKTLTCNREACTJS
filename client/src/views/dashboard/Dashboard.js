@@ -271,34 +271,38 @@ const Home = () => {
                                     Xem tất cả &gt;
                                 </Box>
                             </Grid>
-                            {articles.map((article) => (
-                                <Grid item xs={12} sm={6} md={3} key={article.id}>
-                                    <Card
-                                        sx={{ cursor: 'pointer' }}
-                                        onClick={() => handleCardClick(article.id)}
-                                    >
-                                        <CardMedia
-                                            component="img"
-                                            height="140"
-                                            image={article.image}
-                                            alt={article.title}
-                                        />
-                                        <CardContent>
-                                            <Typography gutterBottom variant="h5" component="div">
-                                                {article.title}
-                                            </Typography>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto' }}>
-                                                <Typography variant="body2" color="textSecondary" className="category-badge">
-                                                    {catesMap[article.categories_id] || 'Unknown Category'}
+                            {articles
+                                .filter(article => article.status === 1) // Lọc bài viết có status = 1
+                                .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
+                                .map((article) => (
+                                    <Grid item xs={12} sm={6} md={3} key={article.id}>
+                                        <Card
+                                            sx={{ cursor: 'pointer' }}
+                                            onClick={() => handleCardClick(article.id)}
+                                        >
+                                            <CardMedia
+                                                component="img"
+                                                height="140"
+                                                image={article.image}
+                                                alt={article.title}
+                                            />
+                                            <CardContent>
+                                                <Typography gutterBottom variant="h5" component="div">
+                                                    {article.title}
                                                 </Typography>
-                                                <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                                                    {formatDate(article.updated_at)} {/* Display formatted date */}
-                                                </Typography>
-                                            </Box>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            ))}
+                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto' }}>
+                                                    <Typography variant="body2" color="textSecondary" className="category-badge">
+                                                        {catesMap[article.categories_id] || 'Unknown Category'}
+                                                    </Typography>
+                                                    <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                                                        {formatDate(article.updated_at)} {/* Display formatted date */}
+                                                    </Typography>
+                                                </Box>
+                                            </CardContent>
+                                        </Card>
+                                    </Grid>
+                                ))}
+
                         </Grid>
 
                     </>

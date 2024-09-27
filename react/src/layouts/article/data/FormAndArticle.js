@@ -76,6 +76,7 @@ function FormAndArticle() {
         title: data.title,
         content: data.content, // Nội dung bao gồm mã code và hình ảnh
         view: data.view || 0, // Mặc định view = 0 nếu không cung cấp
+        status: '0', 
         created_at: new Date(), // Thời gian tạo
         is_deleted: data.is_deleted || false, // Mặc định là false nếu không cung cấp
         updated_at: new Date(), // Thời gian cập nhật
