@@ -4,7 +4,7 @@ import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../../../../config/firebaseconfig";
 
 function FormEditCate() {
@@ -18,8 +18,6 @@ function FormEditCate() {
   const [categories, setCategories] = useState([]);
   const { setError } = useForm();
 
-  console.log(categories);
-  
   const {
     register,
     handleSubmit,
@@ -31,10 +29,11 @@ function FormEditCate() {
     },
   });
 
-  // Lấy dữ liệu danh mục dựa trên ID từ Firestore
+  // Lấy danh mục hiện tại và danh sách tất cả danh mục
   useEffect(() => {
     const fetchCategory = async () => {
       if (id) {
+        // Lấy danh mục hiện tại
         const categoryDocRef = doc(db, "categories_product", id);
         const categoryDoc = await getDoc(categoryDocRef);
         if (categoryDoc.exists()) {
@@ -46,24 +45,40 @@ function FormEditCate() {
           navigate("/admin/categorypro"); // Điều hướng nếu không tìm thấy danh mục
         }
       }
+
+      // Lấy danh sách tất cả các danh mục
+      const categoriesCollectionRef = collection(db, "categories_product");
+      const categoriesSnapshot = await getDocs(categoriesCollectionRef);
+      const categoriesList = categoriesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCategories(categoriesList); // Lưu danh sách các danh mục vào state
     };
 
     fetchCategory();
   }, [id, setValue, navigate]);
 
+  // Hàm xử lý khi người dùng submit form
   const onSubmit = async (formData) => {
     setLoading(true);
-    const isNameExists = categories.some(category => category.name.toLowerCase() === data.name.toLowerCase());
     
+    // Kiểm tra tên danh mục đã tồn tại chưa, loại trừ danh mục đang chỉnh sửa
+    const isNameExists = categories.some(
+      (category) => category.name.toLowerCase() === formData.name.toLowerCase() && category.id !== id
+    );
+
     if (isNameExists) {
-      // Set error for duplicate category name with smaller font style
-      setError("name", { type: "manual", message: "Category name already exists." });
-      setSnackbarMessage("Category name already exists.");
+      setError("name", { type: "manual", message: "Tên danh mục đã tồn tại." });
+      setSnackbarMessage("Tên danh mục đã tồn tại.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
+      setLoading(false);
       return;
     }
+
     try {
+      // Cập nhật danh mục
       const categoryDocRef = doc(db, "categories_product", id);
       await updateDoc(categoryDocRef, { name: formData.name });
 
