@@ -122,15 +122,6 @@ const Article = () => {
     <PageContainer title="Article" description="This is Article">
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
-          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading">
-              Featured Articles
-            </Typography>
-            <Typography variant="body1" paragraph className="typography-body">
-              A collection of articles sharing experiences of self-learning programming online and web development techniques.
-            </Typography>
-          </Grid>
-
           {/* Left Column */}
           <Grid item md={8}>
             {loading ? (
@@ -139,6 +130,7 @@ const Article = () => {
               </Box>
             ) : (
               articles.map((article) =>
+                // eslint-disable-next-line eqeqeq
                 article.status == 1 && (
                   <Card
                     key={article?.id}
