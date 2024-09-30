@@ -6,11 +6,9 @@ import { useContext, useEffect, useState } from 'react';
 import storeContext from './store/context'
 import { VisionUIControllerProvider } from './context';
 function App() {
-  console.log(storeContext);
   const [role, setRole] = useState(null)
 
   const [state] = useContext(storeContext)
-  console.log(state);
 
   useEffect(() => {
     setRole(state.user.role)

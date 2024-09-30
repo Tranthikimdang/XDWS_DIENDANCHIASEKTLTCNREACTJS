@@ -27,6 +27,12 @@ export default function AdminLayout() {  // Should be AdminLayout instead of App
   const { pathname } = useLocation();
   const navigate = useNavigate(); // useNavigate instead of useHistory
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user?.role === 'user') {
+      navigate('/home'); // Chuyển hướng đến trang home
+    }
+  }, [navigate]);
   const handleOnMouseEnter = () => {
     if (miniSidenav && !onMouseEnter) {
       setMiniSidenav(dispatch, false);
