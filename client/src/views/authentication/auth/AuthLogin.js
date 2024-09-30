@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Box,
@@ -12,9 +12,9 @@ import {
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
 import { GoogleLogin } from 'react-google-login';
 import { collection, getDocs } from 'firebase/firestore';
-import { db, storage } from '../../../config/firebaseconfig';
+import { db} from '../../../config/firebaseconfig';
 import emailjs from 'emailjs-com';
-import FacebookLogin from '@greatsumini/react-facebook-login';
+// import FacebookLogin from '@greatsumini/react-facebook-login';
 import context from 'src/store/context';
 import { setAccount } from 'src/store/action';
 
@@ -34,7 +34,12 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        navigate('/home');
+    }
+  }, [navigate]);
   const validate = () => {
     let valid = true;
     let errors = {};
@@ -71,12 +76,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       if (user) {
         dispatch(setAccount(user))
         localStorage.setItem('user', JSON.stringify(user));
-        if (user.role === 'user') {
           navigate('/home')
-        } else {
-          navigate('/admin')
-        }
-
       } else {
         alert('Email hoặc mật khẩu chưa hợp lệ');
       }

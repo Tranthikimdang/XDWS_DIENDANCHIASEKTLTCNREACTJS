@@ -14,13 +14,13 @@ import Dashboard from "src/pages/admin/dashboard";
 // import FormEditUser from "layouts/user/data/FormEditUser";
 // import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
-import FormAddCate from "../pages/admin/category/data/FormAddCate";
-import FormEditCate from "../pages/admin/category/data/FormEditCate";
-import FormDeleteCate from "../pages/admin/category/data/FormDeleteCate";
+// import FormAddCate from "layouts/category/data/FormAddCate";
+// import FormEditCate from "layouts/category/data/FormEditCate";
+// import FormDeleteCate from "layouts/category/data/FormDeleteCate";
 
 // import FormAddArticle from "layouts/article/data/FormAndArticle";
 // import FormViewArticle from "layouts/article/data/FormViewArticle";
-// import FormEditArticle from "layouts/article/data/FeormEditArticle";
+// import FormEditArticle from "layouts/article/data/FormEditArticle";
 // import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
 // import FormAddQuestions from "layouts/questions/data/formAddQuestions";
@@ -31,8 +31,12 @@ import FormDeleteCate from "../pages/admin/category/data/FormDeleteCate";
 // import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 // import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
+import CategoryPro from "../pages/admin/category_pro";
+import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
+import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
+
 // Vision UI Dashboard React icons
-import { IoIosDocument } from "react-icons/io";
+// import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
 import { BsFillPersonPlusFill } from "react-icons/bs";
@@ -44,7 +48,7 @@ const routes = [
  
   {
     type: "collapse",
-    name: "Bảng điều khiển",
+    name: "Dashboard",
     key: "dashboard",
     route: "/admin/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
@@ -53,7 +57,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý bài viết",
+    name: "Article Management",
     key: "article",
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
@@ -62,7 +66,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý danh mục",
+    name: "Category Management",
     key: "category",
     route: "/admin/category",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
@@ -71,7 +75,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý bình luận",
+    name: "Comment Management",
     key: "comment",
     route: "/admin/comment",
     icon: <BsFillPencilFill size="15px" color="inherit" />,
@@ -80,7 +84,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý câu hỏi",
+    name: "Questions Management",
     key: "questions",
     route: "/admin/questions",
     icon: <FaQuestionCircle size="15px" color="inherit" />,
@@ -89,7 +93,16 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý người dùng",
+    name: "Danh mục sản phẩm",
+    key: "categoryPro",
+    route: "/admin/categoryPro",
+    icon: <FaQuestionCircle size="15px" color="inherit" />,
+    component: CategoryPro,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "User Management",
     key: "user",
     route: "/admin/user",
     icon: <BsFillPersonPlusFill size="15px" color="inherit" />,
@@ -99,22 +112,22 @@ const routes = [
   { type: "title", title: "Account Pages", key: "account-pages" },
   {
     type: "collapse",
-    name: "Hồ sơ",
+    name: "Profile",
     key: "profile",
     route: "/admin/profile",
     icon: <BsFillPersonFill size="15px" color="inherit" />,
     // component: Profile,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Đăng xuất",
-    key: "sign-in",
-    route: "/admin/authentication/sign-in",
-    icon: <IoIosDocument size="15px" color="inherit" />,
-    // component: SignIn,
-    noCollapse: true,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Logout",
+  //   key: "sign-in",
+  //   route: "/admin/authentication/sign-in",
+  //   icon: <IoIosDocument size="15px" color="inherit" />,
+  //   // component: SignIn,
+  //   noCollapse: true,
+  // },
 
   {
     key: "commentDetail",
@@ -163,21 +176,21 @@ const routes = [
   {
     key: "formaddcate",
     route: "/admin/formaddcate",
-    component: FormAddCate,
+    // component: FormAddCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formeditcate",
     route: "/admin/formeditcate",
-    component: FormEditCate,
+    // component: FormEditCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formdeletecate",
     route: "/admin/formdeletecate",
-    component: FormDeleteCate,
+    // component: FormDeleteCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
@@ -227,11 +240,17 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
   {
-    key: "signup",
-    route: "/admin/signup",
-    // component: SignUp,
+    key: "addCatePro",
+    route: "/admin/addCatePro",
+    component: AddCatePro,
     hidden: true, // Ẩn mục này
   },
+  {
+    key: "editCatePro",
+    route: "/admin/editCatePro/:id",
+    component: EditCatePro,
+    hidden: true, // Ẩn mục này
+  }
 ];
 
 export default routes;
