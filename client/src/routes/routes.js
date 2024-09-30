@@ -31,8 +31,12 @@ import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
 // import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 // import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
+import CategoryPro from "../pages/admin/category_pro";
+import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
+import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
+
 // Vision UI Dashboard React icons
-import { IoIosDocument } from "react-icons/io";
+// import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
 import { BsFillPersonPlusFill } from "react-icons/bs";
@@ -89,6 +93,15 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Danh mục sản phẩm",
+    key: "categoryPro",
+    route: "/admin/categoryPro",
+    icon: <FaQuestionCircle size="15px" color="inherit" />,
+    component: CategoryPro,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
     name: "User Management",
     key: "user",
     route: "/admin/user",
@@ -106,15 +119,15 @@ const routes = [
     // component: Profile,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Logout",
-    key: "sign-in",
-    route: "/admin/authentication/sign-in",
-    icon: <IoIosDocument size="15px" color="inherit" />,
-    // component: SignIn,
-    noCollapse: true,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Logout",
+  //   key: "sign-in",
+  //   route: "/admin/authentication/sign-in",
+  //   icon: <IoIosDocument size="15px" color="inherit" />,
+  //   // component: SignIn,
+  //   noCollapse: true,
+  // },
 
   {
     key: "commentDetail",
@@ -230,11 +243,17 @@ const routes = [
   
  
   {
-    key: "signup",
-    route: "/admin/signup",
-    // component: SignUp,
+    key: "addCatePro",
+    route: "/admin/addCatePro",
+    component: AddCatePro,
     hidden: true, // Ẩn mục này
   },
+  {
+    key: "editCatePro",
+    route: "/admin/editCatePro/:id",
+    component: EditCatePro,
+    hidden: true, // Ẩn mục này
+  }
 ];
 
 export default routes;

@@ -38,6 +38,10 @@ const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')))
 
+const CategoryPro = Loadable(lazy(() => import("../pages/admin/category_pro")))
+const AddCatePro = Loadable(lazy(() => import("../pages/admin/category_pro/data/FormAddCate")))
+const EditCatePro = Loadable(lazy(() => import("../pages/admin/category_pro/data/FormEditCate")))
+
 const renderRoutes = (role) => {
   const routes = [{
     path: '/auth',
@@ -88,7 +92,9 @@ const renderRoutes = (role) => {
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
-
+        { path: 'categoryPro', exact: true, element: <CategoryPro /> },
+        { path: 'addCatePro', exact: true, element: <AddCatePro /> },
+        { path: 'editCatePro/:id', exact: true, element: <EditCatePro /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     })
