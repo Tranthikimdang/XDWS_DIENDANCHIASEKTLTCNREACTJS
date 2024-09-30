@@ -28,6 +28,10 @@ const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')))
 const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')))
 const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')))
 const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')))
+const FormAddCateAdmin = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
+const FormEditCateAdmin = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
+const FormDeleteCateAdmin = Loadable(lazy(() => import('../pages/admin/category/data/FormDeleteCate')));
+
 const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
@@ -63,8 +67,7 @@ const renderRoutes = (role) => {
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
-        { path: '/profile', exact: true, element: <Profile /> },
-
+        { path: '/profile', exact: true, element: <Profile /> }
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     })
@@ -79,7 +82,10 @@ const renderRoutes = (role) => {
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
-        { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
+        { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> },
+        { path: 'formaddcate', exact: true, element: <FormAddCateAdmin /> }, // Add category
+        { path: 'formeditcate', exact: true, element: <FormEditCateAdmin /> }, // Edit category
+        { path: 'formdeletecate', exact: true, element: <FormDeleteCateAdmin /> },// Add this route for UserList
 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],

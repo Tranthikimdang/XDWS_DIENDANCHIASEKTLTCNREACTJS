@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import Card from "@mui/material/Card";
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
@@ -111,7 +111,7 @@ function Category() {
               <VuiTypography variant="lg" color="white">
                 Category table
               </VuiTypography>
-              <Link to="/formaddcate">
+              <Link to="/admin/formaddcate">
                 <button className="text-light btn btn-outline-info" type="button">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -166,7 +166,7 @@ function Category() {
                     name: row.name,
                     action: (
                       <div>
-                        <Link to={{ pathname: "/formeditcate", state: { data: row } }}>
+                        <Link to={{ pathname: "/admin/formeditcate", state: { data: row } }}>
                           <button className="text-light btn btn-outline-warning me-2" 
                           type="button">
                       
