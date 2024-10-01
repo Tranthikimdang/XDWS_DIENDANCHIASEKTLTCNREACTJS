@@ -12,8 +12,8 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin')));
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')))
 const Article = Loadable(lazy(() => import('../views/article/Article')))
-const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))) // Import the ArticleDetail component
-const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))) // Import the ArticleDetail component
+const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))) 
+const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))) 
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')))
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')))
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')))
@@ -25,7 +25,12 @@ const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const UserList = Loadable(lazy(() => import('../views/User/User'))); // Import the UserList component
 
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')))
+
 const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')))
+const FormAddArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormAddArticle')))
+const FormEditArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormEditArticle')))
+const FormViewArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormViewArticle')))
+
 const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')))
 const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')))
 const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
@@ -78,6 +83,9 @@ const renderRoutes = (role) => {
       children: [
         { path: 'dashboard', element: <DashboardAdmin/> },
         { path: 'article', exact: true, element: <ArticleAdmin/> },
+        { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
+        { path: 'formeditarticle', exact: true, element: <FormEditArticle/> },
+        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
