@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
 import { Link, useLocation, useHistory } from 'react-router-dom';
-import VuiBox from "components/VuiBox";
-import VuiTypography from "components/VuiTypography";
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
-import Table from "examples/Tables/Table";
-import authorsTableData from "layouts/commentDetail/data/authorsTableData";
+import VuiBox from "src/components/admin/VuiBox";
+import VuiTypography from "src/components/admin/VuiTypography";
+import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
+import Table from "src/examples/Tables/Table";
+import authorsTableData from ".data/authorsTableData";
 import ConfirmDialog from './data/formDeleteComment';
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 import { collection, doc, getDocs, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
-import { db } from '../../../src/config/firebaseconfig';
+import { db } from 'src/config/firebaseconfig';
 
 function CommentDetail() {
   const { columns } = authorsTableData;
