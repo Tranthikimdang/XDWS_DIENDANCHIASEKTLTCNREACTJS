@@ -14,9 +14,9 @@ import Dashboard from "src/pages/admin/dashboard";
 // import FormEditUser from "layouts/user/data/FormEditUser";
 // import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
-// import FormAddCate from "layouts/category/data/FormAddCate";
-// import FormEditCate from "layouts/category/data/FormEditCate";
-// import FormDeleteCate from "layouts/category/data/FormDeleteCate";
+import Category from "../pages/admin/category";
+import AddCate from "../pages/admin/category/data/FormAddCate";
+import EditCate from "../pages/admin/category/data/FormEditCate";
 
 // import FormAddArticle from "layouts/article/data/FormAndArticle";
 // import FormViewArticle from "layouts/article/data/FormViewArticle";
@@ -176,21 +176,21 @@ const routes = [
   {
     key: "formaddcate",
     route: "/admin/formaddcate",
-    // component: FormAddCate,
+    component: AddCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formeditcate",
-    route: "/admin/formeditcate",
-    // component: FormEditCate,
+    route: "/admin/editCate/:id",
+    component: EditCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formdeletecate",
     route: "/admin/formdeletecate",
-    // component: FormDeleteCate,
+    // component: DeleteCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },

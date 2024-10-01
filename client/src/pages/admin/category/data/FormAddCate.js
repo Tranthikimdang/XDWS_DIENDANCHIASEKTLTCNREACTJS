@@ -14,7 +14,7 @@ import   { db, storage } from "../../../../config/firebaseconfig";
 
 function FormAddCate() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
-  const history = useNavigate();
+  const navigate = useNavigate();
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -60,7 +60,7 @@ function FormAddCate() {
       setSnackbarMessage("Category added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history('/admin/category'), 3000);
+      setTimeout(() => navigate('/admin/category'), 3000);
     } catch (error) {
       console.error('Error adding category:', error);
       setSnackbarMessage("Failed to add category.");

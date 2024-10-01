@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from "react";
-import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
+import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
-// import api from "../../../apis/categoriesApi";
-// Import Firebase Firestore functions
-import { doc, updateDoc } from "firebase/firestore";
-import   { db, storage } from "../../../../config/firebaseconfig";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { db } from "../../../../config/firebaseconfig";
 
 function FormEditCate() {
-  const location = useLocation();
-  const { data } = location.state || {};
-  const history = useNavigate();
+  const { id } = useParams(); // Lấy ID từ URL
+  const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState(null); // Dữ liệu danh mục
+  const [categories, setCategories] = useState([]);
+  const { setError } = useForm();
 
+  console.log(categories);
+  
   const {
     register,
     handleSubmit,
@@ -25,35 +27,54 @@ function FormEditCate() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: data?.name || "",
+      name: "", // Giá trị mặc định
     },
   });
 
-  // Prepopulate form with category data if available
+  // Lấy dữ liệu danh mục dựa trên ID từ Firestore
   useEffect(() => {
-    if (data) {
-      setValue("name", data.name);
-    } else {
-      history("/admin/formeditcate"); // Redirect if no data
-    }
-  }, [data, setValue, history]);
+    const fetchCategory = async () => {
+      if (id) {
+        const categoryDocRef = doc(db, "categories", id);
+        const categoryDoc = await getDoc(categoryDocRef);
+        if (categoryDoc.exists()) {
+          const categoryData = categoryDoc.data();
+          setData(categoryData); // Lưu dữ liệu vào state
+          setValue("name", categoryData.name); // Gán dữ liệu vào form
+        } else {
+          console.log("Danh mục không tồn tại");
+          navigate("/admin/category"); // Điều hướng nếu không tìm thấy danh mục
+        }
+      }
+    };
+
+    fetchCategory();
+  }, [id, setValue, navigate]);
 
   const onSubmit = async (formData) => {
     setLoading(true);
+    const isNameExists = categories.some(category => category.name.toLowerCase() === data.name.toLowerCase());
+    
+    if (isNameExists) {
+      // Set error for duplicate category name with smaller font style
+      setError("name", { type: "manual", message: "Category name already exists." });
+      setSnackbarMessage("Category name already exists.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
+    }
     try {
-      // Firebase Firestore update
-      const categoryDocRef = doc(db, "categories", data.id);
+      const categoryDocRef = doc(db, "categories", id);
       await updateDoc(categoryDocRef, { name: formData.name });
 
-      setSnackbarMessage("Category updated successfully.");
+      setSnackbarMessage("Cập nhật danh mục thành công.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
 
-      // Delay redirect to allow snackbar to display
-      setTimeout(() => history("/admin/category"), 500);
+      setTimeout(() => navigate("/admin/category"), 500);
     } catch (error) {
-      console.error("Error updating category:", error);
-      setSnackbarMessage("Failed to update category.");
+      console.error("Lỗi khi cập nhật danh mục:", error);
+      setSnackbarMessage("Cập nhật danh mục thất bại. Vui lòng thử lại.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     } finally {
@@ -74,30 +95,33 @@ function FormEditCate() {
       <div className="container">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <label className="text-light form-label">Category name</label>
+            <label htmlFor="name" className="text-light form-label">
+              Tên danh mục
+            </label>
             <input
               className="form-control bg-dark text-light"
               type="text"
               id="name"
               {...register("name", { required: true, minLength: 3, maxLength: 20 })}
+              disabled={loading} // Vô hiệu hóa input khi đang xử lý
             />
             {errors.name && errors.name.type === "required" && (
-              <span className="text-danger">Tên là bắt buộc</span>
+              <span className="text-danger">Tên danh mục là bắt buộc</span>
             )}
             {errors.name && errors.name.type === "minLength" && (
-              <span className="text-danger">Tên phải dài tối thiểu 3 ký tự</span>
+              <span className="text-danger">Tên phải có ít nhất 3 ký tự</span>
             )}
             {/* {errors.name && errors.name.type === "maxLength" && (
-              <span className="text-danger">Name must be less than 20 characters long</span>
+              <span className="text-danger">Tên phải có ít hơn 20 ký tự</span>
             )} */}
           </div>
 
           <div className="mt-3">
             <button className="text-light btn btn-outline-info" type="submit" disabled={loading}>
-              {loading ? "Updating..." : "Cập Nhật"}
+              {loading ? "Đang cập nhật..." : "Sửa"}
             </button>
             <Link to="/admin/category" className="btn btn-outline-light ms-3">
-            Quay lại
+              Quay lại
             </Link>
           </div>
         </form>
@@ -117,5 +141,3 @@ function FormEditCate() {
 }
 
 export default FormEditCate;
-
-

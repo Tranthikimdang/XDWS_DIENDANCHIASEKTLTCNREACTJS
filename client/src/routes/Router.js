@@ -36,6 +36,10 @@ const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')))
 const CategoryPro = Loadable(lazy(() => import("../pages/admin/category_pro")))
 const AddCatePro = Loadable(lazy(() => import("../pages/admin/category_pro/data/FormAddCate")))
 const EditCatePro = Loadable(lazy(() => import("../pages/admin/category_pro/data/FormEditCate")))
+///////danh muc bai viet
+const Category = Loadable(lazy(() => import("../pages/admin/category")))
+const AddCate = Loadable(lazy(() => import("../pages/admin/category/data/FormAddCate")))
+const EditCate = Loadable(lazy(() => import("../pages/admin/category/data/FormEditCate")))
 
 const renderRoutes = (role) => {
   const routes = [{
@@ -87,6 +91,9 @@ const renderRoutes = (role) => {
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
         { path: 'addCatePro', exact: true, element: <AddCatePro /> },
         { path: 'editCatePro/:id', exact: true, element: <EditCatePro /> },
+        { path: 'category', exact: true, element: <Category /> },
+        { path: 'addCate', exact: true, element: <AddCate /> },
+        { path: 'editCate/:id', exact: true, element: <EditCate /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     })
