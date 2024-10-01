@@ -11,7 +11,7 @@ import FlagIcon from '@mui/icons-material/Flag';
 import { formatDistanceToNow } from 'date-fns';
 //firebase
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig'; 
+import { db } from '../../config/firebaseconfig';
 import './Article.css';
 
 const Article = () => {
@@ -110,13 +110,13 @@ const Article = () => {
     return html?.replace(regex, '');
   };
 
-    // Helper function to format date as "1 hour ago", "2 days ago", etc.
-    const formatDate = (timestamp) => {
-      if (!timestamp) return 'N/A';
-      const date = new Date(timestamp.seconds * 1000);
-      return formatDistanceToNow(date, { addSuffix: true });
-    };
-  
+  // Helper function to format date as "1 hour ago", "2 days ago", etc.
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp.seconds * 1000);
+    return formatDistanceToNow(date, { addSuffix: true });
+  };
+
 
   return (
     <PageContainer title="Article" description="This is Article">

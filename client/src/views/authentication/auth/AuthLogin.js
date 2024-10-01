@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Box,
@@ -12,12 +12,15 @@ import {
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
 import { GoogleLogin } from 'react-google-login';
 import { collection, getDocs } from 'firebase/firestore';
-import { db, storage } from '../../../config/firebaseconfig';
+import { db} from '../../../config/firebaseconfig';
 import emailjs from 'emailjs-com';
-import FacebookLogin from '@greatsumini/react-facebook-login';
+// import FacebookLogin from '@greatsumini/react-facebook-login';
+import context from 'src/store/context';
+import { setAccount } from 'src/store/action';
 
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
+  const [state, dispatch] = useContext(context)
   const [rememberMe, setRememberMe] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +34,12 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        navigate('/home');
+    }
+  }, [navigate]);
   const validate = () => {
     let valid = true;
     let errors = {};
@@ -66,8 +74,9 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       const user = users.find((user) => user.email === email && user.password === password);
 
       if (user) {
+        dispatch(setAccount(user))
         localStorage.setItem('user', JSON.stringify(user));
-        navigate('/home');
+          navigate('/home')
       } else {
         alert('Email hoặc mật khẩu chưa hợp lệ');
       }
@@ -249,33 +258,33 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
         </Box>
 
         <Box mt={4} mb={1} textAlign="center">
-        <div className="google-login-btn m-3 border-0">
-                    <GoogleLogin
-                    
-                    clientId = "377354154325-optua6nsafe99lnk5it29j2v20bsfi25.apps.googleusercontent.com" 
-                      buttonText=""
-                      onSuccess={responseGoogle}
-                      onFailure={responseGoogle}
-                      cookiePolicy={'single_host_origin'}
-                      redirectUri={process.env.REACT_APP_REDIRECT_URI}
-                      ux_mode="popup"
-                      render={(renderProps) => (
-                        <button
-                        className="google-login-btn btn border-0 btn-outline-info" 
-                          onClick={renderProps.onClick}
-                          disabled={renderProps.disabled}
-                        >
-                          <img
-                            className="google-icon"
-                            src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                            alt="Google"
-                            style={{ width: '24px', height: '24px', marginRight: '8px' }}
-                          />
-                          Đăng nhập với Google
-                        </button>
-                      )}
-                    />
-                  </div>
+          <div className="google-login-btn m-3 border-0">
+            <GoogleLogin
+
+              clientId="377354154325-optua6nsafe99lnk5it29j2v20bsfi25.apps.googleusercontent.com"
+              buttonText=""
+              onSuccess={responseGoogle}
+              onFailure={responseGoogle}
+              cookiePolicy={'single_host_origin'}
+              redirectUri={process.env.REACT_APP_REDIRECT_URI}
+              ux_mode="popup"
+              render={(renderProps) => (
+                <button
+                  className="google-login-btn btn border-0 btn-outline-info"
+                  onClick={renderProps.onClick}
+                  disabled={renderProps.disabled}
+                >
+                  <img
+                    className="google-icon"
+                    src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+                    alt="Google"
+                    style={{ width: '24px', height: '24px', marginRight: '8px' }}
+                  />
+                  Đăng nhập với Google
+                </button>
+              )}
+            />
+          </div>
         </Box>
         {subtitle}
       </form>
