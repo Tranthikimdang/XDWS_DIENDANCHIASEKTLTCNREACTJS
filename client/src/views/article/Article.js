@@ -32,7 +32,7 @@ const Article = () => {
   };
 
   const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`);
+    navigate(`/article/${articleId}` , { state: { id: articleId }});
   };
 
   // Fetch articles from Firestore
