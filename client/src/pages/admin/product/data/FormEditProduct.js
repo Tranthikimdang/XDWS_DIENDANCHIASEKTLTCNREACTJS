@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { getDocs, collection, doc, updateDoc } from "firebase/firestore";
-import { db } from "../../../config/firebaseconfig";
+import { db } from "../../../../config/firebaseconfig";
 
 function FormEditProduct() {
   const location = useLocation();
@@ -97,7 +97,7 @@ function FormEditProduct() {
       setSnackbarMessage("Product updated successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => navigate("/product"), 500);
+      setTimeout(() => navigate("/admin/products"), 500);
     } catch (error) {
       console.error("Error updating Product:", error);
       setSnackbarMessage("Failed to update Product.");
@@ -232,7 +232,7 @@ function FormEditProduct() {
             <button
               className="text-light btn btn-outline-secondary"
               type="button"
-              onClick={() => navigate("/admin/product")}
+              onClick={() => navigate("/admin/products")}
             >
               Back
             </button>
