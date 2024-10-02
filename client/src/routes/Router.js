@@ -40,7 +40,6 @@ const EditCatePro = Loadable(lazy(() => import("../pages/admin/category_pro/data
 const Product = Loadable(lazy(() => import("../pages/admin/product")))
 const AddProduct = Loadable(lazy(() => import("../pages/admin/product/data/FormAddProduct")))
 const EditProduct = Loadable(lazy(() => import("../pages/admin/product/data/FormEditProduct")))
-const ViewProduct = Loadable(lazy(() => import("../pages/admin/product/data/FormViewProduct")))
 
 const renderRoutes = (role) => {
   const routes = [{
@@ -93,9 +92,8 @@ const renderRoutes = (role) => {
         { path: 'addCatePro', exact: true, element: <AddCatePro /> },
         { path: 'editCatePro/:id', exact: true, element: <EditCatePro /> },
         { path: 'products', exact: true, element: <Product /> },
-        { path: 'editProduct', exact: true, element: <EditProduct /> },
+        { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
-        { path: 'viewProduct/:id', exact: true, element: <ViewProduct /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     })

@@ -82,6 +82,7 @@ function FormAddProduct() {
           cate_pro_id: data.cate_pro_id,
           image_url: downloadURL,
           name: data.name,
+          view: "0",
           price: parseFloat(data.price), // Chuyển đổi chuỗi thành số
           discount: parseFloat(data.discount), // Chuyển đổi chuỗi thành số
           quality: parseInt(data.quality), // Chuyển đổi chuỗi thành số nguyên
@@ -241,12 +242,10 @@ function FormAddProduct() {
             <label className="text-light form-label" style={smallFontStyle}>
               Description
             </label>
-            <textarea
-              className={`form-control bg-dark text-light ${
-                errors.description ? 'is-invalid' : ''
-              }`}
-              {...register('description', { required: 'Description is required' })}
-              style={smallFontStyle}
+            <ReactQuill
+              theme="snow"
+              onChange={(description) => setValue("description", description)}
+              style={{ backgroundColor: '#fff', color: '#000' }}
             />
             {errors.description && (
               <span className="text-danger" style={smallFontStyle}>
