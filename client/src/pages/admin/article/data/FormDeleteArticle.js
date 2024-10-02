@@ -4,9 +4,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import VuiTypography from 'src/components/admin/VuiTypography';
+import VuiTypography from "src/components/admin/VuiTypography";
 
-function ConfirmDialog({ open, onClose, onConfirm, itemTitle }) {
+function ConfirmDialog({ open, onClose, onConfirm, title }) {
   const handleConfirm = () => {
     onConfirm();
     onClose();
@@ -17,7 +17,9 @@ function ConfirmDialog({ open, onClose, onConfirm, itemTitle }) {
       <DialogTitle>Xác nhận xóa</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
+
         Bạn có chắc chắn muốn xóa tiêu đề bài viết không? "{itemTitle}"?
+        Bạn có chắc chắn muốn xóa tiêu đề bài viết không? "{title}"?
         </VuiTypography>
       </DialogContent>
       <DialogActions>
