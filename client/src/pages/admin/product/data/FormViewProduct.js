@@ -10,12 +10,12 @@ import {
   Grid,
   Paper,
 } from "@mui/material";
-import VuiBox from "components/VuiBox";
-import VuiTypography from "components/VuiTypography";
-import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import VuiBox from "../../../../components/admin/VuiBox";
+import VuiTypography from "../../../../components/admin/VuiTypography";
+import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
 import { getDocs, collection, doc, getDoc } from "firebase/firestore";
-import { db } from "../../../config/firebaseconfig";
+import { db } from "../../../../config/firebaseconfig";
 
 function FormViewProduct() {
   const { id } = useParams();
