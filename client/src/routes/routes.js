@@ -5,7 +5,7 @@ import Dashboard from "src/pages/admin/dashboard";
 // import CommentDetail from "layouts/commentDetail";
 // import Category from "layouts/category";
 // import Profile from "layouts/profile";
-import Article from "src/pages/admin/article";
+// import Article from "layouts/article";
 // import User from "layouts/user";
 // import SignIn from "layouts/authentication/sign-in";
 // import SignUp from "layouts/authentication/sign-up";
@@ -14,23 +14,26 @@ import Article from "src/pages/admin/article";
 // import FormEditUser from "layouts/user/data/FormEditUser";
 // import FormDeleteUser from "layouts/user/data/FormDeleteUser";
 
-import Category from "../pages/admin/category";
-import AddCate from "../pages/admin/category/data/FormAddCate";
-import EditCate from "../pages/admin/category/data/FormEditCate";
+// import FormAddCate from "layouts/category/data/FormAddCate";
+// import FormEditCate from "layouts/category/data/FormEditCate";
+// import FormDeleteCate from "layouts/category/data/FormDeleteCate";
 
-import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
-import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
-import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
-// import FormDeleteArticle from "src/pages/admin/article/data/FormDeleteArticle";
+// import FormAddArticle from "layouts/article/data/FormAndArticle";
+// import FormViewArticle from "layouts/article/data/FormViewArticle";
+// import FormEditArticle from "layouts/article/data/FormEditArticle";
+// import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
 
-import FormAddQuestions from "src/pages/admin/questions/data/formAddQuestions";
-import FormViewQuestions from "src/pages/admin/questions/data/FormViewQuestions";
-import FormEditQuestions from "src/pages/admin/questions/data/formEditQuestions";
+// import FormAddQuestions from "layouts/questions/data/formAddQuestions";
+// import FormEditQuestions from "layouts/questions/data/formEditQuestions";
 // import FormDeleteQuestions from "layouts/questions/data/formDeleteQuestions";
 
 // import FormAddCmt from "layouts/commentDetail/data/formComment";
 // import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 // import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
+
+import Category from "../pages/admin/category";
+import AddCate from "../pages/admin/category/data/FormAddCate";
+import EditCate from "../pages/admin/category/data/FormEditCate";
 
 import CategoryPro from "../pages/admin/category_pro";
 import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
@@ -67,7 +70,7 @@ const routes = [
     key: "article",
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
-    component: Article,
+    // component: Article,
     noCollapse: true,
   },
   {
@@ -172,46 +175,40 @@ const routes = [
    {
     key: "formaddquestions",
     route: "/admin/formAddQuestions",
-    component: FormAddQuestions,
+    // component: FormAddQuestions,
     hidden: true,
   },
   {
     key: "formeditquestions",
-    route: "/admin/formviewquestions/:id",
-    component: FormEditQuestions,
+    route: "/admin/formEditQuestions",
+    // component: FormEditQuestions,
     hidden: true, 
   },
-   {
-    key: "formviewquestions",
-    route: "/admin/formViewQuestions",
-    component: FormViewQuestions,
+  {
+    key: "formdeletequestions",
+    route: "/admin/formDeleteQuestions",
+    // component: FormDeleteQuestions,
     hidden: true, // Ẩn mục này
   },
-  // {
-  //   key: "formdeletequestions",
-  //   route: "/admin/formDeleteQuestions",
-  //   component: FormDeleteQuestions,
-  //   hidden: true, // Ẩn mục này
-  // },
   //cate
   {
     key: "formaddcate",
     route: "/admin/formaddcate",
-    component: AddCate,
+    // component: FormAddCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formeditcate",
-    route: "/admin/editCate/:id",
-    component: EditCate,
+    route: "/admin/formeditcate",
+    // component: FormEditCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formdeletecate",
     route: "/admin/formdeletecate",
-    // component: DeleteCate,
+    // component: FormDeleteCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
@@ -236,33 +233,30 @@ const routes = [
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
-  //article
   {
     key: "formeandarticle",
-    route: "/admin/formaddarticle",
-    component: FormAddArticle,
+    route: "/admin/formandarticle",
+    // component: FormAddArticle,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formviewarticle",
     route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
-    component: FormViewArticle,
+    // component: FormViewArticle,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formeditarticle",
-    route: "/admin/formeditarticle",
-    component: FormEditArticle,
+    route: "/admin/formeditArticle",
+    // component: FormEditArticle,
     hidden: true, // Ẩn mục này
   },
-  // {
-  //   key: "formdeletearticle",
-  //   route: "/admin/formdeleteArticle",
-  //   component: FormDeleteArticle,
-  //   hidden: true, // Ẩn mục này
-  // },
-  
- 
+  {
+    key: "formdeletearticle",
+    route: "/admin/formdeleteArticle",
+    // component: FormDeleteArticle,
+    hidden: true, // Ẩn mục này
+  },
   {
     key: "addCatePro",
     route: "/admin/addCatePro",
@@ -292,7 +286,20 @@ const routes = [
     route: '/productDetail/:id',
     component: productDetail,
     hidden: true, // Ẩn mục này
-  }
+  },
+  {
+    key: "addCate",
+    route: "/admin/addCate",
+    component: AddCate,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "editCate",
+    route: "/admin/editCate/:id",
+    component: EditCate,
+    hidden: true, // Ẩn mục này
+  },
+  
 
   // '/productDetail/:id'
 ];
