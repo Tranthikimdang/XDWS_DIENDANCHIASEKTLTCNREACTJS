@@ -1,23 +1,24 @@
 import { useEffect, useState } from 'react';
-import { Grid, Box, Typography, Card, CardContent, CardMedia } from '@mui/material';
+import { Grid, Box, Typography, Card, CardContent, CardMedia, TextField } from '@mui/material';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig'; // Firebase config đã được khởi tạo
 
 const User = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "users")); // Lấy dữ liệu từ collection "users"
+        const querySnapshot = await getDocs(collection(db, 'users')); // Lấy dữ liệu từ collection "users"
         const userList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }));
         setUsers(userList);
       } catch (error) {
-        console.error("Error fetching users: ", error);
+        console.error('Error fetching users: ', error);
       } finally {
         setLoading(false);
       }
@@ -25,6 +26,11 @@ const User = () => {
 
     fetchUsers();
   }, []);
+
+  // Filter users based on search term
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
@@ -35,10 +41,22 @@ const User = () => {
           </Typography>
         </Grid>
 
+        
+      {/* search by name */}
+        <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <TextField
+            label="Search by name"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </Grid>
+
         {loading ? (
           <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
-        ) : (
-          users.map((user) => (
+        ) : filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
             <Grid item xs={12} sm={6} md={4} key={user.id}>
               <Card
                 className="user-card"
@@ -89,6 +107,8 @@ const User = () => {
               </Card>
             </Grid>
           ))
+        ) : (
+          <Typography sx={{ textAlign: 'center', width: '100%' }}>No users found</Typography>
         )}
       </Grid>
     </Box>

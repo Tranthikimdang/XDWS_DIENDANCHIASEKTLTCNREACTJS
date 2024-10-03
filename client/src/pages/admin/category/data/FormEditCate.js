@@ -64,8 +64,10 @@ function FormEditCate() {
       return;
     }
     try {
-      const categoryDocRef = doc(db, "categories", id);
-      await updateDoc(categoryDocRef, { name: formData.name });
+    // Cập nhật danh mục
+    const categoryDocRef = doc(db, 'categories', id);
+    await updateDoc(categoryDocRef, { name: formData.name, updated_at: new Date() });
+
 
       setSnackbarMessage("Cập nhật danh mục thành công.");
       setSnackbarSeverity("success");
