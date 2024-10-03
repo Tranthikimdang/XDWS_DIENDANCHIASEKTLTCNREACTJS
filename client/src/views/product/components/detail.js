@@ -123,7 +123,7 @@ const ProductsDetail = () => {
     <PageContainer title="products" description="This is products">
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
-          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+          <Grid item xs={12} sx={{ marginBottom: { xs: '0', md: '0' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
               Featured products
             </Typography>
@@ -134,59 +134,22 @@ const ProductsDetail = () => {
           </Grid>
 
           {/* Left Column */}
-          <Grid item md={8}>
+          <Grid item md={12}>
             <div class="container">
               <div class="card">
                 <div class="container-fliud">
                   <div class="wrapper row">
                     <div class="preview col-md-6">
-                      <div class="preview-pic tab-content">
-                        <div class="tab-pane active" id="pic-1">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-2">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-3">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-4">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-5">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
+                      <div class="ratio ratio-16x9">
+                        <iframe
+                          src="https://www.youtube.com/embed/vlDzYIIOYmM"
+                          title="YouTube video"
+                          allowfullscreen
+                        ></iframe>
                       </div>
-                      <ul class="preview-thumbnail nav nav-tabs">
-                        <li class="active">
-                          <a data-target="#pic-1" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-2" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-3" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-4" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-5" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                      </ul>
                     </div>
                     <div class="details col-md-6">
-                      <h3 class="product-title">men's shoes fashion</h3>
+                      <h3 class="product-title">Demo ...</h3>
                       <div class="rating">
                         <div class="stars">
                           <span class="fa fa-star checked"></span>
@@ -208,65 +171,20 @@ const ProductsDetail = () => {
                         <strong>91%</strong> of buyers enjoyed this product!{' '}
                         <strong>(87 votes)</strong>
                       </p>
-                      <h5 class="sizes">
-                        sizes:
-                        <span class="size" data-toggle="tooltip" title="small">
-                          s
-                        </span>
-                        <span class="size" data-toggle="tooltip" title="medium">
-                          m
-                        </span>
-                        <span class="size" data-toggle="tooltip" title="large">
-                          l
-                        </span>
-                        <span class="size" data-toggle="tooltip" title="xtra large">
-                          xl
-                        </span>
-                      </h5>
-                      <h5 class="colors">
-                        colors:
-                        <span
-                          class="color orange not-available"
-                          data-toggle="tooltip"
-                          title="Not In store"
-                        ></span>
-                        <span class="color green"></span>
-                        <span class="color blue"></span>
-                      </h5>
                       <div class="action">
-                        <button class="add-to-cart btn btn-default" type="button">
-                          add to cart
-                        </button>
-                        <button class="like btn btn-default" type="button">
-                          <span class="fa fa-heart"></span>
-                        </button>
+                        <div className="d-flex flex-column mt-4">
+                          <button className="btn btn-primary btn-sm" type="button">
+                            Mua ngay
+                          </button>
+                          <button className="btn btn-outline-primary btn-sm mt-2" type="button">
+                            Thêm vào giỏ hàng
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </Grid>
-
-          {/* Right Column */}
-          <Grid item md={4}>
-            <div className="sidebar">
-              <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Browse by Category
-              </Typography>
-              {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <ul className="category-list">
-                  {cates.map((cate) => (
-                    <li key={cate?.id} className="category-item">
-                      <strong>{cate?.name}</strong>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
           </Grid>
         </Grid>
