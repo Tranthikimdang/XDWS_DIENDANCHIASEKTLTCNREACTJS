@@ -20,6 +20,9 @@ const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
 const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')));
 const ProductClient = Loadable(lazy(() => import('../views/product/index')));
+const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
+const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
+
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -106,6 +109,23 @@ const renderRoutes = (role) => {
       path: '/',
       element: <FullLayout />,
       children: userRoutes,
+      children: [
+        { path: '/', element: <Navigate to="/home" /> },
+        { path: '/home', exact: true, element: <Dashboard /> },
+        { path: '/article', exact: true, element: <Article /> },
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
+        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/sample-page', exact: true, element: <SamplePage /> },
+        { path: '/icons', exact: true, element: <Icons /> },
+        { path: '/ui/typography', exact: true, element: <TypographyPage /> },
+        { path: '/ui/shadow', exact: true, element: <Shadow /> },
+        { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
+        { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/products', exact: true, element: <ProductClient /> },
+        { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
+        { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
+        // { path: '*', element: <Navigate to="/auth/404" /> },
+      ],
     });
     routes.push({
       path: '/admin',
@@ -117,6 +137,47 @@ const renderRoutes = (role) => {
       path: '/',
       element: <FullLayout />,
       children: userRoutes,
+      children: [
+        { path: '/', element: <Navigate to="/home" /> },
+        { path: '/home', exact: true, element: <Dashboard /> },
+        { path: '/article', exact: true, element: <Article /> },
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
+        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/sample-page', exact: true, element: <SamplePage /> },
+        { path: '/icons', exact: true, element: <Icons /> },
+        { path: '/ui/typography', exact: true, element: <TypographyPage /> },
+        { path: '/ui/shadow', exact: true, element: <Shadow /> },
+        { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
+        { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/products', exact: true, element: <ProductClient /> },
+        { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
+        { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
+
+        // { path: '*', element: <Navigate to="/auth/404" /> },
+      ],
+    });
+  } else {
+    routes.push({
+      path: '/',
+      element: <FullLayout />,
+      children: [
+        { path: '/', element: <Navigate to="/home" /> },
+        { path: '/home', exact: true, element: <Dashboard /> },
+        { path: '/article', exact: true, element: <Article /> },
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
+        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/sample-page', exact: true, element: <SamplePage /> },
+        { path: '/icons', exact: true, element: <Icons /> },
+        { path: '/ui/typography', exact: true, element: <TypographyPage /> },
+        { path: '/ui/shadow', exact: true, element: <Shadow /> },
+        { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
+        { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/products', exact: true, element: <ProductClient /> },
+        { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
+        { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
+
+        // { path: '*', element: <Navigate to="/auth/404" /> },
+      ],
     });
   }
 

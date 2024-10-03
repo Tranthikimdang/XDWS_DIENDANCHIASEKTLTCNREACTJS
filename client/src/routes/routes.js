@@ -38,6 +38,7 @@ import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
 import Products from "src/pages/admin/product";
 import AddProduct from "../pages/admin/product/data/FormAddProduct";
 import EditProduct from "../pages/admin/product/data/FormEditProduct";
+import productDetail from "../views/product/components/detail"
 
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
@@ -278,7 +279,15 @@ const routes = [
     route: "/admin/editProduct/:id",
     component: EditProduct,
     hidden: true, // Ẩn mục này
+  },
+  {
+    key: "editProduct",
+    route: '/productDetail/:id',
+    component: productDetail,
+    hidden: true, // Ẩn mục này
   }
+
+  // '/productDetail/:id'
 ];
 
 export default routes;
