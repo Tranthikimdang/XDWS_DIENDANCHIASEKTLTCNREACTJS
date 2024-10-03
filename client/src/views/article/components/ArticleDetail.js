@@ -9,8 +9,8 @@ import CardMedia from '@mui/material/CardMedia';
 import ReplyIcon from '@mui/icons-material/Reply';
 import './style.css';
 // Firebase
-import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore'; 
-import { db } from '../../../config/firebaseconfig'; 
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../../config/firebaseconfig';
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -24,7 +24,7 @@ const ArticleDetail = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const docRef = doc(db, 'articles', id); 
+        const docRef = doc(db, 'articles', id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -124,14 +124,24 @@ const ArticleDetail = () => {
           <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
             {article.title}
           </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+          <Box display="flex" alignItems="center" mb={2}>
+            <img
+              src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+              width="40px"
+              alt="User Avatar"
+              style={{ borderRadius: '50%', marginRight: '10px' }}
+            /> <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
+              {users?.find(u => article?.user_id === u.id)?.name || "Unknown"}
+            </Typography>
+
+          </Box>
+
+          {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
             <Avatar alt="Author Name" src="https://via.placeholder.com/150" sx={{ width: 40, height: 40 }} />
             <Box sx={{ marginLeft: '10px' }}>
-              <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
-                {users?.find(u => article?.user_id === u.id)?.name || "Unknown"}
-              </Typography>
+             
             </Box>
-          </Box>
+          </Box> */}
 
           <Divider sx={{ marginBottom: '20px' }} />
 

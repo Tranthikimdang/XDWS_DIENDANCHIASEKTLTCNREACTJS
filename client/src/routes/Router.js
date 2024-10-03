@@ -35,7 +35,12 @@ const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDet
 const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')))
 const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
+
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
+const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
+const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
+const FormViewQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/FormViewQuestions')))
+
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')))
 
 const CategoryPro = Loadable(lazy(() => import("../pages/admin/category_pro")))
@@ -84,12 +89,15 @@ const renderRoutes = (role) => {
         { path: 'dashboard', element: <DashboardAdmin/> },
         { path: 'article', exact: true, element: <ArticleAdmin/> },
         { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
-        { path: 'formeditarticle', exact: true, element: <FormEditArticle/> },
+        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle/> },
         { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
+        { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
+        { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
+        { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },

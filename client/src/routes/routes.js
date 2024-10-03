@@ -23,8 +23,9 @@ import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
 import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
 // import FormDeleteArticle from "src/pages/admin/article/data/FormDeleteArticle";
 
-// import FormAddQuestions from "layouts/questions/data/formAddQuestions";
-// import FormEditQuestions from "layouts/questions/data/formEditQuestions";
+import FormAddQuestions from "src/pages/admin/questions/data/formAddQuestions";
+import FormViewQuestions from "src/pages/admin/questions/data/FormViewQuestions";
+import FormEditQuestions from "src/pages/admin/questions/data/formEditQuestions";
 // import FormDeleteQuestions from "layouts/questions/data/formDeleteQuestions";
 
 // import FormAddCmt from "layouts/commentDetail/data/formComment";
@@ -157,21 +158,27 @@ const routes = [
    {
     key: "formaddquestions",
     route: "/admin/formAddQuestions",
-    // component: FormAddQuestions,
+    component: FormAddQuestions,
     hidden: true,
   },
   {
     key: "formeditquestions",
-    route: "/admin/formEditQuestions",
-    // component: FormEditQuestions,
+    route: "/admin/formviewquestions/:id",
+    component: FormEditQuestions,
     hidden: true, 
   },
-  {
-    key: "formdeletequestions",
-    route: "/admin/formDeleteQuestions",
-    // component: FormDeleteQuestions,
+   {
+    key: "formviewquestions",
+    route: "/admin/formViewQuestions",
+    component: FormViewQuestions,
     hidden: true, // Ẩn mục này
   },
+  // {
+  //   key: "formdeletequestions",
+  //   route: "/admin/formDeleteQuestions",
+  //   component: FormDeleteQuestions,
+  //   hidden: true, // Ẩn mục này
+  // },
   //cate
   {
     key: "formaddcate",
