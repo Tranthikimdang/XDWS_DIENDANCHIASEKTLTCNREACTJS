@@ -37,9 +37,8 @@ const Article = () => {
   };
 
   const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`);
+    navigate(`/article/${articleId}` , { state: { id: articleId }});
   };
-
   // Fetch articles from Firestore
   useEffect(() => {
     const fetchArticles = async () => {
@@ -109,7 +108,6 @@ const Article = () => {
     { icon: <LinkIcon />, text: 'Copy Link' },
     { icon: <FlagIcon />, text: 'Report Article' },
   ];
-
   const removeSpecificHtmlTags = (html, tag) => {
     const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
     return html?.replace(regex, '');

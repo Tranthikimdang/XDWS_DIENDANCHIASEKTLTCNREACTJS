@@ -14,10 +14,10 @@ function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Confirm Delete</DialogTitle>
+      <DialogTitle>Xác Nhận Xóa</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
-          Are you sure you want to delete item {itemId}?
+         Bạn có chắc chắn muốn xóa không{itemId}?
         </VuiTypography>
       </DialogContent>
       <DialogActions>
@@ -26,14 +26,14 @@ function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
           sx={{ color: 'error.main', borderColor: 'error.main', '&:hover': { borderColor: 'error.dark' } }}
           variant="outlined"
         >
-          Cancel
+          Hủy
         </Button>
         <Button
           onClick={handleConfirm}
           sx={{ color: 'success.main', borderColor: 'success.main', '&:hover': { borderColor: 'success.dark' } }}
           variant="outlined"
         >
-          Confirm
+          Xác nhận
         </Button>
       </DialogActions>
     </Dialog>

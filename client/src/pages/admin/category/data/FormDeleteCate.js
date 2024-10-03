@@ -5,6 +5,8 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import VuiTypography from 'src/components/admin/VuiTypography';
+import   { db, storage } from "../../../../config/firebaseconfig";
+
 
 function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
   const handleConfirm = () => {
@@ -14,10 +16,10 @@ function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Confirm Delete</DialogTitle>
+      <DialogTitle>Xác Nhận Xóa</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
-          Are you sure you want to delete item {itemId}?
+        Bạn có chắc chắn muốn xóa mục không? {itemId}?
         </VuiTypography>
       </DialogContent>
       <DialogActions>
@@ -26,53 +28,19 @@ function ConfirmDialog({ open, onClose, onConfirm, itemId }) {
           sx={{ color: 'error.main', borderColor: 'error.main', '&:hover': { borderColor: 'error.dark' } }}
           variant="outlined"
         >
-          Cancel
+         Hủy
         </Button>
         <Button
           onClick={handleConfirm}
           sx={{ color: 'success.main', borderColor: 'success.main', '&:hover': { borderColor: 'success.dark' } }}
           variant="outlined"
         >
-          Confirm
+         Xác Nhận
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
 
-
-// function ConfirmDialog({ open, onClose, onConfirm, itemName }) {
-//   const handleConfirm = () => {
-//     onConfirm();
-//     onClose();
-//   };
-
-//   return (
-//     <Dialog open={open} onClose={onClose}>
-//       <DialogTitle>Confirm Delete</DialogTitle>
-//       <DialogContent>
-//         <VuiTypography variant="body2">
-//           Are you sure you want to delete the post title "{itemName}"?
-//         </VuiTypography>
-//       </DialogContent>
-//       <DialogActions>
-//         <Button
-//           onClick={onClose}
-//           sx={{ color: 'error.main', borderColor: 'error.main', '&:hover': { borderColor: 'error.dark' } }}
-//           variant="outlined"
-//         >
-//           Cancel
-//         </Button>
-//         <Button
-//           onClick={handleConfirm}
-//           sx={{ color: 'success.main', borderColor: 'success.main', '&:hover': { borderColor: 'success.dark' } }}
-//           variant="outlined"
-//         >
-//           Confirm
-//         </Button>
-//       </DialogActions>
-//     </Dialog>
-//   );
-// }
 
 export default ConfirmDialog;

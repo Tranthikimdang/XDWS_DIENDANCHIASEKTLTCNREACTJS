@@ -1,7 +1,6 @@
 import {
   IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers, IconBrandYoutube
 } from '@tabler/icons';
-
 import { uniqueId } from 'lodash';
 
 const Menuitems = [
@@ -33,6 +32,7 @@ const Menuitems = [
     icon: IconUsers,
     href: '/user', 
   },
+  // Uncomment and add other items as needed
   // {
   //   navlabel: true,
   //   subheader: 'Auth',
