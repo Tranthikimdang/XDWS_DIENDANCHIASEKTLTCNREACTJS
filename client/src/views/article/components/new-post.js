@@ -68,7 +68,7 @@ function Newpost() {
         title: data.title,
         content: data.content,
         view: data.view || 0,
-        status: '0', 
+        isApproved: '0', 
         created_at: new Date(),
         is_deleted: data.is_deleted || false,
         updated_at: new Date(),

@@ -19,7 +19,7 @@ import { collection, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
 
-function Article() {
+function Questions() {
   const { columns } = authorsArticleData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
@@ -163,9 +163,9 @@ function Article() {
   const handleApprove = async (id) => {
     try {
       const articleRef = doc(db, "articles", id); // Tạo DocumentReference
-      await updateDoc(articleRef, { status: 1 }); // Cập nhật trường status thành 1
+      await updateDoc(articleRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
       // Cập nhật lại danh sách bài viết
-      setRows(rows.map(row => (row.id === id ? { ...row, status: 1 } : row)));
+      setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
       setSnackbarMessage("Article approved successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -290,7 +290,7 @@ function Article() {
                             </div>
                           </div>
                         ),
-                        Author: (
+                        author: (
                           <VuiBox>
                             <VuiTypography variant="button" color="white" fontWeight="medium">
                               {authorName}
@@ -327,7 +327,7 @@ function Article() {
                                 </button>
                               </Tooltip>
                             </Link>
-                            <Link to={{ pathname: "/admin/formeditarticle", state: { data: row } }}>
+                            <Link  to={`/admin/formeditarticle/${row.id}`}>
                               <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
@@ -359,7 +359,7 @@ function Article() {
                                 </svg>
                               </button>
                             </Tooltip>
-                            {row.status == 0 && (
+                            {row.isApproved == 0 && (
                               <>
                                 <Tooltip title="Duyệt bài viết" placement="top">
                                   <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
@@ -424,4 +424,4 @@ function Article() {
   );
 }
 
-export default Article;
+export default Questions;
