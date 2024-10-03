@@ -43,6 +43,9 @@ const EditCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data
 const Product = Loadable(lazy(() => import('../pages/admin/product')));
 const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormAddProduct')));
 const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
+const Category = Loadable(lazy(() => import('../pages/admin/category')));
+const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
+const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
 
 const renderRoutes = (role) => {
   const routes = [
@@ -93,6 +96,9 @@ const renderRoutes = (role) => {
     { path: 'products', exact: true, element: <Product /> },
     { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
     { path: 'addProduct', exact: true, element: <AddProduct /> },
+    { path: 'category', exact: true, element: <Category /> },
+    { path: 'addCate', exact: true, element: <AddCate /> },
+    { path: 'editCate/:id', exact: true, element: <EditCate /> },
   ];
 
   if (role === 'admin') {

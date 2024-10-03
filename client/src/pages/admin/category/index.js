@@ -346,6 +346,35 @@ function Category() {
   const filteredRows = rows.filter((row) =>
     row.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  // update
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+  
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+  
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+  
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+  
+    return updatedAtString;
+  };
 
   return (
     <DashboardLayout>
@@ -418,6 +447,8 @@ function Category() {
                     rows={filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
                       no: page * rowsPerPage + index + 1,
                       name: row.name,
+                      updated_at: formatUpdatedAt(row.updated_at),
+
                       action: (
                         <div>
                           <Link to={`/admin/editCate/${row.id}`}>

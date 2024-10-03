@@ -1,15 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
+import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
 import { useForm } from 'react-hook-form';
-// import api from '../../../apis/categoriesApi';
 import { Snackbar, Alert } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
-import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
+import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import   { db, storage } from "../../../../config/firebaseconfig";
-
+import   { db, storage } from "../../../../config/firebaseconfig.js";
 
 
 function FormAddCate() {
@@ -44,8 +41,8 @@ function FormAddCate() {
     
     if (isNameExists) {
       // Set error for duplicate category name with smaller font style
-      setError("name", { type: "manual", message: "Tên danh mục đã tồn tại." });
-      setSnackbarMessage("Tên danh mục đã tồn tại.");
+      setError("name", { type: "manual", message: "Category name already exists." });
+      setSnackbarMessage("Category name already exists.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;
@@ -53,7 +50,9 @@ function FormAddCate() {
 
     try {
       const docRef = await addDoc(collection(db, "categories"), {
-        name: data.name,  // Using data.name from form
+        name: data.name,  
+        created_at: new Date(),
+        updated_at: new Date(),
       });
       console.log("Document written with ID: ", docRef.id);
 
@@ -94,10 +93,10 @@ function FormAddCate() {
             />
             {/* Error message for required and minLength validations */}
             {errors.name && errors.name.type === 'required' && (
-              <span className='text-danger' style={smallFontStyle}>Tên là bắt buộc</span>
+              <span className='text-danger' style={smallFontStyle}>Name is required</span>
             )}
             {errors.name && errors.name.type === 'minLength' && (
-              <span className='text-danger' style={smallFontStyle}>Tên phải dài ít nhất 3 ký tự</span>
+              <span className='text-danger' style={smallFontStyle}>Name must be at least 3 characters long</span>
             )}
             {/* Error message for duplicate category name */}
             {errors.name && errors.name.type === 'manual' && (
@@ -106,8 +105,8 @@ function FormAddCate() {
           </div>
           
           <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Thêm Danh Mục</button>
-            <Link to="/admin/category" className='btn btn-outline-light ms-3'>Quay lại</Link>
+            <button className='text-light btn btn-outline-info' type="submit">Add</button>
+            <Link to="/admin/category" className='btn btn-outline-light ms-3'>Back</Link>
           </div>
         </form>
       </div>
