@@ -18,7 +18,7 @@ function ConfirmDialog({ open, onClose, onConfirm, title }) {
       <DialogContent>
         <VuiTypography variant="body2">
 
-        Bạn có chắc chắn muốn xóa tiêu đề bài viết không? "{itemTitle}"?
+        {/* Bạn có chắc chắn muốn xóa tiêu đề bài viết không? "{itemTitle}"? */}
         Bạn có chắc chắn muốn xóa tiêu đề bài viết không? "{title}"?
         </VuiTypography>
       </DialogContent>
