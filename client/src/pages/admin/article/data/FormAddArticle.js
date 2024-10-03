@@ -1,38 +1,39 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, TextField, Button, Snackbar, Alert } from '@mui/material';
-import PageContainer from 'src/components/container/PageContainer';
-import { Editor } from "@tinymce/tinymce-react";
-import { useNavigate } from 'react-router-dom';
+import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { Snackbar, Alert } from "@mui/material";
+import { Editor } from "@tinymce/tinymce-react";
 import { ClipLoader } from "react-spinners";
-// firebase
+// import firebase
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from '../../../config/firebaseconfig.js';
+import { db, storage } from '../../../../config/firebaseconfig';
 
-function Newpost() {
+function FormAndArticle() {
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const navigate = useNavigate();
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [cates, setCates] = useState([]);
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Lấy thông tin người dùng từ localStorage
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
       setUser(user);
     }
-    console.log(user);
   }, []);
 
   // Lấy danh sách categories từ Firestore
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
-      try{
+      try {
         const querySnapshot = await getDocs(collection(db, "categories"));
         const categoriesList = querySnapshot.docs.map(doc => ({
           id: doc.id,
@@ -48,6 +49,14 @@ function Newpost() {
 
     fetchCategories();
   }, []);
+
+  // Tích hợp highlight.js để highlight code trong bài viết
+  useEffect(() => {
+    document.querySelectorAll("pre").forEach((block) => {
+      // eslint-disable-next-line no-undef
+      hljs.highlightElement(block);
+    });
+  });
 
   // Xử lý logic khi submit form
   const onSubmit = async (data) => {
@@ -66,18 +75,17 @@ function Newpost() {
         image: downloadURL,
         categories_id: data.categories_id,
         title: data.title,
-        content: data.content,
-        view: data.view || 0,
+        content: data.content, // Nội dung bao gồm mã code và hình ảnh
+        view: data.view || 0, // Mặc định view = 0 nếu không cung cấp
         isApproved: '0', 
-        created_at: new Date(),
-        is_deleted: data.is_deleted || false,
-        updated_at: new Date(),
+        created_at: new Date(), // Thời gian tạo
+        is_deleted: data.is_deleted || false, // Mặc định là false nếu không cung cấp
+        updated_at: new Date(), // Thời gian cập nhật
       });
-
-      setSnackbarMessage("Bài viết của bạn đã được gửi, đang chờ quản trị viên phê duyệt.");
+      setSnackbarMessage("Article added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => navigate('/article'), 500);
+      setTimeout(() => navigate('/admin/article'), 500);
     } catch (error) {
       console.error("Error adding article:", error.message);
       setSnackbarMessage("Failed to add article. Please try again.");
@@ -93,11 +101,16 @@ function Newpost() {
     setSnackbarOpen(false);
   };
 
-  return (
-    <PageContainer title="Article" description="This is Article">
+  const smallFontStyle = {
+    fontSize: '0.9rem'
+  };
 
-      <Box sx={{ padding: { xs: '10px', md: '20px' } }}>
-      {loading ? (
+
+  return (
+    <DashboardLayout>
+      <DashboardNavbar />
+      <div className='container'>
+        {loading ? (
           <div
             style={{
               display: 'flex',
@@ -110,38 +123,77 @@ function Newpost() {
           </div>
         ) : (
           <>
-        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
-          <Grid container spacing={3}>
-            {/* Title Input */}
-        
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                placeholder="Tiêu đề"
-                variant="standard"
-                {...register('title', { required: 'Title is required', minLength: 3 })}
-                InputProps={{
-                  disableUnderline: true,
-                  style: {
-                    fontSize: '2rem',
-                    fontWeight: 'bold',
-                  },
-                }}
-                sx={{
-                  '& .MuiInputBase-root': {
-                    padding: 0,
-                  },
-                }}
-                error={!!errors.title}
-                helperText={errors.title && (errors.title.type === 'minLength' 
-                  ? "Title must be at least 3 characters long" 
-                  : errors.title.message)}
-              />
-            </Grid>
 
-            {/* Content Editor */}
-            <Grid item xs={12}>
-            <Editor
+            <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+              <div className="row">
+                <div className='col-6 mb-3'>
+                  <label className='text-light form-label' style={smallFontStyle}>Name</label>
+                  <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name || ''} readOnly />
+                </div>
+                <div className='col-6 mb-3'>
+                  <label className='text-light form-label' style={smallFontStyle}>Title</label>
+                  <input
+                    className={`form-control bg-dark text-light ${errors.title ? 'is-invalid' : ''}`}
+                    {...register('title', {
+                      required: 'Title is required', // Bắt lỗi tiêu đề bắt buộc
+                      minLength: {
+                        value: 5,
+                        message: 'Title must be at least 5 characters' // Độ dài tối thiểu
+                      },
+                      maxLength: {
+                        value: 100,
+                        message: 'Title cannot exceed 100 characters' // Độ dài tối đa
+                      },
+                      pattern: {
+                        value: /^[a-zA-Z0-9 ]+$/, // Regex để kiểm tra ký tự hợp lệ (chỉ cho phép chữ cái và số)
+                        message: 'Title can only contain letters and numbers' // Thông báo lỗi ký tự không hợp lệ
+                      }
+                    })}
+                    style={smallFontStyle}
+                  />
+                  {/* Hiển thị lỗi nếu có */}
+                  {errors.title && <span className="text-danger" style={smallFontStyle}>{errors.title.message}</span>}
+                </div>
+
+              </div>
+              <div className="row">
+                <div className='col-6 mb-3'>
+                  <label className='text-light form-label' style={smallFontStyle}>Image</label>
+                  <input
+                    className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+                    type='file'
+                    {...register('image', { required: 'Image is required' })}
+                  />
+                  {errors.image && <div className='invalid-feedback' style={smallFontStyle}>
+                    {errors.image.message}
+                  </div>}
+                </div>
+                <div className="col-6 mb-3">
+                  <label className="text-light form-label" style={smallFontStyle}>
+                    Category
+                  </label>
+                  <select
+                    className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
+                    style={smallFontStyle}
+                    {...register("categories_id", { required: "Category is required" })}
+                  >
+                    <option style={smallFontStyle} value="">
+                      Open this select menu
+                    </option>
+                    {cates.map((cate) => (
+                      <option style={smallFontStyle} key={cate.id} value={cate.id}>
+                        {cate.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
+                </div>
+              </div>
+              <div className="mb-3">
+                <label className="text-light form-label" style={smallFontStyle}>
+                  Content
+                </label>
+                <Editor
                   apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
                   init={{
                     height: 500,
@@ -199,84 +251,36 @@ function Newpost() {
                   }}
                   onEditorChange={(content) => setValue("content", content)}
                 />
-              {errors.content && (
-                <span className="text-danger">
-                  {errors.content.message}
-                </span>
-              )}
-            </Grid>
-
-            {/* Image Upload and Category Selection */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                type="file"
-                fullWidth
-                {...register('image', { required: 'Image is required' })}
-                error={!!errors.image}
-                helperText={errors.image && errors.image.message}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                select
-                fullWidth
-                {...register('categories_id', { required: 'Category is required' })}
-                SelectProps={{
-                  native: true,
-                }}
-                error={!!errors.categories_id}
-                helperText={errors.categories_id && errors.categories_id.message}
-              >
-                <option value="">
-                  Select a category
-                </option>
-                {cates.map((cate) => (
-                  <option key={cate.id} value={cate.id}>
-                    {cate.name}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-
-            {/* Buttons for Publish and Back */}
-            <Grid item xs={12}>
-              <Box display="flex" justifyContent="space-between" mt={3}>
-               
-                <Button 
-                  variant="outlined" 
-                  color="secondary" 
-                  onClick={() => navigate('/article')}
-                >
-                  Back
-                </Button>
-                 <Button 
-                  variant="contained" 
-                  color="primary" 
-                  type="submit"
-                >
-                  Add Article
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-          
-        </form>
-        </>
+                {errors.content && (
+                  <span className="text-danger" style={smallFontStyle}>
+                    {errors.content.message}
+                  </span>
+                )}
+              </div>
+              <div className="d-flex justify-content mt-3">
+                <button className="btn btn-primary mx-2" type="submit">
+                  Thêm bài viết
+                </button>
+                <button className="btn btn-outline-secondary" type="button" onClick={() => navigate("/admin/article")}>Trở lại</button>
+              </div>
+              </form>
+      </>
     )}
-      </Box>
+      {/* Make sure the div wrapping the form is properly closed */}
+      </div> 
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={8000}
+        autoHideDuration={300}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </PageContainer>
+    </DashboardLayout>
   );
-};
+}
 
-export default Newpost;
+
+export default FormAndArticle;

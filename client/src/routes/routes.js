@@ -5,7 +5,7 @@ import Dashboard from "src/pages/admin/dashboard";
 // import CommentDetail from "layouts/commentDetail";
 // import Category from "layouts/category";
 // import Profile from "layouts/profile";
-// import Article from "layouts/article";
+import Article from "src/pages/admin/article";
 // import User from "layouts/user";
 // import SignIn from "layouts/authentication/sign-in";
 // import SignUp from "layouts/authentication/sign-up";
@@ -18,13 +18,14 @@ import Dashboard from "src/pages/admin/dashboard";
 // import FormEditCate from "layouts/category/data/FormEditCate";
 // import FormDeleteCate from "layouts/category/data/FormDeleteCate";
 
-// import FormAddArticle from "layouts/article/data/FormAndArticle";
-// import FormViewArticle from "layouts/article/data/FormViewArticle";
-// import FormEditArticle from "layouts/article/data/FormEditArticle";
-// import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
+import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
+import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
+import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+// import FormDeleteArticle from "src/pages/admin/article/data/FormDeleteArticle";
 
-// import FormAddQuestions from "layouts/questions/data/formAddQuestions";
-// import FormEditQuestions from "layouts/questions/data/formEditQuestions";
+import FormAddQuestions from "src/pages/admin/questions/data/formAddQuestions";
+import FormViewQuestions from "src/pages/admin/questions/data/FormViewQuestions";
+import FormEditQuestions from "src/pages/admin/questions/data/formEditQuestions";
 // import FormDeleteQuestions from "layouts/questions/data/formDeleteQuestions";
 
 // import FormAddCmt from "layouts/commentDetail/data/formComment";
@@ -66,7 +67,7 @@ const routes = [
     key: "article",
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
-    // component: Article,
+    component: Article,
     noCollapse: true,
   },
   {
@@ -171,21 +172,27 @@ const routes = [
    {
     key: "formaddquestions",
     route: "/admin/formAddQuestions",
-    // component: FormAddQuestions,
+    component: FormAddQuestions,
     hidden: true,
   },
   {
     key: "formeditquestions",
-    route: "/admin/formEditQuestions",
-    // component: FormEditQuestions,
+    route: "/admin/formviewquestions/:id",
+    component: FormEditQuestions,
     hidden: true, 
   },
-  {
-    key: "formdeletequestions",
-    route: "/admin/formDeleteQuestions",
-    // component: FormDeleteQuestions,
+   {
+    key: "formviewquestions",
+    route: "/admin/formViewQuestions",
+    component: FormViewQuestions,
     hidden: true, // Ẩn mục này
   },
+  // {
+  //   key: "formdeletequestions",
+  //   route: "/admin/formDeleteQuestions",
+  //   component: FormDeleteQuestions,
+  //   hidden: true, // Ẩn mục này
+  // },
   //cate
   {
     key: "formaddcate",
@@ -229,30 +236,33 @@ const routes = [
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
+  //article
   {
     key: "formeandarticle",
-    route: "/admin/formandarticle",
-    // component: FormAddArticle,
+    route: "/admin/formaddarticle",
+    component: FormAddArticle,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formviewarticle",
     route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
-    // component: FormViewArticle,
+    component: FormViewArticle,
     hidden: true, // Ẩn mục này
   },
   {
     key: "formeditarticle",
-    route: "/admin/formeditArticle",
-    // component: FormEditArticle,
+    route: "/admin/formeditarticle",
+    component: FormEditArticle,
     hidden: true, // Ẩn mục này
   },
-  {
-    key: "formdeletearticle",
-    route: "/admin/formdeleteArticle",
-    // component: FormDeleteArticle,
-    hidden: true, // Ẩn mục này
-  },
+  // {
+  //   key: "formdeletearticle",
+  //   route: "/admin/formdeleteArticle",
+  //   component: FormDeleteArticle,
+  //   hidden: true, // Ẩn mục này
+  // },
+  
+ 
   {
     key: "addCatePro",
     route: "/admin/addCatePro",

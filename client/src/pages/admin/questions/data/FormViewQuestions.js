@@ -19,10 +19,10 @@ import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import { db } from '../../../../config/firebaseconfig';
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 
-function FormViewArticle() {
+function FormViewQuestions() {
   const { id } = useParams(); // Lấy ID của bài viết từ URL
   const navigate = useNavigate();
-  const [article, setArticle] = useState(null); // Trạng thái cho bài viết
+  const [questions, setQuestions] = useState(null); // Trạng thái cho bài viết
   const [loading, setLoading] = useState(true); // Trạng thái cho spinner
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Trạng thái cho Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Thông điệp của Snackbar
@@ -52,12 +52,12 @@ function FormViewArticle() {
 
      // Lấy chi tiết bài viết từ Firestore
   useEffect(() => {
-    const fetchArticleDetails = async () => {
+    const fetchQuestionsDetails = async () => {
       try {
-        const articleDocRef = doc(db, "articles", id);
-        const articleSnapshot = await getDoc(articleDocRef);
-        if (articleSnapshot.exists()) {
-          setArticle(articleSnapshot.data());
+        const questionsDocRef = doc(db, "questions", id);
+        const questionsSnapshot = await getDoc(questionsDocRef);
+        if (questionsSnapshot.exists()) {
+          setQuestions(questionsSnapshot.data());
         } else {
           setSnackbarMessage("Không tìm thấy bài viết.");
           setSnackbarSeverity("error");
@@ -74,7 +74,7 @@ function FormViewArticle() {
     };
 
     if (id) {
-      fetchArticleDetails();
+      fetchQuestionsDetails();
     }
   }, [id]);
   // Fetch categories from Firestore
@@ -133,7 +133,7 @@ useEffect(() => {
                 >
                   <CircularProgress color="primary" size={60} />
                 </Box>
-              ) : article ? (
+              ) : questions ? (
                 <Paper elevation={3} style={{
                   padding: "24px",
                   borderRadius: "12px",
@@ -141,10 +141,10 @@ useEffect(() => {
                 }}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
-                      {article.image && (
+                      {questions.image && (
                         <img
-                          src={article.image} 
-                          alt={article.title}
+                          src={questions.image} 
+                          alt={questions.title}
                           style={{
                             width: "100%",
                             maxHeight: "300px",
@@ -157,19 +157,19 @@ useEffect(() => {
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
-                      <strong>Tiêu đề: </strong>{article.title}
+                      <strong>Tiêu đề: </strong>{questions.title}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                        <strong>Thể loại bài viết: </strong>  {cates[article.categories_id] || 'không có danh mục'}
+                        <strong>Thể loại bài viết: </strong>  {cates[questions.categories_id] || 'không có danh mục'}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" style={smallFontStyle}>
-                      <strong>Tác giả: </strong>  {users?.filter(u => article?.user_id === u.id)?.[0]?.name}
+                      <strong>Tác giả: </strong>  {users?.filter(u => questions?.user_id === u.id)?.[0]?.name}
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: "30px" }}>
                       <VuiTypography variant="body1" paragraph style={smallFontStyle}>
                         <strong>Nội dung: </strong>
-                        <div dangerouslySetInnerHTML={{ __html: article.content }}></div>
+                        <div dangerouslySetInnerHTML={{ __html: questions.content }}></div>
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12}>
@@ -177,7 +177,7 @@ useEffect(() => {
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={() => navigate("/admin/article")}
+                          onClick={() => navigate("/admin/questions")}
                           startIcon={
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-return-left" viewBox="0 0 16 16">
                               <path fillRule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
@@ -217,4 +217,4 @@ useEffect(() => {
   );
 }
 
-export default FormViewArticle;
+export default FormViewQuestions;

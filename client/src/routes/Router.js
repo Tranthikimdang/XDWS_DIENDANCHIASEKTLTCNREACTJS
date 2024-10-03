@@ -10,6 +10,16 @@ const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
 const AdminLayout = Loadable(lazy(() => import('../layouts/admin')));
 /* ****Pages***** */
+// <<<<<<< HEAD
+// const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')))
+// const Article = Loadable(lazy(() => import('../views/article/Article')))
+// const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))) 
+// const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))) 
+// const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')))
+// const Icons = Loadable(lazy(() => import('../views/icons/Icons')))
+// const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')))
+// const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')))
+// =======
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
@@ -22,19 +32,41 @@ const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
 
+
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const UserList = Loadable(lazy(() => import('../views/User/User'))); // Import the UserList component
 
-const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
-const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
-const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')));
-const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')));
-const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')));
-const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')));
-const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')));
-const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
+
+const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')))
+
+const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')))
+const FormAddArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormAddArticle')))
+const FormEditArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormEditArticle')))
+const FormViewArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormViewArticle')))
+
+const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')))
+const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')))
+const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
+const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
+
+const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
+const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
+const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
+const FormViewQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/FormViewQuestions')))
+
+const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')))
+// =======
+// const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
+// const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
+// const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')));
+// const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')));
+// const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')));
+// const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')));
+// const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')));
+// const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
+// >>>>>>> origin/phinhpc05786
 
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
 const AddCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormAddCate')));
@@ -87,12 +119,18 @@ const renderRoutes = (role) => {
       path: '/admin',
       element: <AdminLayout />,
       children: [
-        { path: 'dashboard', element: <DashboardAdmin /> },
-        { path: 'article', exact: true, element: <ArticleAdmin /> },
+        { path: 'dashboard', element: <DashboardAdmin/> },
+        { path: 'article', exact: true, element: <ArticleAdmin/> },
+        { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
+        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle/> },
+        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
+        { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
+        { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
+        { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
