@@ -19,6 +19,8 @@ const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
 const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')));
 const ProductClient = Loadable(lazy(() => import('../views/product/index')));
+const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
+const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
 
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
@@ -76,7 +78,8 @@ const renderRoutes = (role) => {
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
         { path: '/profile', exact: true, element: <Profile /> },
         { path: '/products', exact: true, element: <ProductClient /> },
-
+        { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
+        { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -118,6 +121,8 @@ const renderRoutes = (role) => {
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
         { path: '/profile', exact: true, element: <Profile /> },
         { path: '/products', exact: true, element: <ProductClient /> },
+        { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
+        { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
@@ -139,6 +144,8 @@ const renderRoutes = (role) => {
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
         { path: '/profile', exact: true, element: <Profile /> },
         { path: '/products', exact: true, element: <ProductClient /> },
+        { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
+        { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],

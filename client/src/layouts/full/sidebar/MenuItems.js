@@ -23,7 +23,7 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Products',
+    title: 'Khóa học',
     icon: IconBrandYoutube,
     href: '/products',
   },
