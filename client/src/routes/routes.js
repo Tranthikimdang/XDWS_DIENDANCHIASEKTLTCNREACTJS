@@ -36,6 +36,11 @@ import CategoryPro from "../pages/admin/category_pro";
 import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
 import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
 
+import Products from "src/pages/admin/product";
+import AddProduct from "../pages/admin/product/data/FormAddProduct";
+import EditProduct from "../pages/admin/product/data/FormEditProduct";
+import productDetail from "../views/product/components/detail"
+
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -44,7 +49,7 @@ import { BsFillPersonPlusFill } from "react-icons/bs";
 import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
-import { FaQuestionCircle } from "react-icons/fa";
+import { FaQuestionCircle, FaYoutube } from "react-icons/fa";
 const routes = [
  
   {
@@ -97,7 +102,16 @@ const routes = [
     name: "Danh mục sản phẩm",
     key: "categoryPro",
     route: "/admin/categoryPro",
-    icon: <FaQuestionCircle size="15px" color="inherit" />,
+    icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
+    component: Products,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Quản lý sản phẩm",
+    key: "products",
+    route: "/admin/products",
+    icon: <FaYoutube size="15px" color="inherit" />,
     component: CategoryPro,
     noCollapse: true,
   },
@@ -260,7 +274,27 @@ const routes = [
     route: "/admin/editCatePro/:id",
     component: EditCatePro,
     hidden: true, // Ẩn mục này
+  },
+  {
+    key: "addProduct",
+    route: "/admin/addProduct",
+    component: AddProduct,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "editProduct",
+    route: "/admin/editProduct/:id",
+    component: EditProduct,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "editProduct",
+    route: '/productDetail/:id',
+    component: productDetail,
+    hidden: true, // Ẩn mục này
   }
+
+  // '/productDetail/:id'
 ];
 
 export default routes;

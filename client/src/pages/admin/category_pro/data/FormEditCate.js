@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
-import { useForm } from "react-hook-form";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { Snackbar, Alert } from "@mui/material";
-import { doc, updateDoc, getDoc, collection, getDocs } from "firebase/firestore";
-import { db } from "../../../../config/firebaseconfig";
+import React, { useEffect, useState } from 'react';
+import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
+import { useForm } from 'react-hook-form';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Snackbar, Alert } from '@mui/material';
+import { doc, updateDoc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../../config/firebaseconfig';
 
 function FormEditCate() {
   const { id } = useParams(); // Lấy ID từ URL
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null); // Dữ liệu danh mục
   const [categories, setCategories] = useState([]);
@@ -25,7 +25,7 @@ function FormEditCate() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: "", // Giá trị mặc định
+      name: '', // Giá trị mặc định
     },
   });
 
@@ -34,20 +34,20 @@ function FormEditCate() {
     const fetchCategory = async () => {
       if (id) {
         // Lấy danh mục hiện tại
-        const categoryDocRef = doc(db, "categories_product", id);
+        const categoryDocRef = doc(db, 'categories_product', id);
         const categoryDoc = await getDoc(categoryDocRef);
         if (categoryDoc.exists()) {
           const categoryData = categoryDoc.data();
           setData(categoryData); // Lưu dữ liệu vào state
-          setValue("name", categoryData.name); // Gán dữ liệu vào form
+          setValue('name', categoryData.name); // Gán dữ liệu vào form
         } else {
-          console.log("Danh mục không tồn tại");
-          navigate("/admin/categorypro"); // Điều hướng nếu không tìm thấy danh mục
+          console.log('Danh mục không tồn tại');
+          navigate('/admin/categorypro'); // Điều hướng nếu không tìm thấy danh mục
         }
       }
 
       // Lấy danh sách tất cả các danh mục
-      const categoriesCollectionRef = collection(db, "categories_product");
+      const categoriesCollectionRef = collection(db, 'categories_product');
       const categoriesSnapshot = await getDocs(categoriesCollectionRef);
       const categoriesList = categoriesSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -62,16 +62,17 @@ function FormEditCate() {
   // Hàm xử lý khi người dùng submit form
   const onSubmit = async (formData) => {
     setLoading(true);
-    
+
     // Kiểm tra tên danh mục đã tồn tại chưa, loại trừ danh mục đang chỉnh sửa
     const isNameExists = categories.some(
-      (category) => category.name.toLowerCase() === formData.name.toLowerCase() && category.id !== id
+      (category) =>
+        category.name.toLowerCase() === formData.name.toLowerCase() && category.id !== id,
     );
 
     if (isNameExists) {
-      setError("name", { type: "manual", message: "Tên danh mục đã tồn tại." });
-      setSnackbarMessage("Tên danh mục đã tồn tại.");
-      setSnackbarSeverity("error");
+      setError('name', { type: 'manual', message: 'Tên danh mục đã tồn tại.' });
+      setSnackbarMessage('Tên danh mục đã tồn tại.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
       setLoading(false);
       return;
@@ -79,18 +80,18 @@ function FormEditCate() {
 
     try {
       // Cập nhật danh mục
-      const categoryDocRef = doc(db, "categories_product", id);
-      await updateDoc(categoryDocRef, { name: formData.name });
+      const categoryDocRef = doc(db, 'categories_product', id);
+      await updateDoc(categoryDocRef, { name: formData.name, updated_at: new Date() });
 
-      setSnackbarMessage("Cập nhật danh mục thành công.");
-      setSnackbarSeverity("success");
+      setSnackbarMessage('Cập nhật danh mục thành công.');
+      setSnackbarSeverity('success');
       setSnackbarOpen(true);
 
-      setTimeout(() => navigate("/admin/categorypro"), 500);
+      setTimeout(() => navigate('/admin/categorypro'), 500);
     } catch (error) {
-      console.error("Lỗi khi cập nhật danh mục:", error);
-      setSnackbarMessage("Cập nhật danh mục thất bại. Vui lòng thử lại.");
-      setSnackbarSeverity("error");
+      console.error('Lỗi khi cập nhật danh mục:', error);
+      setSnackbarMessage('Cập nhật danh mục thất bại. Vui lòng thử lại.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
@@ -98,7 +99,7 @@ function FormEditCate() {
   };
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
     setSnackbarOpen(false);
@@ -117,23 +118,23 @@ function FormEditCate() {
               className="form-control bg-dark text-light"
               type="text"
               id="name"
-              {...register("name", { required: true, minLength: 3, maxLength: 20 })}
+              {...register('name', { required: true, minLength: 3, maxLength: 20 })}
               disabled={loading} // Vô hiệu hóa input khi đang xử lý
             />
-            {errors.name && errors.name.type === "required" && (
+            {errors.name && errors.name.type === 'required' && (
               <span className="text-danger">Tên danh mục là bắt buộc</span>
             )}
-            {errors.name && errors.name.type === "minLength" && (
+            {errors.name && errors.name.type === 'minLength' && (
               <span className="text-danger">Tên phải có ít nhất 3 ký tự</span>
             )}
-            {errors.name && errors.name.type === "maxLength" && (
+            {errors.name && errors.name.type === 'maxLength' && (
               <span className="text-danger">Tên phải có ít hơn 20 ký tự</span>
             )}
           </div>
 
           <div className="mt-3">
             <button className="text-light btn btn-outline-info" type="submit" disabled={loading}>
-              {loading ? "Đang cập nhật..." : "Sửa"}
+              {loading ? 'Đang cập nhật...' : 'Sửa'}
             </button>
             <Link to="/admin/categorypro" className="btn btn-outline-light ms-3">
               Quay lại
@@ -145,9 +146,9 @@ function FormEditCate() {
         open={snackbarOpen}
         autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
