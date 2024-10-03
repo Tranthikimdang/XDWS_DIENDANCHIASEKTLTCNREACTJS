@@ -1,5 +1,5 @@
 import {
-  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers
+  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers, IconBrandYoutube
 } from '@tabler/icons';
 
 import { uniqueId } from 'lodash';
@@ -20,6 +20,12 @@ const Menuitems = [
     title: 'Article',
     icon: IconBook2,
     href: '/article',
+  },
+  {
+    id: uniqueId(),
+    title: 'Products',
+    icon: IconBrandYoutube,
+    href: '/products',
   },
   {
     id: uniqueId(),
