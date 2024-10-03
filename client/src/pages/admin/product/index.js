@@ -45,7 +45,7 @@ function Product() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage] = useState(5);
 
   // Fetch Products from Firebase
   useEffect(() => {
@@ -95,14 +95,6 @@ function Product() {
 
   const handleEdit = (id) => {
     console.log('Edit button clicked', id);
-  };
-
-  const handleView = async (id) => {
-    try {
-      console.log('View Product with ID:', id);
-    } catch (error) {
-      console.error('Error fetching Product details:', error);
-    }
   };
 
   const handleDelete = (id, title) => {
@@ -159,10 +151,6 @@ function Product() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
   
@@ -261,6 +249,7 @@ function Product() {
                   <Table
                     columns={columns}
                     rows={rows
+                      .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
                         const authorName =
@@ -322,7 +311,7 @@ function Product() {
                               : removeSpecificHtmlTags(row.content, 'p'),
                           action: (
                             <div className="action-buttons">
-                              <Link to={{ pathname: '/admin/editProduct', state: { data: row } }}>
+                              <Link to={{ pathname: `/admin/editProduct/${row.id}`, state: { data: row } }}>
                                 <Tooltip title="Sửa bài viết" placement="top">
                                   <button
                                     className="text-light btn btn-outline-warning me-2"
