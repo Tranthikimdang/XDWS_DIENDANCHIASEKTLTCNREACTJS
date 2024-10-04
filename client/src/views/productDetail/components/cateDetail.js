@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination } from '@mui/material';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 // Firebase
@@ -16,7 +16,6 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const cateId = useParams();
-  const [searchTerm, setSearchTerm] = useState('');
   // Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,10 +59,6 @@ const Products = () => {
     fetchCategories();
   }, []);
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
   // const fetchProducts = async () => {
   //   setLoading(true);
   //   try {
@@ -84,7 +79,7 @@ const Products = () => {
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
   return (
     <PageContainer title="products" description="This is products">
       <Box sx={{ padding: { xs: '10px' } }}>
@@ -98,15 +93,6 @@ const Products = () => {
               web development techniques.
             </Typography>
           </Grid>
-          <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-            <TextField
-              label="Search by name"
-              variant="outlined"
-              fullWidth
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
-            />
-          </Grid>
 
           {/* Left Column */}
           <Grid item md={8}>
@@ -114,7 +100,6 @@ const Products = () => {
               <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
                 <CircularProgress />
               </Box>
-
             ) : currentProducts.length > 0 ? (
               currentProducts
               .filter((product) => product.cate_pro_id === cateId.id)

@@ -82,6 +82,7 @@ function FormAddProduct() {
           cate_pro_id: data.cate_pro_id,
           image_url: downloadURL,
           name: data.name,
+          video_demo: data.video_demo,
           view: "0",
           price: parseFloat(data.price), // Chuyển đổi chuỗi thành số
           discount: parseFloat(data.discount), // Chuyển đổi chuỗi thành số
@@ -119,7 +120,6 @@ function FormAddProduct() {
     fontSize: '0.9rem',
   };
 
-  const selectedCategory = cates.find((cate) => cate.id === selectedCategoryId);
 
   return (
     <DashboardLayout>
@@ -234,6 +234,24 @@ function FormAddProduct() {
               {errors.cate_pro_id && (
                 <span className="text-danger" style={smallFontStyle}>
                   {errors.cate_pro_id.message}
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-12 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Video Demo code
+              </label>
+              <input
+                type="text"
+                className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
+                {...register('video_demo', { required: 'Video demo is required' })}
+                style={smallFontStyle}
+              />
+              {errors.video_demo && (
+                <span className="text-danger" style={smallFontStyle}>
+                  {errors.video_demo.message}
                 </span>
               )}
             </div>

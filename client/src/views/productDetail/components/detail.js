@@ -66,8 +66,12 @@ const ProductsDetail = () => {
                   <div className="wrapper row">
                     {/* Cột hiển thị hình ảnh sản phẩm */}
                     <div className="preview col-md-6">
-                      <div class="ratio ratio-16x9" dangerouslySetInnerHTML={{ __html: product.video_demo}}>
-                       
+                      <div class="ratio ratio-16x9">
+                        <iframe
+                          src="https://www.youtube.com/embed/vlDzYIIOYmM"
+                          title="YouTube video"
+                          allowfullscreen
+                        ></iframe>
                       </div>
                     </div>
 
@@ -84,12 +88,7 @@ const ProductsDetail = () => {
                         </div>
                         <span className="review-no">41 reviews</span>
                       </div>
-                      <p className="product-description">
-                        Mô tả:{' '}
-                        {product.description
-                          ? product.description.replace(/(<([^>]+)>)/gi, '')
-                          : 'No description available'}
-                      </p>
+                      <p className="product-description">Mô tả: {product.description ? product.description.replace(/(<([^>]+)>)/gi, '') : 'No description available'}</p>
                       <h4 className="price">
                         current price: <span>{product.price} VND</span>
                       </h4>
