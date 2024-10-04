@@ -9,6 +9,7 @@ import ResetPassword from '../views/authentication/ResetPassword';
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
 const AdminLayout = Loadable(lazy(() => import('../layouts/admin')));
+/* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
@@ -21,12 +22,15 @@ const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')));
 const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
-
+const ProductDetailUser = Loadable(lazy(() => import('../views/productDetail/index')));
 
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const UserList = Loadable(lazy(() => import('../views/User/User'))); // Import the UserList component
+
+// const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
+
 
 
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')))
@@ -54,6 +58,12 @@ const EditCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data
 const Product = Loadable(lazy(() => import('../pages/admin/product')));
 const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormAddProduct')));
 const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
+
+const Category = Loadable(lazy(() => import('../pages/admin/category')));
+const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
+const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
+
+
 
 const renderRoutes = (role) => {
   const routes = [
@@ -92,6 +102,7 @@ const renderRoutes = (role) => {
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
+        { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -99,8 +110,8 @@ const renderRoutes = (role) => {
       path: '/admin',
       element: <AdminLayout />,
       children: [
-        { path: 'dashboard', element: <DashboardAdmin/> },
-        { path: 'article', exact: true, element: <ArticleAdmin/> },
+        { path: 'dashboard', element: <DashboardAdmin /> },
+        { path: 'article', exact: true, element: <ArticleAdmin /> },
         { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
         { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle/> },
         { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
@@ -108,9 +119,6 @@ const renderRoutes = (role) => {
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
-        { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
-        { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
-        { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
@@ -119,6 +127,10 @@ const renderRoutes = (role) => {
         { path: 'products', exact: true, element: <Product /> },
         { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
+        { path: 'category', exact: true, element: <Category /> },
+        { path: 'addCate', exact: true, element: <AddCate/> },
+        { path: 'editCate/:id', exact: true, element: <EditCate /> },
+        
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -142,6 +154,7 @@ const renderRoutes = (role) => {
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
+        { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
@@ -166,7 +179,7 @@ const renderRoutes = (role) => {
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
-
+        { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

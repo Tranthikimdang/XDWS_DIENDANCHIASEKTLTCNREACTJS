@@ -123,7 +123,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
         {isMini ? null : (
           <VuiBox sx={(theme) => navbarRow(theme, { isMini })}>
             <VuiBox color={light ? 'white' : 'inherit'}>
-              <Link to="/profile">
+              {/* <Link to="/admin/profile">
                 <IconButton sx={navbarIconButton} size="small">
                   <AccountCircleIcon
                     sx={({ palette: { dark, white } }) => ({
@@ -136,6 +136,22 @@ function DashboardNavbar({ absolute, light, isMini }) {
                     color={light ? 'white' : 'dark'}
                   >
                     {userName ? userName : ''}
+                  </VuiTypography>
+                </IconButton>
+              </Link> */}
+              <Link to="/">
+                <IconButton sx={navbarIconButton} size="small">
+                  <AccountCircleIcon
+                    sx={({ palette: { dark, white } }) => ({
+                      color: light ? white.main : dark.main,
+                    })}
+                  />
+                  <VuiTypography
+                    variant="button"
+                    fontWeight="medium"
+                    color={light ? 'white' : 'dark'}
+                  >
+                    Chuyển trang người dùng
                   </VuiTypography>
                 </IconButton>
               </Link>

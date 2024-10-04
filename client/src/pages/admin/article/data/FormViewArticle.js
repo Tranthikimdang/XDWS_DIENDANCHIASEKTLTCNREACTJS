@@ -184,7 +184,7 @@ function FormViewArticle() {
                             </svg>
                           }
                         >
-                          Quay lại
+                          Quay Lại
                         </Button>
                       </Box>
                     </Grid>
@@ -192,7 +192,8 @@ function FormViewArticle() {
                 </Paper>
               ) : (
                 <VuiTypography variant="h5" color="text.secondary" align="center">
-                  Đang tải chi tiết bài viết...
+                 Đang tải chi tiết bài viết...
+
                 </VuiTypography>
               )}
             </VuiTypography>

@@ -1,92 +1,116 @@
-.emp-profile{
+.emp-profile {
   padding: 3%;
-  margin-top: 3%;
-  margin-bottom: 3%;
+  margin: 3% auto;
   border-radius: 0.5rem;
-  background: #fff;
-}
-.profile-img{
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
+  max-width: 800px;
+  display: flex; /* Sử dụng Flexbox để căn chỉnh các phần tử ngang hàng */
+  align-items: flex-start; /* Căn chỉnh các phần tử ở đầu hàng ngang */
+  justify-content: center; /* Căn giữa các phần tử */
+  flex-wrap: wrap; /* Cho phép các phần tử xuống dòng khi không đủ không gian */
 }
-.profile-img img{
-  width: 70%;
-  height: 100%;
+
+.profile-img {
+  margin-right: 20px; /* Khoảng cách giữa hình ảnh và nội dung */
+  flex: 0 0 150px; /* Chiều rộng cố định cho hình ảnh */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+.profile-img img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #007bff;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+
+.profile-img img:hover {
+  transform: scale(1.1); /* Hiệu ứng khi rê chuột lên ảnh */
+}
+
 .profile-img .file {
-  position: relative;
-  overflow: hidden;
-  margin-top: -20%;
-  width: 70%;
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #007bff;
   border: none;
-  border-radius: 0;
-  font-size: 15px;
-  background: #212529b8;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
-.profile-img .file input {
-  position: absolute;
-  opacity: 0;
-  right: 0;
-  top: 0;
+
+.profile-img .file:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
 }
-.profile-head h5{
+
+.profile-head {
+  flex: 1; /* Chiếm phần còn lại của không gian */
+  text-align: left; /* Căn chỉnh nội dung về bên trái */
+  margin-top: 20px;
+}
+
+.profile-head h5 {
   color: #333;
+  font-weight: bold;
+  font-size: 22px;
+  margin: 0 0 10px; /* Khoảng cách dưới tiêu đề */
 }
-.profile-head h6{
-  color: #0062cc;
+
+.profile-head h6 {
+  color: #007bff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px;
 }
-.profile-edit-btn{
+
+.proile-rating {
+  font-size: 14px;
+  color: #818182;
+  margin-top: 10px;
+}
+
+.proile-rating span {
+  color: #495057;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.profile-edit-btn {
   border: none;
   border-radius: 1.5rem;
-  width: 70%;
-  padding: 2%;
+  padding: 10px;
   font-weight: 600;
-  color: #6c757d;
+  color: #fff;
+  background-color: #28a745;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  text-align: center;
+  margin: 20px auto 0;
+  width: auto; /* Để nút có kích thước vừa vặn */
 }
-.proile-rating{
-  font-size: 12px;
-  color: #818182;
-  margin-top: 5%;
+
+.profile-edit-btn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
 }
-.proile-rating span{
-  color: #495057;
-  font-size: 15px;
-  font-weight: 600;
+
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap; /* Giúp các phần tử có thể xuống dòng khi cần */
 }
-.profile-head .nav-tabs{
-  margin-bottom:5%;
-}
-.profile-head .nav-tabs .nav-link{
-  font-weight:600;
-  border: none;
-}
-.profile-head .nav-tabs .nav-link.active{
-  border: none;
-  border-bottom:2px solid #0062cc;
-}
-.profile-work{
-  padding: 14%;
-  margin-top: -15%;
-}
-.profile-work p{
-  font-size: 12px;
-  color: #818182;
-  font-weight: 600;
-  margin-top: 10%;
-}
-.profile-work a{
-  text-decoration: none;
-  color: #495057;
-  font-weight: 600;
-  font-size: 14px;
-}
-.profile-work ul{
-  list-style: none;
-}
-.profile-tab label{
-  font-weight: 600;
-}
-.profile-tab p{
-  font-weight: 600;
-  color: #0062cc;
+
+.col-md-4, .col-md-6, .col-md-8 {
+  text-align: center;
+  margin-bottom: 20px; /* Khoảng cách giữa các phần tử */
 }
