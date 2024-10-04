@@ -49,14 +49,6 @@ const ProductsDetail = () => {
         <CircularProgress /> // Hiển thị spinner khi đang fetch dữ liệu
       ) : product ? (
         <Grid container spacing={3}>
-          {/* <Grid item xs={12} sx={{ marginBottom: { xs: '0', md: '0' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading">
-              {product.name}
-            </Typography>
-            <Typography variant="body1" paragraph className="typography-body">
-              {product.description}
-            </Typography>
-          </Grid> */}
 
           {/* Bố cục giao diện sản phẩm */}
           <Grid item md={12}>
@@ -72,8 +64,8 @@ const ProductsDetail = () => {
                     </div>
 
                     {/* Cột hiển thị chi tiết sản phẩm */}
-                    <div className="details col-md-6">
-                      <h3 className="product-title">{product.name}</h3>
+                    <div className="details col-md-6 ">
+                      <h3 className="product-title d-flex flex-row">{product.name}</h3>
                       <div className="rating">
                         <div className="stars">
                           <span className="fa fa-star checked"></span>
@@ -82,18 +74,18 @@ const ProductsDetail = () => {
                           <span className="fa fa-star"></span>
                           <span className="fa fa-star"></span>
                         </div>
-                        <span className="review-no">41 reviews</span>
+                        <span className="review-no d-flex flex-row">41 reviews</span>
                       </div>
-                      <p className="product-description">
+                      <p className="product-description d-flex flex-row">
                         Mô tả:{' '}
                         {product.description
                           ? product.description.replace(/(<([^>]+)>)/gi, '')
                           : 'No description available'}
                       </p>
-                      <h4 className="price">
-                        current price: <span>{product.price} VND</span>
+                      <h4 className="price d-flex flex-row">
+                        current price: <span> {product.price} VND</span>
                       </h4>
-                      <p className="vote">
+                      <p className="vote d-flex flex-row">
                         <strong>91%</strong> of buyers enjoyed this product!{' '}
                         <strong>(87 votes)</strong>
                       </p>

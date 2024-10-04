@@ -91,7 +91,8 @@ const Products = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
-              Các khóa học của chúng tôi
+              Danh mục khóa học{' '}
+              {catesMap[cateId.id] ? catesMap[cateId.id] : 'Danh mục không tồn tại'}
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
               A collection of products sharing experiences of self-learning programming online and
@@ -100,7 +101,7 @@ const Products = () => {
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
             <TextField
-              label="Search by name"
+              label="Tìm kiếm sản phẩn"
               variant="outlined"
               fullWidth
               value={searchTerm}
@@ -114,10 +115,9 @@ const Products = () => {
               <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
                 <CircularProgress />
               </Box>
-
             ) : currentProducts.length > 0 ? (
               currentProducts
-              .filter((product) => product.cate_pro_id === cateId.id)
+                .filter((product) => product.cate_pro_id === cateId.id)
                 .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                 .map((product) => (
                   <div className="container py-2" key={product.id}>
@@ -175,13 +175,13 @@ const Products = () => {
                                 <span>
                                   <span className="text-primary"> • </span>Price: ${product.price}
                                 </span>
-                                </div>
+                              </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
                                   <span className="text-primary"> • </span>Discount:{' '}
                                   {product.discount}%
                                 </span>
-                                </div>
+                              </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span
                                   className="text-truncate d-inline-block"
