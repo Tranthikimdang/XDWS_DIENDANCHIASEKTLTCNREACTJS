@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import { Link, useLocation, useHistory } from 'react-router-dom';
+import {  useLocation } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Table from "src/examples/Tables/Table";
-import authorsTableData from ".data/authorsTableData";
+import authorsTableData from "./data/authorsTableData";
 import ConfirmDialog from './data/formDeleteComment';
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
-import { collection, doc, getDocs, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from 'src/config/firebaseconfig';
 
 function CommentDetail() {
@@ -25,7 +25,7 @@ function CommentDetail() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const history = useHistory();
+  // const history = useHistory();
   const location = useLocation();
   const { id } = location.state || {};
 

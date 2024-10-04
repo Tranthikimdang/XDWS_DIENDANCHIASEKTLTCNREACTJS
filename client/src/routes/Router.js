@@ -91,7 +91,7 @@ const renderRoutes = (role) => {
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
-        { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
+        { path: 'comment-detail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
         { path: 'addCatePro', exact: true, element: <AddCatePro /> },
         { path: 'editCatePro/:id', exact: true, element: <EditCatePro /> },
