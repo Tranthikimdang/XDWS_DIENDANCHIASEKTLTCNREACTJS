@@ -1,7 +1,7 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "src/pages/admin/dashboard";
 // import Comment from "layouts/comment";
-// import questions from "layouts/questions";
+import Questions from "src/pages/admin/questions";
 // import CommentDetail from "layouts/commentDetail";
 // import Category from "layouts/category";
 // import Profile from "layouts/profile";
@@ -63,7 +63,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Article Management",
+    name: "Quản lý bài viết",
     key: "article",
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
@@ -90,11 +90,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Questions Management",
+    name: "Quản lý câu hỏi",
     key: "questions",
     route: "/admin/questions",
     icon: <FaQuestionCircle size="15px" color="inherit" />,
-    // component: questions,
+    component: Questions,
     noCollapse: true,
   },
   {

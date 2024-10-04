@@ -50,7 +50,7 @@ function FormViewArticle() {
     fetchUsers();
   }, []);
 
-     // Lấy chi tiết bài viết từ Firestore
+  // Lấy chi tiết bài viết từ Firestore
   useEffect(() => {
     const fetchArticleDetails = async () => {
       try {
@@ -78,31 +78,31 @@ function FormViewArticle() {
     }
   }, [id]);
   // Fetch categories from Firestore
-useEffect(() => {
-  const fetchCategories = async () => {
-    setLoading(true);
-    try {
-      const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-      const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setCates(categoriesData);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
 
-      // Create a mapping of category ID to name
-      const categoriesMap = categoriesData.reduce((map, category) => {
-        map[category.id] = category.name;
-        return map;
-      }, {});
-      setCates(categoriesMap);
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCates(categoriesMap);
 
-      console.log("Fetched categories:", categoriesData);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        console.log("Fetched categories:", categoriesData);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchCategories();
-}, []);
+    fetchCategories();
+  }, []);
   // Đóng Snackbar
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -143,7 +143,7 @@ useEffect(() => {
                     <Grid item xs={12} md={6}>
                       {article.image && (
                         <img
-                          src={article.image} 
+                          src={article.image}
                           alt={article.title}
                           style={{
                             width: "100%",
@@ -157,13 +157,13 @@ useEffect(() => {
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
-                      <strong>Tiêu đề: </strong>{article.title}
+                        <strong>Tiêu đề: </strong>{article.title}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
                         <strong>Thể loại bài viết: </strong>  {cates[article.categories_id] || 'không có danh mục'}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" style={smallFontStyle}>
-                      <strong>Tác giả: </strong>  {users?.filter(u => article?.user_id === u.id)?.[0]?.name}
+                        <strong>Tác giả: </strong>  {users?.filter(u => article?.user_id === u.id)?.[0]?.name}
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: "30px" }}>
@@ -196,7 +196,7 @@ useEffect(() => {
                 </VuiTypography>
               )}
             </VuiTypography>
-            </VuiBox>
+          </VuiBox>
         </VuiBox>
       </Card>
       <Snackbar

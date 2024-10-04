@@ -17,7 +17,6 @@ function FormAndQuestions() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [cates, setCates] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -28,27 +27,7 @@ function FormAndQuestions() {
       setUser(user);
     }
   }, []);
-
-  // Lấy danh sách categories từ Firestore
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      try {
-        const querySnapshot = await getDocs(collection(db, "categories"));
-        const categoriesList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCates(categoriesList);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  
 
   // Tích hợp highlight.js để highlight code trong bài viết
   useEffect(() => {
@@ -64,7 +43,7 @@ function FormAndQuestions() {
       let downloadURL = '';
       if (data.image && data.image.length > 0) {
         const file = data.image[0];
-        const storageRef = ref(storage, `images/${file.name}`);
+        const storageRef = ref(storage, `images/questions/${file.name}`);
         await uploadBytes(storageRef, file);
         downloadURL = await getDownloadURL(storageRef);
       }
@@ -73,11 +52,8 @@ function FormAndQuestions() {
       await addDoc(collection(db, "questions"), {
         user_id: user.id,
         image: downloadURL,
-        categories_id: data.categories_id,
-        title: data.title,
-        content: data.content, // Nội dung bao gồm mã code và hình ảnh
         view: data.view || 0, // Mặc định view = 0 nếu không cung cấp
-        status: '0', 
+        isApproved: '0', 
         created_at: new Date(), // Thời gian tạo
         is_deleted: data.is_deleted || false, // Mặc định là false nếu không cung cấp
         updated_at: new Date(), // Thời gian cập nhật
@@ -168,7 +144,7 @@ function FormAndQuestions() {
                     {errors.image.message}
                   </div>}
                 </div>
-                <div className="col-6 mb-3">
+                {/* <div className="col-6 mb-3">
                   <label className="text-light form-label" style={smallFontStyle}>
                     Category
                   </label>
@@ -187,7 +163,7 @@ function FormAndQuestions() {
                     ))}
                   </select>
                   {errors.categories_id && <span className="text-danger" style={smallFontStyle}>{errors.categories_id.message}</span>}
-                </div>
+                </div> */}
               </div>
               <div className="mb-3">
                 <label className="text-light form-label" style={smallFontStyle}>
@@ -234,7 +210,7 @@ function FormAndQuestions() {
                           input.onchange = async () => {
                             const file = input.files[0];
                             if (file) {
-                              const storageRef = ref(storage, `images/${file.name}`);
+                              const storageRef = ref(storage, `images/questions/${file.name}`);
                               try {
                                 await uploadBytes(storageRef, file);
                                 const downloadURL = await getDownloadURL(storageRef);

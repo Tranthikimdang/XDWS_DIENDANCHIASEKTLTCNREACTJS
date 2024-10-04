@@ -55,7 +55,7 @@ function Newpost() {
       let downloadURL = '';
       if (data.image && data.image.length > 0) {
         const file = data.image[0];
-        const storageRef = ref(storage, `images/${file.name}`);
+        const storageRef = ref(storage, `images/article/${file.name}`);
         await uploadBytes(storageRef, file);
         downloadURL = await getDownloadURL(storageRef);
       }
@@ -182,7 +182,7 @@ function Newpost() {
                           input.onchange = async () => {
                             const file = input.files[0];
                             if (file) {
-                              const storageRef = ref(storage, `images/${file.name}`);
+                              const storageRef = ref(storage, `images/article/${file.name}`);
                               try {
                                 await uploadBytes(storageRef, file);
                                 const downloadURL = await getDownloadURL(storageRef);
