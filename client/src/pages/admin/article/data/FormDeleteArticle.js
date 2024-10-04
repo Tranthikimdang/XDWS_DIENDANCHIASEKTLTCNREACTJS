@@ -28,14 +28,14 @@ function ConfirmDialog({ open, onClose, onConfirm, title }) {
           sx={{ color: 'error.main', borderColor: 'error.main', '&:hover': { borderColor: 'error.dark' } }}
           variant="outlined"
         >
-         Hủy bỏ
+          Hủy bỏ
         </Button>
         <Button
           onClick={handleConfirm}
           sx={{ color: 'success.main', borderColor: 'success.main', '&:hover': { borderColor: 'success.dark' } }}
           variant="outlined"
         >
-         Xác nhận
+          Xác nhận
         </Button>
       </DialogActions>
     </Dialog>

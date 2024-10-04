@@ -64,7 +64,7 @@ function FormAndArticle() {
       let downloadURL = '';
       if (data.image && data.image.length > 0) {
         const file = data.image[0];
-        const storageRef = ref(storage, `images/${file.name}`);
+        const storageRef = ref(storage, `images/article/${file.name}`);
         await uploadBytes(storageRef, file);
         downloadURL = await getDownloadURL(storageRef);
       }
@@ -77,7 +77,7 @@ function FormAndArticle() {
         title: data.title,
         content: data.content, // Nội dung bao gồm mã code và hình ảnh
         view: data.view || 0, // Mặc định view = 0 nếu không cung cấp
-        isApproved: '0', 
+        isApproved: '0',
         created_at: new Date(), // Thời gian tạo
         is_deleted: data.is_deleted || false, // Mặc định là false nếu không cung cấp
         updated_at: new Date(), // Thời gian cập nhật
@@ -263,11 +263,11 @@ function FormAndArticle() {
                 </button>
                 <button className="btn btn-outline-secondary" type="button" onClick={() => navigate("/admin/article")}>Trở lại</button>
               </div>
-              </form>
-      </>
-    )}
-      {/* Make sure the div wrapping the form is properly closed */}
-      </div> 
+            </form>
+          </>
+        )}
+        {/* Make sure the div wrapping the form is properly closed */}
+      </div>
 
       <Snackbar
         open={snackbarOpen}

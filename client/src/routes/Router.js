@@ -27,15 +27,28 @@ const Register = Loadable(lazy(() => import('../views/authentication/Register'))
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const UserList = Loadable(lazy(() => import('../views/User/User'))); // Import the UserList component
 
-const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
 // const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
-const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')));
-const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')));
-const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')));
-const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')));
-const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')));
-const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 
+
+
+const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')))
+
+const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')))
+const FormAddArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormAddArticle')))
+const FormEditArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormEditArticle')))
+const FormViewArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormViewArticle')))
+
+const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')))
+const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')))
+const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
+const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
+
+const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
+const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
+const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
+const FormViewQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/FormViewQuestions')))
+
+const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
 const AddCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormAddCate')));
 const EditCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormEditCate')));
@@ -48,10 +61,7 @@ const Category = Loadable(lazy(() => import('../pages/admin/category')));
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
 
-const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')))
-const FormAddArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormAddArticle')))
-const FormEditArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormEditArticle')))
-const FormViewArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormViewArticle')))
+
 
 const renderRoutes = (role) => {
   const routes = [

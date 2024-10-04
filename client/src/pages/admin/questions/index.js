@@ -8,6 +8,7 @@ import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import Tooltip from "@mui/material/Tooltip";
 import Table from "src/examples/Tables/Table";
 import authorsQuestionsData from "./data/authorsTableData";
@@ -34,8 +35,6 @@ function Questions() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-  const [cates,setCates] = useState([]);
-
   // Fetch Questionss from Firestore
   useEffect(() => {
     const fetchQuestionss = async () => {
@@ -152,15 +151,35 @@ function Questions() {
       setSnackbarOpen(true);
     }
   }
-   // Helper function to format date as "1 hour ago", "2 days ago", etc.
-   const formatDate = (timestamp) => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp.seconds * 1000);
-    return formatDistanceToNow(date, { addSuffix: true });
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
   };
-
-
-
 
   return (
     <DashboardLayout>
@@ -170,7 +189,7 @@ function Questions() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Questions Table
+                Bảng câu hỏi 
               </VuiTypography>
               <Link to="/admin/formaddQuestions">
                 <button className='text-light btn btn-outline-info' onClick={handleAddQuestionsSuccess}>
@@ -238,7 +257,7 @@ function Questions() {
                             }}
                           >
                             <div className="image-column" style={{ flex: '0 0 100px' }}>
-                              <img className="img-thumbnail" src={row.image}/>
+                              <img className="img-thumbnail" src={row.image} />
                             </div>
                           </div>
                         ),
@@ -259,7 +278,7 @@ function Questions() {
                         date: (
                           <VuiBox>
                             <VuiTypography variant="button" color="white" fontWeight="medium">
-                            {formatDate(row.updated_at)}
+                              {formatUpdatedAt(row.updated_at)}
                             </VuiTypography>
                           </VuiBox>
                         ),
@@ -286,7 +305,7 @@ function Questions() {
                                 </button>
                               </Tooltip>
                             </Link>
-                            <Link  to={`/admin/formeditQuestions/${row.id}`}>
+                            <Link to={`/admin/formeditQuestions/${row.id}`}>
                               <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
