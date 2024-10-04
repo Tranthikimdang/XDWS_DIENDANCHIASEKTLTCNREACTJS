@@ -1,7 +1,7 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "src/pages/admin/dashboard";
 // import Comment from "layouts/comment";
-// import questions from "layouts/questions";
+import Questions from "src/pages/admin/questions";
 // import CommentDetail from "layouts/commentDetail";
 // import Category from "layouts/category";
 // import Profile from "layouts/profile";
@@ -44,6 +44,10 @@ import AddProduct from "../pages/admin/product/data/FormAddProduct";
 import EditProduct from "../pages/admin/product/data/FormEditProduct";
 import productDetail from "../views/product/components/detail"
 
+import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
+import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
+import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -57,7 +61,7 @@ const routes = [
  
   {
     type: "collapse",
-    name: "Dashboard",
+    name: "Bảng điều khiển",
     key: "dashboard",
     route: "/admin/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
@@ -66,7 +70,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Article Management",
+    name: "Quản lý bài viết",
     key: "article",
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
@@ -75,7 +79,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Category Management",
+    name: "Quản lý danh mục bài viết",
     key: "category",
     route: "/admin/category",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
@@ -93,11 +97,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Questions Management",
+    name: "Quản lý câu hỏi",
     key: "questions",
     route: "/admin/questions",
     icon: <FaQuestionCircle size="15px" color="inherit" />,
-    // component: questions,
+    component: Questions,
     noCollapse: true,
   },
   {
@@ -233,30 +237,28 @@ const routes = [
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
-  {
-    key: "formeandarticle",
-    route: "/admin/formandarticle",
-    // component: FormAddArticle,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formviewarticle",
-    route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
-    // component: FormViewArticle,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formeditarticle",
-    route: "/admin/formeditArticle",
-    // component: FormEditArticle,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formdeletearticle",
-    route: "/admin/formdeleteArticle",
-    // component: FormDeleteArticle,
-    hidden: true, // Ẩn mục này
-  },
+ //article
+ {
+  key: "formeandarticle",
+  route: "/admin/formaddarticle",           
+  component: FormAddArticle,
+  hidden: true, // Ẩn mục này            
+},
+{
+  key: "formviewarticle",
+  route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
+  component: FormViewArticle,
+  hidden: true, // Ẩn mục này
+},
+{
+  key: "formeditarticle",
+  route: "/admin/formeditarticle",
+  component: FormEditArticle,
+  hidden: true, // Ẩn mục này
+},
+
+
+ 
   {
     key: "addCatePro",
     route: "/admin/addCatePro",

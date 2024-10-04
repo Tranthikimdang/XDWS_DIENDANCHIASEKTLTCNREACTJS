@@ -27,7 +27,7 @@ const ArticleDetail = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const location = useLocation();
-  const {  id , user } = location.state || {};
+  const { id, user } = location.state || {};
   console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
 
@@ -39,7 +39,6 @@ const ArticleDetail = () => {
       }
     }
   }, [currentUser]);
-  
   useEffect(() => {
     const fetchArticle = async () => {
       try {
@@ -278,7 +277,7 @@ const ArticleDetail = () => {
               {article.categories_id}
             </Typography>
           </Box> */}
-          
+
           <Box sx={{ padding: '20px' }}>
             <Box mb={4}>
               <Typography variant="h5" gutterBottom>
@@ -330,7 +329,6 @@ const ArticleDetail = () => {
           </Box>
         </Grid>
       </Grid>
-
       {/* Dialog for Comments */}
       <Dialog open={openCommentsDialog} onClose={() => setOpenCommentsDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
@@ -378,9 +376,9 @@ const ArticleDetail = () => {
                     <IconButton aria-label="reply" onClick={() => handleReplyClick(comment.id)}>
                       <ReplyIcon fontSize="small" />
                       <Typography variant="body2" color="textSecondary">
-                      Reply
-                    </Typography>
-                    </IconButton>                   
+                        Reply
+                      </Typography>
+                    </IconButton>
                     {replyingTo === comment.id && (
                       <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
                         Hủy
@@ -439,3 +437,4 @@ const ArticleDetail = () => {
 };
 
 export default ArticleDetail;
+
