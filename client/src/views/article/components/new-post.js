@@ -4,7 +4,6 @@ import PageContainer from 'src/components/container/PageContainer';
 import { Editor } from "@tinymce/tinymce-react";
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import api from '../../../apis/articleApi'; // Adjust the path as necessary
 import categoriesApi from '../../../apis/categoriesApi'; // Adjust the path as necessary
 
 const Newpost = () => {
@@ -48,7 +47,6 @@ const Newpost = () => {
     formData.append('content', data.content);
 
     try {
-      const response = await api.addArticle(formData);
       setSnackbarMessage("Article added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -101,7 +99,7 @@ const Newpost = () => {
             {/* Content Editor */}
             <Grid item xs={12}>
               <Editor
-                apiKey="w8d8xdljziohzromzltpcfb782uwno43s83axici5dyzam4y"
+                apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
                 init={{
                   height: 500,
                   menubar: false,
