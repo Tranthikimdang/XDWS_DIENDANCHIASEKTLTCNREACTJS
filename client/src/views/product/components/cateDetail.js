@@ -156,14 +156,18 @@ const Products = () => {
                               <div className="d-flex flex-row">
                                 <span>Số lượng {product.quality}</span>
                               </div>
-                              <div className="d-flex flex-column mt-1 mb-0 text-muted small">
+                              <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
                                   <span className="text-primary"> • </span>Price: ${product.price}
                                 </span>
+                                </div>
+                              <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
                                   <span className="text-primary"> • </span>Discount:{' '}
                                   {product.discount}%
                                 </span>
+                                </div>
+                              <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span
                                   className="text-truncate d-inline-block"
                                   style={{
