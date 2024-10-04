@@ -44,6 +44,10 @@ import AddProduct from "../pages/admin/product/data/FormAddProduct";
 import EditProduct from "../pages/admin/product/data/FormEditProduct";
 import productDetail from "../views/product/components/detail"
 
+import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
+import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
+import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -233,30 +237,28 @@ const routes = [
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
-  {
-    key: "formeandarticle",
-    route: "/admin/formandarticle",
-    // component: FormAddArticle,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formviewarticle",
-    route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
-    // component: FormViewArticle,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formeditarticle",
-    route: "/admin/formeditArticle",
-    // component: FormEditArticle,
-    hidden: true, // Ẩn mục này
-  },
-  {
-    key: "formdeletearticle",
-    route: "/admin/formdeleteArticle",
-    // component: FormDeleteArticle,
-    hidden: true, // Ẩn mục này
-  },
+ //article
+ {
+  key: "formeandarticle",
+  route: "/admin/formaddarticle",           
+  component: FormAddArticle,
+  hidden: true, // Ẩn mục này            
+},
+{
+  key: "formviewarticle",
+  route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
+  component: FormViewArticle,
+  hidden: true, // Ẩn mục này
+},
+{
+  key: "formeditarticle",
+  route: "/admin/formeditarticle",
+  component: FormEditArticle,
+  hidden: true, // Ẩn mục này
+},
+
+
+ 
   {
     key: "addCatePro",
     route: "/admin/addCatePro",
