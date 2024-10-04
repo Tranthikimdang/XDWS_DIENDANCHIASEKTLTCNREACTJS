@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia, CircularProgress, Button } from '@mui/material';
+import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import { IconBookmark, IconDots } from '@tabler/icons';
-import ImageIcon from '@mui/icons-material/Image';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
 import { formatDistanceToNow } from 'date-fns';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import CodeIcon from '@mui/icons-material/Code';
-import PublicIcon from '@mui/icons-material/Public';
 
 //firebase
 import { collection, getDocs } from 'firebase/firestore';
@@ -80,7 +76,7 @@ const Article = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+const categoriesSnapshot = await getDocs(collection(db, 'categories'));
         const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setCates(categoriesData);
 
@@ -157,7 +153,7 @@ const Article = () => {
                           <img
                             src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
                             width="40px"
-                            alt="User Avatar"
+alt="User Avatar"
                             style={{ borderRadius: '50%', marginRight: '10px' }}
                           />
                           <Typography variant="body1" component="span" className="author-name">
@@ -206,7 +202,7 @@ const Article = () => {
                         </IconButton>
                         <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
                           {menuItems.map((item, i) => (
-                            <MenuItem key={i} onClick={handleClose}>
+<MenuItem key={i} onClick={handleClose}>
                               {item.icon}
                               <span style={{ marginLeft: 10 }}>{item.text}</span>
                             </MenuItem>

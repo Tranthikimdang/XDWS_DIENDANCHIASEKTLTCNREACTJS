@@ -14,6 +14,7 @@ const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))); // Import the ArticleDetail component
+const Questions = Loadable(lazy(() => import('../views/questions/Questions.js')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -90,6 +91,7 @@ const renderRoutes = (role) => {
         { path: '/article', exact: true, element: <Article /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/questions', exact: true, element: <Questions /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
@@ -139,6 +141,7 @@ const renderRoutes = (role) => {
         { path: '/article', exact: true, element: <Article /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/questions', exact: true, element: <Questions /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
@@ -162,6 +165,7 @@ const renderRoutes = (role) => {
         { path: '/article', exact: true, element: <Article /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/questions', exact: true, element: <Questions /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
