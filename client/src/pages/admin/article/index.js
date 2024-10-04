@@ -32,7 +32,7 @@ function Questions() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-  const [cates,setCates] = useState([]);
+  const [cates, setCates] = useState([]);
 
   // Fetch articles from Firestore
   useEffect(() => {
@@ -176,8 +176,40 @@ function Questions() {
       setSnackbarOpen(true);
     }
   }
+  const removeSpecificHtmlTags = (html, tag) => {
+    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
+    return html?.replace(regex, '');
+  };
 
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
 
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
 
   return (
     <DashboardLayout>
@@ -187,7 +219,7 @@ function Questions() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Bảng Bài Viết
+                Bảng bài viết
               </VuiTypography>
               <Link to="/admin/formaddarticle">
                 <button className='text-light btn btn-outline-info' onClick={handleAddArticleSuccess}>
@@ -204,7 +236,7 @@ function Questions() {
                       d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
                     />
                   </svg>
-                  Thêm
+                  Add
                 </button>
               </Link>
             </VuiBox>
@@ -299,8 +331,17 @@ function Questions() {
                         ),
                         content: (
                           <VuiBox>
-                            <VuiTypography variant="button" color="white" fontWeight="medium">
-                              {row.content}
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {removeSpecificHtmlTags(row.content, 'p').length > 10
+                                ? `${removeSpecificHtmlTags(row.content, 'p').substring(0, 10)}...`
+                                : removeSpecificHtmlTags(row.content, 'p')}
+                            </VuiTypography>
+                          </VuiBox>
+                        ),
+                        date: (
+                          <VuiBox>
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {formatUpdatedAt(row.updated_at)}
                             </VuiTypography>
                           </VuiBox>
                         ),
@@ -327,7 +368,7 @@ function Questions() {
                                 </button>
                               </Tooltip>
                             </Link>
-                            <Link  to={`/admin/formeditarticle/${row.id}`}>
+                            <Link to={`/admin/formeditarticle/${row.id}`}>
                               <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
