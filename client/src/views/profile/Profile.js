@@ -19,11 +19,60 @@ const Profile = () => {
 
   return (
     <PageContainer title="User Profile" description="This is the User Profile page">
-      <Box sx={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Main Profile Container */}
+      <Box
+        sx={{
+          padding: '20px',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          backgroundColor: '#f4f6f8', // Soft background color for the whole profile section
+          borderRadius: '15px',
+        }}
+      >
         <Grid container spacing={2} justifyContent="center">
+          {/* Profile Picture and Edit Button */}
+          <Grid item xs={12} md={4}>
+            <Card
+              sx={{
+                borderRadius: '10px',
+                padding: '20px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                backgroundColor: '#ffffff', // White background for the card
+                height: '100%', // Make the card take up the full height
+              }}
+            >
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog"
+                alt="Profile"
+                style={{
+                  width: '100%',
+                  maxWidth: '180px',
+                  height: 'auto',
+                  borderRadius: '50%',
+                  marginBottom: '20px',
+                }}
+              />
+              <div>
+                <button className="btn btn-primary">Change Photo</button>
+                <input type="file" name="file" style={{ display: 'none' }} />
+              </div>
+            </Card>
+          </Grid>
+
           {/* Profile Information Card */}
           <Grid item xs={12} md={8}>
-            <Card sx={{ borderRadius: '10px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)', padding: '20px' }}>
+            <Card
+              sx={{
+                borderRadius: '10px',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                padding: '20px',
+                backgroundColor: '#ffffff', // White background for the card
+                height: '100%', // Make the card take up the full height
+              }}
+            >
               <CardContent>
                 <Typography variant="h4" gutterBottom>
                   {user.name}
@@ -90,21 +139,6 @@ const Profile = () => {
                   </Grid>
                 </div>
               </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Profile Picture and Edit Button */}
-          <Grid item xs={12} md={4}>
-            <Card sx={{ borderRadius: '10px', textAlign: 'center', padding: '20px', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)' }}>
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog"
-                alt="Profile"
-                style={{ width: '100%', borderRadius: '50%', marginBottom: '20px' }}
-              />
-              <div>
-                <button className="btn btn-primary">Change Photo</button>
-                <input type="file" name="file" style={{ display: 'none' }} />
-              </div>
             </Card>
           </Grid>
         </Grid>

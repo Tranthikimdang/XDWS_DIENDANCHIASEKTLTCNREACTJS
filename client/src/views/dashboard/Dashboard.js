@@ -271,7 +271,7 @@ const Home = () => {
                                 </Box>
                             </Grid>
                             {articles
-                                .filter(article => article.status === 1) // Lọc bài viết có status = 1
+                                .filter(article => article.isApproved === 1) // Lọc bài viết có isApproved = 1
                                 .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
                                 .map((article) => (
                                     <Grid item xs={12} sm={6} md={3} key={article.id}>

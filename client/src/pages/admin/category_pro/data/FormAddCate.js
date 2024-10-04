@@ -50,7 +50,9 @@ function FormAddCate() {
 
     try {
       const docRef = await addDoc(collection(db, "categories_product"), {
-        name: data.name,  // Using data.name from form
+        name: data.name,  
+        created_at: new Date(),
+        updated_at: new Date(),
       });
       console.log("Document written with ID: ", docRef.id);
 

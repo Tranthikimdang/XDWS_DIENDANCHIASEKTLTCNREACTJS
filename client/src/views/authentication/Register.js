@@ -201,8 +201,7 @@ const AuthRegister = ({ subtext }) => {
         position: 'relative',
         height: '100vh',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        
       }}
     >
       {/* Background wrapper */}
@@ -233,7 +232,7 @@ const AuthRegister = ({ subtext }) => {
               {subtext}
               <Form onSubmit={handleRegister}>
                 <Form.Group controlId="formName">
-                  <Form.Label>Họ tên</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Họ tên</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
@@ -246,7 +245,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formEmail">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Email</Form.Label>
                   <Form.Control
                     type="email"
                     name="email"
@@ -259,7 +258,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formPhone">
-                  <Form.Label>Số điện thoại</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Số điện thoại</Form.Label>
                   <Form.Control
                     type="text"
                     name="phone"
@@ -272,7 +271,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formLocation">
-                  <Form.Label>Địa chỉ</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Địa chỉ</Form.Label>
                   <Form.Control
                     type="text"
                     name="location"
@@ -287,7 +286,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formPassword">
-                  <Form.Label>Mật khẩu</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}
@@ -316,7 +315,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formConfirmPassword">
-                  <Form.Label>Xác nhận mật khẩu</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Xác nhận mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showConfirmPassword ? 'text' : 'password'}
