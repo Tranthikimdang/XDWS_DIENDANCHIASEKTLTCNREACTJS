@@ -33,24 +33,24 @@ const AuthRegister = ({ subtext }) => {
     let validationErrors = {};
     const { name, email, password, confirmPassword, location, phone } = formData;
 
-    if (!name) validationErrors.name = 'Name is required.';
-    if (!email) validationErrors.email = 'Email is required.';
-    if (!password) validationErrors.password = 'Password is required.';
-    if (!confirmPassword) validationErrors.confirmPassword = 'Please confirm your password.';
-    if (!location) validationErrors.location = 'Location is required.';
-    if (!phone) validationErrors.phone = 'Phone number is required.';
+    if (!name) validationErrors.name = 'Bắt buộc phải nhập tên';
+    if (!email) validationErrors.email = 'Bắt buộc phải nhập Email';
+    if (!password) validationErrors.password = 'Cần phải nhập mật khẩu.';
+    if (!confirmPassword) validationErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu của bạn.';
+    if (!location) validationErrors.location = 'Bắt buộc phải nhập vị trí.';
+    if (!phone) validationErrors.phone = 'Bắt buộc phải nhập số điện thoại.';
 
     if (password !== confirmPassword) {
-      validationErrors.confirmPassword = 'Passwords do not match!';
+      validationErrors.confirmPassword = 'Mật khẩu không khớp!';
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email && !emailRegex.test(email)) {
-      validationErrors.email = 'Please enter a valid email address.';
+      validationErrors.email = 'Vui lòng nhập địa chỉ email hợp lệ.';
     }
 
     if (password && password.length < 6) {
-      validationErrors.password = 'Password must be at least 6 characters long.';
+      validationErrors.password = 'Mật khẩu phải dài ít nhất 6 ký tự.';
     }
 
     return validationErrors;
@@ -66,7 +66,7 @@ const AuthRegister = ({ subtext }) => {
 
   // Firestore: Thêm người dùng mới
   const addUser = async (userData) => {
-    const role= "user";
+    const role = 'user';
     const created_at = new Date().toLocaleDateString('vi-VN');
     const updated_at = new Date().toLocaleDateString('vi-VN');
     const newUser = {
@@ -74,7 +74,7 @@ const AuthRegister = ({ subtext }) => {
       role,
       created_at,
       updated_at,
-  };
+    };
 
     const usersRef = collection(db, 'users');
     await addDoc(usersRef, newUser); // Thêm dữ liệu người dùng mới vào Firestore
@@ -95,15 +95,15 @@ const AuthRegister = ({ subtext }) => {
       const emailExists = await checkEmailExists(formData.email);
 
       if (emailExists) {
-        alert('An account already exists with this email.');
+        alert('Đã có tài khoản được tạo bằng email này.');
         return;
       } else {
         await addUser(formData);
-        alert('Account created successfully, sign in?');
+        alert('Tài khoản đã được tạo thành công, đăng nhập?');
         navigate('/auth/login');
       }
     } catch (error) {
-      alert('An error occurred during registration. Please try again.');
+      alert('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
       console.error('Registration error:', error);
     }
   };
@@ -186,11 +186,11 @@ const AuthRegister = ({ subtext }) => {
       )
       .then(
         (result) => {
-          alert('Message sent successfully...');
+          alert('Tin nhắn đã được gửi thành công...');
           console.log(result.text);
         },
         (error) => {
-          alert('An error occurred, please try again.');
+          alert('Đã xảy ra lỗi, vui lòng thử lại.');
           console.log(error.text);
         },
       );
@@ -201,8 +201,7 @@ const AuthRegister = ({ subtext }) => {
         position: 'relative',
         height: '100vh',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        
       }}
     >
       {/* Background wrapper */}
@@ -231,55 +230,63 @@ const AuthRegister = ({ subtext }) => {
               </div>
               <h3 className="text-center mb-4">Đăng ký</h3>
               {subtext}
-              {errors && Object.keys(errors).length > 0 && (
-                <Alert variant="danger" className="text-center">
-                  {Object.values(errors).join(', ')}
-                </Alert>
-              )}
               <Form onSubmit={handleRegister}>
                 <Form.Group controlId="formName">
-                  <Form.Label>Họ tên</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Họ tên</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Tên của bạn"
+                    isInvalid={!!errors.name} // Kiểm tra lỗi cho input này
                   />
+                  {errors.name && <Form.Text className="text-danger">{errors.name}</Form.Text>}
                 </Form.Group>
+
                 <Form.Group controlId="formEmail">
-                  <Form.Label>Email</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Email</Form.Label>
                   <Form.Control
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Nhập mail"
+                    isInvalid={!!errors.email}
                   />
+                  {errors.email && <Form.Text className="text-danger">{errors.email}</Form.Text>}
                 </Form.Group>
+
                 <Form.Group controlId="formPhone">
-                  <Form.Label>Số điện thoại</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Số điện thoại</Form.Label>
                   <Form.Control
                     type="text"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="Nhập số điện thoại"
+                    isInvalid={!!errors.phone}
                   />
+                  {errors.phone && <Form.Text className="text-danger">{errors.phone}</Form.Text>}
                 </Form.Group>
+
                 <Form.Group controlId="formLocation">
-                  <Form.Label>Địa chỉ</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Địa chỉ</Form.Label>
                   <Form.Control
                     type="text"
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
                     placeholder="Nhập địa chỉ"
+                    isInvalid={!!errors.location}
                   />
+                  {errors.location && (
+                    <Form.Text className="text-danger">{errors.location}</Form.Text>
+                  )}
                 </Form.Group>
 
                 <Form.Group controlId="formPassword">
-                  <Form.Label>Mật khẩu</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}
@@ -287,8 +294,11 @@ const AuthRegister = ({ subtext }) => {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="Nhập password"
-                      className="mb-3"
+                      isInvalid={!!errors.password}
                     />
+                    {errors.password && (
+                      <Form.Text className="text-danger">{errors.password}</Form.Text>
+                    )}
                     <Button
                       variant="link"
                       onClick={handleClickShowPassword}
@@ -303,8 +313,9 @@ const AuthRegister = ({ subtext }) => {
                     </Button>
                   </div>
                 </Form.Group>
+
                 <Form.Group controlId="formConfirmPassword">
-                  <Form.Label>Xác nhận mật khẩu</Form.Label>
+                  <Form.Label className='d-flex justify-content-start'>Xác nhận mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showConfirmPassword ? 'text' : 'password'}
@@ -312,8 +323,11 @@ const AuthRegister = ({ subtext }) => {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       placeholder="Xác nhận"
-                      className="mb-3"
+                      isInvalid={!!errors.confirmPassword}
                     />
+                    {errors.confirmPassword && (
+                      <Form.Text className="text-danger">{errors.confirmPassword}</Form.Text>
+                    )}
                     <Button
                       variant="link"
                       onClick={handleClickShowConfirmPassword}
@@ -342,7 +356,6 @@ const AuthRegister = ({ subtext }) => {
                 >
                   <div className="google-login-btn m-3 border-0">
                     <GoogleLogin
-                    
                       clientId="270409308877-6u9dv3fmnf2kdn7gb0d6aqbegrnlmqvo.apps.googleusercontent.com"
                       buttonText=""
                       onSuccess={responseGoogle}
@@ -352,7 +365,7 @@ const AuthRegister = ({ subtext }) => {
                       ux_mode="popup"
                       render={(renderProps) => (
                         <button
-                        className="google-login-btn btn border-0 btn-outline-info" 
+                          className="google-login-btn btn border-0 btn-outline-info"
                           onClick={renderProps.onClick}
                           disabled={renderProps.disabled}
                         >
@@ -362,7 +375,7 @@ const AuthRegister = ({ subtext }) => {
                             alt="Google"
                             style={{ width: '24px', height: '24px', marginRight: '8px' }}
                           />
-                          Sign up with Google
+                          Đăng nhập với google
                         </button>
                       )}
                     />

@@ -1,7 +1,7 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "src/pages/admin/dashboard";
 // import Comment from "layouts/comment";
-// import questions from "layouts/questions";
+import Questions from "src/pages/admin/questions";
 // import CommentDetail from "layouts/commentDetail";
 // import Category from "layouts/category";
 // import Profile from "layouts/profile";
@@ -31,20 +31,37 @@ import Dashboard from "src/pages/admin/dashboard";
 // import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 // import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
+import Category from "../pages/admin/category";
+import AddCate from "../pages/admin/category/data/FormAddCate";
+import EditCate from "../pages/admin/category/data/FormEditCate";
+
+import CategoryPro from "../pages/admin/category_pro";
+import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
+import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
+
+import Products from "src/pages/admin/product";
+import AddProduct from "../pages/admin/product/data/FormAddProduct";
+import EditProduct from "../pages/admin/product/data/FormEditProduct";
+import productDetail from "../views/product/components/detail"
+
+import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
+import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
+import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+
 // Vision UI Dashboard React icons
-import { IoIosDocument } from "react-icons/io";
+// import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
 import { BsFillPersonPlusFill } from "react-icons/bs";
 import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
-import { FaQuestionCircle } from "react-icons/fa";
+import { FaQuestionCircle, FaYoutube } from "react-icons/fa";
 const routes = [
  
   {
     type: "collapse",
-    name: "Dashboard",
+    name: "Bảng điều khiển",
     key: "dashboard",
     route: "/admin/dashboard",
     icon: <IoHome size="15px" color="inherit" />,
@@ -53,7 +70,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Article Management",
+    name: "Quản lý bài viết",
     key: "article",
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
@@ -62,7 +79,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Category Management",
+    name: "Quản lý danh mục bài viết",
     key: "category",
     route: "/admin/category",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
@@ -80,11 +97,29 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Questions Management",
+    name: "Quản lý câu hỏi",
     key: "questions",
     route: "/admin/questions",
     icon: <FaQuestionCircle size="15px" color="inherit" />,
-    // component: questions,
+    component: Questions,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Danh mục sản phẩm",
+    key: "categoryPro",
+    route: "/admin/categoryPro",
+    icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
+    component: Products,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Quản lý sản phẩm",
+    key: "products",
+    route: "/admin/products",
+    icon: <FaYoutube size="15px" color="inherit" />,
+    component: CategoryPro,
     noCollapse: true,
   },
   {
@@ -106,15 +141,15 @@ const routes = [
     // component: Profile,
     noCollapse: true,
   },
-  {
-    type: "collapse",
-    name: "Logout",
-    key: "sign-in",
-    route: "/admin/authentication/sign-in",
-    icon: <IoIosDocument size="15px" color="inherit" />,
-    // component: SignIn,
-    noCollapse: true,
-  },
+  // {
+  //   type: "collapse",
+  //   name: "Logout",
+  //   key: "sign-in",
+  //   route: "/admin/authentication/sign-in",
+  //   icon: <IoIosDocument size="15px" color="inherit" />,
+  //   // component: SignIn,
+  //   noCollapse: true,
+  // },
 
   {
     key: "commentDetail",
@@ -202,36 +237,73 @@ const routes = [
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
+ //article
+ {
+  key: "formeandarticle",
+  route: "/admin/formaddarticle",           
+  component: FormAddArticle,
+  hidden: true, // Ẩn mục này            
+},
+{
+  key: "formviewarticle",
+  route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
+  component: FormViewArticle,
+  hidden: true, // Ẩn mục này
+},
+{
+  key: "formeditarticle",
+  route: "/admin/formeditarticle",
+  component: FormEditArticle,
+  hidden: true, // Ẩn mục này
+},
+
+
+ 
   {
-    key: "formeandarticle",
-    route: "/admin/formandarticle",
-    // component: FormAddArticle,
+    key: "addCatePro",
+    route: "/admin/addCatePro",
+    component: AddCatePro,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formviewarticle",
-    route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
-    // component: FormViewArticle,
+    key: "editCatePro",
+    route: "/admin/editCatePro/:id",
+    component: EditCatePro,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formeditarticle",
-    route: "/admin/formeditArticle",
-    // component: FormEditArticle,
+    key: "addProduct",
+    route: "/admin/addProduct",
+    component: AddProduct,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formdeletearticle",
-    route: "/admin/formdeleteArticle",
-    // component: FormDeleteArticle,
+    key: "editProduct",
+    route: "/admin/editProduct/:id",
+    component: EditProduct,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "signup",
-    route: "/admin/signup",
-    // component: SignUp,
+    key: "editProduct",
+    route: '/productDetail/:id',
+    component: productDetail,
     hidden: true, // Ẩn mục này
   },
+  {
+    key: "addCate",
+    route: "/admin/addCate",
+    component: AddCate,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "editCate",
+    route: "/admin/editCate/:id",
+    component: EditCate,
+    hidden: true, // Ẩn mục này
+  },
+  
+
+  // '/productDetail/:id'
 ];
 
 export default routes;

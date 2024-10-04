@@ -1,59 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import { useForm } from 'react-hook-form';
-import { useHistory,useLocation } from 'react-router-dom';
-import api from '../../../apis/commentDetailApi';
+import { useNavigate } from 'react-router-dom';
 import { Snackbar, Alert } from "@mui/material";
+import { ClipLoader } from "react-spinners";
+// import firebase
+import { collection, getDocs, addDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from '../../../../config/firebaseconfig';
 
-function formAddQuestions() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
-  const history = useHistory();
-  
+function FormAndQuestions() {
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [user, setUser] = useState(""); // User state
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const location = useLocation();
-  const { id } = location.state || {};
-  console.log(id);
-
+  // Lấy thông tin người dùng từ localStorage
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    if (storedUser) {
-      setUser(storedUser);
-    }   
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      setUser(user);
+      setLoading(false);
+    }
   }, []);
 
+
+
+  // Xử lý logic khi submit form
   const onSubmit = async (data) => {
-    const currentDate = new Date().toISOString().split('T')[0]; 
-    const commentData = {
-      ...data,
-      article_id:id,
-      user_name: user?.name,  
-      created_date: currentDate,
-      updated_date: currentDate
-    };
-    
-    console.log('Comment data:', commentData);
-    
     try {
-      const response = await api.addComment(commentData);
-      console.log('Comment added successfully:', response);
-      setSnackbarMessage("Comment added.");
+      let downloadURL = '';
+      if (data.image && data.image.length > 0) {
+        const file = data.image[0];
+        const storageRef = ref(storage, `images/questions/${file.name}`);
+        await uploadBytes(storageRef, file);
+        downloadURL = await getDownloadURL(storageRef);
+      }
+
+      // Thêm bài viết mới vào Firestore
+      await addDoc(collection(db, "questions"), {
+        user_id: user?.id || '',
+        article_id: data.article_id || '',  // Giả sử article_id sẽ được cung cấp từ dữ liệu form
+        questions: data.questions,
+        up_code: data.content || '', // Nội dung bài viết từ Editor
+        image: downloadURL,
+        answers: [], // Mảng câu trả lời mặc định là rỗng
+        view: data.view || 0, // Mặc định view = 0 nếu không cung cấp
+        isApproved: '0',
+        likes: [], // Mảng lượt thích mặc định là rỗng
+        created_at: new Date(), // Thời gian tạo
+        is_deleted: data.is_deleted || false, // Mặc định là false nếu không cung cấp
+        updated_at: new Date(), // Thời gian cập nhật
+      });
+      setSnackbarMessage("Questions added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => history.push('/commentDetail',{ id:id }), 1000); 
+      setTimeout(() => navigate('/admin/questions'), 500);
     } catch (error) {
-      console.error('Error adding comment:', error);
-      setSnackbarMessage("Failed to add comment.");
+      console.error("Error adding questions:", error.message);
+      setSnackbarMessage("Failed to add questions. Please try again.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
-  
-  
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -62,7 +75,7 @@ function formAddQuestions() {
     setSnackbarOpen(false);
   };
 
-  const smallFontStyle = { 
+  const smallFontStyle = {
     fontSize: '0.9rem'
   };
 
@@ -70,34 +83,101 @@ function formAddQuestions() {
     <DashboardLayout>
       <DashboardNavbar />
       <div className='container'>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          {/* <div>
-            <label className='text-light form-label' style={smallFontStyle}>Article ID</label>
-            <input className='form-control bg-dark text-light'  />
-          </div> */}
-          <div>
-            <label className='text-light form-label' style={smallFontStyle}>User Name</label>
-            <input className='form-control bg-dark text-light' value={user?.name || ''} readOnly />
-          </div>         
-          <div>
-            <label className='text-light form-label' style={smallFontStyle}>Content</label>
-            <textarea className='form-control bg-dark text-light' {...register('content', { required: true, minLength: 10, maxLength: 100 })} />
-            {errors.content && <span className='text-danger'>{errors.content.type === 'required' ? 'Content is required' : errors.content.type === 'minLength' ? 'Content must be at least 10 characters long' : 'Content must be less than 100 characters long'}</span>}
-          </div>            
-          <div className='mt-3'>
-            <button className='text-light btn btn-outline-info' type="submit">Add</button>
-            <button className='text-light btn btn-outline-secondary ms-2' type="button" onClick={() => history.push('/commentDetail',{ id: id })}>Back</button>
+        {loading ? (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100px',
+            }}
+          >
+            <ClipLoader size={50} color={"#123abc"} loading={loading} />
           </div>
-        </form>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+            <div className="row">
+              <div className='col-6 mb-3'>
+                <label className='text-light form-label' style={smallFontStyle}>Tên</label>
+                <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name || ''} readOnly />
+              </div>
+              <div className='col-6 mb-3'>
+                <label className='text-light form-label' style={smallFontStyle}>Câu hỏi</label>
+                <input
+                  className={`form-control bg-dark text-light ${errors.questions ? 'is-invalid' : ''}`}
+                  {...register('questions', {
+                    required: 'questions is required',
+                    minLength: {
+                      value: 5,
+                      message: 'questions must be at least 5 characters'
+                    },
+                    maxLength: {
+                      value: 100,
+                      message: 'questions cannot exceed 100 characters'
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z0-9 ]+$/,
+                      message: 'questions can only contain letters and numbers'
+                    }
+                  })}
+                  style={smallFontStyle}
+                />
+                {errors.questions && <span className="text-danger" style={smallFontStyle}>{errors.questions.message}</span>}
+              </div>
+              <div className='col-6 mb-3'>
+                <label className='text-light form-label' style={smallFontStyle}>Image</label>
+                <input
+                  className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+                  type='file'
+                  {...register('image', { required: 'Image is required' })}
+                />
+                {errors.image && <div className='invalid-feedback' style={smallFontStyle}>
+                  {errors.image.message}
+                </div>}
+              </div>
+ <div className='col-6 mb-3'>
+              <label className='text-light form-label' style={smallFontStyle}>Image</label>
+              <input
+                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+                type='file'
+                {...register('image', { required: 'Image is required' })}
+              />
+              {errors.image && <div className='invalid-feedback' style={smallFontStyle}>
+                {errors.image.message}
+              </div>}
+            </div>
+            </div>
+           
+            <div className="mb-3">
+              <label className='text-light form-label' style={smallFontStyle}>Up code</label>
+              <textarea
+                className={`form-control bg-dark text-light ${errors.up_code ? 'is-invalid' : ''}`}
+                rows='3'
+                {...register('up_code', {
+                  required: 'Code is required', // Kiểm tra trường bắt buộc
+                  minLength: {
+                    value: 10,
+                    message: 'Code must be at least 10 characters' // Độ dài tối thiểu
+                  }
+                })}
+                style={smallFontStyle}
+              ></textarea>
+              {/* Hiển thị thông báo lỗi nếu có */}
+              {errors.up_code && <div className='invalid-feedback' style={smallFontStyle}>
+                {errors.up_code.message}
+              </div>}
+            </div>
+            <button className="btn btn-primary" type="submit">Add</button>
+          </form>
+        )}
       </div>
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={1000}
+        autoHideDuration={6000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
@@ -105,4 +185,4 @@ function formAddQuestions() {
   );
 }
 
-export default formAddQuestions;
+export default FormAndQuestions;

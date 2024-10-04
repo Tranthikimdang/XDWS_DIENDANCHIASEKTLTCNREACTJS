@@ -1,7 +1,7 @@
 import {
-  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers
+  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers, IconBrandYoutube
 } from '@tabler/icons';
-
+import { IconInfoSquareRounded } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
 const Menuitems = [
@@ -17,9 +17,21 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Article',
+    title: 'Hỏi',
+    icon: IconInfoSquareRounded,
+    href: '/questions',
+  },
+  {
+    id: uniqueId(),
+    title: 'Bài viết',
     icon: IconBook2,
     href: '/article',
+  },
+  {
+    id: uniqueId(),
+    title: 'Khóa học',
+    icon: IconBrandYoutube,
+    href: '/products',
   },
   {
     id: uniqueId(),
@@ -27,6 +39,7 @@ const Menuitems = [
     icon: IconUsers,
     href: '/user', 
   },
+  // Uncomment and add other items as needed
   // {
   //   navlabel: true,
   //   subheader: 'Auth',

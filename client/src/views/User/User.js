@@ -1,23 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, Card, CardContent, CardMedia } from '@mui/material';
-import PageContainer from 'src/components/container/PageContainer';
-import userApi from '../../apis/userApi';
-import './User.css';
+import { useEffect, useState } from 'react';
+import { Grid, Box, Typography, Card, CardContent, CardMedia, TextField, InputAdornment } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material'; // Thêm icon tìm kiếm
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../config/firebaseconfig'; // Firebase config đã được khởi tạo
 
 const User = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await userApi.getList();
-        if (response.status === 200) {
-          setUsers(response.data || []);
-          console.log('Fetched users:', response.data);
-        }
+        const querySnapshot = await getDocs(collection(db, 'users')); // Lấy dữ liệu từ collection "users"
+        const userList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUsers(userList);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching users: ', error);
       } finally {
         setLoading(false);
       }
@@ -26,57 +28,109 @@ const User = () => {
     fetchUsers();
   }, []);
 
-  return (
-    <PageContainer title="User List" description="This is the User List page">
-      <Box sx={{ padding: { xs: '10px' } }}>
-        <Grid container spacing={2}> {/* Reduced spacing here */}
-          <Grid item xs={12} sx={{ marginBottom: '20px', marginTop: '20px' }}> {/* Adjust margins as needed */}
-            <Typography variant="h4" component="h1" className="heading">
-              User List
-            </Typography>
-          </Grid>
+  // Filter users based on search term
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-          {users.map((user) => (
+  return (
+    <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
+      <Grid container spacing={4}>
+        <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <Typography variant="h4" component="h1" className="heading" sx={{ fontWeight: 'bold', color: '#333' }}>
+            User List
+          </Typography>
+        </Grid>
+
+        {/* search by name */}
+        <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <TextField
+            label="Search by name"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{
+              maxWidth: '500px',
+              margin: 'auto',
+              borderRadius: '50px',
+              backgroundColor: '#f7f7f7',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '50px',
+              },
+              '& .MuiInputBase-input': {
+                padding: '12px 16px',
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+
+        {loading ? (
+          <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
+        ) : filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
             <Grid item xs={12} sm={6} md={4} key={user.id}>
               <Card
                 className="user-card"
                 sx={{
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  borderRadius: '12px',
+                  transition: 'transform 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                  },
                 }}
               >
-                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <CardContent className="card-content">
-                    <Typography variant="h6" component="h2" className="user-name">
-                      {user.name}
-                    </Typography>
-                    <Typography variant="body2" paragraph className="user-email">
-                      {user.email}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" className="user-location">
-                      {user.location}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary" className="user-articles">
-                      Number of articles: {user.articleCount || 0}
-                    </Typography>
-                  </CardContent>
-                </Box>
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }}
-                  className="card-media"
-                >
+                <Box sx={{ flexShrink: 0 }}>
                   <CardMedia
                     component="img"
                     image={user.image || '/default-avatar.png'}
                     alt={user.name}
+                    sx={{
+                      width: '120px',
+                      height: '120px',
+                      objectFit: 'cover',
+                      borderRadius: '50%',
+                      margin: '16px',
+                      border: '4px solid #fff',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+                    }}
                   />
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <CardContent className="card-content" sx={{ padding: '16px' }}>
+                    <Typography variant="h6" component="h2" className="user-name" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
+                      {user.name}
+                    </Typography>
+                    <Typography variant="body2" paragraph className="user-email" sx={{ color: '#7f8c8d' }}>
+                      {user.email}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" className="user-location" sx={{ marginBottom: '8px' }}>
+                      {user.location || 'Unknown Location'}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" className="user-articles" sx={{ color: '#16a085' }}>
+                      Number of articles: {user.articleCount || 0}
+                    </Typography>
+                  </CardContent>
                 </Box>
               </Card>
             </Grid>
-          ))}
-        </Grid>
-      </Box>
-    </PageContainer>
+          ))
+        ) : (
+          <Typography sx={{ textAlign: 'center', width: '100%' }}>No users found</Typography>
+        )}
+      </Grid>
+    </Box>
   );
 };
 

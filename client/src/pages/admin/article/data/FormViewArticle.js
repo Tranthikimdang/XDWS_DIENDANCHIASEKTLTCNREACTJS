@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Card,
   Button,
@@ -14,102 +14,96 @@ import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-import apis from "../../../apis/articleApi";
-import userApi from "../../../apis/userApi";
+
+// Import Firebase
+import { db } from '../../../../config/firebaseconfig';
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+
 function FormViewArticle() {
-  const { id } = useParams(); // Get article index ID from URL
-  const history = useHistory(); // Initialize history object for navigation
-  const [article, setArticle] = useState(null);
-  const [loading, setLoading] = useState(true); // State for loading spinner
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [idMapping, setIdMapping] = useState({}); // State to hold the index-to-real-ID mapping
-  const [users, setUsers] = useState([]);
-  // Chuyển đổi đường dẫn hình ảnh sang định dạng URL hợp lệ
-  const sanitizeImagePath = (path) => path.replace(/\\/g, "/");
-  const getImageUrl = (path) => `${process.env.REACT_APP_BASE_URL}/${sanitizeImagePath(path)}`;
-
-  // Fetch all articles and set up ID mapping
+  const { id } = useParams(); // Lấy ID của bài viết từ URL
+  const navigate = useNavigate();
+  const [article, setArticle] = useState(null); // Trạng thái cho bài viết
+  const [loading, setLoading] = useState(true); // Trạng thái cho spinner
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // Trạng thái cho Snackbar
+  const [snackbarMessage, setSnackbarMessage] = useState(""); // Thông điệp của Snackbar
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Độ nghiêm trọng của Snackbar
+  const [users, setUsers] = useState([]); // Trạng thái cho danh sách người dùng
+  const [cates, setCates] = useState([]);
+  // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchUsers = async () => {
       try {
-        const response = await apis.getList();
-        if (response.status === 200) {
-          const articles = response.data || [];
-          const mapping = {};
-          articles.forEach((article, index) => {
-            mapping[index + 1] = article.id; // Map index + 1 to the actual article ID
-          });
-          setIdMapping(mapping);
-        }
+        const userCollectionRef = collection(db, "users");
+        const userSnapshot = await getDocs(userCollectionRef);
+        const userList = userSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUsers(userList);
+        console.log("Lấy người dùng:", userList);
       } catch (error) {
-        console.error("Error fetching articles:", error);
-        setSnackbarMessage("Failed to fetch articles.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-      }
-    };
-
-    fetchArticles();
-  }, []);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await userApi.getList();
-        if (response.status === 200) {
-          const user = response.data || [];
-          setUsers(user);
-          console.log("Fetched users:", user);
-        }
-      } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Lỗi khi lấy người dùng:", error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchUser();
+    fetchUsers();
   }, []);
 
-  // Fetch specific article details using the real ID
+  // Lấy chi tiết bài viết từ Firestore
   useEffect(() => {
     const fetchArticleDetails = async () => {
-      const realId = idMapping[id]; // Get the real ID from the mapping
-      if (!realId) {
-        setSnackbarMessage("Article not found.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        setLoading(false);
-        return;
-      }
-
       try {
-        const response = await apis.getArticleDetails(realId);
-        if (response.status === 200) {
-          setArticle(response.data);
+        const articleDocRef = doc(db, "articles", id);
+        const articleSnapshot = await getDoc(articleDocRef);
+        if (articleSnapshot.exists()) {
+          setArticle(articleSnapshot.data());
+        } else {
+          setSnackbarMessage("Không tìm thấy bài viết.");
+          setSnackbarSeverity("error");
+          setSnackbarOpen(true);
         }
       } catch (error) {
-        console.error("Error fetching article details:", error);
-        setSnackbarMessage("Failed to fetch article details.");
+        console.error("Lỗi khi lấy chi tiết bài viết:", error);
+        setSnackbarMessage("Không thể lấy chi tiết bài viết.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
-        setLoading(false); // Stop loading spinner after data fetch
+        setLoading(false);
       }
     };
 
-    if (Object.keys(idMapping).length > 0) {
+    if (id) {
       fetchArticleDetails();
     }
-  }, [id, idMapping]);
+  }, [id]);
+  // Fetch categories from Firestore
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
 
-  const removeSpecificHtmlTags = (htmlString, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, "gi");
-    return htmlString?.replace(regex, "");
-  };
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCates(categoriesMap);
 
+        console.log("Fetched categories:", categoriesData);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+  // Đóng Snackbar
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
       return;
@@ -117,9 +111,6 @@ function FormViewArticle() {
     setSnackbarOpen(false);
   };
 
-  const handleBackButtonClick = () => {
-    history.goBack(); // Navigate back to the previous page
-  };
 
   const smallFontStyle = {
     fontSize: '0.9rem',
@@ -129,7 +120,7 @@ function FormViewArticle() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <Card >
+      <Card>
         <VuiBox>
           <VuiBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
             <VuiTypography>
@@ -148,14 +139,14 @@ function FormViewArticle() {
                   borderRadius: "12px",
                   background: "linear-gradient(to bottom right, #19215c, #080d2d)"
                 }}>
-                  <Grid container>
-                    <Grid item xs={6}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
                       {article.image && (
                         <img
-                          src={(article.image)}
-                          alt="Article"
+                          src={article.image}
+                          alt={article.title}
                           style={{
-                            width: "400px",
+                            width: "100%",
                             maxHeight: "300px",
                             objectFit: "cover",
                             borderRadius: "12px",
@@ -164,28 +155,21 @@ function FormViewArticle() {
                         />
                       )}
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={12} md={6}>
                       <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
-                        {article.title}
+                        <strong>Tiêu đề: </strong>{article.title}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                        <strong>Article category: </strong> {article.categories_id}
+                        <strong>Thể loại bài viết: </strong>  {cates[article.categories_id] || 'không có danh mục'}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" style={smallFontStyle}>
-                        <strong>Author: </strong>  {users?.filter(u => article?.user_id == u.id)?.[0]?.name}
+                        <strong>Tác giả: </strong>  {users?.filter(u => article?.user_id === u.id)?.[0]?.name}
                       </VuiTypography>
-                      {/* <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
-                        <strong>Views: </strong> {article.view}
-                      </VuiTypography>
-                      <VuiTypography variant="subtitle1" gutterBottom style={{ color: "#ffffff" }}>
-                        <strong>Date: </strong> {new Date(article.updated_at).toLocaleDateString()}
-                      </VuiTypography> */}
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: "30px" }}>
                       <VuiTypography variant="body1" paragraph style={smallFontStyle}>
-                        <strong>Content: </strong>
-                        {/* {removeSpecificHtmlTags(article.content, "p")} */}
-                        <div dangerouslySetInnerHTML={{__html: article.content}}></div>
+                        <strong>Nội dung: </strong>
+                        <div dangerouslySetInnerHTML={{ __html: article.content }}></div>
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12}>
@@ -193,14 +177,14 @@ function FormViewArticle() {
                         <Button
                           variant="contained"
                           color="primary"
-                          onClick={handleBackButtonClick}
+                          onClick={() => navigate("/admin/article")}
                           startIcon={
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-return-left" viewBox="0 0 16 16">
                               <path fillRule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
                             </svg>
                           }
                         >
-                          Back
+                          Quay Lại
                         </Button>
                       </Box>
                     </Grid>
@@ -208,14 +192,11 @@ function FormViewArticle() {
                 </Paper>
               ) : (
                 <VuiTypography variant="h5" color="text.secondary" align="center">
-                  Loading article details...
+                 Đang tải chi tiết bài viết...
+
                 </VuiTypography>
               )}
-
-
-
             </VuiTypography>
-
           </VuiBox>
         </VuiBox>
       </Card>

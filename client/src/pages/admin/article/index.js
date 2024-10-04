@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
 import { Link } from 'react-router-dom';
@@ -5,33 +6,20 @@ import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-import Icon from "@mui/material/Icon";
 import Tooltip from "@mui/material/Tooltip";
 import Table from "src/examples/Tables/Table";
 import authorsArticleData from "./data/authorsArticleData";
 import ConfirmDialog from './data/FormDeleteArticle';
-import { Alert, Snackbar, TablePagination } from "@mui/material";
+import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
+
 //firebase 
-import { ref, getDownloadURL } from "firebase/storage";
-import { collection, getDocs } from "firebase/firestore";
-import { db, storage } from 'src/config/firebaseconfig'; // Verify this path
-import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
+import { collection, getDocs, updateDoc } from 'firebase/firestore';
+import { db } from '../../../config/firebaseconfig';
+import { doc, deleteDoc } from "firebase/firestore";
 
-const getImageUrl = async (path) => {
-  try {
-    if (!path) throw new Error("Image path is undefined"); // Kiểm tra giá trị path
-    const imageRef = ref(storage, `images/${path}`);
-    const url = await getDownloadURL(imageRef);
-    return url;
-  } catch (error) {
-    console.error("Error getting image URL:", error);
-    return null;
-  }
-};
-
-function Article() {
+function Questions() {
   const { columns } = authorsArticleData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
@@ -43,22 +31,19 @@ function Article() {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage] = useState(5);
+  const [cates, setCates] = useState([]);
 
-  // Fetch articles from Firebase
+  // Fetch articles from Firestore
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "articles"));
-        const articlesList = await Promise.all(
-          querySnapshot.docs.map(async (doc) => {
-            const articleData = { id: doc.id, ...doc.data() };
-            const imageUrl = await getImageUrl(articleData.image); // Đảm bảo giá trị hợp lệ
-            return { ...articleData, image: imageUrl };
-          })
-        );
-        setRows(articlesList);
+        const articlesSnapshot = await getDocs(collection(db, 'articles'));
+        const articlesData = articlesSnapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() }; // Trả về đối tượng bài viết
+        });
+        setRows(articlesData); // Lưu dữ liệu vào state
       } catch (error) {
         console.error("Error fetching articles:", error);
       } finally {
@@ -66,6 +51,31 @@ function Article() {
       }
     };
     fetchArticles();
+  }, []);
+  // Fetch categories from Firestore
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
+
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCates(categoriesMap);
+
+        console.log("Fetched categories:", categoriesData);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
   }, []);
 
   // Fetch users from Firebase
@@ -89,6 +99,7 @@ function Article() {
     fetchUsers();
   }, []);
 
+  //sửa 
   const handleEdit = (id) => {
     console.log("Edit button clicked", id);
   };
@@ -101,6 +112,7 @@ function Article() {
     }
   };
 
+  //xóa 
   const handleDelete = (id, title) => {
     setDeleteId(id);
     setDeleteTitle(title);
@@ -138,11 +150,6 @@ function Article() {
     setOpenDialog(false);
   };
 
-  const removeSpecificHtmlTags = (htmlString, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
-    return htmlString?.replace(regex, '');
-  };
-
   const handleAddArticleSuccess = () => {
     setSnackbarMessage("Article added successfully.");
     setSnackbarSeverity("success");
@@ -153,9 +160,55 @@ function Article() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+  const handleApprove = async (id) => {
+    try {
+      const articleRef = doc(db, "articles", id); // Tạo DocumentReference
+      await updateDoc(articleRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
+      // Cập nhật lại danh sách bài viết
+      setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
+      setSnackbarMessage("Article approved successfully.");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error approving article:", error);
+      setSnackbarMessage("Failed to approve the article.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    }
+  }
+  const removeSpecificHtmlTags = (html, tag) => {
+    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
+    return html?.replace(regex, '');
+  };
+
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
   };
 
   return (
@@ -166,9 +219,9 @@ function Article() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Article Table
+                Bảng Bài Viết
               </VuiTypography>
-              <Link to="/formandarticle">
+              <Link to="/admin/formaddarticle">
                 <button className='text-light btn btn-outline-info' onClick={handleAddArticleSuccess}>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -183,7 +236,7 @@ function Article() {
                       d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
                     />
                   </svg>
-                  Add
+                  Thêm
                 </button>
               </Link>
             </VuiBox>
@@ -235,7 +288,7 @@ function Article() {
                           >
                             <div className="image-column" style={{ flex: '0 0 100px' }}>
                               <img
-                                src={row.imageUrl}
+                                src={row.image}
                                 alt={
                                   row.title
                                     ? row.title.length > 10
@@ -263,25 +316,38 @@ function Article() {
                                   </strong>
                                 </VuiTypography>
                                 <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                  {row.categories_id}
+                                  {cates[row.categories_id]}
                                 </VuiTypography>
                               </VuiBox>
                             </div>
                           </div>
                         ),
-                        Author: (
+                        author: (
                           <VuiBox>
                             <VuiTypography variant="button" color="white" fontWeight="medium">
                               {authorName}
                             </VuiTypography>
                           </VuiBox>
                         ),
-                        content: removeSpecificHtmlTags(row.content, 'p')?.length > 10
-                          ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 10)}...`
-                          : removeSpecificHtmlTags(row.content, 'p'),
+                        content: (
+                          <VuiBox>
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {removeSpecificHtmlTags(row.content, 'p').length > 10
+                                ? `${removeSpecificHtmlTags(row.content, 'p').substring(0, 10)}...`
+                                : removeSpecificHtmlTags(row.content, 'p')}
+                            </VuiTypography>
+                          </VuiBox>
+                        ),
+                        date: (
+                          <VuiBox>
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {formatUpdatedAt(row.updated_at)}
+                            </VuiTypography>
+                          </VuiBox>
+                        ),
                         action: (
                           <div className="action-buttons">
-                            <Link to={`/formviewarticle/${row.id}`}>
+                            <Link to={`/admin/formviewarticle/${row.id}`}>
                               <Tooltip title="Xem bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-info me-2"
@@ -302,7 +368,7 @@ function Article() {
                                 </button>
                               </Tooltip>
                             </Link>
-                            <Link to={{ pathname: "/formeditarticle", state: { data: row } }}>
+                            <Link to={`/admin/formeditarticle/${row.id}`}>
                               <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
@@ -334,28 +400,19 @@ function Article() {
                                 </svg>
                               </button>
                             </Tooltip>
-                            <Tooltip title="Duyệt bài viết" placement="top">
-                              <button
-                                className="text-light btn btn-outline-success me-2"
-                                type="button"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
-                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                                  <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
-                                </svg>
-                              </button>
-                            </Tooltip>
-                            <Tooltip title="Không duyệt bài viết" placement="top">
-                              <button
-                                className="text-light btn btn-outline-secondary"
-                                type="button"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-x-square" viewBox="0 0 16 16">
-                                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
-                                </svg>
-                              </button>
-                            </Tooltip>
+                            {row.isApproved == 0 && (
+                              <>
+                                <Tooltip title="Duyệt bài viết" placement="top">
+                                  <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
+                                      <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                      <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
+                                    </svg>
+                                  </button>
+                                </Tooltip>
+                              </>
+                            )}
+
                           </div>
                         ),
                       };
@@ -392,8 +449,7 @@ function Article() {
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Delete ${deleteTitle}`}
-        content="Are you sure you want to delete this article?"
+        title={`Xóa tiêu đề có tên là: ${deleteTitle}`}
       />
       <Snackbar
         open={snackbarOpen}
@@ -409,4 +465,4 @@ function Article() {
   );
 }
 
-export default Article;
+export default Questions;

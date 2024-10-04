@@ -9,6 +9,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
 import { formatDistanceToNow } from 'date-fns';
+
 //firebase
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig';
@@ -32,9 +33,8 @@ const Article = () => {
   };
 
   const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`);
+    navigate(`/article/${articleId}` , { state: { id: articleId }});
   };
-
   // Fetch articles from Firestore
   useEffect(() => {
     const fetchArticles = async () => {
@@ -76,7 +76,7 @@ const Article = () => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+const categoriesSnapshot = await getDocs(collection(db, 'categories'));
         const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setCates(categoriesData);
 
@@ -104,7 +104,6 @@ const Article = () => {
     { icon: <LinkIcon />, text: 'Copy Link' },
     { icon: <FlagIcon />, text: 'Report Article' },
   ];
-
   const removeSpecificHtmlTags = (html, tag) => {
     const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
     return html?.replace(regex, '');
@@ -122,97 +121,102 @@ const Article = () => {
     <PageContainer title="Article" description="This is Article">
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
-          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading">
-              Featured Articles
-            </Typography>
-            <Typography variant="body1" paragraph className="typography-body">
-              A collection of articles sharing experiences of self-learning programming online and web development techniques.
-            </Typography>
-          </Grid>
-
-          {/* Left Column */}
+          {/* Cột trái */}
           <Grid item md={8}>
             {loading ? (
               <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
                 <CircularProgress />
               </Box>
             ) : (
-              articles.map((article) => (
-                <Card
-                  key={article?.id}
-                  sx={{
-                    display: 'flex',
-                    mb: 3,
-                    flexDirection: { xs: 'column', md: 'row' },
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => handleCardClick(article.id)}
-                >
-                  <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                    <CardContent>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="body1" component="span" className="author-name">
-                          <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
+              articles.map((article) =>
+                // eslint-disable-next-line eqeqeq
+                article.isApproved == 1 && (
+                  <Card
+                    key={article?.id}
+                    sx={{
+                      display: 'flex',
+                      mb: 3,
+                      flexDirection: { xs: 'column', md: 'row' },
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      overflow: 'hidden', // Đảm bảo nội dung không tràn ra ngoài
+                    }}
+                    onClick={() => handleCardClick(article.id)}
+                  >
+                    {/* Bên trái: Nội dung */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <CardContent>
+                        
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <img
+                            src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                            width="40px"
+alt="User Avatar"
+                            style={{ borderRadius: '50%', marginRight: '10px' }}
+                          />
+                          <Typography variant="body1" component="span" className="author-name">
+                            <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
+                          </Typography>
+                        </Box>
+                        <Typography variant="h5" component="h2" className="article-title">
+                          {article.title}
                         </Typography>
-                      </Box>
-                      <Typography variant="h5" component="h2" className="article-title">
-                        {article.title}
-                      </Typography>
-                      <Typography variant="body2" paragraph className="article-description">
-                        {removeSpecificHtmlTags(article.content, 'p').length > 100
-                          ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
-                          : removeSpecificHtmlTags(article.content, 'p')}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                        <Typography variant="body2" color="textSecondary" className="category-badge">
-                          {catesMap[article.categories_id] || 'Unknown Category'}
+                        <Typography variant="body2" paragraph className="article-description">
+                          {removeSpecificHtmlTags(article.content, 'p').length > 100
+                            ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
+                            : removeSpecificHtmlTags(article.content, 'p')}
                         </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                          {formatDate(article.updated_at)} {/* Display formatted date */}
-                        </Typography>
-                      </Box>
-                    </CardContent>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
-                    <CardMedia
-                      component="img"
-                      sx={{
-                        width: { xs: '100%', md: 200 },
-                        height: { xs: 200, md: 'auto' },
-                        objectFit: 'cover',
-                      }}
-                      image={article.image}
-                      alt={article.title}
-                    />
-                    <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                      <IconButton aria-label="bookmark">
-                        <IconBookmark />
-                      </IconButton>
-                      <IconButton aria-label="more" onClick={handleClick}>
-                        <IconDots />
-                      </IconButton>
-                      <Menu
-                        id="menu"
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={handleClose}
-                      >
-                        {menuItems.map((item, i) => (
-                          <MenuItem key={i} onClick={handleClose}>
-                            {item.icon}
-                            <span style={{ marginLeft: 10 }}>{item.text}</span>
-                          </MenuItem>
-                        ))}
-                      </Menu>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" className="category-badge">
+                            {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                            {formatDate(article.updated_at)} {/* Hiển thị ngày định dạng */}
+                          </Typography>
+                        </Box>
+                      </CardContent>
                     </Box>
-                  </Box>
-                </Card>
-              ))
+
+                    {/* Bên phải: Hình ảnh */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          width: { xs: '100%', md: 200 }, // Responsive chiều ngang
+                          height: { xs: 'auto', md: '100%' }, // Đảm bảo hình ảnh lấp đầy chiều cao
+                          aspectRatio: '16/9', // Đặt tỷ lệ khung hình cố định
+                          objectFit: 'cover', // Giữ tỉ lệ hình ảnh mà không méo
+                        }}
+                        image={article.image}
+                        alt={article.title}
+                      />
+                      {/* Các nút hành động */}
+                      <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
+                        <IconButton aria-label="bookmark">
+                          <IconBookmark />
+                        </IconButton>
+                        <IconButton aria-label="more" onClick={handleClick}>
+                          <IconDots />
+                        </IconButton>
+                        <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                          {menuItems.map((item, i) => (
+<MenuItem key={i} onClick={handleClose}>
+                              {item.icon}
+                              <span style={{ marginLeft: 10 }}>{item.text}</span>
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </Box>
+                    </Box>
+                  </Card>
+                )
+              )
             )}
           </Grid>
+
+
 
           {/* Right Column */}
           <Grid item md={4}>
