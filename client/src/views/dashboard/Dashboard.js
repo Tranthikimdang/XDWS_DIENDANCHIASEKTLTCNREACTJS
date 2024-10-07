@@ -58,10 +58,8 @@ const Home = () => {
     const [catesMap, setCatesMap] = useState({});
 
     const handleCardClick = (articleId) => {
-        if (articleId) {
-            navigate(`/article/${articleId}`);
-        }
-    };
+        navigate(`/article/${articleId}`, { state: { id: articleId } });
+      };
 
     useEffect(() => {
         const fetchArticles = async () => {
