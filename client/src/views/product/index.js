@@ -244,7 +244,7 @@ const Products = () => {
                   </div>
                 ))
             ) : (
-              <p>No products available.</p>
+              <p>Không tìm thấy khóa học nào.</p>
             )}
             <Box display="flex" justifyContent="center" mt={4}>
               <Pagination

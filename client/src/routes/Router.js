@@ -12,6 +12,7 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin')));
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
+const CateArticleDetail = Loadable(lazy(() => import('../views/article/components/CateArticleDetail')));
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))); // Import the ArticleDetail component
 const Questions = Loadable(lazy(() => import('../views/questions/Questions.js')));
@@ -90,6 +91,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },
@@ -142,6 +144,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },
@@ -167,6 +170,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia, CircularProgress, TextField, InputAdornment, Pagination } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 //icon
 import { IconBookmark, IconDots } from '@tabler/icons';
@@ -262,7 +262,7 @@ const Article = () => {
                   )
                 ))
             ) : (
-              <Typography>No articles found.</Typography>
+              <Typography>Không tìm thấy bài viết nào.</Typography>
             )}
             <Box display="flex" justifyContent="center" mt={4}>
               <Pagination
@@ -273,10 +273,11 @@ const Article = () => {
               />
             </Box>
           </Grid>
-          <Grid item md={4}>
+         {/* Right Column */}
+         <Grid item md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Xem các bài viết theo chủ đề
+                Danh mục các khóa học
               </Typography>
               {loading ? (
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
@@ -285,9 +286,11 @@ const Article = () => {
               ) : (
                 <ul className="category-list">
                   {cates.map((cate) => (
-                    <li key={cate?.id} className="category-item">
-                      <strong>{cate?.name}</strong>
-                    </li>
+                    <Link to={`/CateArticleDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
+                      <li key={cate.id} className="category-item">
+                        <strong>{cate.name}</strong>
+                      </li>
+                    </Link>
                   ))}
                 </ul>
               )}
@@ -300,3 +303,6 @@ const Article = () => {
 };
 
 export default Article;
+
+
+
