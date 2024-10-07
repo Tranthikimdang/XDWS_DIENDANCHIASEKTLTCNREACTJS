@@ -88,7 +88,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Comment Management",
+    name: "Quản Lý Bình Luận",
     key: "comment",
     route: "/admin/comment",
     icon: <BsFillPencilFill size="15px" color="inherit" />,
@@ -153,7 +153,7 @@ const routes = [
 
   {
     key: "commentDetail",
-    route: "/admin/commentDetail",
+    route: "/admin/commentDetail/:id",
     // component: CommentDetail,
     hidden: true, // Ẩn mục này
   },
