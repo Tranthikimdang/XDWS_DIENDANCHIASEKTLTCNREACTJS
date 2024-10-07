@@ -1,0 +1,304 @@
+/* General Styles */
+.featured-article {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+._heading_juuyp_22 {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.4;
+  color: #242424;
+  font-family: 'Segoe UI', Roboto;
+}
+
+.typography-header {
+  margin-bottom: 16px; /* Space below the header */
+  line-height: 1.2; /* Adjust line height if needed */
+}
+
+.typography-body {
+  margin: 0; /* Remove default margin if needed */
+  line-height: 1.6; /* Increase line height for better readability */
+}
+
+.article-info {
+  flex: 1;
+  margin-right: 20px;
+}
+
+/* .author-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+} */
+
+.author-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.author-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.article-title {
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: 0 0 10px 0;
+  color: #000;
+}
+
+.article-description {
+  margin: 0 0 15px 0;
+  color: #555;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  font-size: 0.9em;
+  color: #888;
+}
+
+.category-badge {
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin-right: 10px;
+  color: #555;
+}
+
+.article-thumbnail {
+  position: relative;
+  margin-top: 20px;
+  margin-bottom: 30px; /* Thêm lề dưới để tạo khoảng cách với khung chứa */
+}
+
+.thumbnail-wrapper {
+  position: relative;
+}
+
+.article-thumbnail img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.icon-group {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.icon-group > * {
+  font-size: 24px;
+  color: #333;
+}
+
+.icon-group .MuiIconButton-root {
+  color: #777;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-group .MuiIconButton-root:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.dot {
+  margin: 0 8px;
+  color: #999;
+}
+
+.sidebar {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.sidebar h3 {
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+.sidebar .category-item:hover {
+  color: #0056b3; /* Darker blue text color on hover */
+  background-color: rgba(0, 123, 255, 0.1); /* Light blue background on hover */
+}
+
+.category-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.category-item {
+  background-color: #f1f1f1;
+  padding: 10px 20px;
+  border-radius: 25px;
+  display: inline-block;
+  color: #333;
+}
+
+/* Icon Button Styles */
+.icon-group .MuiIconButton-root {
+  color: #777;
+  padding: 6px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.icon-group .MuiIconButton-root:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+/* CardMedia Styles */
+/* .card-media {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+  overflow: hidden;
+  padding-bottom: 20px; /* Thêm padding dưới */
+/* } */
+
+/* .card-media img {
+  max-width: 90%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 80px;
+  margin-bottom: 20px; /* Thêm lề dưới để tạo khoảng cách với khung chứa */
+/* } */ 
+
+
+
+/* Responsive Styles */
+@media (max-width: 960px) {
+  .featured-article {
+    flex-direction: column; /* Đặt các phần tử theo chiều dọc */
+    padding: 15px; /* Giảm padding để phù hợp với màn hình nhỏ hơn */
+  }
+
+  .article-info {
+    margin-right: 0; /* Xóa bỏ lề bên phải */
+    margin-bottom: 15px; /* Thêm lề dưới để tạo khoảng cách */
+  }
+
+  .author-image {
+    width: 35px; /* Điều chỉnh kích thước hình ảnh tác giả */
+    height: 35px;
+  }
+
+  .article-title {
+    font-size: 1.25rem; /* Giảm kích thước tiêu đề */
+  }
+
+  .article-description {
+    font-size: 1rem; /* Giảm kích thước mô tả */
+  }
+
+  .article-meta {
+    flex-direction: column; /* Đặt các phần tử theo chiều dọc */
+    align-items: flex-start; /* Căn chỉnh các phần tử theo chiều dọc */
+    gap: 8px; /* Thêm khoảng cách giữa các phần tử */
+  }
+
+  .article-thumbnail img {
+    max-width: 100%; /* Đảm bảo hình ảnh không vượt quá chiều rộng khung */
+    height: auto; /* Giữ tỉ lệ khung hình */
+  }
+
+  .icon-group {
+    margin-top: 10px; /* Thêm khoảng cách trên cùng của nhóm icon */
+  }
+
+  .sidebar {
+    margin-top: 30px; /* Thêm khoảng cách trên cùng của thanh bên */
+    padding: 15px; /* Điều chỉnh padding của thanh bên */
+  }
+
+  .category-item {
+    font-size: 0.9rem; /* Giảm kích thước font cho item */
+    padding: 8px 15px; /* Điều chỉnh padding */
+  }
+}
+
+@media (max-width: 600px) {
+  .article-info {
+    margin-bottom: 10px; /* Giảm khoảng cách dưới của thông tin bài viết */
+  }
+
+  .author-image {
+    width: 30px; /* Điều chỉnh kích thước hình ảnh tác giả */
+    height: 30px;
+  }
+
+  .article-title {
+    font-size: 1.1rem; /* Giảm kích thước tiêu đề */
+  }
+
+  .article-description {
+    font-size: 0.9rem; /* Giảm kích thước mô tả */
+  }
+
+  .article-meta {
+    font-size: 0.85rem; /* Giảm kích thước font */
+  }
+
+  .category-item {
+    font-size: 0.875rem; /* Giảm kích thước font cho item */
+    padding: 6px 12px; /* Điều chỉnh padding */
+  }
+
+  .sidebar {
+    padding: 15px; /* Điều chỉnh padding của thanh bên */
+  }
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+  .article-title {
+    font-size: 1rem; /* Giảm kích thước tiêu đề */
+  }
+
+  .article-description {
+    font-size: 0.85rem; /* Giảm kích thước mô tả */
+  }
+
+  .category-item {
+    font-size: 0.8rem; /* Giảm kích thước font cho item */
+    padding: 5px 10px; /* Điều chỉnh padding */
+  }
+
+  .icon-group {
+    justify-content: flex-start; /* Căn chỉnh nhóm icon về phía trái */
+  }
+
+  .icon-group .MuiIconButton-root {
+    font-size: 20px; /* Giảm kích thước icon */
+    padding: 4px; /* Điều chỉnh padding */
+  }
+}
+@media (max-width: 767.98px) { .border-sm-start-none { border-left: none !important; } }

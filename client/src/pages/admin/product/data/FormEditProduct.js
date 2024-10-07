@@ -73,6 +73,7 @@ function FormEditProduct() {
       setValue('quality', productData.quality);
       setValue('description', productData.description);
       setValue('cate_pro_id', productData.cate_pro_id);
+      setValue('video_demo', productData.video_demo);
     }
   }, [productData, setValue]);
 
@@ -111,6 +112,7 @@ function FormEditProduct() {
         discount: parseFloat(data.discount), // Chuyển đổi chuỗi thành số
         quality: parseInt(data.quality), // Chuyển đổi chuỗi thành số nguyên
         description: data.description,
+        video_demo: data.video_demo,
         updated_at: new Date(),
       });
 
@@ -226,6 +228,17 @@ function FormEditProduct() {
               {errors.cate_pro_id && (
                 <div className="text-danger">{errors.cate_pro_id.message}</div>
               )}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-12 mb-3">
+              <label className="text-light form-label">Video demo code</label>
+              <input
+                type="text"
+                className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
+                {...register('video_demo', { required: 'Video demo is required' })}
+              />
+              {errors.video_demo && <div className="text-danger">{errors.video_demo.message}</div>}
             </div>
           </div>
           <div className="mb-3">

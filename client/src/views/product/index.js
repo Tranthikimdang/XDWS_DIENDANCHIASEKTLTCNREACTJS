@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Grid,
-  Box,
-  Typography,
-  CircularProgress,
-  Pagination
-} from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 // Firebase
@@ -21,7 +15,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-
+  const [searchTerm, setSearchTerm] = useState('');
   // Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
@@ -67,10 +61,14 @@ const Products = () => {
     fetchCategories();
   }, []);
 
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <PageContainer title="products" description="This is products">
@@ -85,6 +83,15 @@ const Products = () => {
               web development techniques.
             </Typography>
           </Grid>
+          <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+            <TextField
+              label="Search by name"
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+            />
+          </Grid>
 
           {/* Left Column */}
           <Grid item md={8}>
@@ -94,84 +101,128 @@ const Products = () => {
               </Box>
             ) : currentProducts.length > 0 ? (
               currentProducts
-              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-              .map((product) => (
-                <div className="container py-2" key={product.id}>
-                  <div className="row justify-content-center mt-2">
-                    <div className="card-body border p-4 rounded col-md-12 col-xl-12">
-                      <div className="shadow-0 rounded-3">
-                        <div className="row">
-                          {/* Product Image */}
-                          <div className="col-md-12 col-lg-4 col-xl-4 mb-4 mb-lg-0">
-                            <Link to={`/productDetail/${product.id}`} style={{ textDecoration: 'none' }}>
-                              <div className="bg-image hover-zoom ripple rounded ripple-surface" style={{ display: 'flex', border: '1px solid #ddd', padding: '5px', height: '150px', borderRadius: '10px' }}>
-                                <img src={product.image_url} className="w-100" alt={product.name} style={{ objectFit: 'cover', height: '100%', borderRadius: '10px', transition: 'all 0.3s ease', cursor: 'pointer' }} />
-                                <a href="#!">
-                                  <div className="hover-overlay">
-                                    <div className="mask" style={{ backgroundColor: 'rgba(253, 253, 253, 0.15)' }}></div>
-                                  </div>
-                                </a>
-                              </div>
-                            </Link>
-                          </div>
-
-                          {/* Product Details */}
-                          <div className="col-md-6 col-lg-4 col-xl-4">
-                            <h5>{product.name}</h5>
-                            <div className="d-flex flex-row">
-                              <span>Số lượng {product.quality}</span>
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .map((product) => (
+                  <div className="container py-2" key={product.id}>
+                    <div className="row justify-content-center mt-2">
+                      <div className="card-body border p-4 rounded col-md-12 col-xl-12">
+                        <div className="shadow-0 rounded-3">
+                          <div className="row">
+                            {/* Product Image */}
+                            <div className="col-md-12 col-lg-4 col-xl-4 mb-4 mb-lg-0">
+                              <Link
+                                to={`/productDetail/${product.id}`}
+                                style={{ textDecoration: 'none' }}
+                              >
+                                <div
+                                  className="bg-image hover-zoom ripple rounded ripple-surface"
+                                  style={{
+                                    display: 'flex',
+                                    border: '1px solid #ddd',
+                                    padding: '5px',
+                                    height: '150px',
+                                    borderRadius: '10px',
+                                  }}
+                                >
+                                  <img
+                                    src={product.image_url}
+                                    className="w-100"
+                                    alt={product.name}
+                                    style={{
+                                      objectFit: 'cover',
+                                      height: '100%',
+                                      borderRadius: '10px',
+                                      transition: 'all 0.3s ease',
+                                      cursor: 'pointer',
+                                    }}
+                                  />
+                                  <a href="#!">
+                                    <div className="hover-overlay">
+                                      <div
+                                        className="mask"
+                                        style={{ backgroundColor: 'rgba(253, 253, 253, 0.15)' }}
+                                      ></div>
+                                    </div>
+                                  </a>
+                                </div>
+                              </Link>
                             </div>
-                            <div className="d-flex mt-1 mb-0 text-muted small">
-                              <span>
-                                <span className="text-primary"> • </span>Price: {product.price} VND
-                              </span>
+
+                            {/* Product Details */}
+                            <div className="col-md-6 col-lg-4 col-xl-4">
+                              <h5>{product.name}</h5>
+                              <div className="d-flex flex-row">
+                                <span>Số lượng {product.quality}</span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
-                              <span>
-                                <span className="text-primary"> • </span>Discount: {product.discount}%
-                              </span>
+                                <span>
+                                  <span className="text-primary"> • </span>Price: {product.price}{' '}
+                                  VND
+                                </span>
                               </div>
-                            <div className="d-flex mt-1 mb-0 text-muted small d-flex justify-content-start">
-                              <span
-                                className="text-truncate d-inline-block "
-                                style={{
-                                  maxWidth: '250px',
-                                  whiteSpace: 'nowrap',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  fontSize: '0.9rem',
-                                  display: 'block',
-                                }}
-                              >
-                                Mô tả: {product.description ? product.description.replace(/(<([^>]+)>)/gi, '') : 'No description available'}
-                              </span>
+                              <div className="d-flex mt-1 mb-0 text-muted small">
+                                <span>
+                                  <span className="text-primary"> • </span>Discount:{' '}
+                                  {product.discount}%
+                                </span>
+                              </div>
+                              <div className="d-flex mt-1 mb-0 text-muted small d-flex justify-content-start">
+                                <span
+                                  className="text-truncate d-inline-block "
+                                  style={{
+                                    maxWidth: '250px',
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    fontSize: '0.9rem',
+                                    display: 'block',
+                                  }}
+                                >
+                                  Mô tả:{' '}
+                                  {product.description
+                                    ? product.description.replace(/(<([^>]+)>)/gi, '')
+                                    : 'No description available'}
+                                </span>
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Price and Additional Details */}
-                          <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
-                            <div className="align-items-center mb-1">
-                              <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
-                                {product.discount ? product.discount.toLocaleString('vi-VN') : 'N/A'} VND
+                            {/* Price and Additional Details */}
+                            <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
+                              <div className="align-items-center mb-1">
+                                <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
+                                  {product.discount
+                                    ? product.discount.toLocaleString('vi-VN')
+                                    : 'N/A'}{' '}
+                                  VND
+                                </h6>
+                                <span className="text-danger" style={{ fontSize: '0.7rem' }}>
+                                  <s>
+                                    {product.price ? product.price.toLocaleString('vi-VN') : 'N/A'}{' '}
+                                    VND
+                                  </s>
+                                </span>
+                              </div>
+                              <h6 className="text-success">
+                                <b>Giảm giá sốc</b>
                               </h6>
-                              <span className="text-danger" style={{ fontSize: '0.7rem' }}>
-                                <s>{product.price ? product.price.toLocaleString('vi-VN') : 'N/A'} VND</s>
-                              </span>
-                            </div>
-                            <h6 className="text-success">
-                              <b>Giảm giá sốc</b>
-                            </h6>
-                            <div className="d-flex flex-column mt-4">
-                              <button className="btn btn-primary btn-sm" type="button">Mua ngay</button>
-                              <button className="btn btn-outline-primary btn-sm mt-2" type="button">Thêm vào giỏ hàng</button>
+                              <div className="d-flex flex-column mt-4">
+                                <button className="btn btn-primary btn-sm" type="button">
+                                  Mua ngay
+                                </button>
+                                <button
+                                  className="btn btn-outline-primary btn-sm mt-2"
+                                  type="button"
+                                >
+                                  Thêm vào giỏ hàng
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))
             ) : (
               <p>No products available.</p>
             )}
@@ -200,10 +251,9 @@ const Products = () => {
                   {cates.map((cate) => (
                     <Link to={`/cateDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
                       <li key={cate.id} className="category-item">
-                      <strong>{cate.name}</strong>
-                    </li>
+                        <strong>{cate.name}</strong>
+                      </li>
                     </Link>
-                    
                   ))}
                 </ul>
               )}
