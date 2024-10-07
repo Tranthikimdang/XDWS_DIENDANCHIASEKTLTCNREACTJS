@@ -1,118 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { IconBracketsContainStart } from '@tabler/icons';
-import {
-  Grid,
-  Box,
-  Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  Card,
-  CardContent,
-  CardMedia,
-  CircularProgress,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import PageContainer from 'src/components/container/PageContainer';
-import { IconBookmark, IconDots } from '@tabler/icons';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import EmailIcon from '@mui/icons-material/Email';
-import LinkIcon from '@mui/icons-material/Link';
-import FlagIcon from '@mui/icons-material/Flag';
-import { formatDistanceToNow } from 'date-fns';
-//firebase
-import { collection, getDocs } from 'firebase/firestore';
+import { Grid, Box, Typography, CircularProgress } from '@mui/material';
+import { useParams } from 'react-router-dom'; // Lấy id từ URL
+import { doc, getDoc } from 'firebase/firestore'; // Sử dụng để lấy dữ liệu cụ thể từ Firestore
 import { db } from '../../../config/firebaseconfig';
+import { formatDistanceToNow } from 'date-fns'; // Format ngày
 import './detail.css';
 
 const ProductsDetail = () => {
-  const navigate = useNavigate();
-  const [cates, setCates] = useState([]);
-  const [catesMap, setCatesMap] = useState({}); // State to store category ID to name mapping
-  const [products, setProducts] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
+  const { id } = useParams(); // Lấy id từ URL
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true); // Trạng thái loading khi fetch dữ liệu
 
-  // Fetch products from Firestore
+  // Lấy dữ liệu sản phẩm theo ID từ Firestore
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchProduct = async () => {
       setLoading(true);
       try {
-        const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setProducts(productsData);
-        console.log('Fetched products:', productsData);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false); // Set loading to false after data is fetched
-      }
-    };
-    fetchProducts();
-  }, []);
+        const productRef = doc(db, 'products', id); // Lấy reference của sản phẩm
+        const productSnap = await getDoc(productRef); // Fetch dữ liệu từ Firestore
 
-  // Fetch users from Firestore
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const usersSnapshot = await getDocs(collection(db, 'products'));
-        const usersData = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setUsers(usersData);
-        console.log('Fetched users:', usersData);
+        if (productSnap.exists()) {
+          setProduct(productSnap.data()); // Set dữ liệu sản phẩm vào state
+        } else {
+          console.error('Sản phẩm không tồn tại');
+        }
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Lỗi khi lấy sản phẩm:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchUsers();
-  }, []);
 
-  // Fetch categories from Firestore
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories_product'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCates(categoriesData);
+    if (id) {
+      fetchProduct(); // Gọi hàm nếu có ID
+    }
+  }, [id]);
 
-        // Create a mapping of category ID to name
-        const categoriesMap = categoriesData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCatesMap(categoriesMap);
-
-        console.log('Fetched categories:', categoriesData);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  const menuItems = [
-    { icon: <FacebookIcon />, text: 'Share on Facebook' },
-    { icon: <TwitterIcon />, text: 'Share on Twitter' },
-    { icon: <EmailIcon />, text: 'Share via Email' },
-    { icon: <LinkIcon />, text: 'Copy Link' },
-    { icon: <FlagIcon />, text: 'Report products' },
-  ];
-
-  const removeSpecificHtmlTags = (html, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
-    return html?.replace(regex, '');
-  };
-
-  // Helper function to format date as "1 hour ago", "2 days ago", etc.
+  // Hàm định dạng ngày
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp.seconds * 1000);
@@ -120,158 +44,82 @@ const ProductsDetail = () => {
   };
 
   return (
-    <PageContainer title="products" description="This is products">
-      <Box sx={{ padding: { xs: '10px' } }}>
+    <Box sx={{ padding: { xs: '10px' } }}>
+      {loading ? (
+        <CircularProgress /> // Hiển thị spinner khi đang fetch dữ liệu
+      ) : product ? (
         <Grid container spacing={3}>
-          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+          {/* <Grid item xs={12} sx={{ marginBottom: { xs: '0', md: '0' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
-              Featured products
+              {product.name}
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
-              A collection of products sharing experiences of self-learning programming online and
-              web development techniques.
+              {product.description}
             </Typography>
-          </Grid>
+          </Grid> */}
 
-          {/* Left Column */}
-          <Grid item md={8}>
-            <div class="container">
-              <div class="card">
-                <div class="container-fliud">
-                  <div class="wrapper row">
-                    <div class="preview col-md-6">
-                      <div class="preview-pic tab-content">
-                        <div class="tab-pane active" id="pic-1">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-2">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-3">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-4">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
-                        <div class="tab-pane" id="pic-5">
-                          <img src="http://placekitten.com/400/252" />
-                        </div>
+          {/* Bố cục giao diện sản phẩm */}
+          <Grid item md={12}>
+            <div className="container">
+              <div className="card">
+                <div className="container-fliud">
+                  <div className="wrapper row">
+                    {/* Cột hiển thị hình ảnh sản phẩm */}
+                    <div className="preview col-md-6">
+                      <div class="ratio ratio-16x9">
+                        <iframe
+                          src="https://www.youtube.com/embed/vlDzYIIOYmM"
+                          title="YouTube video"
+                          allowfullscreen
+                        ></iframe>
                       </div>
-                      <ul class="preview-thumbnail nav nav-tabs">
-                        <li class="active">
-                          <a data-target="#pic-1" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-2" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-3" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-4" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                        <li>
-                          <a data-target="#pic-5" data-toggle="tab">
-                            <img src="http://placekitten.com/200/126" />
-                          </a>
-                        </li>
-                      </ul>
                     </div>
-                    <div class="details col-md-6">
-                      <h3 class="product-title">men's shoes fashion</h3>
-                      <div class="rating">
-                        <div class="stars">
-                          <span class="fa fa-star checked"></span>
-                          <span class="fa fa-star checked"></span>
-                          <span class="fa fa-star checked"></span>
-                          <span class="fa fa-star"></span>
-                          <span class="fa fa-star"></span>
+
+                    {/* Cột hiển thị chi tiết sản phẩm */}
+                    <div className="details col-md-6">
+                      <h3 className="product-title">{product.name}</h3>
+                      <div className="rating">
+                        <div className="stars">
+                          <span className="fa fa-star checked"></span>
+                          <span className="fa fa-star checked"></span>
+                          <span className="fa fa-star checked"></span>
+                          <span className="fa fa-star"></span>
+                          <span className="fa fa-star"></span>
                         </div>
-                        <span class="review-no">41 reviews</span>
+                        <span className="review-no">41 reviews</span>
                       </div>
-                      <p class="product-description">
-                        Suspendisse quos? Tempus cras iure temporibus? Eu laudantium cubilia sem
-                        sem! Repudiandae et! Massa senectus enim minim sociosqu delectus posuere.
-                      </p>
-                      <h4 class="price">
-                        current price: <span>$180</span>
+                      <p className="product-description">Mô tả: {product.description ? product.description.replace(/(<([^>]+)>)/gi, '') : 'No description available'}</p>
+                      <h4 className="price">
+                        current price: <span>{product.price} VND</span>
                       </h4>
-                      <p class="vote">
+                      <p className="vote">
                         <strong>91%</strong> of buyers enjoyed this product!{' '}
                         <strong>(87 votes)</strong>
                       </p>
-                      <h5 class="sizes">
-                        sizes:
-                        <span class="size" data-toggle="tooltip" title="small">
-                          s
-                        </span>
-                        <span class="size" data-toggle="tooltip" title="medium">
-                          m
-                        </span>
-                        <span class="size" data-toggle="tooltip" title="large">
-                          l
-                        </span>
-                        <span class="size" data-toggle="tooltip" title="xtra large">
-                          xl
-                        </span>
-                      </h5>
-                      <h5 class="colors">
-                        colors:
-                        <span
-                          class="color orange not-available"
-                          data-toggle="tooltip"
-                          title="Not In store"
-                        ></span>
-                        <span class="color green"></span>
-                        <span class="color blue"></span>
-                      </h5>
-                      <div class="action">
-                        <button class="add-to-cart btn btn-default" type="button">
-                          add to cart
-                        </button>
-                        <button class="like btn btn-default" type="button">
-                          <span class="fa fa-heart"></span>
-                        </button>
+                      <div className="action">
+                        <div className="d-flex flex-column mt-4">
+                          <button className="btn btn-primary btn-sm" type="button">
+                            Mua ngay
+                          </button>
+                          <button className="btn btn-outline-primary btn-sm mt-2" type="button">
+                            Thêm vào giỏ hàng
+                          </button>
+                        </div>
                       </div>
+                      <Typography variant="body2" color="textSecondary" mt={2}>
+                        Ngày tạo: {formatDate(product.created_at)}
+                      </Typography>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </Grid>
-
-          {/* Right Column */}
-          <Grid item md={4}>
-            <div className="sidebar">
-              <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Browse by Category
-              </Typography>
-              {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <ul className="category-list">
-                  {cates.map((cate) => (
-                    <li key={cate?.id} className="category-item">
-                      <strong>{cate?.name}</strong>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Grid>
         </Grid>
-      </Box>
-    </PageContainer>
+      ) : (
+        <Typography>Không tìm thấy sản phẩm.</Typography>
+      )}
+    </Box>
   );
 };
 

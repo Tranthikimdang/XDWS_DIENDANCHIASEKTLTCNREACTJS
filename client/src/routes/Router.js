@@ -23,6 +23,7 @@ const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
 
+
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -61,6 +62,7 @@ const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/Form
 const Category = Loadable(lazy(() => import('../pages/admin/category')));
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
+
 
 
 
@@ -117,6 +119,9 @@ const renderRoutes = (role) => {
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
+        { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
+        { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
+        { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
@@ -125,9 +130,6 @@ const renderRoutes = (role) => {
         { path: 'products', exact: true, element: <Product /> },
         { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
-        { path: 'category', exact: true, element: <Category /> },
-        { path: 'addCate', exact: true, element: <AddCate/> },
-        { path: 'editCate/:id', exact: true, element: <EditCate /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

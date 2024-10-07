@@ -261,7 +261,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
           <div className="google-login-btn m-3 border-0">
             <GoogleLogin
 
-              clientId="377354154325-optua6nsafe99lnk5it29j2v20bsfi25.apps.googleusercontent.com"
+              clientId="270409308877-hv65523hch5694hsa6atdjpn0qumls70.apps.googleusercontent.com"
               buttonText=""
               onSuccess={responseGoogle}
               onFailure={responseGoogle}
