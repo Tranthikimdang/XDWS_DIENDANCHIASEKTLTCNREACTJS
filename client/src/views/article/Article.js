@@ -10,7 +10,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
 import SearchIcon from '@mui/icons-material/Search';
-import { formatDistanceToNow } from 'date-fns';
+
 
 //firebase
 import { collection, getDocs } from 'firebase/firestore';
@@ -117,12 +117,36 @@ const Article = () => {
     article.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Helper function to format date as "1 hour ago", "2 days ago", etc.
-  const formatDate = (timestamp) => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp.seconds * 1000);
-    return formatDistanceToNow(date, { addSuffix: true });
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
   };
+  
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -178,87 +202,96 @@ const Article = () => {
               </Box>
             ) : currentArticles.length > 0 ? (
               currentArticles
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+              .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                 .map((article) => (
                   article.isApproved == 1 && (
                     <Card
-                      key={article?.id}
-                      sx={{
-                        display: 'flex',
-                        mb: 3,
-                        flexDirection: { xs: 'column', md: 'row' },
-                        border: '1px solid #ddd',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                        overflow: 'hidden', // Đảm bảo nội dung không tràn ra ngoài
-                      }}
-                      onClick={() => handleCardClick(article.id)}
-                    >
-                      {/* Bên trái: Nội dung */}
-                      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                        <CardContent>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                            <img
-                              src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-                              width="40px"
-                              alt="User Avatar"
-                              style={{ borderRadius: '50%', marginRight: '10px' }}
-                            />
-                            <Typography variant="body1" component="span" className="author-name">
-                              <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
-                            </Typography>
-                          </Box>
-                          <Typography variant="h5" component="h2" className="article-title">
-                            {article.title}
+                    key={article?.id}
+                    sx={{
+                      display: 'flex',
+                      mb: 3,
+                      flexDirection: { xs: 'column', md: 'row' },
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                    }}
+                    onClick={() => handleCardClick(article.id)} // Điều hướng đến chi tiết
+                  >
+                    {/* Bên trái: Nội dung */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <img
+                            src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                            width="40px"
+                            alt="User Avatar"
+                            style={{ borderRadius: '50%', marginRight: '10px' }}
+                          />
+                          <Typography variant="body1" component="span" className="author-name">
+                            <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
                           </Typography>
-                          <Typography variant="body2" paragraph className="article-description">
-                            {removeSpecificHtmlTags(article.content, 'p').length > 100
-                              ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
-                              : removeSpecificHtmlTags(article.content, 'p')}
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                            <Typography variant="body2" color="textSecondary" className="category-badge">
-                              {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                              {formatDate(article.updated_at)} {/* Hiển thị ngày định dạng */}
-                            </Typography>
-                          </Box>
-                        </CardContent>
-                      </Box>
-
-                      {/* Bên phải: Hình ảnh */}
-                      <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
-                        <CardMedia
-                          component="img"
-                          sx={{
-                            width: { xs: '100%', md: 200 }, // Responsive chiều ngang
-                            height: { xs: 'auto', md: '100%' }, // Đảm bảo hình ảnh lấp đầy chiều cao
-                            aspectRatio: '16/9', // Đặt tỷ lệ khung hình cố định
-                            objectFit: 'cover', // Giữ tỉ lệ hình ảnh mà không méo
-                          }}
-                          image={article.image}
-                          alt={article.title}
-                        />
-                        {/* Các nút hành động */}
-                        <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                          <IconButton aria-label="bookmark">
-                            <IconBookmark />
-                          </IconButton>
-                          <IconButton aria-label="more" onClick={handleClick}>
-                            <IconDots />
-                          </IconButton>
-                          <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-                            {menuItems.map((item, i) => (
-                              <MenuItem key={i} onClick={handleClose}>
-                                {item.icon}
-                                <span style={{ marginLeft: 10 }}>{item.text}</span>
-                              </MenuItem>
-                            ))}
-                          </Menu>
                         </Box>
+                        <Typography variant="h5" component="h2" className="article-title">
+                          {article.title}
+                        </Typography>
+                        <Typography variant="body2" paragraph className="article-description">
+                          {removeSpecificHtmlTags(article.content, 'p').length > 100
+                            ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
+                            : removeSpecificHtmlTags(article.content, 'p')}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" className="category-badge">
+                            {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                            {formatUpdatedAt(article.updated_at)}
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Box>
+                    
+                    {/* Bên phải: Hình ảnh và các nút hành động */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          width: { xs: '100%', md: 200 },
+                          height: { xs: 'auto', md: '100%' },
+                          aspectRatio: '16/9',
+                          objectFit: 'cover',
+                        }}
+                        image={article.image}
+                        alt={article.title}
+                      />
+                      <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
+                        <IconButton
+                          aria-label="bookmark"
+                          onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
+                        >
+                          <IconBookmark />
+                        </IconButton>
+                        <IconButton
+                          aria-label="more"
+                          onClick={(event) => {
+                            event.stopPropagation(); // Ngăn sự kiện click thẻ Card
+                            handleClick(event);
+                          }}
+                        >
+                          <IconDots />
+                        </IconButton>
+                        <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                          {menuItems.map((item, i) => (
+                            <MenuItem key={i} onClick={handleClose}>
+                              {item.icon}
+                              <span style={{ marginLeft: 10 }}>{item.text}</span>
+                            </MenuItem>
+                          ))}
+                        </Menu>
                       </Box>
-                    </Card>
+                    </Box>
+                  </Card>
+                  
                   )
                 ))
             ) : (

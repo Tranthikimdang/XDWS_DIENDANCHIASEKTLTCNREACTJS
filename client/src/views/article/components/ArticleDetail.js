@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
+import { Box, Grid, Menu, MenuItem, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconHeart, IconMessageCircle } from '@tabler/icons';
 import { useLocation } from 'react-router-dom';
@@ -8,15 +8,25 @@ import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { Snackbar, Alert } from "@mui/material";
-import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
-import './style.css';
+//icon
+import { IconBookmark, IconDots } from '@tabler/icons';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import EmailIcon from '@mui/icons-material/Email';
+import LinkIcon from '@mui/icons-material/Link';
+import FlagIcon from '@mui/icons-material/Flag';
+
+
 // Firebase
 import { db } from '../../../config/firebaseconfig';
+import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
+import './style.css';
 
 const ArticleDetail = () => {
   // const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [users, setUsers] = useState([]);
   const [comments, setComments] = useState([]);
   const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
@@ -30,6 +40,14 @@ const ArticleDetail = () => {
   const { id, user } = location.state || {};
   console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -209,12 +227,60 @@ const ArticleDetail = () => {
     );
   }
 
+  const menuItems = [
+    { icon: <FacebookIcon />, text: 'Share on Facebook' },
+    { icon: <TwitterIcon />, text: 'Share on Twitter' },
+    { icon: <EmailIcon />, text: 'Share via Email' },
+    { icon: <LinkIcon />, text: 'Copy Link' },
+    { icon: <FlagIcon />, text: 'Report Article' },
+  ];
+
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
+
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={3}>
-        <Grid item xs={2} sx={{ position: 'sticky', top: '85px', backgroundColor: 'white', zIndex: 1, padding: '16px' }}>
+        <Grid
+          item xs={2}
+          sx={{
+            position: 'sticky',
+            top: '85px',
+            backgroundColor: 'white',
+            zIndex: 1,
+            padding: '16px',
+            height: '100vh' // Đảm bảo chiều cao đủ dài để sticky hoạt động
+          }}
+        >
           <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
-            {users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}
+            <strong>{users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}</strong>
           </Typography>
           <Typography variant="body2" color="textSecondary">
             Lập trình là đam mê
@@ -240,17 +306,50 @@ const ArticleDetail = () => {
           <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
             {article.title}
           </Typography>
-          <Box display="flex" alignItems="center" mb={2}>
+          <Box display="flex" alignItems="center" sx={{ position: 'relative' }}>
             <img
               src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
               width="40px"
               alt="User Avatar"
               style={{ borderRadius: '50%', marginRight: '10px' }}
-            /> <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
-              {users?.find(u => article?.user_id === u.id)?.name || "Unknown"}
-            </Typography>
+            />
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                {formatUpdatedAt(article.updated_at)}
+              </Typography>
+            </Box>
 
+            {/* Nút icon bên phải */}
+            <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
+              <IconButton
+                aria-label="bookmark"
+                onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
+              >
+                <IconBookmark />
+              </IconButton>
+              <IconButton
+                aria-label="more"
+                onClick={(event) => {
+                  event.stopPropagation(); // Ngăn sự kiện click thẻ Card
+                  handleClick(event);
+                }}
+              >
+                <IconDots />
+              </IconButton>
+              <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                {menuItems.map((item, i) => (
+                  <MenuItem key={i} onClick={handleClose}>
+                    {item.icon}
+                    <span style={{ marginLeft: 10 }}>{item.text}</span>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
           </Box>
+
 
           {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
             <Avatar alt="Author Name" src="https://via.placeholder.com/150" sx={{ width: 40, height: 40 }} />
