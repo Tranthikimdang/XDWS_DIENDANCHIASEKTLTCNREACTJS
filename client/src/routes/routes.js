@@ -301,6 +301,18 @@ const routes = [
     component: EditCate,
     hidden: true, // Ẩn mục này
   },
+  {
+    key: "addCate",
+    route: "/admin/addCate",
+    component: AddCate,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "editCate",
+    route: "/admin/editCate/:id",
+    component: EditCate,
+    hidden: true, // Ẩn mục này
+  },
   
 
   // '/productDetail/:id'

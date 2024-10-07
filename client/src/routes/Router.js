@@ -130,6 +130,9 @@ const renderRoutes = (role) => {
         { path: 'products', exact: true, element: <Product /> },
         { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
+        { path: 'category', exact: true, element: <Category /> },
+        { path: 'addCate', exact: true, element: <AddCate /> },
+        { path: 'editCate/:id', exact: true, element: <EditCate/> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
