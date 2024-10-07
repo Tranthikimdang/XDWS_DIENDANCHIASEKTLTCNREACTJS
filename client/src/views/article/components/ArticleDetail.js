@@ -10,6 +10,8 @@ import ReplyIcon from '@mui/icons-material/Reply';
 import { Snackbar, Alert } from "@mui/material";
 import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
 import './style.css';
+import { formatDistanceToNow } from 'date-fns';
+
 // Firebase
 import { db } from '../../../config/firebaseconfig';
 
@@ -23,13 +25,15 @@ const ArticleDetail = () => {
   const [newComment, setNewComment] = useState('');
   const [replyContent, setReplyContent] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
+  const [replyingToReply, setReplyingToReply] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const location = useLocation();
-  const {  id , user } = location.state || {};
+  const { id, user } = location.state || {};
   console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
+  const [replyingToUsername, setReplyingToUsername] = useState('');
 
   useEffect(() => {
     if (!currentUser) {
@@ -39,7 +43,7 @@ const ArticleDetail = () => {
       }
     }
   }, [currentUser]);
-  
+
   useEffect(() => {
     const fetchArticle = async () => {
       try {
@@ -113,7 +117,7 @@ const ArticleDetail = () => {
       return;
     }
 
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = new Date().toLocaleString(); // Lấy thời gian hiện tại với định dạng ngày và giờ
 
     const commentData = {
       article_id: id,
@@ -122,8 +126,8 @@ const ArticleDetail = () => {
       created_date: currentDate,
       updated_date: currentDate,
       status: 'pending',
-      isNotified: false, // thong báo 
-      replies: [] // thêm mảng để lưu các câu trả lời      
+      isNotified: false,
+      replies: []
     };
 
     try {
@@ -142,17 +146,20 @@ const ArticleDetail = () => {
     }
   };
 
-  const handleAddReply = async (commentId) => {
+
+  const handleAddReply = async (commentId, isReplyToReply = false, replyIndex = null) => {
     if (!replyContent.trim()) {
       alert('Vui lòng nhập nội dung trả lời.');
       return;
     }
 
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = new Date().toLocaleString(); // Lấy thời gian hiện tại với định dạng ngày và giờ
+
     const replyData = {
       user_name: currentUser?.name || "Khiem",
       content: replyContent,
       created_date: currentDate,
+      replyingTo: commentId,
     };
 
     try {
@@ -160,12 +167,23 @@ const ArticleDetail = () => {
       const commentSnap = await getDoc(commentRef);
 
       if (commentSnap.exists()) {
-        const currentReplies = commentSnap.data().replies || [];
-        await updateDoc(commentRef, {
-          replies: [...currentReplies, replyData],
-        });
+        const commentData = commentSnap.data();
+
+        if (isReplyToReply) {
+          // Nếu đang trả lời trả lời của bình luận
+          commentData.replies[replyIndex].replies = [
+            ...(commentData.replies[replyIndex].replies || []),
+            replyData,
+          ];
+        } else {
+          // Trả lời bình luận chính
+          commentData.replies = [...commentData.replies, replyData];
+        }
+
+        await updateDoc(commentRef, commentData);
         setReplyContent('');
         setReplyingTo(null);
+        setReplyingToReply(null);
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -193,13 +211,24 @@ const ArticleDetail = () => {
     );
   }
 
-  const handleReplyClick = (commentId) => {
-    setReplyingTo(commentId);
-  };
-
   const handleCancelReply = () => {
     setReplyingTo(null);
-    setReplyContent('');
+    setReplyingToReply(null);
+    setReplyingToUsername('');
+  };
+  
+  // Trả lời bình luận chính
+  const handleReplyClick = (commentId, username) => {
+  setReplyingTo(commentId);
+  setReplyingToReply(null); // Hủy trạng thái trả lời reply nếu có
+  setReplyingToUsername(username); // Lưu tên người dùng của comment
+};
+
+  // Trả lời của trả lời
+  const handleReplyToReplyClick = (commentId, replyIndex, replyUsername) => {
+    setReplyingTo(null); // Hủy trạng thái trả lời comment nếu có
+    setReplyingToReply(replyIndex);
+    setReplyingToUsername(replyUsername); // Lưu tên người dùng của reply
   };
 
   if (!article) {
@@ -278,7 +307,7 @@ const ArticleDetail = () => {
               {article.categories_id}
             </Typography>
           </Box> */}
-          
+
           <Box sx={{ padding: '20px' }}>
             <Box mb={4}>
               <Typography variant="h5" gutterBottom>
@@ -364,33 +393,86 @@ const ArticleDetail = () => {
 
           {/* Comments List */}
           <List>
-            {comments.map((comment) => (
-              <ListItem key={comment.id} alignItems="flex-start">
-                <Avatar alt={comment.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
+  {comments.map((comment) => (
+    <ListItem key={comment.id} alignItems="flex-start">
+      <Avatar alt={comment.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
+      <Box ml={1}>
+        <Typography variant="body1" color="textPrimary">
+          <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{comment.user_name}</span>
+        </Typography>
+        <Box display="flex" alignItems="center">
+          <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
+            {comment.content}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true })}
+          </Typography>
+        </Box>
+
+        <Box display="flex" alignItems="center" mt={1}>
+          <IconButton aria-label="reply" onClick={() => handleReplyClick(comment.id, comment.user_name)}>
+            <ReplyIcon fontSize="small" />
+            <Typography variant="body2" color="textSecondary">Reply</Typography>
+          </IconButton>
+          {replyingTo === comment.id && (
+            <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
+              Hủy
+            </Button>
+          )}
+        </Box>
+
+        {replyingTo === comment.id && (
+          <Box className="reply-input" mt={2}>
+            <TextField
+              label={`Trả lời ${replyingToUsername}`}
+              variant="outlined"
+              multiline
+              fullWidth
+              rows={1}
+              value={replyContent}
+              onChange={(e) => setReplyContent(e.target.value)}
+            />
+            <Button variant="contained" color="primary" onClick={() => handleAddReply(comment.id)} sx={{ marginTop: 1, padding: '6px 12px' }}>
+              Gửi trả lời
+            </Button>
+          </Box>
+        )}
+        
+        {comment.replies?.length > 0 && (
+          <List>
+            {comment.replies.map((reply, index) => (
+              <ListItem key={index} alignItems="flex-start">
+                <Avatar alt={reply.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
                 <Box ml={1}>
                   <Typography variant="body1" color="textPrimary">
-                    {comment.user_name}
+                    <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{reply.user_name}</span>
+                    <span style={{ fontSize: '0.8rem', color: 'gray' }}> {' > '} </span>
+                    <span style={{ fontWeight: 'bold' }}>{comment.user_name}</span>
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {comment.content}
-                  </Typography>
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <IconButton aria-label="reply" onClick={() => handleReplyClick(comment.id)}>
-                      <ReplyIcon fontSize="small" />
-                      <Typography variant="body2" color="textSecondary">
-                      Reply
+                  <Box display="flex" alignItems="center">
+                    <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
+                      {reply.content}
                     </Typography>
-                    </IconButton>                   
-                    {replyingTo === comment.id && (
+                    <Typography variant="caption" color="textSecondary">
+                      {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true })}
+                    </Typography>
+                  </Box>
+                  <Box display="flex" alignItems="center" mt={1}>
+                    <IconButton aria-label="reply" onClick={() => handleReplyToReplyClick(comment.id, index, reply.user_name)}>
+                      <ReplyIcon fontSize="small" />
+                      <Typography variant="body2" color="textSecondary">Reply</Typography>
+                    </IconButton>
+                    {replyingToReply === index && (
                       <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
                         Hủy
                       </Button>
                     )}
                   </Box>
-                  {replyingTo === comment.id && (
+
+                  {replyingToReply === index && (
                     <Box className="reply-input" mt={2}>
                       <TextField
-                        label="Viết trả lời"
+                        label={`Trả lời ${replyingToUsername}`}
                         variant="outlined"
                         multiline
                         fullWidth
@@ -403,27 +485,16 @@ const ArticleDetail = () => {
                       </Button>
                     </Box>
                   )}
-                  {comment.replies?.length > 0 && (
-                    <List>
-                      {comment.replies.map((reply, index) => (
-                        <ListItem key={index} alignItems="flex-start">
-                          <Avatar alt={reply.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
-                          <Box ml={1}>
-                            <Typography variant="body1" color="textPrimary">
-                              {reply.user_name}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              {reply.content}
-                            </Typography>
-                          </Box>
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
                 </Box>
               </ListItem>
             ))}
           </List>
+        )}
+      </Box>
+    </ListItem>
+  ))}
+</List>
+
         </DialogContent>
 
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import {  useLocation } from 'react-router-dom';
+import {  useLocation , useParams } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
@@ -15,6 +15,7 @@ import { collection, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/fire
 import { db } from 'src/config/firebaseconfig';
 
 function CommentDetail() {
+  const { id } = useParams();
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
@@ -26,8 +27,8 @@ function CommentDetail() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   // const history = useHistory();
-  const location = useLocation();
-  const { id } = location.state || {};
+  // const location = useLocation();
+  // const { id } = location.state || {};
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "commentDetails"), (snapshot) => {
@@ -73,7 +74,7 @@ function CommentDetail() {
       setSnackbarOpen(true);
     } catch (error) {
       console.error('Error rejecting comment:', error);
-      setSnackbarMessage("Bình luận không được phê duyệt");
+      setSnackbarMessage("Lỗi Bình luận không được phê duyệt");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -121,7 +122,7 @@ function CommentDetail() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Comment Detail Table
+               Bảng Chi Tiết Bình Luận
               </VuiTypography>
               {/* <Link to={{ pathname: "/formAddCmt", state: { id: id } }}>
                 <button className='text-light btn btn-outline-info' type="button">
@@ -206,7 +207,7 @@ function CommentDetail() {
       <ConfirmDialog
         open={openDialog}
         onConfirm={() => confirmDelete(deleteId)}
-        onCancel={cancelDelete}
+        onClose={cancelDelete}
       />
       <Snackbar
         open={snackbarOpen} autoHideDuration={3000}
