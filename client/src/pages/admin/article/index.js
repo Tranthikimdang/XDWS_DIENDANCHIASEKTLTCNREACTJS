@@ -19,7 +19,7 @@ import { collection, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
 
-function Questions() {
+function Article() {
   const { columns } = authorsArticleData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
@@ -468,4 +468,4 @@ function Questions() {
   );
 }
 
-export default Questions;
+export default Article;

@@ -1,7 +1,7 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "src/pages/admin/dashboard";
 // import Comment from "layouts/comment";
-import Questions from "src/pages/admin/questions";
+import Article from "src/pages/admin/article";
 // import CommentDetail from "layouts/commentDetail";
 // import Category from "layouts/category";
 // import Profile from "layouts/profile";
@@ -31,7 +31,7 @@ import Questions from "src/pages/admin/questions";
 // import FormEditCmt from "layouts/commentDetail/data/formEditComment";
 // import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
 
-import Category from "../pages/admin/category";
+
 import AddCate from "../pages/admin/category/data/FormAddCate";
 import EditCate from "../pages/admin/category/data/FormEditCate";
 
@@ -74,7 +74,7 @@ const routes = [
     key: "article",
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
-    // component: Article,
+    component: Article,
     noCollapse: true,
   },
   {
@@ -101,7 +101,7 @@ const routes = [
     key: "questions",
     route: "/admin/questions",
     icon: <FaQuestionCircle size="15px" color="inherit" />,
-    component: Questions,
+    // component: Questions,
     noCollapse: true,
   },
   {
