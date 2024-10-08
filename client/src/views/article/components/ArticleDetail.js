@@ -15,7 +15,7 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
-
+import './ArticleDetail.css';
 
 // Firebase
 import { db } from '../../../config/firebaseconfig';
@@ -28,6 +28,8 @@ const ArticleDetail = () => {
   const [loading, setLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
   const [users, setUsers] = useState([]);
+  const [catesMap, setCatesMap] = useState({});
+  const [cates, setCates] = useState([]);
   const [comments, setComments] = useState([]);
   const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -41,13 +43,7 @@ const ArticleDetail = () => {
   console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -57,6 +53,7 @@ const ArticleDetail = () => {
       }
     }
   }, [currentUser]);
+
   useEffect(() => {
     const fetchArticle = async () => {
       try {
@@ -89,6 +86,32 @@ const ArticleDetail = () => {
       }
     };
     fetchUsers();
+  }, []);
+
+   // Fetch categories from Firestore
+   useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
+
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCatesMap(categoriesMap);
+
+        console.log("Fetched categories:", categoriesData);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -263,6 +286,14 @@ const ArticleDetail = () => {
     }
 
     return updatedAtString;
+  };  
+  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -301,11 +332,7 @@ const ArticleDetail = () => {
             </Typography>
           </Box>
         </Grid>
-
         <Grid item xs={10}>
-          <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
-            {article.title}
-          </Typography>
           <Box display="flex" alignItems="center" sx={{ position: 'relative' }}>
             <img
               src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
@@ -348,34 +375,26 @@ const ArticleDetail = () => {
                 ))}
               </Menu>
             </Box>
+
           </Box>
 
 
-          {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-            <Avatar alt="Author Name" src="https://via.placeholder.com/150" sx={{ width: 40, height: 40 }} />
-            <Box sx={{ marginLeft: '10px' }}>
-              <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
-                {users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}
-              </Typography>
-             
-            </Box>
-          </Box> */}
-
           <Divider sx={{ marginBottom: '20px' }} />
-
+          <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
+            {article.title}
+          </Typography>
           <Typography variant="body1" paragraph>
             <div dangerouslySetInnerHTML={{ __html: article.content }} />
           </Typography>
-
           <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
             <img src={article.image || 'https://via.placeholder.com/800x400'} alt="Article" style={{ width: '100%', borderRadius: '8px' }} />
           </Box>
 
-          {/* <Box sx={{ marginTop: '20px' }}>
+          <Box sx={{ marginTop: '20px' }}>
             <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
-              {article.categories_id}
+            {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
             </Typography>
-          </Box> */}
+          </Box>
 
           <Box sx={{ padding: '20px' }}>
             <Box mb={4}>
@@ -424,6 +443,29 @@ const ArticleDetail = () => {
               <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
                 {comments.length}
               </Typography>
+            </Box>
+            <Box>
+              <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
+                Bài viết cùng chuyên mục
+              </Typography>
+              <Grid item xs={12}>
+            
+              {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <ul className="category-list">
+                  {cates.map((cate) => (
+                    <Link to={`/CateArticleDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
+                      <li key={cate.id} className="category-item">
+                        <strong>{cate.name}</strong>
+                      </li>
+                    </Link>
+                  ))}
+                </ul>
+              )}
+              </Grid>
             </Box>
           </Box>
         </Grid>

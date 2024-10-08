@@ -28,17 +28,7 @@ const Article = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`, { state: { id: articleId } });
-  };
+  
   // Fetch articles from Firestore
   useEffect(() => {
     const fetchArticles = async () => {
@@ -147,6 +137,17 @@ const Article = () => {
     return updatedAtString;
   };
   
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCardClick = (articleId) => {
+    navigate(`/article/${articleId}`, { state: { id: articleId } });
+  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -204,6 +205,7 @@ const Article = () => {
               currentArticles
               .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                 .map((article) => (
+                  // eslint-disable-next-line eqeqeq
                   article.isApproved == 1 && (
                     <Card
                     key={article?.id}
@@ -242,7 +244,7 @@ const Article = () => {
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                           <Typography variant="body2" color="textSecondary" className="category-badge">
-                            {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
+                            {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
                           </Typography>
                           <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
                             {formatUpdatedAt(article.updated_at)}
@@ -310,7 +312,7 @@ const Article = () => {
          <Grid item md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Danh mục các khóa học
+                Bài viết cùng chuyên mục
               </Typography>
               {loading ? (
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">

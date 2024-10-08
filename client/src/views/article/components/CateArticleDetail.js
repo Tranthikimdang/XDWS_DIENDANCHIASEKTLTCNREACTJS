@@ -136,13 +136,14 @@ const Article = () => {
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading">
-              Danh mục khóa học{' '}
-              {catesMap[cateId.id] ? catesMap[cateId.id] : 'Danh mục không tồn tại'}
+            <Typography variant="h4" component="h1" className="heading" sx={{ textTransform: 'uppercase' }}>
+              Chuyên mục {' '}
+              {catesMap[cateId.id] ? catesMap[cateId.id] : 'Chuyên mục không tồn tại'}
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
               A collection of products sharing experiences of self-learning programming online and
               web development techniques.
+              {/* {catesMap[cateId.id] ? catesMap[cateId.id] : 'Chuyênmục không tồn tại'} tieu de*/}
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -184,6 +185,7 @@ const Article = () => {
                 .filter((article) => article.categories_id === cateId.id)
                 .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                 .map((article) => (
+                  // eslint-disable-next-line eqeqeq
                   article.isApproved == 1 && (
                     <Card
                       key={article?.id}
@@ -222,7 +224,7 @@ const Article = () => {
                           </Typography>
                           <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                             <Typography variant="body2" color="textSecondary" className="category-badge">
-                              {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
+                              {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
                             </Typography>
                             <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
                               {formatDate(article.updated_at)} {/* Hiển thị ngày định dạng */}
@@ -281,7 +283,7 @@ const Article = () => {
           <Grid item md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Danh mục các khóa học
+                Bài viết cùng chuyên mục
               </Typography>
               {loading ? (
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
