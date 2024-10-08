@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination, TextField,InputAdornment } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 // Firebase
@@ -84,12 +85,31 @@ const Products = () => {
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-            <TextField
-              label="Search by name"
+          <TextField
+              label="Tìm kiếm khóa học"
               variant="outlined"
               fullWidth
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+
+                margin: 'auto',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
 
@@ -224,7 +244,7 @@ const Products = () => {
                   </div>
                 ))
             ) : (
-              <p>No products available.</p>
+              <p>Không tìm thấy khóa học nào.</p>
             )}
             <Box display="flex" justifyContent="center" mt={4}>
               <Pagination
