@@ -8,10 +8,6 @@ import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { Snackbar, Alert } from "@mui/material";
-import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
-import './style.css';
-import { formatDistanceToNow } from 'date-fns';
-import { db } from '../../../config/firebaseconfig'; // Firebase configuration
 //icon
 import { IconBookmark, IconDots } from '@tabler/icons';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -22,9 +18,12 @@ import FlagIcon from '@mui/icons-material/Flag';
 import './ArticleDetail.css';
 
 // Firebase
-
+import { db } from '../../../config/firebaseconfig';
+import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
+import './style.css';
 
 const ArticleDetail = () => {
+  // const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -36,14 +35,13 @@ const ArticleDetail = () => {
   const [newComment, setNewComment] = useState('');
   const [replyContent, setReplyContent] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
-  const [replyingToReply, setReplyingToReply] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const location = useLocation();
   const { id, user } = location.state || {};
+  console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
-  const [replyingToUsername, setReplyingToUsername] = useState('');
 
 
 
@@ -61,6 +59,7 @@ const ArticleDetail = () => {
       try {
         const docRef = doc(db, 'articles', id);
         const docSnap = await getDoc(docRef);
+
         if (docSnap.exists()) {
           setArticle(docSnap.data());
         } else {
@@ -72,6 +71,7 @@ const ArticleDetail = () => {
         setLoading(false);
       }
     };
+
     fetchArticle();
   }, [id]);
 
@@ -80,7 +80,7 @@ const ArticleDetail = () => {
       try {
         const usersSnapshot = await getDocs(collection(db, 'users'));
         const usersData = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setUsers(usersData || []);
+        setUsers(usersData || []); // Đảm bảo `users` là mảng, ngay cả khi không có dữ liệu
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -118,18 +118,21 @@ const ArticleDetail = () => {
     const fetchCommentsByArticle = () => {
       const commentsRef = collection(db, "commentDetails");
       const q = query(commentsRef, where("article_id", "==", id));
+
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const commentsList = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
+
+        // Kiểm tra nếu trạng thái comment từ pending sang approved
         snapshot.docChanges().forEach((change) => {
           if (change.type === "modified" && change.doc.data().status === "approved") {
-            setSnackbarMessage("Your comment has been approved.");
+            setSnackbarMessage("Bình luận của bạn đã được phê duyệt.");
             setSnackbarSeverity("success");
             setSnackbarOpen(true);
           } else if (change.type === "modified" && change.doc.data().status === "rejected") {
-            setSnackbarMessage("Your comment was not approved.");
+            setSnackbarMessage("Bình luận của bạn không được phê duyệt.");
             setSnackbarSeverity("error");
             setSnackbarOpen(true);
           }
@@ -137,17 +140,21 @@ const ArticleDetail = () => {
         const approvedComments = commentsList.filter(comment => comment.status === "approved");
         setComments(approvedComments || []);
       });
+
       return unsubscribe;
     };
+
     fetchCommentsByArticle();
   }, [id]);
 
   const handleAddComment = async () => {
     if (!newComment.trim()) {
-      alert('Please enter a comment.');
+      alert('Vui lòng nhập bình luận.');
       return;
     }
-    const currentDate = new Date().toLocaleString();
+
+    const currentDate = new Date().toISOString().split('T')[0];
+
     const commentData = {
       article_id: id,
       user_name: currentUser?.name || "Khiem",
@@ -155,61 +162,56 @@ const ArticleDetail = () => {
       created_date: currentDate,
       updated_date: currentDate,
       status: 'pending',
-      isNotified: false,
-      replies: []
+      isNotified: false, // thong báo 
+      replies: [] // thêm mảng để lưu các câu trả lời      
     };
     try {
-      await addDoc(collection(db, "commentDetails"), commentData);
+      const docRef = await addDoc(collection(db, "commentDetails"), commentData);
+      console.log("Comment added with ID: ", docRef.id);
       setNewComment('');
       setOpenCommentsDialog(false);
-      setSnackbarMessage("Your comment has been submitted and is awaiting approval.");
+      setSnackbarMessage("Bình luận của bạn đã được gửi và đang chờ duyệt.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Error adding comment: ", error);
-      setSnackbarMessage("Failed to submit the comment.");
+      setSnackbarMessage("Bình luận không thành công!");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
 
-  const handleAddReply = async (commentId, isReplyToReply = false, replyIndex = null) => {
+  const handleAddReply = async (commentId) => {
     if (!replyContent.trim()) {
-      alert('Please enter a reply.');
+      alert('Vui lòng nhập nội dung trả lời.');
       return;
     }
-    const currentDate = new Date().toLocaleString();
+
+    const currentDate = new Date().toISOString().split('T')[0];
     const replyData = {
       user_name: currentUser?.name || "Khiem",
       content: replyContent,
       created_date: currentDate,
-      replyingTo: commentId,
     };
 
     try {
       const commentRef = doc(db, "commentDetails", commentId);
       const commentSnap = await getDoc(commentRef);
+
       if (commentSnap.exists()) {
-        const commentData = commentSnap.data();
-        if (isReplyToReply) {
-          commentData.replies[replyIndex].replies = [
-            ...(commentData.replies[replyIndex].replies || []),
-            replyData,
-          ];
-        } else {
-          commentData.replies = [...commentData.replies, replyData];
-        }
-        await updateDoc(commentRef, commentData);
+        const currentReplies = commentSnap.data().replies || [];
+        await updateDoc(commentRef, {
+          replies: [...currentReplies, replyData],
+        });
         setReplyContent('');
         setReplyingTo(null);
-        setReplyingToReply(null);
-        setSnackbarMessage("Your reply has been submitted.");
+        setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Error adding reply: ", error);
-      setSnackbarMessage("Failed to submit the reply.");
+      setSnackbarMessage("Trả lời không thành công!");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -230,22 +232,13 @@ const ArticleDetail = () => {
     );
   }
 
+  const handleReplyClick = (commentId) => {
+    setReplyingTo(commentId);
+  };
+
   const handleCancelReply = () => {
     setReplyingTo(null);
-    setReplyingToReply(null);
-    setReplyingToUsername('');
-  };
-
-  const handleReplyClick = (commentId, username) => {
-    setReplyingTo(commentId);
-    setReplyingToReply(null);
-    setReplyingToUsername(username);
-  };
-
-  const handleReplyToReplyClick = (commentId, replyIndex, replyUsername) => {
-    setReplyingTo(null);
-    setReplyingToReply(replyIndex);
-    setReplyingToUsername(replyUsername);
+    setReplyContent('');
   };
 
   if (!article) {
@@ -272,7 +265,6 @@ const ArticleDetail = () => {
       const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
       const now = new Date();
       const diff = now - date; // Tính toán khoảng cách thời gian
-
       const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
@@ -305,8 +297,6 @@ const ArticleDetail = () => {
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={3}>
-        {/* Left Sidebar */}
-        <Grid item xs={2}>
         <Grid
           item xs={2}
           sx={{
@@ -320,6 +310,9 @@ const ArticleDetail = () => {
         >
           <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
             <strong>{users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}</strong>
+          </Typography>
+          <Typography variant="body2" color="textSecondary">
+            Lập trình là đam mê
           </Typography>
           <Divider sx={{ marginTop: '10px' }} />
           <Box sx={{ marginTop: '10px' }}>
@@ -337,19 +330,6 @@ const ArticleDetail = () => {
             </Typography>
           </Box>
         </Grid>
-
-        {/* Article Content */}
-        <Grid item xs={10}>
-          <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
-            {article.title}
-          </Typography>
-          <Typography variant="body1" sx={{ marginBottom: '20px' }}>
-            {article.content}
-          </Typography>
-          <Card>
-            <CardMedia component="img" height="450" image={article.imageUrl} alt="Article Image" />
-          </Card>
-          <Divider sx={{ marginTop: '20px' }} />
         <Grid item xs={10}>
           <Box display="flex" alignItems="center" sx={{ position: 'relative' }}>
             <img
@@ -442,7 +422,7 @@ const ArticleDetail = () => {
             </Grid>
             <Box mt={2}>
               <Typography variant="body2">
-                Bài viết này hiện có <strong>{comments.length}</strong> bình luận
+              Bài viết này hiện có <strong>{comments.length}</strong> bình luận
               </Typography>
               <IconButton aria-label="reply" sx={{ marginLeft: 'auto', display: 'block' }} onClick={() => setOpenCommentsDialog(true)}>
                 {/* <ReplyIcon /> */}
@@ -488,151 +468,105 @@ const ArticleDetail = () => {
           </Box>
         </Grid>
       </Grid>
-
-      {/* Comments Dialog */}
-      <Dialog open={openCommentsDialog} onClose={() => setOpenCommentsDialog(false)} fullWidth>
+      {/* Dialog for Comments */}
+      <Dialog open={openCommentsDialog} onClose={() => setOpenCommentsDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
-          Comments
-          <IconButton
-            edge="end"
-            color="inherit"
-            onClick={() => setOpenCommentsDialog(false)}
-            aria-label="close"
-            sx={{ position: 'absolute', right: 8, top: 8 }}
-          >
+          Bình luận
+          <IconButton aria-label="close" onClick={() => setOpenCommentsDialog(false)} sx={{ position: 'absolute', right: 8, top: 8 }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent>
+          {/* Comment Input Section */}
+          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+            <Avatar alt="Your Avatar" src="https://i.pinimg.com/736x/0d/e2/0f/0de20f2a3e65ae8b92e263dd8340a76c.jpg" />
+            <TextField
+              label="Viết bình luận"
+              variant="outlined"
+              multiline
+              fullWidth
+              rows={1}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              sx={{ marginLeft: 2 }}
+            />
+          </Box>
+          {/* Button for Sending Comment */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 1 }}>
+            <Button variant="contained" color="primary" onClick={handleAddComment} sx={{ padding: '6px 12px' }}>
+              Gửi bình luận
+            </Button>
+          </Box>
+
+          {/* Comments List */}
           <List>
-            {comments.map((comment, index) => (
-              <ListItem key={index} sx={{ flexDirection: 'column', alignItems: 'flex-start', paddingLeft: '0px', paddingRight: '0px' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                  <Avatar alt={comment.user_name} src={comment.avatarUrl} />
-                  <Typography sx={{ marginLeft: '16px', fontWeight: 'bold' }}>
+            {comments.map((comment) => (
+              <ListItem key={comment.id} alignItems="flex-start">
+                <Avatar alt={comment.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
+                <Box ml={1}>
+                  <Typography variant="body1" color="textPrimary">
                     {comment.user_name}
                   </Typography>
-                </Box>
-                <Typography sx={{ marginLeft: '56px', marginTop: '8px' }}>{comment.content}</Typography>
-                <Typography variant="caption" sx={{ marginLeft: '56px', marginTop: '4px', color: 'gray' }}>
-                  {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true })}
-                </Typography>
-                <Box sx={{ marginLeft: '56px', marginTop: '8px', display: 'flex', alignItems: 'center' }}>
-                  <IconButton onClick={() => handleReplyClick(comment.id, comment.user_name)}>
-                    <ReplyIcon />
-                  </IconButton>
-                  <Typography variant="caption" sx={{ marginLeft: '8px' }}>
-                    Reply
+                  <Typography variant="body2" color="textSecondary">
+                    {comment.content}
                   </Typography>
-                </Box>
-
-                {/* Replies */}
-                {comment.replies?.map((reply, replyIndex) => (
-                  <Box key={replyIndex} sx={{ marginLeft: '72px', marginTop: '8px', borderLeft: '2px solid #ccc', paddingLeft: '16px' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Avatar alt={reply.user_name} src={reply.avatarUrl} />
-                      <Typography sx={{ marginLeft: '16px', fontWeight: 'bold' }}>
-                        {reply.user_name}
-                      </Typography>
-                    </Box>
-                    <Typography sx={{ marginLeft: '56px', marginTop: '8px' }}>{reply.content}</Typography>
-                    <Typography variant="caption" sx={{ marginLeft: '56px', marginTop: '4px', color: 'gray' }}>
-                      {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true })}
-                    </Typography>
-                    <Box sx={{ marginLeft: '56px', marginTop: '8px', display: 'flex', alignItems: 'center' }}>
-                      <IconButton onClick={() => handleReplyToReplyClick(comment.id, replyIndex, reply.user_name)}>
-                        <ReplyIcon />
-                      </IconButton>
-                      <Typography variant="caption" sx={{ marginLeft: '8px' }}>
+                  <Box display="flex" alignItems="center" mt={1}>
+                    <IconButton aria-label="reply" onClick={() => handleReplyClick(comment.id)}>
+                      <ReplyIcon fontSize="small" />
+                      <Typography variant="body2" color="textSecondary">
                         Reply
                       </Typography>
-                    </Box>
-                  </Box>
-                ))}
-
-                {/* Reply Input */}
-                {replyingTo === comment.id && (
-                  <Box sx={{ marginLeft: '56px', marginTop: '8px', width: '100%' }}>
-                    <TextField
-                      label={`Reply to ${replyingToUsername}`}
-                      fullWidth
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      multiline
-                      rows={2}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                      <Button onClick={handleCancelReply} sx={{ marginRight: '8px' }}>
-                        Cancel
+                    </IconButton>
+                    {replyingTo === comment.id && (
+                      <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
+                        Hủy
                       </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleAddReply(comment.id)}
-                      >
-                        Submit
+                    )}
+                  </Box>
+                  {replyingTo === comment.id && (
+                    <Box className="reply-input" mt={2}>
+                      <TextField
+                        label="Viết trả lời"
+                        variant="outlined"
+                        multiline
+                        fullWidth
+                        rows={1}
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                      />
+                      <Button variant="contained" color="primary" onClick={() => handleAddReply(comment.id)} sx={{ marginTop: 1, padding: '6px 12px' }}>
+                        Gửi trả lời
                       </Button>
                     </Box>
-                  </Box>
-                )}
-
-                {/* Reply-to-Reply Input */}
-                {replyingToReply === index && (
-                  <Box sx={{ marginLeft: '56px', marginTop: '8px', width: '100%' }}>
-                    <TextField
-                      label={`Reply to ${replyingToUsername}`}
-                      fullWidth
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      multiline
-                      rows={2}
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                      <Button onClick={handleCancelReply} sx={{ marginRight: '8px' }}>
-                        Cancel
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleAddReply(comment.id, true, index)}
-                      >
-                        Submit
-                      </Button>
-                    </Box>
-                  </Box>
-                )}
+                  )}
+                  {comment.replies?.length > 0 && (
+                    <List>
+                      {comment.replies.map((reply, index) => (
+                        <ListItem key={index} alignItems="flex-start">
+                          <Avatar alt={reply.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
+                          <Box ml={1}>
+                            <Typography variant="body1" color="textPrimary">
+                              {reply.user_name}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              {reply.content}
+                              </Typography>
+                          </Box>
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
               </ListItem>
             ))}
           </List>
-          <Divider />
-          <Box sx={{ marginTop: '16px' }}>
-            <Typography variant="h6" gutterBottom>
-              Add a Comment
-            </Typography>
-            <TextField
-              label="Your comment"
-              fullWidth
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              multiline
-              rows={4}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleAddComment}
-              >
-                Submit
-              </Button>
-            </Box>
-          </Box>
         </DialogContent>
+
+
       </Dialog>
 
-      {/* Snackbar */}
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
