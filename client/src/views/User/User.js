@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Grid, Box, Typography, Card, CardContent, CardMedia, TextField, InputAdornment } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material'; // Thêm icon tìm kiếm
+import { Search as SearchIcon } from '@mui/icons-material'; // Icon for search
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig'; // Firebase config đã được khởi tạo
+import { db } from '../../config/firebaseconfig'; // Firebase configuration
 
 const User = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'users')); // Lấy dữ liệu từ collection "users"
+        const querySnapshot = await getDocs(collection(db, 'users')); // Fetch users from Firestore
         const userList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -28,21 +28,22 @@ const User = () => {
     fetchUsers();
   }, []);
 
-  // Filter users based on search term
-  const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter((user) => 
+    user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   return (
     <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={4}>
+        {/* Title */}
         <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
           <Typography variant="h4" component="h1" className="heading" sx={{ fontWeight: 'bold', color: '#333' }}>
             User List
           </Typography>
         </Grid>
 
-        {/* search by name */}
+        {/* Search Field */}
         <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
           <TextField
             label="Search by name"
@@ -72,11 +73,12 @@ const User = () => {
           />
         </Grid>
 
+        {/* User Cards */}
         {loading ? (
           <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
         ) : filteredUsers.length > 0 ? (
           filteredUsers.map((user) => (
-            <Grid item xs={12} sm={6} md={4} key={user.id}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={user.id}>
               <Card
                 className="user-card"
                 sx={{
@@ -90,36 +92,38 @@ const User = () => {
                   },
                 }}
               >
+                {/* User Avatar */}
                 <Box sx={{ flexShrink: 0 }}>
                   <CardMedia
                     component="img"
                     image={user.image || '/default-avatar.png'}
                     alt={user.name}
                     sx={{
-                      width: '120px',
-                      height: '120px',
+                      width: '100px',
+                      height: '100px',
                       objectFit: 'cover',
                       borderRadius: '50%',
-                      margin: '16px',
+                      margin: '10px',
                       border: '4px solid #fff',
                       boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
                     }}
                   />
                 </Box>
 
+                {/* User Info */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <CardContent className="card-content" sx={{ padding: '16px' }}>
-                    <Typography variant="h6" component="h2" className="user-name" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
+                  <CardContent className="card-content" sx={{ padding: '10px' }}>
+                    <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
                       {user.name}
                     </Typography>
-                    <Typography variant="body2" paragraph className="user-email" sx={{ color: '#7f8c8d' }}>
+                    <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
                       {user.email}
                     </Typography>
-                    <Typography variant="body2" color="textSecondary" className="user-location" sx={{ marginBottom: '8px' }}>
+                    <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
                       {user.location || 'Unknown Location'}
                     </Typography>
-                    <Typography variant="body2" color="textSecondary" className="user-articles" sx={{ color: '#16a085' }}>
-                      Number of articles: {user.articleCount || 0}
+                    <Typography variant="body2" sx={{ color: '#16a085' }}>
+                      Articles: {user.articleCount || 0}
                     </Typography>
                   </CardContent>
                 </Box>
@@ -135,3 +139,4 @@ const User = () => {
 };
 
 export default User;
+

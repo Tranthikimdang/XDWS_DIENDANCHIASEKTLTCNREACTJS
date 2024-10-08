@@ -59,7 +59,7 @@ const Home = () => {
 
     const handleCardClick = (articleId) => {
         navigate(`/article/${articleId}`, { state: { id: articleId } });
-      };
+    };
 
     useEffect(() => {
         const fetchArticles = async () => {
@@ -181,7 +181,7 @@ const Home = () => {
                                                 </SubText>
                                                 <ActionButton
                                                     variant="contained"
-                                                    href="/"
+                                                    onClick={() => navigate('/client/src/views/product')}  // Navigate to products page
                                                     sx={{
                                                         textTransform: 'none',
                                                         backgroundColor: '#0057e6',
@@ -194,7 +194,7 @@ const Home = () => {
                                                         borderRadius: '30px',
                                                     }}
                                                 >
-                                                    Tham Gia Cộng Đồng
+                                                    Khám phá sản phẩm
                                                 </ActionButton>
                                             </Grid>
                                             <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
@@ -209,6 +209,7 @@ const Home = () => {
                                         </Grid>
                                     </StyledBox>
                                 </Carousel.Item>
+
 
                                 {/* Carousel Item 2 */}
                                 <Carousel.Item>
