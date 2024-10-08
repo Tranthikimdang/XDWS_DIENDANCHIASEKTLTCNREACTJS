@@ -102,7 +102,7 @@ const renderRoutes = (role) => {
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
-        { path: '/productDetailUser/path?id_user&id_product', exact: true, element: <ProductDetailUser /> },
+        { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -154,7 +154,7 @@ const renderRoutes = (role) => {
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
-        { path: '/productDetailUser/path?id_user&id_product', exact: true, element: <ProductDetailUser /> },
+        { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
@@ -179,7 +179,7 @@ const renderRoutes = (role) => {
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
-        { path: '/productDetailUser/path?id_user&id_product', exact: true, element: <ProductDetailUser /> },
+        { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
