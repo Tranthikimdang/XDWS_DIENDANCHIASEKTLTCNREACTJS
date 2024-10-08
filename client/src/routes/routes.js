@@ -88,7 +88,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Comment Management",
+    name: "Quản Lý Bình Luận",
     key: "comment",
     route: "/admin/comment",
     icon: <BsFillPencilFill size="15px" color="inherit" />,
@@ -153,7 +153,7 @@ const routes = [
 
   {
     key: "commentDetail",
-    route: "/admin/commentDetail",
+    route: "/admin/commentDetail/:id",
     // component: CommentDetail,
     hidden: true, // Ẩn mục này
   },
@@ -287,6 +287,18 @@ const routes = [
     key: "editProduct",
     route: '/productDetail/:id',
     component: productDetail,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "addCate",
+    route: "/admin/addCate",
+    component: AddCate,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "editCate",
+    route: "/admin/editCate/:id",
+    component: EditCate,
     hidden: true, // Ẩn mục này
   },
   {
