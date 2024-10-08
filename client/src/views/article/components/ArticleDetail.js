@@ -558,7 +558,7 @@ const ArticleDetail = () => {
                         </ListItem>
                       ))}
                     </List>
-                  )}
+                        )}
                 </Box>
               </ListItem>
             ))}
