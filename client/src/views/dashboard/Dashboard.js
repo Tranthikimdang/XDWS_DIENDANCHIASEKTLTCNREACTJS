@@ -273,9 +273,14 @@ const Home = () => {
                                 .filter(article => article.isApproved === 1) // Lọc bài viết có isApproved = 1
                                 .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
                                 .map((article) => (
-                                    <Grid item xs={12} sm={6} md={3} key={article.id}>
+                                    <Grid item xs={6} sm={4} md={3} key={article.id}>
                                         <Card
-                                            sx={{ cursor: 'pointer' }}
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                height: '100%',
+                                                cursor: 'pointer',
+                                            }}
                                             onClick={() => handleCardClick(article.id)}
                                         >
                                             <CardMedia
@@ -284,21 +289,22 @@ const Home = () => {
                                                 image={article.image}
                                                 alt={article.title}
                                             />
-                                            <CardContent>
+                                            <CardContent sx={{ flexGrow: 1 }}>
                                                 <Typography gutterBottom variant="h5" component="div">
                                                     {article.title}
                                                 </Typography>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto' }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                                     <Typography variant="body2" color="textSecondary" className="category-badge">
-                                                        {catesMap[article.categories_id] || 'Unknown Category'}
+                                                        {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
                                                     </Typography>
                                                     <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                                                        {formatDate(article.updated_at)} {/* Display formatted date */}
+                                                        {formatDate(article.updated_at)} {/* Hiển thị ngày định dạng */}
                                                     </Typography>
                                                 </Box>
                                             </CardContent>
                                         </Card>
                                     </Grid>
+
                                 ))}
                         </Grid>
 
