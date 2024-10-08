@@ -107,7 +107,7 @@ const Home = () => {
           map[category.id] = category.name;
           return map;
         }, {});
-        setCatesMap(categoriesMap); // Đảm bảo đây là catesMap không phải catesProMap
+        setCatesMap(categoriesMap); 
         console.log(categoriesMap); // Kiểm tra xem danh mục đã được lấy thành công
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -134,28 +134,6 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const fetchCatePro = async () => {
-      setLoading(true);
-      try {
-        const categoriesProSnapshot = await getDocs(collection(db, 'categories_product'));
-        const categoriesProData = categoriesProSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const categoriesProMap = categoriesProData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCatesMap(categoriesProMap);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCatePro();
-  }, []);
 
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
