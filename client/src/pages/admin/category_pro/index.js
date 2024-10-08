@@ -40,6 +40,13 @@ function Category() {
           id: doc.id,
           ...doc.data(),
         }));
+
+        categoriesList.sort((a, b) => {
+          const dateA = a.updated_at ? new Date(a.updated_at.seconds * 1000) : new Date(0);
+          const dateB = b.updated_at ? new Date(b.updated_at.seconds * 1000) : new Date(0);
+          return dateB - dateA; // Sắp xếp giảm dần, để mới nhất lên trên
+        });
+        
         setRows(categoriesList);
       } catch (error) {
         console.error("Error fetching categories:", error);

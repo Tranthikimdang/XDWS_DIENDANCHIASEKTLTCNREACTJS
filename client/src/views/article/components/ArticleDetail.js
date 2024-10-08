@@ -165,6 +165,7 @@ const ArticleDetail = () => {
       isNotified: false, // thong báo 
       replies: [] // thêm mảng để lưu các câu trả lời      
     };
+
     try {
       const docRef = await addDoc(collection(db, "commentDetails"), commentData);
       console.log("Comment added with ID: ", docRef.id);
@@ -491,6 +492,7 @@ const ArticleDetail = () => {
               sx={{ marginLeft: 2 }}
             />
           </Box>
+
           {/* Button for Sending Comment */}
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 1 }}>
             <Button variant="contained" color="primary" onClick={handleAddComment} sx={{ padding: '6px 12px' }}>
@@ -551,6 +553,7 @@ const ArticleDetail = () => {
                             <Typography variant="body2" color="textSecondary">
                               {reply.content}
                               </Typography>
+
                           </Box>
                         </ListItem>
                       ))}
@@ -575,3 +578,4 @@ const ArticleDetail = () => {
 };
 
 export default ArticleDetail;
+

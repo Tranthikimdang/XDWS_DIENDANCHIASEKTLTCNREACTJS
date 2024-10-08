@@ -145,7 +145,9 @@ function FormEditProduct() {
     }
     setSnackbarOpen(false);
   };
-
+  const smallFontStyle = {
+    fontSize: '0.9rem',
+  };
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -153,7 +155,7 @@ function FormEditProduct() {
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Name</label>
+              <label className="text-light form-label" style={smallFontStyle}>Name</label>
               <input
                 className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
                 {...register('name', { required: 'Name is required' })}
@@ -161,7 +163,7 @@ function FormEditProduct() {
               {errors.name && <div className="text-danger">{errors.name.message}</div>}
             </div>
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Hình ảnh</label>
+              <label className="text-light form-label" style={smallFontStyle}>Hình ảnh</label>
               <input
                 className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
                 type="file"
@@ -180,7 +182,7 @@ function FormEditProduct() {
           </div>
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Price</label>
+              <label className="text-light form-label" style={smallFontStyle}>Price</label>
               <input
                 type="number"
                 step="0.01"
@@ -190,7 +192,7 @@ function FormEditProduct() {
               {errors.price && <div className="text-danger">{errors.price.message}</div>}
             </div>
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Discount</label>
+              <label className="text-light form-label" style={smallFontStyle}>Discount</label>
               <input
                 type="number"
                 step="0.01"
@@ -202,7 +204,7 @@ function FormEditProduct() {
           </div>
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Quality</label>
+              <label className="text-light form-label" style={smallFontStyle}>Quality</label>
               <input
                 type="number"
                 className={`form-control bg-dark text-light ${errors.quality ? 'is-invalid' : ''}`}
@@ -211,16 +213,16 @@ function FormEditProduct() {
               {errors.quality && <div className="text-danger">{errors.quality.message}</div>}
             </div>
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Category</label>
+              <label className="text-light form-label" style={smallFontStyle}>Category</label>
               <select
                 className={`form-select bg-dark text-light ${
                   errors.cate_pro_id ? 'is-invalid' : ''
                 }`}
                 {...register('cate_pro_id', { required: 'Category is required' })}
               >
-                <option value="">Select Category</option>
+                <option value="" style={smallFontStyle}>Select Category</option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
+                  <option style={smallFontStyle} key={category.id} value={category.id}>
                     {category.name}
                   </option>
                 ))}
@@ -232,7 +234,7 @@ function FormEditProduct() {
           </div>
           <div className="row">
             <div className="col-12 mb-3">
-              <label className="text-light form-label">Video demo code</label>
+              <label className="text-light form-label" style={smallFontStyle}>Video demo code</label>
               <input
                 type="text"
                 className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
@@ -242,7 +244,7 @@ function FormEditProduct() {
             </div>
           </div>
           <div className="mb-3">
-            <label className="text-light form-label">Description</label>
+            <label className="text-light form-label" style={smallFontStyle}>Description</label>
             <ReactQuill
               className={`bg-dark text-light ${errors.description ? 'is-invalid' : ''}`}
               value={productData ? productData.description : ''}

@@ -121,7 +121,7 @@ const Products = () => {
               </Box>
             ) : currentProducts.length > 0 ? (
               currentProducts
-              .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
+                .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                 .map((product) => (
                   <div className="container py-2" key={product.id}>
                     <div className="row justify-content-center mt-2">
