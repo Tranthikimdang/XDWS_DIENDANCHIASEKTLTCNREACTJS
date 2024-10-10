@@ -147,6 +147,16 @@ const Products = () => {
 
   return (
     <PageContainer title="products" description="This is products">
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
@@ -328,16 +338,6 @@ const Products = () => {
                 color="primary"
               />
             </Box>
-            <Snackbar
-              open={snackbarOpen}
-              autoHideDuration={3000}
-              onClose={() => setSnackbarOpen(false)}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-              <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
-                {snackbarMessage}
-              </Alert>
-            </Snackbar>
           </Grid>
 
           {/* Right Column */}
