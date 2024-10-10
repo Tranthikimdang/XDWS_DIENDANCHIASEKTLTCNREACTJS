@@ -3,7 +3,6 @@ import axios from "axios";
 // const API_URL = "process.env.REACT_APP_API_URI";
 // console.log(process.env);
 const API_URL = "http://localhost:4000/api"; 
-console.log('API_URL:', API_URL);
 
 const addArticle = async (articles) => {
   try {

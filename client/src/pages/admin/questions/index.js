@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable eqeqeq */
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from "@mui/material/Card";
 import { Link } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
@@ -23,6 +24,7 @@ import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
 
 function Questions() {
+  const navigate = useNavigate();
   const { columns } = authorsQuestionsData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
@@ -35,6 +37,7 @@ function Questions() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
+  const [reload,setReload] = useState(false)
   // Fetch Questionss from Firestore
   useEffect(() => {
     const fetchQuestionss = async () => {
@@ -42,8 +45,10 @@ function Questions() {
       try {
         const QuestionssSnapshot = await getDocs(collection(db, 'questions'));
         const QuestionssData = QuestionssSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() }; // Trả về đối tượng bài viết
+          return { id: doc.id, ...doc.data() };
         });
+        console.log(QuestionssData)
+        
         setRows(QuestionssData); // Lưu dữ liệu vào state
       } catch (error) {
         console.error("Error fetching Questionss:", error);
@@ -52,7 +57,7 @@ function Questions() {
       }
     };
     fetchQuestionss();
-  }, []);
+  }, [reload]);
   // Fetch users from Firebase
   useEffect(() => {
     const fetchUsers = async () => {
@@ -82,6 +87,7 @@ function Questions() {
   const handleView = async (id) => {
     try {
       console.log("View Questions with ID:", id);
+
     } catch (error) {
       console.error("Error fetching Questions details:", error);
     }
@@ -96,12 +102,10 @@ function Questions() {
 
   const confirmDelete = async () => {
     try {
-      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
-      const QuestionsRef = doc(db, "Questionss", deleteId);
-      await deleteDoc(QuestionsRef); // Thực hiện xóa bài viết từ Firestore
-      // Cập nhật lại danh sách bài viết sau khi xóa
-      setRows(rows.filter((row) => row.id !== deleteId));
-      // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
+      const QuestionsRef = doc(db, "questions", deleteId);
+      await deleteDoc(QuestionsRef);
+      setReload(reload=>!reload)
+      
       setOpenDialog(false);
       setSnackbarMessage("Questions deleted successfully.");
       setSnackbarSeverity("success");
@@ -284,7 +288,7 @@ function Questions() {
                         ),
                         action: (
                           <div className="action-buttons">
-                            <Link to={`/admin/formviewQuestions/${row.id}`}>
+                            <Link to={`/admin/questions/${row.id}`} state={{ type: '0' }}>
                               <Tooltip title="Xem bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-info me-2"
@@ -305,7 +309,7 @@ function Questions() {
                                 </button>
                               </Tooltip>
                             </Link>
-                            <Link to={`/admin/formeditQuestions/${row.id}`}>
+                            <Link to={`/admin/questions/${row.id}`} state={{ type: '1' }}>
                               <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
