@@ -12,9 +12,11 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin')));
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
+const CateArticleDetail = Loadable(lazy(() => import('../views/article/components/CateArticleDetail')));
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))); // Import the ArticleDetail component
 const Questions = Loadable(lazy(() => import('../views/questions/Questions.js')));
+const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestions.js')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -90,6 +92,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },
@@ -119,6 +122,7 @@ const renderRoutes = (role) => {
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
+        { path: 'questions/:id', exact: true, element: <EditQuestions /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
@@ -142,6 +146,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },
@@ -167,6 +172,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },

@@ -1,14 +1,14 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable eqeqeq */
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Card from "@mui/material/Card";
 import { Link } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import Tooltip from "@mui/material/Tooltip";
 import Table from "src/examples/Tables/Table";
 import authorsQuestionsData from "./data/authorsTableData";
@@ -23,6 +23,7 @@ import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
 
 function Questions() {
+  const navigate = useNavigate();
   const { columns } = authorsQuestionsData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
@@ -35,6 +36,7 @@ function Questions() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
+  const [reload,setReload] = useState(false)
   // Fetch Questionss from Firestore
   useEffect(() => {
     const fetchQuestionss = async () => {
@@ -42,8 +44,10 @@ function Questions() {
       try {
         const QuestionssSnapshot = await getDocs(collection(db, 'questions'));
         const QuestionssData = QuestionssSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() }; // Trả về đối tượng bài viết
+          return { id: doc.id, ...doc.data() };
         });
+        console.log(QuestionssData)
+        
         setRows(QuestionssData); // Lưu dữ liệu vào state
       } catch (error) {
         console.error("Error fetching Questionss:", error);
@@ -52,7 +56,7 @@ function Questions() {
       }
     };
     fetchQuestionss();
-  }, []);
+  }, [reload]);
   // Fetch users from Firebase
   useEffect(() => {
     const fetchUsers = async () => {
@@ -82,6 +86,7 @@ function Questions() {
   const handleView = async (id) => {
     try {
       console.log("View Questions with ID:", id);
+
     } catch (error) {
       console.error("Error fetching Questions details:", error);
     }
@@ -96,12 +101,10 @@ function Questions() {
 
   const confirmDelete = async () => {
     try {
-      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
-      const QuestionsRef = doc(db, "Questionss", deleteId);
-      await deleteDoc(QuestionsRef); // Thực hiện xóa bài viết từ Firestore
-      // Cập nhật lại danh sách bài viết sau khi xóa
-      setRows(rows.filter((row) => row.id !== deleteId));
-      // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
+      const QuestionsRef = doc(db, "questions", deleteId);
+      await deleteDoc(QuestionsRef);
+      setReload(reload=>!reload)
+      
       setOpenDialog(false);
       setSnackbarMessage("Questions deleted successfully.");
       setSnackbarSeverity("success");
@@ -151,8 +154,10 @@ function Questions() {
       setSnackbarOpen(true);
     }
   }
-  //date
-  const formatUpdatedAt = (updatedAt) => {
+
+
+   //date
+   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
@@ -191,24 +196,6 @@ function Questions() {
               <VuiTypography variant="lg" color="white">
                 Bảng câu hỏi 
               </VuiTypography>
-              <Link to="/admin/formaddQuestions">
-                <button className='text-light btn btn-outline-info' onClick={handleAddQuestionsSuccess}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-plus"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
-                    />
-                  </svg>
-                  Add
-                </button>
-              </Link>
             </VuiBox>
             {loading ? (
               <div
@@ -256,9 +243,23 @@ function Questions() {
                               height: '70px', // Fixed height to avoid expanding/collapsing
                             }}
                           >
+                            
+                            
                             <div className="image-column" style={{ flex: '0 0 100px' }}>
-                              <img className="img-thumbnail" src={row.image} />
-                            </div>
+                                
+                                <img
+                                  src={row.imageUrls}
+                                  alt={`Image ${index + 1}`}
+                                  style={{
+                                    width: '100px',
+                                    height: '50px',
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                  }}
+                                />
+                              </div>
                           </div>
                         ),
                         author: (
@@ -277,14 +278,14 @@ function Questions() {
                         ),
                         date: (
                           <VuiBox>
-                            <VuiTypography variant="button" color="white" fontWeight="medium">
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
                               {formatUpdatedAt(row.updated_at)}
                             </VuiTypography>
                           </VuiBox>
                         ),
                         action: (
                           <div className="action-buttons">
-                            <Link to={`/admin/formviewQuestions/${row.id}`}>
+                            <Link to={`/admin/questions/${row.id}`} state={{ type: '0' }}>
                               <Tooltip title="Xem bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-info me-2"
@@ -305,7 +306,7 @@ function Questions() {
                                 </button>
                               </Tooltip>
                             </Link>
-                            <Link to={`/admin/formeditQuestions/${row.id}`}>
+                            <Link to={`/admin/questions/${row.id}`} state={{ type: '1' }}>
                               <Tooltip title="Sửa bài viết" placement="top">
                                 <button
                                   className="text-light btn btn-outline-warning me-2"
