@@ -1,6 +1,7 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "src/pages/admin/dashboard";
 // import Comment from "layouts/comment";
+import Questions from "src/pages/admin/questions";
 import Article from "src/pages/admin/article";
 // import CommentDetail from "layouts/commentDetail";
 // import Category from "layouts/category";
@@ -101,7 +102,7 @@ const routes = [
     key: "questions",
     route: "/admin/questions",
     icon: <FaQuestionCircle size="15px" color="inherit" />,
-    // component: Questions,
+    component: Questions,
     noCollapse: true,
   },
   {
