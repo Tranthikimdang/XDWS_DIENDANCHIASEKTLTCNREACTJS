@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Avatar,
   Box,
@@ -8,20 +8,28 @@ import {
   IconButton,
   MenuItem,
   ListItemIcon,
-  ListItemText
+  ListItemText,
 } from '@mui/material';
 
-import { IconListCheck, IconMail, IconUser, IconPencil } from '@tabler/icons';
+import { IconListCheck, IconMail, IconUser, IconUserCircle, IconPencil, IconBook2 } from '@tabler/icons';
+
 
 import ProfileImg from 'src/assets/images/profile/user-1.jpg';
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
+  const navigate = useNavigate();
+
   const handleClick2 = (event) => {
     setAnchorEl2(event.currentTarget);
   };
   const handleClose2 = () => {
     setAnchorEl2(null);
+  };
+  const user = JSON.parse(localStorage.getItem('user'));
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    navigate('/');
   };
 
   return (
@@ -62,33 +70,49 @@ const Profile = () => {
           },
         }}
       >
-        <MenuItem>
+        {user?.role === 'admin' && (
+          <MenuItem component={Link} to="/admin/dashboard">
+            <ListItemIcon>
+              <IconUserCircle width={20} />
+            </ListItemIcon>
+            <ListItemText>Admin</ListItemText>
+          </MenuItem>
+        )}
+        
+        <MenuItem component={Link} to="/profile">
           <ListItemIcon>
             <IconUser width={20} />
           </ListItemIcon>
-          <ListItemText>My Profile</ListItemText>
+          <ListItemText>Thông tin cá nhân</ListItemText>
         </MenuItem>
+
         <MenuItem>
           <ListItemIcon>
             <IconMail width={20} />
           </ListItemIcon>
-          <ListItemText>My Account</ListItemText>
+          <ListItemText>Thông báo</ListItemText>
         </MenuItem>
         <MenuItem>
           <ListItemIcon>
             <IconListCheck width={20} />
           </ListItemIcon>
-          <ListItemText>My Tasks</ListItemText>
+          <ListItemText>Khóa học của tôi</ListItemText>
         </MenuItem>
         <MenuItem component={Link} to="/new-post">
           <ListItemIcon>
             <IconPencil width={20} />
           </ListItemIcon>
-          <ListItemText>Write Blog</ListItemText>
+          <ListItemText>Thêm câu hỏi</ListItemText>
+        </MenuItem>
+        <MenuItem component={Link} to="/new-post">
+          <ListItemIcon>
+            <IconBook2 width={20} />
+          </ListItemIcon>
+          <ListItemText>Thêm bài viết</ListItemText>
         </MenuItem>
         <Box mt={1} py={1} px={2}>
-          <Button to="/auth/login" variant="outlined" color="primary" component={Link} fullWidth>
-            Logout
+          <Button onClick={handleLogout} variant="outlined" color="primary" fullWidth>
+            Đăng xuất
           </Button>
         </Box>
       </Menu>

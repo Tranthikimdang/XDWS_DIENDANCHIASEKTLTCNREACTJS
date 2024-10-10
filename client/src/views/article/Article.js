@@ -1,86 +1,93 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia, CircularProgress, TextField, InputAdornment, Pagination } from '@mui/material';
+import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
+//icon
 import { IconBookmark, IconDots } from '@tabler/icons';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
-import categoriesApi from '../../apis/categoriesApi';
-import apis from '../../apis/articleApi';
-import userApi from '../../apis/userApi';
+import SearchIcon from '@mui/icons-material/Search';
+
+
+//firebase
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../config/firebaseconfig';
 import './Article.css';
 
 const Article = () => {
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
   const [cates, setCates] = useState([]);
+  const [catesMap, setCatesMap] = useState({}); // State to store category ID to name mapping
   const [articles, setArticles] = useState([]);
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`); // Navigate to article detail page
-  };
-
+  const [loading, setLoading] = useState(true); // Loading state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  
+  // Fetch articles from Firestore
   useEffect(() => {
     const fetchArticles = async () => {
+      setLoading(true);
       try {
-        const response = await apis.getList();
-        if (response.status === 200) {
-          setArticles(response.data || []);
-          console.log("Fetched articles:", response.data);
-        }
+        const articlesSnapshot = await getDocs(collection(db, 'articles'));
+        const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setArticles(articlesData);
+        console.log("Fetched articles:", articlesData);
       } catch (error) {
         console.error("Error fetching articles:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Set loading to false after data is fetched
       }
     };
-
     fetchArticles();
   }, []);
 
+  // Fetch users from Firestore
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const response = await userApi.getList();
-        if (response.status === 200) {
-          setUsers(response.data || []);
-          console.log("Fetched users:", response.data);
-        }
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const usersData = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setUsers(usersData);
+        console.log("Fetched users:", usersData);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
+  // Fetch categories from Firestore
   useEffect(() => {
     const fetchCategories = async () => {
+      setLoading(true);
       try {
-        const response = await categoriesApi.getList();
-        if (response.status === 200) {
-          setCates(response.data || []);
-        }
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
+
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCatesMap(categoriesMap);
+
+        console.log("Fetched categories:", categoriesData);
       } catch (error) {
         console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -91,11 +98,62 @@ const Article = () => {
     { icon: <LinkIcon />, text: 'Copy Link' },
     { icon: <FlagIcon />, text: 'Report Article' },
   ];
-
   const removeSpecificHtmlTags = (html, tag) => {
     const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
     return html?.replace(regex, '');
   };
+
+  const filteredArticles = articles.filter((article) =>
+    article.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
+  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCardClick = (articleId) => {
+    navigate(`/article/${articleId}`, { state: { id: articleId } });
+  };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentArticles = filteredArticles.slice(indexOfFirstItem, indexOfLastItem);
+
+
 
   return (
     <PageContainer title="Article" description="This is Article">
@@ -103,103 +161,174 @@ const Article = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
-              Featured Articles
+              <strong>Bài viết nổi bật</strong>
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
-              A collection of articles sharing experiences of self-learning programming online and web development techniques.
+              Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
             </Typography>
           </Grid>
+          <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+            <TextField
+              label="Tìm kiếm bài viết"
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
 
-          {/* Left Column */}
-          <Grid item md={8}>
-            {articles.map((article) => (
-              <Card
-                key={article?.id}
-                sx={{
-                  display: 'flex',
-                  mb: 3,
-                  flexDirection: { xs: 'column', md: 'row' },
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  cursor: 'pointer', // Add cursor pointer
-                }}
-                onClick={() => handleCardClick(article.id)} // Handle card click
-              >
-                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <CardContent>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="body1" component="span" className="author-name">
-                        <strong>{users?.find(u => article?.user_id === u.id)?.name}</strong>
-                      </Typography>
-                    </Box>
-                    <Typography variant="h5" component="h2" className="article-title">
-                      {article.title}
-                    </Typography>
-                    <Typography variant="body2" paragraph className="article-description">
-                      {removeSpecificHtmlTags(article.content, 'p').length > 100
-                        ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
-                        : removeSpecificHtmlTags(article.content, 'p')}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                      <Typography variant="body2" color="textSecondary" className="category-badge">
-                        {article.categories_id}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                        {article.updated_at}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                </Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
-                  <CardMedia
-                    component="img"
-                    sx={{
-                      width: { xs: '100%', md: 200 },
-                      height: { xs: 200, md: 'auto' },
-                      objectFit: 'cover',
-                    }}
-                    image={article.image}
-                    alt={article.title}
-                  />
-                  <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                    <IconButton aria-label="bookmark">
-                      <IconBookmark />
-                    </IconButton>
-                    <IconButton aria-label="more" onClick={handleClick}>
-                      <IconDots />
-                    </IconButton>
-                    <Menu
-                      id="menu"
-                      anchorEl={anchorEl}
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                    >
-                      {menuItems.map((item, i) => (
-                        <MenuItem key={i} onClick={handleClose}>
-                          {item.icon}
-                          <span style={{ marginLeft: 10 }}>{item.text}</span>
-                        </MenuItem>
-                      ))}
-                    </Menu>
-                  </Box>
-                </Box>
-              </Card>
-            ))}
+                margin: 'auto',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
           </Grid>
-
-          {/* Right Column */}
-          <Grid item md={4}>
+          <Grid item md={8}>
+            {loading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+                <CircularProgress />
+              </Box>
+            ) : currentArticles.length > 0 ? (
+              currentArticles
+              .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
+                .map((article) => (
+                  // eslint-disable-next-line eqeqeq
+                  article.isApproved == 1 && (
+                    <Card
+                    key={article?.id}
+                    sx={{
+                      display: 'flex',
+                      mb: 3,
+                      flexDirection: { xs: 'column', md: 'row' },
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      overflow: 'hidden',
+                    }}
+                    onClick={() => handleCardClick(article.id)} // Điều hướng đến chi tiết
+                  >
+                    {/* Bên trái: Nội dung */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                      <CardContent>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <img
+                            src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                            width="40px"
+                            alt="User Avatar"
+                            style={{ borderRadius: '50%', marginRight: '10px' }}
+                          />
+                          <Typography variant="body1" component="span" className="author-name">
+                            <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
+                          </Typography>
+                        </Box>
+                        <Typography variant="h5" component="h2" className="article-title">
+                          {article.title}
+                        </Typography>
+                        <Typography variant="body2" paragraph className="article-description">
+                          {removeSpecificHtmlTags(article.content, 'p').length > 100
+                            ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
+                            : removeSpecificHtmlTags(article.content, 'p')}
+                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" className="category-badge">
+                            {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                            {formatUpdatedAt(article.updated_at)}
+                          </Typography>
+                        </Box>
+                      </CardContent>
+                    </Box>
+                    
+                    {/* Bên phải: Hình ảnh và các nút hành động */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
+                      <CardMedia
+                        component="img"
+                        sx={{
+                          width: { xs: '100%', md: 200 },
+                          height: { xs: 'auto', md: '100%' },
+                          aspectRatio: '16/9',
+                          objectFit: 'cover',
+                        }}
+                        image={article.image}
+                        alt={article.title}
+                      />
+                      <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
+                        <IconButton
+                          aria-label="bookmark"
+                          onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
+                        >
+                          <IconBookmark />
+                        </IconButton>
+                        <IconButton
+                          aria-label="more"
+                          onClick={(event) => {
+                            event.stopPropagation(); // Ngăn sự kiện click thẻ Card
+                            handleClick(event);
+                          }}
+                        >
+                          <IconDots />
+                        </IconButton>
+                        <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
+                          {menuItems.map((item, i) => (
+                            <MenuItem key={i} onClick={handleClose}>
+                              {item.icon}
+                              <span style={{ marginLeft: 10 }}>{item.text}</span>
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </Box>
+                    </Box>
+                  </Card>
+                  
+                  )
+                ))
+            ) : (
+              <Typography>Không tìm thấy bài viết nào.</Typography>
+            )}
+            <Box display="flex" justifyContent="center" mt={4}>
+              <Pagination
+                count={Math.ceil(filteredArticles.length / itemsPerPage)}
+                page={currentPage}
+                onChange={(event, value) => setCurrentPage(value)}
+                color="primary"
+              />
+            </Box>
+          </Grid>
+         {/* Right Column */}
+         <Grid item md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Browse by Category
+                Bài viết cùng chuyên mục
               </Typography>
-              <ul className="category-list">
-                {cates.map((cate) => (
-                  <li key={cate?.key} className="category-item">
-                    <strong>{cate?.name}</strong>
-                  </li>
-                ))}
-              </ul>
+              {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <ul className="category-list">
+                  {cates.map((cate) => (
+                    <Link to={`/CateArticleDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
+                      <li key={cate.id} className="category-item">
+                        <strong>{cate.name}</strong>
+                      </li>
+                    </Link>
+                  ))}
+                </ul>
+              )}
             </div>
           </Grid>
         </Grid>
@@ -209,3 +338,6 @@ const Article = () => {
 };
 
 export default Article;
+
+
+

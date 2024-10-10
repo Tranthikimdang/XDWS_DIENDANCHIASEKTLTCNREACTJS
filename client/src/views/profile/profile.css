@@ -1,33 +1,116 @@
-.PageContainer {
-    background: #f7f7ff;
-    margin-top: 20px;
-    width: 100%;
-  }
-  
-  .card {
-    padding: 20px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 0 solid transparent;
-    border-radius: 0.25rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 6px 0 rgba(218, 218, 253, 0.65), 0 2px 6px 0 rgba(206, 206, 238, 0.54);
-  }
-  
-  .container {
-    padding: 20px;
-  }
-  
-  .main-body {
-    padding: 15px;
-  }
-  
-  .me-2 {
-    margin-right: 0.5rem !important;
-  }
-  
+.emp-profile {
+  padding: 3%;
+  margin: 3% auto;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 800px;
+  display: flex; /* Sử dụng Flexbox để căn chỉnh các phần tử ngang hàng */
+  align-items: flex-start; /* Căn chỉnh các phần tử ở đầu hàng ngang */
+  justify-content: center; /* Căn giữa các phần tử */
+  flex-wrap: wrap; /* Cho phép các phần tử xuống dòng khi không đủ không gian */
+}
+
+.profile-img {
+  margin-right: 20px; /* Khoảng cách giữa hình ảnh và nội dung */
+  flex: 0 0 150px; /* Chiều rộng cố định cho hình ảnh */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-img img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #007bff;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+
+.profile-img img:hover {
+  transform: scale(1.1); /* Hiệu ứng khi rê chuột lên ảnh */
+}
+
+.profile-img .file {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.profile-img .file:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+.profile-head {
+  flex: 1; /* Chiếm phần còn lại của không gian */
+  text-align: left; /* Căn chỉnh nội dung về bên trái */
+  margin-top: 20px;
+}
+
+.profile-head h5 {
+  color: #333;
+  font-weight: bold;
+  font-size: 22px;
+  margin: 0 0 10px; /* Khoảng cách dưới tiêu đề */
+}
+
+.profile-head h6 {
+  color: #007bff;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.proile-rating {
+  font-size: 14px;
+  color: #818182;
+  margin-top: 10px;
+}
+
+.proile-rating span {
+  color: #495057;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.profile-edit-btn {
+  border: none;
+  border-radius: 1.5rem;
+  padding: 10px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #28a745;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  text-align: center;
+  margin: 20px auto 0;
+  width: auto; /* Để nút có kích thước vừa vặn */
+}
+
+.profile-edit-btn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap; /* Giúp các phần tử có thể xuống dòng khi cần */
+}
+
+.col-md-4, .col-md-6, .col-md-8 {
+  text-align: center;
+  margin-bottom: 20px; /* Khoảng cách giữa các phần tử */
+}

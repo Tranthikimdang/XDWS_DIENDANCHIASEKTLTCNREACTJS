@@ -9,9 +9,10 @@ import {
   Badge,
   InputBase,
   Typography,
+  Button
 } from '@mui/material';
 import PropTypes from 'prop-types';
-
+import { useNavigate } from 'react-router-dom';
 // components
 import Profile from './Profile';
 import { IconBellRinging, IconMenu } from '@tabler/icons';
@@ -79,7 +80,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Header = (props) => {
   const { userName, toggleMobileSidebar } = props;
-
+  
+  const userNamelocal = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).name : '';
+  const navigate = useNavigate();
+  const handleLogin = () => {
+    navigate('/auth/login'); // Điều hướng tới trang login
+  };
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
@@ -122,11 +128,20 @@ const Header = (props) => {
           </IconButton>
 
           {/* Display user name here */}
-          <Typography variant="body1" sx={{ ml: 2, color: 'text.primary' }}>
-            Welcome, {userName}
-          </Typography>
+          {localStorage.getItem('user') ? (
+          <>
+            <Typography variant="body1" sx={{ ml: 2, color: 'text.primary' }}>
+              Xin chào, {userNamelocal}
+            </Typography>
+            <Profile />
+          </>
+        ) : (
+          <Button variant="contained" color="primary" onClick={handleLogin}>
+            Đăng nhập
+          </Button>
+        )}
 
-          <Profile />
+          
         </Stack>
       </ToolbarStyled>
     </AppBarStyled>

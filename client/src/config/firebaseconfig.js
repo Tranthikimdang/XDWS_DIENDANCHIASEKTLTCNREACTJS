@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-
+import { getStorage } from "firebase/storage"; // Thêm dòng này
 // Cấu hình Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBmL5rAJDEWlV2yzcxNthYN6oL1wqRnmyc",
@@ -15,9 +15,7 @@ const firebaseConfig = {
 
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
-
-// Khởi tạo Firestore
 const db = getFirestore(app);
-
+const storage = getStorage(app); // Khởi tạo Firebase Storage
 // Export db
-export default db;
+export { db, storage }; // Xuất db và storage
