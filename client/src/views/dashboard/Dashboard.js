@@ -5,9 +5,10 @@ import { Carousel } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, Grid, Card, CardContent, CardMedia, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
+
+//icon
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { formatDistanceToNow } from 'date-fns';
 
 //firebase
 import { db } from '../../config/firebaseconfig';
@@ -97,11 +98,37 @@ const Home = () => {
         fetchCategories();
     }, []);
 
-    const formatDate = (timestamp) => {
-        if (!timestamp) return 'N/A';
-        const date = new Date(timestamp.seconds * 1000);
-        return formatDistanceToNow(date, { addSuffix: true });
-    };
+    //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
+
+    
 
     return (
         <PageContainer title="Dashboard" description="this is Dashboard">
@@ -293,11 +320,11 @@ const Home = () => {
                                                     {article.title}
                                                 </Typography>
                                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                                                    <Typography variant="body2" color="textSecondary" className="category-badge">
+                                                <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
                                                         {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
                                                     </Typography>
                                                     <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                                                        {formatDate(article.updated_at)} {/* Hiển thị ngày định dạng */}
+                                                        {formatUpdatedAt(article.updated_at)} {/* Hiển thị ngày định dạng */}
                                                     </Typography>
                                                 </Box>
                                             </CardContent>

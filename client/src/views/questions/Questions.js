@@ -24,12 +24,16 @@ import {
   MenuItem,
   Tooltip,
 } from '@mui/material';
+// icon
 import ImageIcon from '@mui/icons-material/Image';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CodeIcon from '@mui/icons-material/Code';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IconMessageCircle } from '@tabler/icons-react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+
+//firebase
 import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from 'src/config/firebaseconfig';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
@@ -283,8 +287,8 @@ const Questions = () => {
     }));
   };
 
-   //date
-   const formatUpdatedAt = (updatedAt) => {
+  //date
+  const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
@@ -312,7 +316,7 @@ const Questions = () => {
 
     return updatedAtString;
   };
-  
+
   return (
     <PageContainer title="Questions">
       <DashboardCard>
@@ -320,408 +324,406 @@ const Questions = () => {
           {/* Left Column */}
 
           <Grid item md={8}>
-  <Box
-    sx={{
-      border: '1px solid #e0e0e0',
-      borderRadius: '8px',
-      padding: '20px',
-      backgroundColor: '#fff',
-    }}
-  >
-    {/* Create Post Header */}
-    <Box component="form" onSubmit={handleSubmit}>
-      <Box display="flex" alignItems="center" mb={2}>
-        <img
-          src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-          width="40px"
-          alt="User Avatar"
-          style={{ borderRadius: '50%', marginRight: '10px' }}
-        />
-        <Typography variant="h6">Tạo bài viết</Typography>
-      </Box>
-
-      {/* Post Content */}
-      <TextField
-        label="Hãy chia sẻ kiến thức hoặc đặt câu hỏi?"
-        variant="outlined"
-        multiline
-        fullWidth
-        rows={4}
-        name="questions"
-        // value={newComment}
-        // onChange={(e) => setNewComment(e.target.value)}
-        sx={{ marginBottom: 2 }}
-      />
-
-      {/* Add Hashtag Section */}
-      <Box display="flex" alignItems="center" mb={2}>
-        <Typography variant="body2" sx={{ mr: 2 }}>
-          <strong>+ Thêm Hashtag</strong>
-        </Typography>
-        <Box sx={{ flexGrow: 1 }}>
-          <TextField
-            fullWidth
-            placeholder="Nhập hashtag"
-            variant="standard"
-            name="hashtag"
-            InputProps={{
-              disableUnderline: true,
-            }}
-          />
-        </Box>
-      </Box>
-
-      {/* Options for Image, File, Code */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Box display="flex" gap={1}>
-          {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
-            <Button
-              key={index}
-              variant="outlined"
-              startIcon={
-                index === 0 ? (
-                  <ImageIcon />
-                ) : index === 1 ? (
-                  <AttachFileIcon />
-                ) : (
-                  <CodeIcon />
-                )
-              }
+            <Box
               sx={{
-                borderRadius: '16px',
-                textTransform: 'none',
-                padding: '5px 15px',
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                padding: '20px',
+                backgroundColor: '#fff',
               }}
-              component="label"
-              onClick={index === 2 ? handleCodeButtonClick : undefined}
             >
-              {label}
-              {index === 0 && (
-                <input
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  hidden
-                  onChange={handleImageChange}
+              {/* Create Post Header */}
+              <Box component="form" onSubmit={handleSubmit}>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <img
+                    src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                    width="40px"
+                    alt="User Avatar"
+                    style={{ borderRadius: '50%', marginRight: '10px' }}
+                  />
+                  <Typography variant="h6">Tạo bài viết</Typography>
+                </Box>
+
+                {/* Post Content */}
+                <TextField
+                  label="Hãy chia sẻ kiến thức hoặc đặt câu hỏi?"
+                  variant="outlined"
+                  multiline
+                  fullWidth
+                  rows={4}
+                  name="questions"
+                  // value={newComment}
+                  // onChange={(e) => setNewComment(e.target.value)}
+                  sx={{ marginBottom: 2 }}
                 />
-              )}
-              {index === 1 && (
-                <input
-                  type="file"
-                  name="file"
-                  multiple
-                  hidden
-                  onChange={handleFileChange}
-                />
-              )}
-            </Button>
-          ))}
-        </Box>
 
-        {showCodeField && (
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel htmlFor="code-input">Nhập code của bạn</InputLabel>
-            <TextField
-              id="code-input"
-              multiline
-              rows={4}
-              name="up_code"
-              variant="outlined"
-              value={codeSnippet}
-              onChange={handleCodeChange}
-            />
-            <FormHelperText>{error}</FormHelperText>
-          </FormControl>
-        )}
-
-        {/* Post Button */}
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{
-            textTransform: 'none',
-            borderRadius: '16px',
-            padding: '5px 20px',
-            fontWeight: 'bold',
-            mt: 2,
-          }}
-        >
-          Đăng
-        </Button>
-      </Box>
-    </Box>
-
-    {/* Loading Spinner */}
-            {loading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                <CircularProgress />
-              </Box>
-            ) : listQuestion?.length > 0 ? (
-              listQuestion
-                .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
-                .map((question) =>
-                  question.isApproved == 1 && (
-                    <Box
-                      key={question?.id}
-                      sx={{
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '8px',
-                        padding: '20px',
-                        marginTop: '20px',
-                        backgroundColor: '#fff',
+                {/* Add Hashtag Section */}
+                <Box display="flex" alignItems="center" mb={2}>
+                  <Typography variant="body2" sx={{ mr: 2 }}>
+                    <strong>+ Thêm Hashtag</strong>
+                  </Typography>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <TextField
+                      fullWidth
+                      placeholder="Nhập hashtag"
+                      variant="standard"
+                      name="hashtag"
+                      InputProps={{
+                        disableUnderline: true,
                       }}
-                    >
-                      {/* Post Header */}
-                      <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-                        <Box display="flex" alignItems="center">
-                          <img
-                            src={listUser.current.find(user => user.id === question?.user_id)?.avatar || "http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"}
-                            width="40px"
-                            alt="User Avatar"
-                            style={{ borderRadius: '50%', marginRight: '10px' }}
+                    />
+                  </Box>
+                </Box>
+
+                {/* Options for Image, File, Code */}
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Box display="flex" gap={1}>
+                    {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                      <Button
+                        key={index}
+                        variant="outlined"
+                        startIcon={
+                          index === 0 ? (
+                            <ImageIcon />
+                          ) : index === 1 ? (
+                            <AttachFileIcon />
+                          ) : (
+                            <CodeIcon />
+                          )
+                        }
+                        sx={{
+                          borderRadius: '16px',
+                          textTransform: 'none',
+                          padding: '5px 15px',
+                        }}
+                        component="label"
+                        onClick={index === 2 ? handleCodeButtonClick : undefined}
+                      >
+                        {label}
+                        {index === 0 && (
+                          <input
+                            name="image"
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            hidden
+                            onChange={handleImageChange}
                           />
-                          <Box>
-                            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                              {listUser.current.find(user => user.id === question?.user_id)?.name || ""}
-                            </Typography>
-                            <Typography variant="subtitle1" color="textSecondary">
-                            {formatUpdatedAt(question.updated_at)}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        {question?.user_id === userData.current.id && (
-                          <>
-                            <Tooltip title="Options">
-                              <IconButton onClick={event => setAnchorEl(event.currentTarget)}>
-                                <MoreHorizIcon />
-                              </IconButton>
-                            </Tooltip>
-                            <Menu
-                              anchorEl={anchorEl}
-                              open={Boolean(anchorEl)}
-                              onClose={() => setAnchorEl(null)}
-                            >
-                              <MenuItem onClick={() => onEdit(question)}>Sửa</MenuItem>
-                            </Menu>
-                          </>
                         )}
-                      </Box>
-
-                      {/* Content Section */}
-                      {edit ? (
-                        <Box component="form" mt={2} onSubmit={handleEdit}>
-                          <TextField
-                            label="Hãy chia sẻ kiến thức hoặc đặt câu hỏi?"
-                            variant="outlined"
-                            multiline
-                            fullWidth
-                            rows={4}
-                            name="questions"
-                            value={dataTemp.questions}
-                            onChange={handleInputChange}
-                            sx={{ marginBottom: 2 }}
+                        {index === 1 && (
+                          <input
+                            type="file"
+                            name="file"
+                            multiple
+                            hidden
+                            onChange={handleFileChange}
                           />
+                        )}
+                      </Button>
+                    ))}
+                  </Box>
 
-                          {/* Add Hashtag Section */}
-                          <Box display="flex" alignItems="center" mb={2}>
-                            <Typography variant="body2" sx={{ mr: 2 }}>
-                              <strong>+ Thêm Hashtag</strong>
-                            </Typography>
-                            <Box sx={{ flexGrow: 1 }}>
-                              <TextField
-                                fullWidth
-                                placeholder="Nhập hashtag"
-                                variant="standard"
-                                name="hashtag"
-                                value={dataTemp.hashtag}
-                                InputProps={{
-                                  disableUnderline: true,
-                                }}
-                                onChange={handleInputChange}
-                              />
+                  {showCodeField && (
+                    <FormControl fullWidth sx={{ mt: 2 }}>
+                      <InputLabel htmlFor="code-input">Nhập code của bạn</InputLabel>
+                      <TextField
+                        id="code-input"
+                        multiline
+                        rows={4}
+                        name="up_code"
+                        variant="outlined"
+                        value={codeSnippet}
+                        onChange={handleCodeChange}
+                      />
+                      <FormHelperText>{error}</FormHelperText>
+                    </FormControl>
+                  )}
+
+                  {/* Post Button */}
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                      textTransform: 'none',
+                      borderRadius: '16px',
+                      padding: '5px 20px',
+                      fontWeight: 'bold',
+                      mt: 2,
+                    }}
+                  >
+                    Đăng
+                  </Button>
+                </Box>
+              </Box>
+
+              {/* Loading Spinner */}
+              {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                  <CircularProgress />
+                </Box>
+              ) : listQuestion?.length > 0 ? (
+                listQuestion
+                  .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
+                  .map((question) =>
+                    question.isApproved == 1 && (
+                      <Box
+                        key={question?.id}
+                        sx={{
+                          border: '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          padding: '20px',
+                          marginTop: '20px',
+                          backgroundColor: '#fff',
+                        }}
+                      >
+                        {/* Post Header */}
+                        <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                          <Box display="flex" alignItems="center">
+                            <img
+                              src={listUser.current.find(user => user.id === question?.user_id)?.avatar || "http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"}
+                              width="40px"
+                              alt="User Avatar"
+                              style={{ borderRadius: '50%', marginRight: '10px' }}
+                            />
+                            <Box>
+                              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                {listUser.current.find(user => user.id === question?.user_id)?.name || ""}
+                              </Typography>
+                              <Typography variant="subtitle1" color="textSecondary">
+                                {formatUpdatedAt(question.updated_at)}
+                              </Typography>
                             </Box>
                           </Box>
-
-                          {/* Options for Image, File, Code */}
-                          <Box display="flex" justifyContent="space-between" alignItems="center">
-                            <Box display="flex" gap={1}>
-                              {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
-                                <Button
-                                  key={index}
-                                  variant="outlined"
-                                  startIcon={
-                                    index === 0 ? <ImageIcon /> :
-                                      index === 1 ? <AttachFileIcon /> : <CodeIcon />
-                                  }
-                                  sx={{ borderRadius: '16px', textTransform: 'none', padding: '5px 15px' }}
-                                  component="label"
-                                  onClick={index === 2 ? handleCodeButtonClick : undefined}
-                                >
-                                  {label}
-                                  {index === 0 && <input name="image" type="file" accept="image/*" multiple hidden onChange={handleImageChange} />}
-                                  {index === 1 && <input type="file" name="file" multiple hidden onChange={handleFileChange} />}
-                                </Button>
-                              ))}
-                            </Box>
-                            {showCodeField && (
-                              <FormControl fullWidth sx={{ mt: 2 }}>
-                                <InputLabel htmlFor="code-input">Nhập code của bạn</InputLabel>
-                                <TextField
-                                  id="code-input"
-                                  multiline
-                                  rows={4}
-                                  name="up_code"
-                                  variant="outlined"
-                                  onChange={handleInputChange}
-                                  value={dataTemp?.up_code || ''}
-                                />
-                                <FormHelperText>{error}</FormHelperText>
-                              </FormControl>
-                            )}
-
-                            <Button
-                              type="submit"
-                              variant="contained"
-                              color="primary"
-                              sx={{
-                                textTransform: 'none',
-                                borderRadius: '16px',
-                                padding: '5px 20px',
-                                fontWeight: 'bold',
-                                mt: 2,
-                              }}
-                            >
-                              Sửa
-                            </Button>
-                          </Box>
-                        </Box>
-                      ) : (
-                        <>
-                          {/* Display Question Content */}
-                          <Box sx={{ mt: 3, mb: 3 }}>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
-                              {question?.questions || ""}
-                            </Typography>
-                            <Divider sx={{ mb: 2 }} />
-                          </Box>
-
-                          {/* Display Images */}
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px' }}>
-                            {question?.imageUrls?.length > 0 && question?.imageUrls.map((image, index) => (
-                              <Box
-                                key={index}
-                                sx={{
-                                  flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
-                                  flexGrow: 1,
-                                  maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
-                                  mb: 2,
-                                }}
+                          {question?.user_id === userData.current.id && (
+                            <>
+                              <Tooltip title="Options">
+                                <IconButton onClick={event => setAnchorEl(event.currentTarget)}>
+                                  <MoreHorizIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={() => setAnchorEl(null)}
                               >
-                                <img
-                                  src={image}
-                                  alt={`Image ${index + 1}`}
-                                  style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                                <MenuItem onClick={() => onEdit(question)}>Sửa</MenuItem>
+                              </Menu>
+                            </>
+                          )}
+                        </Box>
+
+                        {/* Content Section */}
+                        {edit ? (
+                          <Box component="form" mt={2} onSubmit={handleEdit}>
+                            <TextField
+                              label="Hãy chia sẻ kiến thức hoặc đặt câu hỏi?"
+                              variant="outlined"
+                              multiline
+                              fullWidth
+                              rows={4}
+                              name="questions"
+                              value={dataTemp.questions}
+                              onChange={handleInputChange}
+                              sx={{ marginBottom: 2 }}
+                            />
+
+                            {/* Add Hashtag Section */}
+                            <Box display="flex" alignItems="center" mb={2}>
+                              <Typography variant="body2" sx={{ mr: 2 }}>
+                                <strong>+ Thêm Hashtag</strong>
+                              </Typography>
+                              <Box sx={{ flexGrow: 1 }}>
+                                <TextField
+                                  fullWidth
+                                  placeholder="Nhập hashtag"
+                                  variant="standard"
+                                  name="hashtag"
+                                  value={dataTemp.hashtag}
+                                  InputProps={{
+                                    disableUnderline: true,
+                                  }}
+                                  onChange={handleInputChange}
                                 />
                               </Box>
-                            ))}
+                            </Box>
+
+                            {/* Options for Image, File, Code */}
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                              <Box display="flex" gap={1}>
+                                {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                                  <Button
+                                    key={index}
+                                    variant="outlined"
+                                    startIcon={
+                                      index === 0 ? <ImageIcon /> :
+                                        index === 1 ? <AttachFileIcon /> : <CodeIcon />
+                                    }
+                                    sx={{ borderRadius: '16px', textTransform: 'none', padding: '5px 15px' }}
+                                    component="label"
+                                    onClick={index === 2 ? handleCodeButtonClick : undefined}
+                                  >
+                                    {label}
+                                    {index === 0 && <input name="image" type="file" accept="image/*" multiple hidden onChange={handleImageChange} />}
+                                    {index === 1 && <input type="file" name="file" multiple hidden onChange={handleFileChange} />}
+                                  </Button>
+                                ))}
+                              </Box>
+                              {showCodeField && (
+                                <FormControl fullWidth sx={{ mt: 2 }}>
+                                  <InputLabel htmlFor="code-input">Nhập code của bạn</InputLabel>
+                                  <TextField
+                                    id="code-input"
+                                    multiline
+                                    rows={4}
+                                    name="up_code"
+                                    variant="outlined"
+                                    onChange={handleInputChange}
+                                    value={dataTemp?.up_code || ''}
+                                  />
+                                  <FormHelperText>{error}</FormHelperText>
+                                </FormControl>
+                              )}
+
+                              <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                sx={{
+                                  textTransform: 'none',
+                                  borderRadius: '16px',
+                                  padding: '5px 20px',
+                                  fontWeight: 'bold',
+                                  mt: 2,
+                                }}
+                              >
+                                Sửa
+                              </Button>
+                            </Box>
                           </Box>
-                        </>
-                      )}
+                        ) : (
+                          <>
+                            {/* Display Question Content */}
+                            <Box sx={{ mt: 3, mb: 3 }}>
+                              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                {question?.questions || ""}
+                              </Typography>
+                              <Divider sx={{ mb: 2 }} />
+                            </Box>
 
-                      <Divider sx={{ my: 2 }} />
+                            {/* Display Images */}
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px' }}>
+                              {question?.imageUrls?.length > 0 && question?.imageUrls.map((image, index) => (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
+                                    flexGrow: 1,
+                                    maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
+                                    mb: 2,
+                                  }}
+                                >
+                                  <img
+                                    src={image}
+                                    alt={`Image ${index + 1}`}
+                                    style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
+                                  />
+                                </Box>
+                              ))}
+                            </Box>
+                          </>
+                        )}
 
-                      {/* Like and Comment Counts */}
-                      <Typography variant="subtitle1" color="textSecondary">
-                        345 Likes • 34 Comments
-                      </Typography>
+                        <Divider sx={{ my: 2 }} />
 
-                      {/* Like and Comment Buttons */}
-                      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                        <IconButton>
-                          <FavoriteBorderIcon />
-                        </IconButton>
-                        <Typography variant="body2" sx={{ ml: 1 }}>
-                          Thích
+                        {/* Like and Comment Counts */}
+                        <Typography variant="subtitle1" color="textSecondary">
+                          345 Likes • 34 Comments
                         </Typography>
-                        <IconButton sx={{ ml: 2 }}>
-                          <IconMessageCircle />
-                        </IconButton>
-                        <Typography variant="body2" sx={{ ml: 1 }}>
-                          Bình luận
-                        </Typography>
-                      </Box>
 
-                      <Divider sx={{ my: 2 }} />
-
-                      {/* Comment Section */}
-                      <Box>
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <img
-                            src={userData.current.avatar || "default-avatar.jpg"}
-                            alt="User Avatar"
-                            style={{ borderRadius: '50%', marginRight: '10px' }}
-                            width="40px"
-                          />
-                          <TextField
-                            placeholder="Viết bình luận..."
-                            variant="outlined"
-                            size="small"
-                            fullWidth
-                            sx={{ backgroundColor: '#f0f0f0', borderRadius: '20px' }}
-                          />
+                        {/* Like and Comment Buttons */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <IconButton>
+                            <FavoriteBorderIcon />
+                          </IconButton>
+                          <Typography variant="body2" sx={{ ml: 1 }}>
+                            Thích
+                          </Typography>
+                          <IconButton sx={{ ml: 2 }}>
+                            <IconMessageCircle />
+                          </IconButton>
+                          <Typography variant="body2" sx={{ ml: 1 }}>
+                            Bình luận
+                          </Typography>
                         </Box>
 
-                        {/* Example Comment */}
-                        <Box display="flex" alignItems="flex-start" mb={2}>
-                          <img
-                            src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-                            alt="Commenter Avatar"
-                            style={{ borderRadius: '50%', marginRight: '10px' }}
-                            width="40px"
-                          />
-                          <Box>
-                            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                              Rowan Atkinson
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              sx={{
-                                backgroundColor: '#f0f2f5',
-                                padding: '10px',
-                                borderRadius: '10px',
-                                wordWrap: 'break-word',
-                              }}
-                            >
-                              She starred as Jane Porter in The @Legend of Tarzan (2016), Tanya Vanderpoel...
-                            </Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                              <Typography variant="body2" color="textSecondary" sx={{ mr: 2 }}>
-                                11 giờ
+                        <Divider sx={{ my: 2 }} />
+
+                        {/* Comment Section */}
+                        <Box>
+                          <Box display="flex" alignItems="center" mb={1}>
+                            <img
+                              src={userData.current.avatar || "default-avatar.jpg"}
+                              alt="User Avatar"
+                              style={{ borderRadius: '50%', marginRight: '10px' }}
+                              width="40px"
+                            />
+                            <TextField
+                              placeholder="Viết bình luận..."
+                              variant="outlined"
+                              size="small"
+                              fullWidth
+                              sx={{ backgroundColor: '#f0f0f0', borderRadius: '20px' }}
+                            />
+                          </Box>
+
+                          {/* Example Comment */}
+                          <Box display="flex" alignItems="flex-start" mb={2}>
+                            <img
+                              src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                              alt="Commenter Avatar"
+                              style={{ borderRadius: '50%', marginRight: '10px' }}
+                              width="40px"
+                            />
+                            <Box>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                Rowan Atkinson
                               </Typography>
-                              <Button variant="text" sx={{ padding: '0px 10px' }}>
-                                Thích
-                              </Button>
-                              <Button variant="text" sx={{ padding: '0px 10px' }}>
-                                Phản hồi
-                              </Button>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  backgroundColor: '#f0f2f5',
+                                  padding: '10px',
+                                  borderRadius: '10px',
+                                  wordWrap: 'break-word',
+                                }}
+                              >
+                                She starred as Jane Porter in The @Legend of Tarzan (2016), Tanya Vanderpoel...
+                              </Typography>
+                              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                <Typography variant="body2" color="textSecondary" sx={{ mr: 2 }}>
+                                  11 giờ
+                                </Typography>
+                                <Button variant="text" sx={{ padding: '0px 10px' }}>
+                                  Thích
+                                </Button>
+                                <Button variant="text" sx={{ padding: '0px 10px' }}>
+                                  Phản hồi
+                                </Button>
+                              </Box>
                             </Box>
                           </Box>
                         </Box>
                       </Box>
-                    </Box>
+                    )
                   )
-                )
-            ) : (
-              <Typography variant="h6" align="center" sx={{ mt: 3 }}>
-                Không có bài viết nào.
-              </Typography>
-            )}
-  </Box>
-</Grid>
-
-
+              ) : (
+                <Typography variant="h6" align="center" sx={{ mt: 3 }}>
+                  Không có bài viết nào.
+                </Typography>
+              )}
+            </Box>
+          </Grid>
           {/* Right Column */}
           <Grid item md={4}>
             <Box
@@ -738,7 +740,7 @@ const Questions = () => {
                   <MoreHorizIcon />
                 </IconButton>
               </Box>
-
+              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
               {/* List of Hashtags */}
               <List>
                 {[
@@ -779,6 +781,7 @@ const Questions = () => {
                   <MoreHorizIcon />
                 </IconButton>
               </Box>
+              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
 
               {/* Follow List */}
               <List>
@@ -852,7 +855,7 @@ const Questions = () => {
                   Mới nhất
                 </Button>
               </Box>
-
+              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
               {/* Article List */}
               <List>
                 {[
@@ -914,20 +917,43 @@ const Questions = () => {
                   </ListItem>
                 ))}
               </List>
-
-              {/* View More Button */}
-              <Button
-                variant="text"
-                sx={{
-                  display: 'block',
-                  textTransform: 'none',
-                  fontSize: '0.9rem',
-                  margin: '10px auto 0 auto',
-                  color: '#007bff',
-                }}
+              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
+              <Link
+                href="/article"
+                underline="none"
+                sx={{ color: '#007bff', fontSize: '0.9rem' }}
               >
-                Xem thêm
-              </Button>
+                <Button
+                  variant="text"
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center', // Để căn icon và chữ ở giữa theo chiều dọc
+                    textTransform: 'none',
+                    fontSize: '0.9rem',
+                    margin: '10px auto 0 auto',
+                    color: '#007bff',
+                    position: 'relative',
+                    '&:after': {
+                      content: '""',
+                      position: 'absolute',
+                      width: '100%',
+                      height: '2px',
+                      backgroundColor: '#007bff',
+                      bottom: '-2px',
+                      left: 0,
+                      transition: 'width 0.3s ease',
+                      // eslint-disable-next-line no-dupe-keys
+                      width: 0,
+                    },
+                    '&:hover:after': {
+                      width: '100%',
+                    },
+                  }}
+                >
+                  Xem thêm
+                  <ChevronRightIcon sx={{ marginLeft: '5px' }} /> {/* Icon > phía sau */}
+                </Button>
+              </Link>
             </Box>
           </Grid>
         </Grid>

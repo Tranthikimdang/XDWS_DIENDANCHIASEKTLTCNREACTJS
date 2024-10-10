@@ -170,7 +170,7 @@ function FormEditArticle() {
                 onChange={handleImageChange}
               />
               {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
-              {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" style={{ maxWidth: "160px" }} />}
+              
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label">Danh mục</label>
@@ -186,6 +186,7 @@ function FormEditArticle() {
               {errors.categories_id && <span className="text-danger">{errors.categories_id.message}</span>}
             </div>
           </div>
+          {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" style={{ maxWidth: "160px" }} />}
           <div className="mb-3">
             <label className="text-light form-label">Nội dung</label>
             <Editor
