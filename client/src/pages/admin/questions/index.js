@@ -36,7 +36,7 @@ function Questions() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-  const [reload,setReload] = useState(false)
+  const [reload, setReload] = useState(false)
   // Fetch Questionss from Firestore
   useEffect(() => {
     const fetchQuestionss = async () => {
@@ -47,7 +47,7 @@ function Questions() {
           return { id: doc.id, ...doc.data() };
         });
         console.log(QuestionssData)
-        
+
         setRows(QuestionssData); // Lưu dữ liệu vào state
       } catch (error) {
         console.error("Error fetching Questionss:", error);
@@ -103,8 +103,8 @@ function Questions() {
     try {
       const QuestionsRef = doc(db, "questions", deleteId);
       await deleteDoc(QuestionsRef);
-      setReload(reload=>!reload)
-      
+      setReload(reload => !reload)
+
       setOpenDialog(false);
       setSnackbarMessage("Questions deleted successfully.");
       setSnackbarSeverity("success");
@@ -140,10 +140,10 @@ function Questions() {
 
   const handleApprove = async (id) => {
     try {
-      const QuestionsRef = doc(db, "Questionss", id); // Tạo DocumentReference
-      await updateDoc(QuestionsRef, { status: 1 }); // Cập nhật trường status thành 1
+      const QuestionsRef = doc(db, "questions", id); // Tạo DocumentReference
+      await updateDoc(QuestionsRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
       // Cập nhật lại danh sách bài viết
-      setRows(rows.map(row => (row.id === id ? { ...row, status: 1 } : row)));
+      setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
       setSnackbarMessage("Questions approved successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -156,8 +156,8 @@ function Questions() {
   }
 
 
-   //date
-   const formatUpdatedAt = (updatedAt) => {
+  //date
+  const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
@@ -194,7 +194,7 @@ function Questions() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Bảng câu hỏi 
+                Bảng câu hỏi
               </VuiTypography>
             </VuiBox>
             {loading ? (
@@ -243,23 +243,23 @@ function Questions() {
                               height: '70px', // Fixed height to avoid expanding/collapsing
                             }}
                           >
-                            
-                            
+
+
                             <div className="image-column" style={{ flex: '0 0 100px' }}>
-                                
-                                <img
-                                  src={row.imageUrls}
-                                  alt={`Image ${index + 1}`}
-                                  style={{
-                                    width: '100px',
-                                    height: '50px',
-                                    objectFit: 'cover',
-                                    objectPosition: 'center',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                  }}
-                                />
-                              </div>
+
+                              <img
+                                src={row.imageUrls}
+                                alt={`Image ${index + 1}`}
+                                style={{
+                                  width: '100px',
+                                  height: '50px',
+                                  objectFit: 'cover',
+                                  objectPosition: 'center',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                }}
+                              />
+                            </div>
                           </div>
                         ),
                         author: (
@@ -338,18 +338,19 @@ function Questions() {
                                 </svg>
                               </button>
                             </Tooltip>
-                            {row.status == 0 && (
-                              <>
-                                <Tooltip title="Duyệt bài viết" placement="top">
-                                  <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
-                                      <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                                      <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
-                                    </svg>
-                                  </button>
-                                </Tooltip>
-                              </>
-                            )}
+                            {row.isApproved
+                              == 0 && (
+                                <>
+                                  <Tooltip title="Duyệt bài viết" placement="top">
+                                    <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
+                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                        <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
+                                      </svg>
+                                    </button>
+                                  </Tooltip>
+                                </>
+                              )}
 
                           </div>
                         ),
