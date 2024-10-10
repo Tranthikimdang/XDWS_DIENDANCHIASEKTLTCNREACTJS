@@ -16,6 +16,7 @@ const CateArticleDetail = Loadable(lazy(() => import('../views/article/component
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))); // Import the ArticleDetail component
 const Questions = Loadable(lazy(() => import('../views/questions/Questions.js')));
+const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestions.js')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -47,9 +48,9 @@ const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
 
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
-// const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
-// const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
-// const FormViewQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/FormViewQuestions')))
+const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
+const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
+const FormViewQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/FormViewQuestions')))
 
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
@@ -121,6 +122,7 @@ const renderRoutes = (role) => {
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
+        { path: 'questions/:id', exact: true, element: <EditQuestions /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },

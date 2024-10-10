@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable eqeqeq */
 import React, { useEffect, useState } from 'react';
@@ -8,8 +9,6 @@ import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import Tooltip from "@mui/material/Tooltip";
 import Table from "src/examples/Tables/Table";
 import authorsQuestionsData from "./data/authorsTableData";
@@ -155,8 +154,10 @@ function Questions() {
       setSnackbarOpen(true);
     }
   }
-  //date
-  const formatUpdatedAt = (updatedAt) => {
+
+
+   //date
+   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
@@ -195,24 +196,6 @@ function Questions() {
               <VuiTypography variant="lg" color="white">
                 Bảng câu hỏi 
               </VuiTypography>
-              <Link to="/admin/formaddQuestions">
-                <button className='text-light btn btn-outline-info' onClick={handleAddQuestionsSuccess}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-plus"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
-                    />
-                  </svg>
-                  Add
-                </button>
-              </Link>
             </VuiBox>
             {loading ? (
               <div
@@ -260,9 +243,23 @@ function Questions() {
                               height: '70px', // Fixed height to avoid expanding/collapsing
                             }}
                           >
+                            
+                            
                             <div className="image-column" style={{ flex: '0 0 100px' }}>
-                              <img className="img-thumbnail" src={row.image} />
-                            </div>
+                                
+                                <img
+                                  src={row.imageUrls}
+                                  alt={`Image ${index + 1}`}
+                                  style={{
+                                    width: '100px',
+                                    height: '50px',
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                  }}
+                                />
+                              </div>
                           </div>
                         ),
                         author: (
@@ -281,7 +278,7 @@ function Questions() {
                         ),
                         date: (
                           <VuiBox>
-                            <VuiTypography variant="button" color="white" fontWeight="medium">
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
                               {formatUpdatedAt(row.updated_at)}
                             </VuiTypography>
                           </VuiBox>

@@ -184,7 +184,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
               htmlFor="username"
               mb="5px"
             >
-              Họ và tên
+              Email
             </Typography>
             <CustomTextField
               id="username"
@@ -233,7 +233,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
                 color: 'primary.main',
               }}
             >
-              Đăng ký tài khoảng?
+              Đăng ký tài khoản?
             </Typography>
           </Stack>
         </Stack>

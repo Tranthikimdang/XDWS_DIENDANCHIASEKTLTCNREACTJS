@@ -5,7 +5,6 @@ import { IconHeart, IconMessageCircle } from '@tabler/icons';
 import { useLocation } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { Snackbar, Alert } from "@mui/material";
 //icon

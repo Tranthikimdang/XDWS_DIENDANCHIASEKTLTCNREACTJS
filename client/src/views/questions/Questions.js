@@ -33,6 +33,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from 'src/config/firebaseconfig';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+
 const Questions = () => {
   const [imageError, setImageError] = useState('');
   const [fileError, setFileError] = useState('');
@@ -47,7 +48,7 @@ const Questions = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [anchorEl, setAnchorEl] = useState(null);
   const [edit, setEdit] = useState(false);
-  const [dataTemp,setDataTemp] = useState(null)
+  const [dataTemp, setDataTemp] = useState(null)
 
   const listUser = useRef([])
 
@@ -190,6 +191,10 @@ const Questions = () => {
           user_id: userData.current.id,
           imageUrls,
           fileUrls,
+          isApproved: '0',
+          created_at: new Date(),
+          is_deleted: data.is_deleted || false,
+          updated_at: new Date(),
           createdAt: serverTimestamp(),
         };
 
@@ -238,7 +243,12 @@ const Questions = () => {
           ...data,
           imageUrls: imageUrls.length > 0 ? imageUrls : dataTemp.imageUrls,
           fileUrls: fileUrls.length > 0 ? fileUrls : dataTemp.fileUrls,
+          isApproved: '0',
+          created_at: new Date(),
+          is_deleted: data.is_deleted || false,
+          updated_at: new Date(),
           createdAt: serverTimestamp(),
+
         };
 
         const docRef = doc(db, 'questions', dataTemp.id);
@@ -246,8 +256,8 @@ const Questions = () => {
         setSnackbarOpen(true);
         setSnackbarMessage('Questions updated successfully.');
         setSnackbarSeverity("success");
-         setReload(reload=>!reload)
-         setEdit(false)
+        setReload(reload => !reload)
+        setEdit(false)
         e.target.reset();
       } catch (error) {
         console.error('Lỗi khi gửi dữ liệu lên Firestore:', error);
@@ -267,7 +277,7 @@ const Questions = () => {
     const { name, value } = e.target;
     setDataTemp((prevData) => ({
       ...prevData,
-      [name]: value, 
+      [name]: value,
     }));
   };
   return (
@@ -464,7 +474,7 @@ const Questions = () => {
                             onClose={() => setAnchorEl(null)}
                           >
                             {/* <MenuItem onClick={handleDelete}>Xoá</MenuItem> */}
-                            <MenuItem onClick={()=>onEdit(question)}>Sửa</MenuItem>
+                            <MenuItem onClick={() => onEdit(question)}>Sửa</MenuItem>
                           </Menu>
                         </>
                       )}
