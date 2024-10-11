@@ -781,13 +781,9 @@ const Questions = () => {
                   <ListItem key={index} sx={{ padding: 0 }}>
                     <ListItemText
                       primary={
-                        <Link
-                          href="#"
-                          underline="none"
-                          sx={{ color: '#007bff', fontSize: '0.9rem' }}
-                        >
+                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
                           {hashtag}
-                        </Link>
+                        </Typography>
                       }
                     />
                   </ListItem>
@@ -831,17 +827,13 @@ const Questions = () => {
                     >
                       <Box display="flex" alignItems="center">
                         <img
-                          src="/mnt/data/image.png" // Replace with the correct image URL path
+                          src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg" // Replace with the correct image URL path
                           alt={name}
                           style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
                         />
-                        <Link
-                          href="#"
-                          underline="none"
-                          sx={{ color: '#007bff', fontSize: '0.9rem' }}
-                        >
+                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
                           {name}
-                        </Link>
+                        </Typography>
                       </Box>
                       <Button
                         variant="outlined"
@@ -870,7 +862,7 @@ const Questions = () => {
               }}
             >
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Bài viết nổi bật</Typography>
+                <Typography variant="h6" sx={{ fontSize: '1rem' }}>Bài viết nổi bật</Typography>
                 <Button
                   variant="outlined"
                   sx={{
@@ -904,10 +896,9 @@ const Questions = () => {
                           style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
                         />
                         <Box>
-                          <Typography variant="h6" sx={{ color: '#007bff', fontSize: '1.25rem' }}>
+                          <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
                             Tiêu đề: {article.title}
                           </Typography>
-
                           <Typography variant="body2" sx={{ color: '#666' }}>
                             Số lượt thích: {article.likes} | Số bình luận: {article.comments}
                           </Typography>
