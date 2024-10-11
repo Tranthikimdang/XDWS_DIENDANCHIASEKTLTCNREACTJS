@@ -4,6 +4,7 @@ import Loadable from '../layouts/full/shared/loadable/Loadable';
 import Profile from 'src/views/profile/Profile';
 import ForgotPassword from '../views/authentication/ForgotPassword';
 import ResetPassword from '../views/authentication/ResetPassword';
+import CommentDetail from '../pages/admin/commentDetail';
 
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
@@ -25,6 +26,8 @@ const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
 const ProductDetailUser = Loadable(lazy(() => import('../views/productDetail/index')));
+const Cart = Loadable(lazy(() => import('../views/cart/index')));
+
 
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
@@ -67,6 +70,7 @@ const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEd
 
 
 
+
 const renderRoutes = (role) => {
   const routes = [
     {
@@ -102,10 +106,12 @@ const renderRoutes = (role) => {
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
         { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
+        { path: '/cart', exact: true, element: <Cart /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -123,15 +129,21 @@ const renderRoutes = (role) => {
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
         { path: 'questions/:id', exact: true, element: <EditQuestions /> },
+
+        // { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
+        // { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
+        // { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
+
         { path: 'user', exact: true, element: <UserAdmin /> },
-        { path: 'comment-detail', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
+        { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
         { path: 'addCatePro', exact: true, element: <AddCatePro /> },
         { path: 'editCatePro/:id', exact: true, element: <EditCatePro /> },
         { path: 'products', exact: true, element: <Product /> },
         { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
-        { path: 'category', exact: true, element: <Category /> },
+        { path: 'addCate', exact: true, element: <AddCate /> },
+        { path: 'editCate/:id', exact: true, element: <EditCate/> },
         { path: 'addCate', exact: true, element: <AddCate/> },
         { path: 'editCate/:id', exact: true, element: <EditCate /> },
         
@@ -156,10 +168,12 @@ const renderRoutes = (role) => {
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
         { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
+        { path: '/cart', exact: true, element: <Cart /> },
 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
@@ -182,10 +196,12 @@ const renderRoutes = (role) => {
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
         { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/commentDetail', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
+        { path: '/cart', exact: true, element: <Cart /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

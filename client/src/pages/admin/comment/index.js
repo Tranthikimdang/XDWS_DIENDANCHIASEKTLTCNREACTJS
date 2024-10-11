@@ -13,14 +13,14 @@ import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
 import './index.css';
-import { collection, addDoc, getDocs } from "firebase/firestore";
-import { db, storage } from 'src/config/firebaseconfig';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from 'src/config/firebaseconfig';
 
 function Comment() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
-  const [deleteId, setDeleteId] = useState(null);
+  const [deleteId, setDeleteId] = useState(null); 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -48,10 +48,10 @@ function Comment() {
     fetchComment();
   }, []);
 
-  const handleDelete = (id) => {
-    setDeleteId(id);
-    setOpenDialog(true);
-  };
+  // const handleDelete = (id) => {
+  //   setDeleteId(id);
+  //   setOpenDialog(true);
+  // };
 
   const confirmDelete = async () => {
     try {
@@ -85,22 +85,51 @@ function Comment() {
     return htmlString?.replace(regex, '');
   };
 
-  const handleAddCommentSuccess = () => {
-    setSnackbarMessage("Comment added successfully.");
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
-  };
+  // const handleAddCommentSuccess = () => {
+  //   setSnackbarMessage("Comment added successfully.");
+  //   setSnackbarSeverity("success");
+  //   setSnackbarOpen(true);
+  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  // const handleChangeRowsPerPage = (event) => {
+  //   setRowsPerPage(parseInt(event.target.value, 10));
+  //   setPage(0);
+  // };
 
   const defaultImageUrl = "/path/to/default/image.png"; // Replace with your default image path
+
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
 
   return (
     <DashboardLayout>
@@ -110,7 +139,7 @@ function Comment() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Comment Table
+                Bảng Bình Luận
               </VuiTypography>
               {/* <Link to="/formAddCmt">
                 <button className='text-light btn btn-outline-info' type="button" onClick={handleAddCommentSuccess}>
@@ -165,9 +194,16 @@ function Comment() {
                         content: removeSpecificHtmlTags(row.content, 'p')?.length > 20
                           ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 20)}...`
                           : removeSpecificHtmlTags(row.content, 'p'),
+                          date: (
+                            <VuiBox>
+                              <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                {formatUpdatedAt(row.updated_at)}
+                              </VuiTypography>
+                            </VuiBox>
+                          ),
                         action: (
                           <div>                            
-                            <Link  to={{ pathname: "/commentDetail", state: { id: row.id } }}>
+                            <Link  to={`/admin/commentDetail/${row.id}`}>
                               <button className="text-light btn btn-outline-primary me-2" type="submit">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
