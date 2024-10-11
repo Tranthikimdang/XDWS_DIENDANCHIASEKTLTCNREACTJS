@@ -137,8 +137,13 @@ function FormAndBanner() {
               <button type="submit" className="btn btn-primary">Lưu</button>
               <button className="btn btn-primary" type="button" onClick={() => navigate("/admin/banner")}>Trở lại</button>
             </form>
-            <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
-              <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={5000}
+              onClose={handleSnackbarClose}
+              anchorOrigin={{ vertical: "top", horizontal: "center" }} // Updated positioning
+            >
+              <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
                 {snackbarMessage}
               </Alert>
             </Snackbar>

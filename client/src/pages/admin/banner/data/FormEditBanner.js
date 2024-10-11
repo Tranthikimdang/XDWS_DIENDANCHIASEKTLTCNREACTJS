@@ -3,69 +3,40 @@ import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
-import { Editor } from "@tinymce/tinymce-react";
 import { Snackbar, Alert } from "@mui/material";
 
 // Firebase
 import { db, storage } from '../../../../config/firebaseconfig';
-import { collection, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-function FormEditArticle() {
+function FormEditBanner() {
   const { id } = useParams(); // Lấy ID từ URL
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [cates, setCates] = useState([]);
-  const [user, setUser] = useState("");
-  const [data, setData] = useState(null); // Dữ liệu bài viết
+  const [data, setData] = useState(null); // Dữ liệu Banner
   const [imagePreview, setImagePreview] = useState("");
 
+  // Lấy dữ liệu Banner dựa trên ID
   useEffect(() => {
-    const fetchUser = () => {
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (user) {
-        setUser(user);
-      }
-    };
-    fetchUser();
-  }, []);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const querySnapshot = await getDocs(collection(db, "categories"));
+    const fetchBanner = async () => {
       try {
-        const categoriesList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
-        setCates(categoriesList);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh mục:", error);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  // Lấy dữ liệu bài viết dựa trên ID
-  useEffect(() => {
-    const fetchArticle = async () => {
-      try {
-        const articleDocRef = doc(db, "articles", id);
-        const articleDoc = await getDoc(articleDocRef);
-        if (articleDoc.exists()) {
-          setData(articleDoc.data());
-          setImagePreview(articleDoc.data().image || "");
+        const BannerDocRef = doc(db, "Banners", id);
+        const BannerDoc = await getDoc(BannerDocRef);
+        if (BannerDoc.exists()) {
+          setData(BannerDoc.data());
+          setImagePreview(BannerDoc.data().image || "");
         } else {
-          console.log("Bài viết không tồn tại.");
-          navigate("/admin/article");
+          console.log("Banner không tồn tại.");
+          navigate("/admin/Banner");
         }
       } catch (error) {
-        console.error("Lỗi khi lấy bài viết:", error);
+        console.error("Lỗi khi lấy Banner:", error);
       }
     };
-    if (id) fetchArticle();
+    if (id) fetchBanner();
   }, [id, navigate]);
 
   const {
@@ -75,10 +46,8 @@ function FormEditArticle() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      user_id: user?.id || "",
       image: "",
       title: "",
-      categories_id: "",
       content: "",
     },
   });
@@ -87,7 +56,6 @@ function FormEditArticle() {
     if (data) {
       setValue("title", data.title || "");
       setValue("content", data.content || "");
-      setValue("categories_id", data.categories_id || "");
     }
   }, [data, setValue]);
 
@@ -110,20 +78,19 @@ function FormEditArticle() {
       if (formData.image && formData.image[0]) {
         imageUrl = await handleImageUpload(formData.image[0]);
       }
-      const articleRef = doc(db, "articles", id);
-      await updateDoc(articleRef, {
+      const BannerRef = doc(db, "Banners", id);
+      await updateDoc(BannerRef, {
         title: formData.title,
-        content: formData.content,
-        categories_id: formData.categories_id,
+        content: formData.content, // Content is now plain text
         image: imageUrl,
       });
-      setSnackbarMessage("Cập nhật bài viết thành công.");
+      setSnackbarMessage("Cập nhật Banner thành công.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
-      setTimeout(() => navigate('/admin/article'), 500);
+      setTimeout(() => navigate('/admin/Banner'), 500);
     } catch (error) {
-      console.error("Lỗi khi cập nhật bài viết:", error);
-      setSnackbarMessage("Cập nhật bài viết thất bại.");
+      console.error("Lỗi khi cập nhật Banner:", error);
+      setSnackbarMessage("Cập nhật Banner thất bại.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -150,10 +117,6 @@ function FormEditArticle() {
         <form onSubmit={handleSubmit(onSubmit)} method="post" encType="multipart/form-data">
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Tên</label>
-              <input className="form-control bg-dark text-light" value={user?.name} readOnly />
-            </div>
-            <div className="col-6 mb-3">
               <label className="text-light form-label">Tiêu đề</label>
               <input className="form-control bg-dark text-light"
                 {...register("title", { required: "Tiêu đề là bắt buộc" })}
@@ -170,64 +133,37 @@ function FormEditArticle() {
                 onChange={handleImageChange}
               />
               {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
-              
-            </div>
-            <div className="col-6 mb-3">
-              <label className="text-light form-label">Danh mục</label>
-              <select
-                className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
-                {...register("categories_id", { required: "Danh mục là bắt buộc" })}
-              >
-                <option value="" disabled>Mở chọn danh mục</option>
-                {cates.map((cate) => (
-                  <option key={cate.id} value={cate.id}>{cate.name}</option>
-                ))}
-              </select>
-              {errors.categories_id && <span className="text-danger">{errors.categories_id.message}</span>}
             </div>
           </div>
           {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" style={{ maxWidth: "160px" }} />}
           <div className="mb-3">
             <label className="text-light form-label">Nội dung</label>
-            <Editor
-              apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
-              init={{
-                height: 500,
-                menubar: false,
-                plugins: [
-                  "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
-                  "mediaembed casechange export formatpainter pageembed linkchecker",
-                  "a11ychecker tinymcespellchecker permanentpen powerpaste advtable",
-                  "advcode editimage advtemplate ai mentions tinycomments tableofcontents",
-                  "footnotes mergetags autocorrect typography inlinecss markdown",
-                ],
-                toolbar:
-                  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent | link image media table codesample | customInsertImage | removeformat | addcomment showcomments | spellcheckdialog a11ycheck typography",
-                content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
-              }}
-              onEditorChange={(content) => setValue("content", content)}
-              initialValue={data?.content || ""}
+            <textarea
+              className={`form-control bg-dark text-light ${errors.content ? "is-invalid" : ""}`}
+              {...register("content", { required: "Nội dung là bắt buộc" })}
+              rows="10"
             />
             {errors.content && <span className="text-danger">{errors.content.message}</span>}
           </div>
           <div className="d-flex justify-content mt-3">
-            <button className="btn btn-primary mx-2" type="submit">Cập nhật bài viết</button>
-            <button className="btn btn-outline-secondary" type="button" onClick={() => navigate("/admin/article")}>Trở lại</button>
+            <button className="btn btn-primary mx-2" type="submit">Cập nhật Banner</button>
+            <button className="btn btn-outline-secondary" type="button" onClick={() => navigate("/admin/Banner")}>Trở lại</button>
           </div>
         </form>
       </div>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }} // Updated positioning
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
+
     </DashboardLayout>
   );
 }
 
-export default FormEditArticle;
+export default FormEditBanner;
