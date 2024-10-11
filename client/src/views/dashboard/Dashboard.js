@@ -308,9 +308,11 @@ const Home = () => {
                         alt={article.title}
                       />
                       <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography gutterBottom variant="h5" component="div">
+                        <Typography gutterBottom variant="body2" component="div" sx={{ fontSize: '0.875rem' }}>
                           {article.title}
                         </Typography>
+
+
                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                           <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
                             {catesMap[article.categories_id] || 'Chưa rõ danh mục'}

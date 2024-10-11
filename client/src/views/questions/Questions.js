@@ -37,8 +37,9 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from 'src/config/firebaseconfig';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-
+import { useNavigate } from 'react-router-dom';
 const Questions = () => {
+  const navigate = useNavigate();
   const [imageError, setImageError] = useState('');
   const [fileError, setFileError] = useState('');
   const [codeSnippet, setCodeSnippet] = useState('');
@@ -53,43 +54,50 @@ const Questions = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [edit, setEdit] = useState(false);
   const [dataTemp, setDataTemp] = useState(null)
-
+  const [users, setUsers] = useState([]);
+  const [articles, setArticles] = useState([]);
   const listUser = useRef([])
 
-  const validateImageFile = (files) => {
-    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    for (const file of files) {
-      if (!allowedImageTypes.includes(file.type)) {
-        return `Ảnh ${file.name} không đúng định dạng (chỉ chấp nhận JPEG, PNG, GIF)`;
-      }
-    }
-    return '';
-  };
-
-  const userData = useRef(null)
-
-
+  // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
     userData.current = JSON.parse(localStorage.getItem('user'));
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const usersList = querySnapshot.docs.map((doc) => ({
+        const userCollectionRef = collection(db, "users");
+        const userSnapshot = await getDocs(userCollectionRef);
+        const userList = userSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-
-        listUser.current = usersList?.length > 0 ? usersList.map(user => ({ 'id': user?.id, 'name': user?.name })) : []
-
+        setUsers(userList);
+        console.log("Lấy người dùng:", userList);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Lỗi khi lấy người dùng:", error);
       } finally {
+        setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
+
+  // Fetch articles
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setLoading(true);
+      try {
+        const articlesSnapshot = await getDocs(collection(db, 'articles'));
+        const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setArticles(articlesData);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticles();
+  }, []);
+
 
   useEffect(() => {
 
@@ -109,9 +117,23 @@ const Questions = () => {
     };
     fetchQuestions();
   }, [reload]);
+
   const handleSnackbarClose = (event, reason) => {
     setSnackbarOpen(false);
   };
+
+  const validateImageFile = (files) => {
+    const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    for (const file of files) {
+      if (!allowedImageTypes.includes(file.type)) {
+        return `Ảnh ${file.name} không đúng định dạng (chỉ chấp nhận JPEG, PNG, GIF)`;
+      }
+    }
+    return '';
+  };
+
+  const userData = useRef(null)
+
   const validateOtherFile = (files) => {
     const allowedFileTypes = [
       'application/pdf',
@@ -286,6 +308,12 @@ const Questions = () => {
       [name]: value,
     }));
   };
+
+  const handleCardClick = (articleId) => {
+    navigate(`/article/${articleId}`, { state: { id: articleId } });
+  };
+
+
 
   //date
   const formatUpdatedAt = (updatedAt) => {
@@ -857,66 +885,43 @@ const Questions = () => {
               </Box>
               <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
               {/* Article List */}
-              <List>
-                {[
-                  {
-                    title: 'ReactJS Là gì? Và cách thức hoạt động như thế nào?',
-                    likes: 100,
-                    comments: 50,
-                    author: 'Kim Đang.dev',
-                  },
-                  {
-                    title: 'TalkShow: Warmup Cuộc Thi Sáng Tạo Lập Trình Trò Chơi',
-                    likes: 100,
-                    comments: 50,
-                    author: 'Kim Đang.dev',
-                  },
-                  {
-                    title: 'TalkShow: Warmup Cuộc Thi Sáng Tạo Lập Trình Trò Chơi',
-                    likes: 100,
-                    comments: 50,
-                    author: 'Kim Đang.dev',
-                  },
-                  {
-                    title: 'TalkShow: Warmup Cuộc Thi Sáng Tạo Lập Trình Trò Chơi',
-                    likes: 100,
-                    comments: 50,
-                    author: 'Kim Đang.dev',
-                  },
-                ].map((article, index) => (
-                  <ListItem key={index} sx={{ padding: '10px 0' }}>
+
+              {articles
+                .filter(article => article.isApproved === 1)
+                .slice(0, 4)
+                .map((article) => (
+                  <ListItem key={article.id} sx={{ padding: '10px 0' }}>
                     <Box
                       display="flex"
                       alignItems="center"
                       justifyContent="space-between"
                       width="100%"
                     >
-                      <Box display="flex" alignItems="center">
+                      <Box display="flex" alignItems="center" onClick={() => handleCardClick(article.id)}>
                         <img
-                          src="/mnt/data/image.png" // Replace with the correct image URL path
+                          src={article.authorImage || 'http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg'} // Đường dẫn đến ảnh tác giả hoặc ảnh mặc định
                           alt={article.author}
                           style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
                         />
                         <Box>
-                          <Link
-                            href="#"
-                            underline="none"
-                            sx={{ color: '#007bff', fontSize: '0.9rem', display: 'block' }}
-                          >
-                            {article.title}
-                          </Link>
+                          <Typography variant="h6" sx={{ color: '#007bff', fontSize: '1.25rem' }}>
+                            Tiêu đề: {article.title}
+                          </Typography>
+
                           <Typography variant="body2" sx={{ color: '#666' }}>
                             Số lượt thích: {article.likes} | Số bình luận: {article.comments}
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#666' }}>
-                            Tác giả: {article.author}
+                            Tác giả: {users?.find(u => article?.user_id === u.id)?.name || 'Không rõ'}
                           </Typography>
+
                         </Box>
                       </Box>
                     </Box>
                   </ListItem>
                 ))}
-              </List>
+
+
               <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
               <Link
                 href="/article"

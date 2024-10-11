@@ -27,8 +27,9 @@ function FormViewArticle() {
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Trạng thái cho Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Thông điệp của Snackbar
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Độ nghiêm trọng của Snackbar
-  const [users, setUsers] = useState([]); // Trạng thái cho danh sách người dùng
+  const [users, setUsers] = useState([]); 
   const [cates, setCates] = useState([]);
+  
   // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
     const fetchUsers = async () => {
