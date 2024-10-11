@@ -44,6 +44,11 @@ const FormAddArticle = Loadable(lazy(() => import('../pages/admin/article/data/F
 const FormEditArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormEditArticle')))
 const FormViewArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormViewArticle')))
 
+const BannerAdmin = Loadable(lazy(() => import('../pages/admin/banner')))
+const FormAddBanner = Loadable(lazy(() => import('../pages/admin/banner/data/FormAddBanner')))
+const FormEditBanner = Loadable(lazy(() => import('../pages/admin/banner/data/FormEditBanner')))
+const FormViewBanner = Loadable(lazy(() => import('../pages/admin/banner/data/FormViewBanner')))
+
 const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDetail')))
 const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')))
 const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
@@ -122,6 +127,12 @@ const renderRoutes = (role) => {
         { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
         { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle/> },
         { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
+
+        { path: 'banner', exact: true, element: <BannerAdmin /> },
+        { path: 'formaddbanner', exact: true, element: <FormAddBanner/> },
+        { path: 'formeditbanner/:id', exact: true, element: <FormEditBanner/> },
+        { path: 'formviewbanner/:id', exact: true, element: <FormViewBanner/> },
+
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
