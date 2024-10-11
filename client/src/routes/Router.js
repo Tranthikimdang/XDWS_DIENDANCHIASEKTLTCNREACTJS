@@ -26,6 +26,7 @@ const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
 const ProductDetailUser = Loadable(lazy(() => import('../views/productDetail/index')));
+const Cart = Loadable(lazy(() => import('../views/cart/index')));
 
 
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
@@ -115,6 +116,7 @@ const renderRoutes = (role) => {
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
+        { path: '/cart', exact: true, element: <Cart /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -140,7 +142,13 @@ const renderRoutes = (role) => {
         // { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
         // { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
         // { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
+
         { path: 'questions/:id', exact: true, element: <EditQuestions /> },
+
+        // { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
+        // { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
+        // { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
+
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
@@ -180,6 +188,7 @@ const renderRoutes = (role) => {
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
+        { path: '/cart', exact: true, element: <Cart /> },
 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
@@ -207,6 +216,7 @@ const renderRoutes = (role) => {
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
+        { path: '/cart', exact: true, element: <Cart /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

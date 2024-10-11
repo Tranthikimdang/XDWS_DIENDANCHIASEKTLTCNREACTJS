@@ -70,6 +70,7 @@ const Home = () => {
   const [catesMap, setCatesMap] = useState({});
   const [loadingCategories, setLoadingCategories] = useState(false);
 
+
   const handleCardClick = (articleId) => {
     navigate(`/article/${articleId}`, { state: { id: articleId } });
   };
@@ -98,26 +99,24 @@ const Home = () => {
   // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoadingCategories(true);
+      setLoading(true);
       try {
         const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         const categoriesMap = categoriesData.reduce((map, category) => {
           map[category.id] = category.name;
           return map;
         }, {});
         setCatesMap(categoriesMap);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
       } finally {
-        setLoadingCategories(false);
+        setLoading(false);
       }
     };
     fetchCategories();
   }, []);
+
 
   // Fetch products
   useEffect(() => {
@@ -141,6 +140,36 @@ const Home = () => {
     const date = new Date(timestamp.seconds * 1000);
     return date.toLocaleDateString(); // Format the date to be more readable
   };
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
+
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
@@ -254,7 +283,6 @@ const Home = () => {
                 </Carousel.Item>
               </Carousel>
             </Grid>
-
             {/* Featured Articles */}
             <Grid container spacing={4} sx={{ marginTop: '40px' }}>
               <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
@@ -266,8 +294,9 @@ const Home = () => {
                 </Box>
               </Grid>
               {articles
-                .filter((article) => article.isApproved === 1)
-                .slice(0, 4)
+
+                .filter(article => article.isApproved === 1) // Lọc bài viết có isApproved = 1
+                .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
                 .map((article) => (
                   <Grid item xs={6} sm={4} md={3} key={article.id}>
                     <Card
@@ -294,6 +323,14 @@ const Home = () => {
                         <Typography variant="body2" color="textSecondary">
                           {formatDate(article.updated_at)}
                         </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
+                            {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                            {formatUpdatedAt(article.updated_at)} {/* Hiển thị ngày định dạng */}
+                          </Typography>
+                        </Box>
                       </CardContent>
                     </Card>
                   </Grid>
