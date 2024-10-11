@@ -98,9 +98,10 @@ const Article = () => {
     { icon: <LinkIcon />, text: 'Copy Link' },
     { icon: <FlagIcon />, text: 'Report Article' },
   ];
-  const removeSpecificHtmlTags = (html, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
-    return html?.replace(regex, '');
+
+  //xóa các thẻ html
+  const removeHtmlTags = (html) => {
+    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
   };
 
   const filteredArticles = articles.filter((article) =>
@@ -235,12 +236,12 @@ const Article = () => {
                           </Typography>
                         </Box>
                         <Typography variant="h5" component="h2" className="article-title">
-                          {article.title}
+                        {article.title.length > 100 ? `${article.title.substring(0, 100)}...` : article.title}
                         </Typography>
                         <Typography variant="body2" paragraph className="article-description">
-                          {removeSpecificHtmlTags(article.content, 'p').length > 100
-                            ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
-                            : removeSpecificHtmlTags(article.content, 'p')}
+                        {removeHtmlTags(article.content, 'p').length > 10
+                              ? `${removeHtmlTags(article.content, 'p').substring(0, 10)}...`
+                              : removeHtmlTags(article.content, 'p')}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                           <Typography variant="body2" color="textSecondary" className="category-badge">
