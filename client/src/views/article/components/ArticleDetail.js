@@ -11,6 +11,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
 import './style.css';
 import { formatDistanceToNow } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 // Firebase
 import { db } from '../../../config/firebaseconfig';
@@ -34,6 +35,11 @@ const ArticleDetail = () => {
   console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
   const [replyingToUsername, setReplyingToUsername] = useState('');
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    navigate('/auth/login'); // Điều hướng đến trang đăng nhập
+  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -112,6 +118,12 @@ const ArticleDetail = () => {
   }, [id]);
 
   const handleAddComment = async () => {
+    if (!currentUser) {
+      setSnackbarMessage("Bạn cần phải đăng nhập để bình luận.");
+      setSnackbarSeverity("warning");
+      setSnackbarOpen(true);
+      return;
+    }
     if (!newComment.trim()) {
       alert('Vui lòng nhập bình luận.');
       return;
@@ -216,19 +228,17 @@ const ArticleDetail = () => {
     setReplyingToReply(null);
     setReplyingToUsername('');
   };
-  
+
   // Trả lời bình luận chính
-  const handleReplyClick = (commentId, username) => {
-  setReplyingTo(commentId);
-  setReplyingToReply(null); // Hủy trạng thái trả lời reply nếu có
-  setReplyingToUsername(username); // Lưu tên người dùng của comment
-};
+  const handleReplyClick = (commentId, userName) => {
+    setReplyingTo(commentId);
+    setReplyingToUsername(userName);
+  };
 
   // Trả lời của trả lời
-  const handleReplyToReplyClick = (commentId, replyIndex, replyUsername) => {
-    setReplyingTo(null); // Hủy trạng thái trả lời comment nếu có
-    setReplyingToReply(replyIndex);
-    setReplyingToUsername(replyUsername); // Lưu tên người dùng của reply
+  const handleReplyToReplyClick = (commentId, replyIndex, replyUserName) => {
+    setReplyingToReply(replyIndex); // Đặt index của reply đang được trả lời
+    setReplyingToUsername(replyUserName); // Đặt tên của người dùng từ reply trước đó
   };
 
   if (!article) {
@@ -370,109 +380,81 @@ const ArticleDetail = () => {
         </DialogTitle>
         <DialogContent>
           {/* Comment Input Section */}
-          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-            <Avatar alt="Your Avatar" src="https://i.pinimg.com/736x/0d/e2/0f/0de20f2a3e65ae8b92e263dd8340a76c.jpg" />
-            <TextField
-              label="Viết bình luận"
-              variant="outlined"
-              multiline
-              fullWidth
-              rows={1}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              sx={{ marginLeft: 2 }}
-            />
-          </Box>
-
-          {/* Button for Sending Comment */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 1 }}>
-            <Button variant="contained" color="primary" onClick={handleAddComment} sx={{ padding: '6px 12px' }}>
-              Gửi bình luận
-            </Button>
-          </Box>
-
-          {/* Comments List */}
-          <List>
-  {comments.map((comment) => (
-    <ListItem key={comment.id} alignItems="flex-start">
-      <Avatar alt={comment.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
-      <Box ml={1}>
-        <Typography variant="body1" color="textPrimary">
-          <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{comment.user_name}</span>
-        </Typography>
-        <Box display="flex" alignItems="center">
-          <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
-            {comment.content}
-          </Typography>
-          <Typography variant="caption" color="textSecondary">
-            {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true })}
-          </Typography>
-        </Box>
-
-        <Box display="flex" alignItems="center" mt={1}>
-          <IconButton aria-label="reply" onClick={() => handleReplyClick(comment.id, comment.user_name)}>
-            <ReplyIcon fontSize="small" />
-            <Typography variant="body2" color="textSecondary">Reply</Typography>
-          </IconButton>
-          {replyingTo === comment.id && (
-            <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
-              Hủy
-            </Button>
+          {!currentUser ? (
+            <Typography variant="body2" color="textSecondary">
+              Vui lòng{' '}
+              <Button onClick={handleLoginClick} style={{ padding: 0, color: 'primary' }}>
+                đăng nhập
+              </Button>
+              {' '}để bình luận.
+            </Typography>
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+              <Avatar alt="Your Avatar" src="https://i.pinimg.com/736x/0d/e2/0f/0de20f2a3e65ae8b92e263dd8340a76c.jpg" />
+              <TextField
+                label="Viết bình luận"
+                variant="outlined"
+                multiline
+                fullWidth
+                rows={1}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                sx={{ marginLeft: 2 }}
+              />
+            </Box>
           )}
-        </Box>
-
-        {replyingTo === comment.id && (
-          <Box className="reply-input" mt={2}>
-            <TextField
-              label={`Trả lời ${replyingToUsername}`}
-              variant="outlined"
-              multiline
-              fullWidth
-              rows={1}
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-            />
-            <Button variant="contained" color="primary" onClick={() => handleAddReply(comment.id)} sx={{ marginTop: 1, padding: '6px 12px' }}>
-              Gửi trả lời
-            </Button>
-          </Box>
-        )}
-        
-        {comment.replies?.length > 0 && (
+          {currentUser && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 1 }}>
+              <Button variant="contained" color="primary" onClick={handleAddComment} sx={{ padding: '6px 12px' }}>
+                Gửi bình luận
+              </Button>
+            </Box>
+          )}
           <List>
-            {comment.replies.map((reply, index) => (
-              <ListItem key={index} alignItems="flex-start">
-                <Avatar alt={reply.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
+            {comments.map((comment) => (
+              <ListItem key={comment.id} alignItems="flex-start">
+                <Avatar alt={comment.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
                 <Box ml={1}>
                   <Typography variant="body1" color="textPrimary">
-                    <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{reply.user_name}</span>
-                    <span style={{ fontSize: '0.8rem', color: 'gray' }}> {' > '} </span>
-                    <span style={{ fontWeight: 'bold' }}>{comment.user_name}</span>
+                    <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{comment.user_name}</span>
                   </Typography>
                   <Box display="flex" alignItems="center">
                     <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
-                      {reply.content}
+                      {comment.content}
                     </Typography>
                     <Typography variant="caption" color="textSecondary">
-                      {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true })}
                     </Typography>
                   </Box>
                   <Box display="flex" alignItems="center" mt={1}>
-                    <IconButton aria-label="reply" onClick={() => handleReplyToReplyClick(comment.id, index, reply.user_name)}>
+                    <IconButton
+                      aria-label="reply"
+                      onClick={() => {
+                        if (!currentUser) {
+                          setSnackbarMessage("Bạn cần phải đăng nhập để trả lời bình luận.");
+                          setSnackbarSeverity("warning");
+                          setSnackbarOpen(true);
+                          return;
+                        }
+                        handleReplyClick(comment.id, comment.user_name);
+                      }}
+                    >
                       <ReplyIcon fontSize="small" />
-                      <Typography variant="body2" color="textSecondary">Reply</Typography>
                     </IconButton>
-                    {replyingToReply === index && (
+                    <Typography variant="body2" color="textSecondary" sx={{ marginRight: 1 }}>
+                      Reply
+                    </Typography>
+                    {replyingTo === comment.id && (
                       <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
                         Hủy
                       </Button>
                     )}
                   </Box>
 
-                  {replyingToReply === index && (
+                  {replyingTo === comment.id && (
                     <Box className="reply-input" mt={2}>
                       <TextField
-                        label={`Trả lời ${replyingToUsername}`}
+                        label={`Trả lời ${replyingToUsername}`} // Đảm bảo hiển thị đúng người đang được trả lời
                         variant="outlined"
                         multiline
                         fullWidth
@@ -480,26 +462,97 @@ const ArticleDetail = () => {
                         value={replyContent}
                         onChange={(e) => setReplyContent(e.target.value)}
                       />
-                      <Button variant="contained" color="primary" onClick={() => handleAddReply(comment.id)} sx={{ marginTop: 1, padding: '6px 12px' }}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleAddReply(comment.id)} // Gửi reply cho comment này
+                        sx={{ marginTop: 1, padding: '6px 12px' }}
+                      >
                         Gửi trả lời
                       </Button>
                     </Box>
+                  )}
+
+                  {/* Hiển thị các replies */}
+                  {comment.replies?.length > 0 && (
+                    <List>
+                      {comment.replies.map((reply, index) => (
+                        <ListItem key={index} alignItems="flex-start">
+                          <Avatar alt={reply.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
+                          <Box ml={1}>
+                            <Typography variant="body1" color="textPrimary">
+                              <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{reply.user_name}</span>
+                              <span style={{ fontSize: '0.8rem', color: 'gray' }}> {' > '} </span>
+                              {/* Hiển thị tên của người đã reply trước đó */}
+                              <span style={{ fontWeight: 'bold' }}>{comment.user_name || reply.user_name}</span>
+                            </Typography>
+                            <Box display="flex" alignItems="center">
+                              <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
+                                {reply.content}
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true })}
+                              </Typography>
+                            </Box>
+
+                            <Box display="flex" alignItems="center" mt={1}>
+                              <IconButton
+                                aria-label="reply"
+                                onClick={() => {
+                                  if (!currentUser) {
+                                    setSnackbarMessage("Bạn cần phải đăng nhập để trả lời bình luận.");
+                                    setSnackbarSeverity("warning");
+                                    setSnackbarOpen(true);
+                                    return;
+                                  }
+                                  // Đặt đúng tên người reply trong handleReplyToReplyClick
+                                  handleReplyToReplyClick(comment.id, index, reply.user_name);
+                                }}
+                              >
+                                <ReplyIcon fontSize="small" />
+                              </IconButton>
+                              <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
+                                Reply
+                              </Typography>
+                              {replyingToReply === index && (
+                                <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
+                                  Hủy
+                                </Button>
+                              )}
+                            </Box>
+
+                            {replyingToReply === index && (
+                              <Box className="reply-input" mt={2}>
+                                <TextField
+                                  label={`Trả lời ${reply.user_name}`} // Sử dụng đúng tên người dùng của reply
+                                  variant="outlined"
+                                  multiline
+                                  fullWidth
+                                  rows={1}
+                                  value={replyContent}
+                                  onChange={(e) => setReplyContent(e.target.value)}
+                                />
+                                <Button
+                                  variant="contained"
+                                  color="primary"
+                                  onClick={() => handleAddReply(comment.id)} // Gửi reply cho comment này
+                                  sx={{ marginTop: 1, padding: '6px 12px' }}
+                                >
+                                  Gửi trả lời
+                                </Button>
+                              </Box>
+                            )}
+                          </Box>
+                        </ListItem>
+                      ))}
+                    </List>
                   )}
                 </Box>
               </ListItem>
             ))}
           </List>
-        )}
-      </Box>
-    </ListItem>
-  ))}
-</List>
-
         </DialogContent>
-
-
       </Dialog>
-
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
