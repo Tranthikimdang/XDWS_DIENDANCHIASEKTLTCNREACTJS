@@ -1,0 +1,146 @@
+/* Toàn bộ trang */
+.course-container {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 20px;
+}
+
+/* Thanh điều hướng */
+.navbar {
+  display: flex;
+  align-items: center;
+  background-color: #ff5722;
+  padding: 10px;
+  color: white;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: white;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+.navbar h1 {
+  font-size: 18px;
+  margin: 0;
+}
+
+/* Khu vực video */
+.video-section {
+  position: relative;
+  padding-top: 56.25%; /* Tỉ lệ 16:9 cho video */
+}
+
+.video-thumbnail {
+  width: 100%;
+  max-width: 900px;
+  margin: 20px auto;
+  border-radius: 10px;
+}
+
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  color: #ff5722;
+  cursor: pointer;
+}
+.video-section iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%; /* Chiếm toàn bộ chiều rộng */
+  height: 100%; /* Chiếm toàn bộ chiều cao */
+  border: none; /* Loại bỏ viền */
+}
+.course-title {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.course-title h2 {
+  font-size: 24px;
+  margin: 10px 0;
+}
+
+.course-title p {
+  color: gray;
+  margin: 0;
+}
+
+/* Nội dung khóa học */
+.course-content {
+  margin: 20px 0;
+}
+
+.course-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #e0e0e0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.course-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.course-list li {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+}
+
+.course-list h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* Chân trang */
+.footer {
+  text-align: center;
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #333;
+  color: white;
+  border-radius: 10px;
+}
+
+.community-links ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.community-links li {
+  margin: 5px 0;
+}
+
+.community-links a {
+  color: #ff5722;
+  text-decoration: none;
+}
+
+/* Nút điều hướng */
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.prev-button, .next-button {
+  padding: 10px 20px;
+  background-color: #ff5722;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

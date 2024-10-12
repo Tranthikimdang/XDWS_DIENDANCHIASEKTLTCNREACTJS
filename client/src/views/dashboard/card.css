@@ -1,0 +1,154 @@
+.carousel {
+    margin: 50px auto;
+    padding: 0 70px;
+  }
+  
+  .carousel .item {
+    color: #747d89;
+    min-height: 325px;
+    text-align: center;
+    overflow: hidden;
+  }
+  
+  .carousel .thumb-wrapper {
+    padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .carousel .thumb-wrapper:hover {
+    transform: scale(1.05);
+  }
+  
+  .carousel .img-box {
+    height: 150px;
+    margin-bottom: 20px;
+    width: 100%;
+    position: relative;
+  }
+  
+  .carousel .img-box img {
+    max-width: 80%;
+    max-height: 100%;
+    display: inline-block;
+    position: relative;
+    margin: 0 auto;
+    border-radius: 8px;
+  }
+  
+  .carousel .item h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .carousel .item .item-price {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .carousel .item .item-price strike {
+    opacity: 0.6;
+    margin-right: 5px;
+  }
+  
+  .carousel .thumb-content .btn {
+    color: #fff;
+    background-color: #007bff;
+    padding: 8px 20px;
+    font-size: 12px;
+    border-radius: 25px;
+    margin-top: 10px;
+    text-transform: uppercase;
+  }
+  
+  .carousel .thumb-content .btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .star-rating li {
+    padding: 0;
+    color: #ffc000;
+  }
+  
+  .star-rating i {
+    font-size: 14px;
+  }
+  
+  .carousel .wish-icon {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    z-index: 99;
+    cursor: pointer;
+    font-size: 16px;
+    color: #abb0b8;
+  }
+  
+  .carousel .wish-icon .fa-heart {
+    color: #ff6161;
+  }
+  
+  .carousel .carousel-control {
+    height: 44px;
+    width: 40px;
+    background: #7ac400;
+    margin: auto 0;
+    border-radius: 4px;
+    opacity: 0.8;
+  }
+  
+  .carousel .carousel-control:hover {
+    background: #78bf00;
+    opacity: 1;
+  }
+  
+  .carousel .carousel-control i {
+    font-size: 36px;
+    position: absolute;
+    top: 50%;
+    margin-top: -18px;
+    color: #fff;
+  }
+  
+  .carousel .carousel-indicators {
+    bottom: -50px;
+  }
+  
+  .carousel-indicators li,
+  .carousel-indicators li.active {
+    width: 10px;
+    height: 10px;
+    margin: 4px;
+    border-radius: 50%;
+    border: none;
+  }
+  
+  .carousel-indicators li {
+    background: rgba(0, 0, 0, 0.2);
+  }
+  
+  .carousel-indicators li.active {
+    background: rgba(0, 0, 0, 0.6);
+  }
+  
+  .item-price {
+    font-size: 1.2rem;
+  }
+  
+  .item-price b {
+    font-size: 1.4rem; /* Tăng kích thước giá giảm */
+    color: #e74c3c; /* Màu đỏ đậm cho giá giảm */
+    margin-right: 10px; /* Thêm khoảng cách giữa giá giảm và giá gốc */
+  }
+  
+  .item-price strike {
+    font-size: 1rem;
+    color: #7f8c8d; /* Màu xám nhạt cho giá gốc */
+    opacity: 0.7; /* Làm mờ giá gốc một chút */
+  }
+  

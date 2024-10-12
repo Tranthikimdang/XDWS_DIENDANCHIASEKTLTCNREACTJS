@@ -57,8 +57,8 @@ function FormEditCate() {
     
     if (isNameExists) {
       // Set error for duplicate category name with smaller font style
-      setError("name", { type: "manual", message: "Category name already exists." });
-      setSnackbarMessage("Category name already exists.");
+      setError("name", { type: "manual", message: "Tên đã ton tại" });
+      setSnackbarMessage("Tên đã ton tại.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;

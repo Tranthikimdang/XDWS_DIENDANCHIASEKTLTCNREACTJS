@@ -123,30 +123,25 @@ function FormAndArticle() {
           </div>
         ) : (
           <>
-
             <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
               <div className="row">
                 <div className='col-6 mb-3'>
-                  <label className='text-light form-label' style={smallFontStyle}>Name</label>
+                  <label className='text-light form-label' style={smallFontStyle}>Tên</label>
                   <input className={`form-control bg-dark text-light`} style={smallFontStyle} value={user?.name || ''} readOnly />
                 </div>
                 <div className='col-6 mb-3'>
-                  <label className='text-light form-label' style={smallFontStyle}>Title</label>
+                  <label className='text-light form-label' style={smallFontStyle}>Tiêu đề</label>
                   <input
                     className={`form-control bg-dark text-light ${errors.title ? 'is-invalid' : ''}`}
                     {...register('title', {
-                      required: 'Title is required', // Bắt lỗi tiêu đề bắt buộc
+                      required: 'Title không được bỏ trống', // Bắt lỗi tiêu đề bắt buộc
                       minLength: {
                         value: 5,
-                        message: 'Title must be at least 5 characters' // Độ dài tối thiểu
+                        message: 'Tiêu đề phải có ít nhất 5 ký tự' // Độ dài tối thiểu
                       },
                       maxLength: {
                         value: 100,
-                        message: 'Title cannot exceed 100 characters' // Độ dài tối đa
-                      },
-                      pattern: {
-                        value: /^[a-zA-Z0-9 ]+$/, // Regex để kiểm tra ký tự hợp lệ (chỉ cho phép chữ cái và số)
-                        message: 'Title can only contain letters and numbers' // Thông báo lỗi ký tự không hợp lệ
+                        message: 'Tiêu đề không được vượt quá 100 ký tự' // Độ dài tối đa
                       }
                     })}
                     style={smallFontStyle}
@@ -158,11 +153,11 @@ function FormAndArticle() {
               </div>
               <div className="row">
                 <div className='col-6 mb-3'>
-                  <label className='text-light form-label' style={smallFontStyle}>Image</label>
+                  <label className='text-light form-label' style={smallFontStyle}>Hình ảnh</label>
                   <input
                     className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
                     type='file'
-                    {...register('image', { required: 'Image is required' })}
+                    {...register('image', { required: 'Image không được bỏ trống' })}
                   />
                   {errors.image && <div className='invalid-feedback' style={smallFontStyle}>
                     {errors.image.message}
@@ -170,15 +165,15 @@ function FormAndArticle() {
                 </div>
                 <div className="col-6 mb-3">
                   <label className="text-light form-label" style={smallFontStyle}>
-                    Category
+                    Danh mục
                   </label>
                   <select
                     className={`form-control bg-dark text-light ${errors.categories_id ? 'is-invalid' : ''}`}
                     style={smallFontStyle}
-                    {...register("categories_id", { required: "Category is required" })}
+                    {...register("categories_id", { required: "Category không được bỏ trống" })}
                   >
                     <option style={smallFontStyle} value="">
-                      Open this select menu
+                      Mở menu chọn này
                     </option>
                     {cates.map((cate) => (
                       <option style={smallFontStyle} key={cate.id} value={cate.id}>
@@ -191,7 +186,7 @@ function FormAndArticle() {
               </div>
               <div className="mb-3">
                 <label className="text-light form-label" style={smallFontStyle}>
-                  Content
+                  Nội dung
                 </label>
                 <Editor
                   apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"

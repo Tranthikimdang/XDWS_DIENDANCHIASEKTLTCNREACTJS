@@ -41,8 +41,8 @@ function FormAddCate() {
     
     if (isNameExists) {
       // Set error for duplicate category name with smaller font style
-      setError("name", { type: "manual", message: "Category name already exists." });
-      setSnackbarMessage("Category name already exists.");
+      setError("name", { type: "manual", message: "Tên đã ton tại" });
+      setSnackbarMessage("Tên đã ton tại");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;
@@ -56,13 +56,13 @@ function FormAddCate() {
       });
       console.log("Document written with ID: ", docRef.id);
 
-      setSnackbarMessage("Category added successfully.");
+      setSnackbarMessage("Đã thêm danh mục thành công.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setTimeout(() => navigate('/admin/category'), 3000);
     } catch (error) {
       console.error('Error adding category:', error);
-      setSnackbarMessage("Failed to add category.");
+      setSnackbarMessage("Không thêm được danh mục.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -93,10 +93,10 @@ function FormAddCate() {
             />
             {/* Error message for required and minLength validations */}
             {errors.name && errors.name.type === 'required' && (
-              <span className='text-danger' style={smallFontStyle}>Name is required</span>
+              <span className='text-danger' style={smallFontStyle}>Tên danh mục là bắt buộc</span>
             )}
             {errors.name && errors.name.type === 'minLength' && (
-              <span className='text-danger' style={smallFontStyle}>Name must be at least 3 characters long</span>
+              <span className='text-danger' style={smallFontStyle}>Tên phải có ít nhất 3 ký tự</span>
             )}
             {/* Error message for duplicate category name */}
             {errors.name && errors.name.type === 'manual' && (

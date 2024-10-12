@@ -9,8 +9,6 @@ import { Snackbar, Alert } from '@mui/material';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../../../config/firebaseconfig.js';
-import hljs from 'highlight.js';
-import 'highlight.js/styles/monokai-sublime.css';
 
 function FormAddProduct() {
   const {
@@ -19,32 +17,25 @@ function FormAddProduct() {
     formState: { errors },
     setValue,
     watch,
+    trigger,
   } = useForm();
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [cates, setCates] = useState([]);
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const selectedCategoryId = watch('categories_id');
+  const [imagePreview, setImagePreview] = useState('');
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      setUser(user);
-    }
-  }, []);
-
+  const smallFontStyle = {
+    fontSize: '0.9rem',
+  };
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
         const querySnapshot = await getDocs(collection(db, 'categories_product'));
-        const categoriesList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const categoriesList = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setCates(categoriesList);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -52,75 +43,61 @@ function FormAddProduct() {
         setLoading(false);
       }
     };
-
     fetchCategories();
   }, []);
-
-  useEffect(() => {
-    document.querySelectorAll('pre').forEach((block) => {
-      hljs.highlightElement(block);
-    });
-  });
 
   const onSubmit = async (data) => {
     try {
       if (parseFloat(data.discount) > parseFloat(data.price)) {
-        setSnackbarMessage('Giá giảm không được cao hơn giá gốc');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
-        return; // Dừng lại nếu có lỗi
+        throw new Error('Giá giảm không được cao hơn giá gốc');
       }
 
-      if (data.image && data.image.length > 0) {
+      let imageUrl = '';
+      if (data.image[0]) {
         const file = data.image[0];
         const storageRef = ref(storage, `images/${file.name}`);
-
         await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-
-        await addDoc(collection(db, 'products'), {
-          cate_pro_id: data.cate_pro_id,
-          image_url: downloadURL,
-          name: data.name,
-          view: "0",
-          price: parseFloat(data.price), // Chuyển đổi chuỗi thành số
-          discount: parseFloat(data.discount), // Chuyển đổi chuỗi thành số
-          quality: parseInt(data.quality), // Chuyển đổi chuỗi thành số nguyên
-          description: data.description,
-          created_at: new Date(),
-          updated_at: new Date(),
-        });
-
-        setSnackbarMessage('Product added successfully.');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
-        setTimeout(() => navigate('/admin/products'), 500);
+        imageUrl = await getDownloadURL(storageRef);
       } else {
-        setSnackbarMessage('Image is required.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+        throw new Error('Image is required');
       }
+
+      await addDoc(collection(db, 'products'), {
+        cate_pro_id: data.cate_pro_id,
+        image_url: imageUrl,
+        name: data.name,
+        view: '0',
+        price: parseFloat(data.price),
+        discount: parseFloat(data.discount),
+        quality: parseInt(data.quality),
+        description: data.description,
+        created_at: new Date(),
+        updated_at: new Date(),
+        video_demo: "video_demo"
+      });
+
+      setSnackbarMessage('Product added successfully.');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+      setTimeout(() => navigate('/admin/products'), 500);
     } catch (error) {
       console.error('Error adding product:', error.message);
-      setSnackbarMessage('Failed to add product. Please try again.');
+      setSnackbarMessage(error.message || 'Failed to add product. Please try again.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+  const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
 
-  const smallFontStyle = {
-    fontSize: '0.9rem',
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
-
-  const selectedCategory = cates.find((cate) => cate.id === selectedCategoryId);
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -144,17 +121,27 @@ function FormAddProduct() {
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Image
+                Category
               </label>
-              <input
-                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-                type="file"
-                {...register('image', { required: 'Image is required' })}
-              />
-              {errors.image && (
-                <div className="invalid-feedback" style={smallFontStyle}>
-                  {errors.image.message}
-                </div>
+              <select
+                className={`form-select bg-dark text-light ${
+                  errors.cate_pro_id ? 'is-invalid' : ''
+                }`}
+                {...register('cate_pro_id', { required: 'Category is required' })}
+                style={smallFontStyle}
+              >
+                <option value="">Select a category</option>
+                {!loading &&
+                  cates.map((cate) => (
+                    <option key={cate.id} value={cate.id}>
+                      {cate.name}
+                    </option>
+                  ))}
+              </select>
+              {errors.cate_pro_id && (
+                <span className="text-danger" style={smallFontStyle}>
+                  {errors.cate_pro_id.message}
+                </span>
               )}
             </div>
           </div>
@@ -213,39 +200,58 @@ function FormAddProduct() {
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Category product
+                Video Demo
               </label>
-              <select
+              <input
                 className={`form-control bg-dark text-light ${
-                  errors.cate_pro_id ? 'is-invalid' : ''
+                  errors.video_demo ? 'is-invalid' : ''
                 }`}
+                type="file"
+                {...register('video_demo', { required: 'Video is required' })}
                 style={smallFontStyle}
-                {...register('cate_pro_id', { required: 'Category is required' })}
-              >
-                <option style={smallFontStyle} value="">
-                  Open this select menu
-                </option>
-                {cates.map((cate) => (
-                  <option style={smallFontStyle} key={cate.id} value={cate.id}>
-                    {cate.name}
-                  </option>
-                ))}
-              </select>
-              {errors.cate_pro_id && (
-                <span className="text-danger" style={smallFontStyle}>
-                  {errors.cate_pro_id.message}
-                </span>
+              />
+              {errors.video_demo && (
+                <div className="invalid-feedback" style={smallFontStyle}>
+                  {errors.video_demo.message}
+                </div>
               )}
             </div>
           </div>
           <div className="mb-3">
+            <div className="col-12 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Image
+              </label>
+              <input
+                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+                type="file"
+                {...register('image', { required: 'Image is required' })}
+                onChange={handleImageChange}
+              />
+              {errors.image && (
+                <div className="invalid-feedback" style={smallFontStyle}>
+                  {errors.image.message}
+                </div>
+              )}
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="img-thumbnail mt-2"
+                  style={{ maxWidth: '160px' }}
+                />
+              )}
+            </div>
+          </div>
+          <div className="mb-5">
             <label className="text-light form-label" style={smallFontStyle}>
               Description
             </label>
             <ReactQuill
-              theme="snow"
-              onChange={(description) => setValue("description", description)}
-              style={{ backgroundColor: '#fff', color: '#000' }}
+              value={watch('description')} // Dùng watch để theo dõi giá trị của field
+              onChange={(value) => setValue('description', value)} // Cập nhật giá trị bằng setValue
+              onBlur={() => trigger('description')} // Gọi trigger để kiểm tra validation khi mất focus
+              style={{ height: '100px' }}
             />
             {errors.description && (
               <span className="text-danger" style={smallFontStyle}>
@@ -253,30 +259,16 @@ function FormAddProduct() {
               </span>
             )}
           </div>
-          <div className="d-flex justify-content mt-3">
-            <button className="text-light btn btn-outline-info me-2" type="submit">
-              Add product
+            <button type="submit" className="btn btn-primary mt-3">
+              Add Product
             </button>
-            <button
-              className="text-light btn btn-outline-secondary"
-              type="button"
-              onClick={() => navigate('/admin/products')}
-            >
-              Back
-            </button>
-          </div>
         </form>
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </div>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </DashboardLayout>
   );
 }

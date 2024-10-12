@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 // Firebase
@@ -16,6 +16,7 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const cateId = useParams();
+  const [searchTerm, setSearchTerm] = useState('');
   // Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
@@ -59,6 +60,10 @@ const Products = () => {
     fetchCategories();
   }, []);
 
+  const filteredProducts = products.filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   // const fetchProducts = async () => {
   //   setLoading(true);
   //   try {
@@ -79,19 +84,29 @@ const Products = () => {
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
   return (
     <PageContainer title="products" description="This is products">
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
-              Các khóa học của chúng tôi
+              Danh mục khóa học{' '}
+              {catesMap[cateId.id] ? catesMap[cateId.id] : 'Danh mục không tồn tại'}
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
               A collection of products sharing experiences of self-learning programming online and
               web development techniques.
             </Typography>
+          </Grid>
+          <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+            <TextField
+              label="Tìm kiếm sản phẩn"
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+            />
           </Grid>
 
           {/* Left Column */}
@@ -102,8 +117,8 @@ const Products = () => {
               </Box>
             ) : currentProducts.length > 0 ? (
               currentProducts
-              .filter((product) => product.cate_pro_id === cateId.id)
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .filter((product) => product.cate_pro_id === cateId.id)
+                .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                 .map((product) => (
                   <div className="container py-2" key={product.id}>
                     <div className="row justify-content-center mt-2">
@@ -160,13 +175,13 @@ const Products = () => {
                                 <span>
                                   <span className="text-primary"> • </span>Price: ${product.price}
                                 </span>
-                                </div>
+                              </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
                                   <span className="text-primary"> • </span>Discount:{' '}
                                   {product.discount}%
                                 </span>
-                                </div>
+                              </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span
                                   className="text-truncate d-inline-block"

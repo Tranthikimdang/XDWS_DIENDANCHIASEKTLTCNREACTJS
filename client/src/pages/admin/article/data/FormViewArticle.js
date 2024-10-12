@@ -27,8 +27,9 @@ function FormViewArticle() {
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Trạng thái cho Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Thông điệp của Snackbar
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Độ nghiêm trọng của Snackbar
-  const [users, setUsers] = useState([]); // Trạng thái cho danh sách người dùng
+  const [users, setUsers] = useState([]); 
   const [cates, setCates] = useState([]);
+  
   // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
     const fetchUsers = async () => {
@@ -117,6 +118,36 @@ function FormViewArticle() {
     color: '#ffffff'
   };
 
+   //date
+   const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -165,9 +196,12 @@ function FormViewArticle() {
                       <VuiTypography variant="subtitle1" style={smallFontStyle}>
                         <strong>Tác giả: </strong>  {users?.filter(u => article?.user_id === u.id)?.[0]?.name}
                       </VuiTypography>
+                      <VuiTypography variant="subtitle1" style={smallFontStyle}>
+                        <strong>Thời gian: </strong>   {formatUpdatedAt(article.updated_at)}
+                      </VuiTypography>
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: "30px" }}>
-                      <VuiTypography variant="body1" paragraph style={smallFontStyle}>
+                      <VuiTypography variant="h1" paragraph style={smallFontStyle}>
                         <strong>Nội dung: </strong>
                         <div dangerouslySetInnerHTML={{ __html: article.content }}></div>
                       </VuiTypography>

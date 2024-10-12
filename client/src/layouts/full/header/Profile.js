@@ -96,7 +96,7 @@ const Profile = () => {
           <ListItemIcon>
             <IconListCheck width={20} />
           </ListItemIcon>
-          <ListItemText>Câu hỏi</ListItemText>
+          <ListItemText>Khóa học của tôi</ListItemText>
         </MenuItem>
         <MenuItem component={Link} to="/new-post">
           <ListItemIcon>

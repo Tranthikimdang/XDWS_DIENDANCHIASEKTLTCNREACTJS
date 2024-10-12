@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Grid, Box, Typography, Card, CardContent, CardMedia, TextField } from '@mui/material';
+import { Grid, Box, Typography, Card, CardContent, CardMedia, TextField, InputAdornment } from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material'; // Thêm icon tìm kiếm
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig'; // Firebase config đã được khởi tạo
 
@@ -41,8 +42,7 @@ const User = () => {
           </Typography>
         </Grid>
 
-        
-      {/* search by name */}
+        {/* search by name */}
         <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
           <TextField
             label="Search by name"
@@ -50,6 +50,25 @@ const User = () => {
             fullWidth
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{
+              maxWidth: '500px',
+              margin: 'auto',
+              borderRadius: '50px',
+              backgroundColor: '#f7f7f7',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '50px',
+              },
+              '& .MuiInputBase-input': {
+                padding: '12px 16px',
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
           />
         </Grid>
 
