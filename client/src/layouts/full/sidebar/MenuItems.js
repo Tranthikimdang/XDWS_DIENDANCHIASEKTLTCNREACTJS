@@ -17,7 +17,7 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Hỏi',
+    title: 'Câu hỏi',
     icon: IconInfoSquareRounded,
     href: '/questions',
   },

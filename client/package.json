@@ -59,6 +59,7 @@
     "react-scripts": "^5.0.1",
     "react-spinners": "^0.14.1",
     "react-spring": "^9.2.4",
+    "react-syntax-highlighter": "^15.5.0",
     "react-toastify": "^10.0.5",
     "schema-utils": "^4.2.0",
     "stream-browserify": "^3.0.0",
