@@ -2,6 +2,9 @@
 import { useEffect, useRef, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
 import DashboardCard from '../../components/shared/DashboardCard';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
+
 import {
   Grid,
   Box,
@@ -11,11 +14,9 @@ import {
   Button,
   List,
   ListItem,
-  ListItemText,
   Link,
   Divider,
   FormControl,
-  InputLabel,
   FormHelperText,
   CircularProgress,
   Snackbar,
@@ -23,6 +24,11 @@ import {
   Menu,
   MenuItem,
   Tooltip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle
+
 } from '@mui/material';
 // icon
 import ImageIcon from '@mui/icons-material/Image';
@@ -32,14 +38,16 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IconMessageCircle } from '@tabler/icons-react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-
+import { useNavigate } from 'react-router-dom';
+import DescriptionIcon from '@mui/icons-material/Description';
 //firebase
 import { collection, addDoc, serverTimestamp, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from 'src/config/firebaseconfig';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { useNavigate } from 'react-router-dom';
+
 const Questions = () => {
   const navigate = useNavigate();
+  // const { register, handleSubmit, setValue, formState: { errors } } = useForm();
   const [imageError, setImageError] = useState('');
   const [fileError, setFileError] = useState('');
   const [codeSnippet, setCodeSnippet] = useState('');
@@ -57,6 +65,8 @@ const Questions = () => {
   const [users, setUsers] = useState([]);
   const [articles, setArticles] = useState([]);
   const listUser = useRef([])
+  const [showCodeDialog, setShowCodeDialog] = useState(false);
+
 
   // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
@@ -140,15 +150,19 @@ const Questions = () => {
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     ];
+
     for (const file of files) {
       if (!allowedFileTypes.includes(file.type)) {
-        console.log(`Tệp ${file.name} không đúng định dạng (chỉ chấp nhận PDF, DOC, DOCX)`);
-
-        return `Tệp ${file.name} không đúng định dạng (chỉ chấp nhận PDF, DOC, DOCX)`;
+        const errorMessage = `Tệp ${file.name} không đúng định dạng (chỉ chấp nhận PDF, DOC, DOCX)`;
+        setSnackbarMessage(errorMessage);
+        setSnackbarSeverity('error'); // Hiển thị lỗi với mức độ nghiêm trọng là "error"
+        setSnackbarOpen(true);
+        return errorMessage;
       }
     }
     return '';
   };
+
 
   const handleImageChange = (e) => {
     const files = e.target.files;
@@ -172,14 +186,6 @@ const Questions = () => {
       setFileError(''); // Xóa lỗi nếu hợp lệ
       console.log('Tệp hợp lệ:', files);
     }
-  };
-
-  const handleCodeChange = (e) => {
-    setCodeSnippet(e.target.value);
-  };
-
-  const handleCodeButtonClick = () => {
-    setShowCodeField(true);
   };
 
   const handleUpload = async (files) => {
@@ -224,13 +230,15 @@ const Questions = () => {
           is_deleted: data.is_deleted || false,
           updated_at: new Date(),
           createdAt: serverTimestamp(),
+          up_code: dataTemp?.up_code || codeSnippet, // Gán giá trị up_code từ dataTemp
         };
 
         const usersCollection = collection(db, 'questions');
+        // eslint-disable-next-line no-unused-vars
         const res = await addDoc(usersCollection, dataToSubmit);
         setLoading(false)
         setSnackbarOpen(true);
-        setSnackbarMessage('Questions uploaded successfully.');
+        setSnackbarMessage('Câu hỏi của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
         setSnackbarSeverity("success");
         e.target.reset();
         // get all question
@@ -276,6 +284,7 @@ const Questions = () => {
           is_deleted: data.is_deleted || false,
           updated_at: new Date(),
           createdAt: serverTimestamp(),
+          up_code: dataTemp?.up_code || codeSnippet, // Gán giá trị up_code từ dataTemp
 
         };
 
@@ -309,8 +318,42 @@ const Questions = () => {
     }));
   };
 
+  const handleCodeChange = (event) => {
+    setCodeSnippet(event.target.value);
+    setError('');
+  };
+
   const handleCardClick = (articleId) => {
     navigate(`/article/${articleId}`, { state: { id: articleId } });
+  };
+
+  const handleCodeButtonClick = () => {
+    setShowCodeField(true);
+    setShowCodeDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setShowCodeDialog(false);
+    setCodeSnippet('');
+    setError('');
+  };
+
+  const handleSubmitCode = () => {
+    if (!codeSnippet) {
+      setError("Vui lòng nhập code!");
+      return;
+    } else {
+      setError('');
+      // Thực hiện lưu giá trị codeSnippet vào trạng thái chính
+      setDataTemp((prevData) => ({
+        ...prevData,
+        up_code: codeSnippet,  // Lưu code vào dataTemp
+      }));
+      handleCloseDialog(); // Đóng dialog
+
+      // Nếu cần, bạn có thể reset giá trị codeSnippet sau khi lưu
+      setCodeSnippet('');
+    }
   };
 
 
@@ -350,7 +393,6 @@ const Questions = () => {
       <DashboardCard>
         <Grid container spacing={2}>
           {/* Left Column */}
-
           <Grid item md={8}>
             <Box
               sx={{
@@ -369,12 +411,12 @@ const Questions = () => {
                     alt="User Avatar"
                     style={{ borderRadius: '50%', marginRight: '10px' }}
                   />
-                  <Typography variant="h6">Tạo bài viết</Typography>
+                  <Typography variant="h6">Đặt câu hỏi</Typography>
                 </Box>
 
                 {/* Post Content */}
                 <TextField
-                  label="Hãy chia sẻ kiến thức hoặc đặt câu hỏi?"
+                  label="Hãy đặt câu hỏi?"
                   variant="outlined"
                   multiline
                   fullWidth
@@ -425,7 +467,7 @@ const Questions = () => {
                           padding: '5px 15px',
                         }}
                         component="label"
-                        onClick={index === 2 ? handleCodeButtonClick : undefined}
+                        onClick={index === 2 ? handleCodeButtonClick : undefined} // Chỉ mở dialog khi nhấn vào icon Code
                       >
                         {label}
                         {index === 0 && (
@@ -450,23 +492,35 @@ const Questions = () => {
                       </Button>
                     ))}
                   </Box>
-
-                  {showCodeField && (
-                    <FormControl fullWidth sx={{ mt: 2 }}>
-                      <InputLabel htmlFor="code-input">Nhập code của bạn</InputLabel>
-                      <TextField
-                        id="code-input"
-                        multiline
-                        rows={4}
-                        name="up_code"
-                        variant="outlined"
-                        value={codeSnippet}
-                        onChange={handleCodeChange}
-                      />
-                      <FormHelperText>{error}</FormHelperText>
-                    </FormControl>
-                  )}
-
+                  {/* Code Dialog */}
+                  <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+                    <DialogTitle>Nhập code của bạn</DialogTitle>
+                    <DialogContent>
+                      {showCodeField && (
+                        <FormControl fullWidth>
+                          <TextField
+                            id="code-input"
+                            multiline
+                            rows={4}
+                            name="up_code"
+                            variant="outlined"
+                            value={codeSnippet}
+                            onChange={handleCodeChange}
+                            error={!!error}
+                          />
+                          <FormHelperText>{error}</FormHelperText>
+                        </FormControl>
+                      )}
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleCloseDialog} color="secondary">
+                        Hủy
+                      </Button>
+                      <Button onClick={handleSubmitCode} color="primary">
+                        Lưu
+                      </Button>
+                    </DialogActions>
+                  </Dialog>
                   {/* Post Button */}
                   <Button
                     type="submit"
@@ -494,6 +548,7 @@ const Questions = () => {
                 listQuestion
                   .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                   .map((question) =>
+                    // eslint-disable-next-line eqeqeq
                     question.isApproved == 1 && (
                       <Box
                         key={question?.id}
@@ -516,9 +571,9 @@ const Questions = () => {
                             />
                             <Box>
                               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                {listUser.current.find(user => user.id === question?.user_id)?.name || ""}
+                                <strong>{users?.find((u) => question?.user_id === u.id)?.name}</strong>
                               </Typography>
-                              <Typography variant="subtitle1" color="textSecondary">
+                              <Typography variant="body2">
                                 {formatUpdatedAt(question.updated_at)}
                               </Typography>
                             </Box>
@@ -598,19 +653,34 @@ const Questions = () => {
                                 ))}
                               </Box>
                               {showCodeField && (
-                                <FormControl fullWidth sx={{ mt: 2 }}>
-                                  <InputLabel htmlFor="code-input">Nhập code của bạn</InputLabel>
-                                  <TextField
-                                    id="code-input"
-                                    multiline
-                                    rows={4}
-                                    name="up_code"
-                                    variant="outlined"
-                                    onChange={handleInputChange}
-                                    value={dataTemp?.up_code || ''}
-                                  />
-                                  <FormHelperText>{error}</FormHelperText>
-                                </FormControl>
+                                <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+                                  <DialogTitle>Nhập code của bạn</DialogTitle>
+                                  <DialogContent>
+                                    {showCodeField && (
+                                      <FormControl fullWidth>
+                                        <TextField
+                                          id="code-input"
+                                          multiline
+                                          rows={4}
+                                          name="up_code"
+                                          variant="outlined"
+                                          value={dataTemp?.up_code || ''}
+                                          onChange={handleCodeChange}
+                                          error={!!error}
+                                        />
+                                        {error && <FormHelperText error>{error}</FormHelperText>}
+                                      </FormControl>
+                                    )}
+                                  </DialogContent>
+                                  <DialogActions>
+                                    <Button onClick={handleCloseDialog} color="secondary">
+                                      Hủy
+                                    </Button>
+                                    <Button onClick={handleSubmitCode} color="primary">
+                                      Lưu
+                                    </Button>
+                                  </DialogActions>
+                                </Dialog>
                               )}
 
                               <Button
@@ -633,10 +703,25 @@ const Questions = () => {
                           <>
                             {/* Display Question Content */}
                             <Box sx={{ mt: 3, mb: 3 }}>
-                              <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
+                              <Typography variant="subtitle1">
                                 {question?.questions || ""}
                               </Typography>
                               <Divider sx={{ mb: 2 }} />
+                              {question?.hashtag && (
+                                <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
+                                  #{question.hashtag}
+                                </Typography>
+                              )}
+                            </Box>
+                            <Box sx={{ mt: 3, mb: 3 }}>
+                              {question?.up_code ? (
+                                <>
+                                  <SyntaxHighlighter language="javascript" style={dracula}>
+                                    {question.up_code}
+                                  </SyntaxHighlighter>
+                                  <Divider sx={{ mb: 2 }} />
+                                </>
+                              ) : null}
                             </Box>
 
                             {/* Display Images */}
@@ -653,12 +738,52 @@ const Questions = () => {
                                 >
                                   <img
                                     src={image}
-                                    alt={`Image ${index + 1}`}
+                                    alt=""
                                     style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                                   />
                                 </Box>
                               ))}
                             </Box>
+                            {question.fileUrls && question.fileUrls.length > 0 && question.fileUrls.some(url => decodeURIComponent(url).split('/').pop().split('?')[0] !== 'uploads') && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '10px',
+                                  border: '1px solid #e0e0e0',
+                                  borderRadius: '8px',
+                                  backgroundColor: '#fff',
+                                  width: 'fit-content',
+                                  height: '30px',
+                                }}
+                              >
+                                <IconButton sx={{ color: '#007bff' }}>
+                                  <DescriptionIcon />
+                                </IconButton>
+                                <Typography variant="subtitle1">
+                                  {question.fileUrls.map((url, index) => {
+                                    const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
+                                    return fileName !== 'uploads' ? (
+                                      <a
+                                        key={index}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          color: 'inherit',
+                                          textDecoration: 'none',
+                                          fontSize: '14px',
+                                          marginRight: '10px',
+                                        }}
+                                      >
+                                        {fileName}
+                                      </a>
+                                    ) : null;
+                                  })}
+                                </Typography>
+                              </Box>
+                            )}
+
                           </>
                         )}
 
@@ -691,7 +816,7 @@ const Questions = () => {
                         <Box>
                           <Box display="flex" alignItems="center" mb={1}>
                             <img
-                              src={userData.current.avatar || "default-avatar.jpg"}
+                              src={userData.current.avatar || "http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"}
                               alt="User Avatar"
                               style={{ borderRadius: '50%', marginRight: '10px' }}
                               width="40px"
@@ -769,27 +894,21 @@ const Questions = () => {
                 </IconButton>
               </Box>
               <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
-              {/* List of Hashtags */}
+
+              {/* Danh sách Hashtags */}
               <List>
-                {[
-                  '#Nhà trọ gần trường',
-                  '#Cà phê làm bài yên tĩnh',
-                  '#Câu lạc bộ tại trường',
-                  '#Học code clean hơn, logic hơn',
-                  '#Học bổng tại trường',
-                ].map((hashtag, index) => (
-                  <ListItem key={index} sx={{ padding: 0 }}>
-                    <ListItemText
-                      primary={
-                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
-                          {hashtag}
-                        </Typography>
-                      }
-                    />
+                {listQuestion.map((question) => (
+                  <ListItem key={question?.id} sx={{ padding: 0 }}>
+                    {question?.hashtag && ( // Kiểm tra nếu có hashtag
+                      <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
+                        #{question.hashtag} {/* Hiển thị hashtag nếu có */}
+                      </Typography>
+                    )}
                   </ListItem>
                 ))}
               </List>
             </Box>
+
             <Box
               sx={{
                 border: '1px solid #e0e0e0',
@@ -955,11 +1074,15 @@ const Questions = () => {
         </Grid>
         <Snackbar
           open={snackbarOpen}
-          autoHideDuration={3000}
+          autoHideDuration={5000}
           onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          sx={{ transform: 'translateY(50px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
         >
-          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{
+            width: '100%',
+            border: '1px solid #ccc' // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+          }}>
             {snackbarMessage}
           </Alert>
         </Snackbar>

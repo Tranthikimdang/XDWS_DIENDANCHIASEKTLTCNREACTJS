@@ -51,9 +51,6 @@ const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
 
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
-const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
-const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
-const FormViewQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/FormViewQuestions')))
 
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
@@ -64,7 +61,7 @@ const Product = Loadable(lazy(() => import('../pages/admin/product')));
 const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormAddProduct')));
 const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
 
-const Category = Loadable(lazy(() => import('../pages/admin/category')));
+
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
 

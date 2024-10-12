@@ -140,7 +140,7 @@ function FormEditArticle() {
       console.log("No file chosen");
     }
   };
-  
+
 
 
   const handleSnackbarClose = (event, reason) => {
@@ -227,9 +227,10 @@ function FormEditArticle() {
       </div>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(100px)' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}

@@ -27,9 +27,9 @@ function FormViewArticle() {
   const [snackbarOpen, setSnackbarOpen] = useState(false); // Trạng thái cho Snackbar
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Thông điệp của Snackbar
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Độ nghiêm trọng của Snackbar
-  const [users, setUsers] = useState([]); 
+  const [users, setUsers] = useState([]);
   const [cates, setCates] = useState([]);
-  
+
   // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
     const fetchUsers = async () => {
@@ -118,8 +118,8 @@ function FormViewArticle() {
     color: '#ffffff'
   };
 
-   //date
-   const formatUpdatedAt = (updatedAt) => {
+  //date
+  const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
@@ -226,7 +226,7 @@ function FormViewArticle() {
                 </Paper>
               ) : (
                 <VuiTypography variant="h5" color="text.secondary" align="center">
-                 Đang tải chi tiết bài viết...
+                  Đang tải chi tiết bài viết...
 
                 </VuiTypography>
               )}
@@ -236,15 +236,12 @@ function FormViewArticle() {
       </Card>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={6000}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(100px)' }}
       >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
