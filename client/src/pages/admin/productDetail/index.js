@@ -197,9 +197,9 @@ function ProductDetail() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Product Table
+                Các khóa học
               </VuiTypography>
-              <Link to="/admin/addProduct">
+              <Link to={`/admin/addProDetaill/${id}`}>
                 <button
                   className="text-light btn btn-outline-info"
                   onClick={handleAddProductSuccess}
@@ -217,7 +217,7 @@ function ProductDetail() {
                       d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
                     />
                   </svg>
-                  Add
+                  Thêm bài học
                 </button>
               </Link>
             </VuiBox>
@@ -299,7 +299,7 @@ function ProductDetail() {
                             <div className="action-buttons">
                               <Link
                                 to={{
-                                  pathname: `/admin/editProduct/${row.id}`,
+                                  pathname: `/admin/editProDetaill/${row.id}`,
                                   state: { data: row },
                                 }}
                               >
