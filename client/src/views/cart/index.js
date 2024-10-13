@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import { collection, onSnapshot, query, where, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, deleteDoc, doc, addDoc } from 'firebase/firestore'; // Added addDoc to handle order creation
 import { db } from '../../config/firebaseconfig';
 import './index.css';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [products, setProducts] = useState({});
+  const [loadingCheckout, setLoadingCheckout] = useState(false); // Loading state for checkout
 
   // Lấy userId từ local storage
   const user = JSON.parse(localStorage.getItem('user'));
@@ -57,6 +58,46 @@ const Cart = () => {
   // Hàm định dạng số
   const formatNumber = (number) => {
     return new Intl.NumberFormat('vi-VN').format(number);
+  };
+
+  // Hàm xử lý thanh toán giỏ hàng
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      alert('Giỏ hàng của bạn trống.');
+      return;
+    }
+
+    try {
+      setLoadingCheckout(true);
+
+      // Tính tổng cộng
+      const totalAmount = cartItems.reduce((total, item) => {
+        const discount = products[item.product_id]?.discount || 0;
+        return total + discount;
+      }, 0);
+
+      // Tạo đơn hàng mới trong bảng `completed_orders` hoặc `purchases`
+      await addDoc(collection(db, 'completed_orders'), {
+        user_id: userId,
+        items: cartItems.map(item => ({
+          product_id: item.product_id,
+          quantity: item.quantity || 1, // Assuming you have a quantity field
+          price: products[item.product_id]?.discount || 0,
+        })),
+        totalAmount,
+        createdAt: new Date(),
+      });
+
+      // Xóa tất cả các sản phẩm trong giỏ hàng
+      await Promise.all(cartItems.map((item) => deleteDoc(doc(db, 'orders', item.id))));
+
+      alert('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert('Đã xảy ra lỗi khi thanh toán. Vui lòng thử lại.');
+    } finally {
+      setLoadingCheckout(false);
+    }
   };
 
   return (
@@ -159,10 +200,10 @@ const Cart = () => {
                     type="button"
                     className="btn btn-info btn-lg w-100 mt-3"
                     style={{ borderRadius: '0.5rem' }}
+                    onClick={handleCheckout}
+                    disabled={loadingCheckout}
                   >
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span className="ms-2">Thanh toán</span>
-                    </div>
+                    {loadingCheckout ? 'Đang xử lý...' : 'Thanh toán'}
                   </button>
                 </div>
               </div>
