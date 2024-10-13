@@ -1,267 +1,117 @@
 import React, { useEffect, useState } from 'react';
-import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import { getDoc, doc, updateDoc, collection, getDocs } from 'firebase/firestore';
-import { db, storage } from '../../../../config/firebaseconfig';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../../config/firebaseconfig.js';
+import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
 
-function FormEditProduct() {
-  const { id } = useParams(); // Lấy id từ URL param
+function EditProductDetail() {
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const navigate = useNavigate();
+  const { detailId } = useParams(); // Lấy detailId từ URL
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [imagePreview, setImagePreview] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [productData, setProductData] = useState(null); // Dữ liệu sản phẩm
-  const [categories, setCategories] = useState([]); // Dữ liệu danh mục
 
+  // Truy xuất chi tiết sản phẩm dựa trên detailId
   useEffect(() => {
-    const fetchProduct = async () => {
-      setLoading(true);
+    const fetchProductDetail = async () => {
       try {
-        const docRef = doc(db, 'products', id); // Lấy sản phẩm từ Firestore bằng param id
+        
+        const docRef = doc(db, 'product_detail', detailId);
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setProductData(data);
-          setImagePreview(data.image_url); // Hiện hình ảnh
+          setValue('no', data.no);
+          setValue('name', data.name);
+          setValue('video', data.video);
         } else {
-          console.log('No such document!');
+          setSnackbarMessage('Không tìm thấy chi tiết sản phẩm.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
         }
       } catch (error) {
-        console.error('Error fetching product:', error);
-      } finally {
-        setLoading(false);
+        console.error('Lỗi khi truy xuất chi tiết sản phẩm:', error);
+        setSnackbarMessage('Lỗi khi truy xuất chi tiết sản phẩm.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
     };
-    fetchCategories();
-    fetchProduct();
-  }, [id]);
+    fetchProductDetail();
+  }, [detailId, setValue]);
 
-  const fetchCategories = async () => {
-    try {
-      const categoriesCollectionRef = collection(db, 'categories_product'); // Cập nhật đây
-      const snapshot = await getDocs(categoriesCollectionRef);
-      const categoryList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setCategories(categoryList);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm();
-
-  useEffect(() => {
-    if (productData) {
-      console.log(productData.description);
-
-      setValue('name', productData.name);
-      setValue('price', productData.price);
-      setValue('discount', productData.discount);
-      setValue('quality', productData.quality);
-      setValue('description', productData.description);
-      setValue('cate_pro_id', productData.cate_pro_id);
-      setValue('video_demo', productData.video_demo);
-    }
-  }, [productData, setValue]);
-
+  // Xử lý cập nhật chi tiết sản phẩm
   const onSubmit = async (data) => {
     try {
-      let downloadURL = imagePreview; // URL hình ảnh hiện tại
-
-      // Nếu người dùng chọn hình mới thì upload
-      if (data.image && data.image[0]) {
-        const imageFile = data.image[0];
-        const storageRef = ref(storage, `products/${id}/${imageFile.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-        await new Promise((resolve, reject) => {
-          uploadTask.on(
-            'state_changed',
-            () => {},
-            (error) => reject(error),
-            () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-                downloadURL = url;
-                resolve();
-              });
-            },
-          );
-        });
-      }
-
-      // Cập nhật dữ liệu
-      const productRef = doc(db, 'products', id);
-      await updateDoc(productRef, {
-        cate_pro_id: data.cate_pro_id,
-        image_url: downloadURL,
+      const docRef = doc(db, 'product_detail', detailId);
+      await updateDoc(docRef, {
+        no: data.no,
         name: data.name,
-        price: parseFloat(data.price), // Chuyển đổi chuỗi thành số
-        discount: parseFloat(data.discount), // Chuyển đổi chuỗi thành số
-        quality: parseInt(data.quality), // Chuyển đổi chuỗi thành số nguyên
-        description: data.description,
-        video_demo: data.video_demo,
-        updated_at: new Date(),
+        video: data.video,
+        updated_at: new Date(), // Thêm ngày cập nhật
       });
-
-      setSnackbarMessage('Product updated successfully.');
+      setSnackbarMessage('Cập nhật chi tiết sản phẩm thành công.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       setTimeout(() => navigate('/admin/products'), 500);
     } catch (error) {
-      console.error('Error updating Product:', error);
-      setSnackbarMessage('Failed to update Product.');
+      console.error('Lỗi khi cập nhật chi tiết sản phẩm:', error);
+      setSnackbarMessage('Lỗi khi cập nhật chi tiết sản phẩm.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
-  
-  const onDescriptionChange = (value) => {
-    setValue("description", value); // Cập nhật giá trị vào react-hook-form
-  };
-
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+  // Đóng thông báo
+  const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
-  const smallFontStyle = {
-    fontSize: '0.9rem',
-  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
       <div className="container">
-        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Name</label>
+              <label className="text-light form-label">Số thứ tự</label>
               <input
-                className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
-                {...register('name', { required: 'Name is required' })}
+                className={`form-control bg-dark text-light ${errors.no ? 'is-invalid' : ''}`}
+                {...register('no', {
+                  required: 'Số thứ tự là bắt buộc.',
+                  validate: value => !isNaN(value) || 'Số thứ tự phải là số.',
+                })}
               />
-              {errors.name && <div className="text-danger">{errors.name.message}</div>}
-            </div>
-            <div className="col-6 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Hình ảnh</label>
-              <input
-                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-                type="file"
-                onChange={handleImageChange}
-              />
-              {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="img-thumbnail mt-2"
-                  style={{ maxWidth: '160px' }}
-                />
+              {errors.no && (
+                <span className="text-danger">{errors.no.message}</span>
               )}
             </div>
-          </div>
-          <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Price</label>
+              <label className="text-light form-label">Tên</label>
               <input
-                type="number"
-                step="0.01"
-                className={`form-control bg-dark text-light ${errors.price ? 'is-invalid' : ''}`}
-                {...register('price', { required: 'Price is required' })}
+                className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
+                {...register('name', { required: 'Tên là bắt buộc.' })}
               />
-              {errors.price && <div className="text-danger">{errors.price.message}</div>}
-            </div>
-            <div className="col-6 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Discount</label>
-              <input
-                type="number"
-                step="0.01"
-                className={`form-control bg-dark text-light ${errors.discount ? 'is-invalid' : ''}`}
-                {...register('discount', { required: 'Discount is required' })}
-              />
-              {errors.discount && <div className="text-danger">{errors.discount.message}</div>}
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-6 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Quality</label>
-              <input
-                type="number"
-                className={`form-control bg-dark text-light ${errors.quality ? 'is-invalid' : ''}`}
-                {...register('quality', { required: 'Quality is required' })}
-              />
-              {errors.quality && <div className="text-danger">{errors.quality.message}</div>}
-            </div>
-            <div className="col-6 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Category</label>
-              <select
-                className={`form-select bg-dark text-light ${
-                  errors.cate_pro_id ? 'is-invalid' : ''
-                }`}
-                {...register('cate_pro_id', { required: 'Category is required' })}
-              >
-                <option value="" style={smallFontStyle}>Select Category</option>
-                {categories.map((category) => (
-                  <option style={smallFontStyle} key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-              {errors.cate_pro_id && (
-                <div className="text-danger">{errors.cate_pro_id.message}</div>
+              {errors.name && (
+                <span className="text-danger">{errors.name.message}</span>
               )}
             </div>
           </div>
           <div className="row">
             <div className="col-12 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Video demo code</label>
+              <label className="text-light form-label">Video</label>
               <input
-                type="text"
-                className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
-                {...register('video_demo', { required: 'Video demo is required' })}
+                className={`form-control bg-dark text-light ${errors.video ? 'is-invalid' : ''}`}
+                {...register('video', { required: 'Liên kết video là bắt buộc.' })}
               />
-              {errors.video_demo && <div className="text-danger">{errors.video_demo.message}</div>}
+              {errors.video && (
+                <span className="text-danger">{errors.video.message}</span>
+              )}
             </div>
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label" style={smallFontStyle}>Description</label>
-            <ReactQuill
-              className={`bg-dark text-light ${errors.description ? 'is-invalid' : ''}`}
-              value={productData ? productData.description : ''}
-              onChange={onDescriptionChange} // Sử dụng onChange để cập nhật
-            />
-            {errors.description && <div className="text-danger">{errors.description.message}</div>}
-          </div>
-          <button type="submit" className="btn btn-primary me-2">
-            Update Product
-          </button>
-          <button
-              className="text-light btn btn-outline-secondary "
-              type="button"
-              onClick={() => navigate('/admin/products')}
-            >
-              Back
-            </button>
+          <button type="submit" className="btn btn-primary mt-3">Cập nhật chi tiết sản phẩm</button>
         </form>
         <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
           <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
@@ -273,4 +123,4 @@ function FormEditProduct() {
   );
 }
 
-export default FormEditProduct;
+export default EditProductDetail;

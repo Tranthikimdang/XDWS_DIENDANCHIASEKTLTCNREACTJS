@@ -312,7 +312,7 @@ function Product() {
                             <div className="action-buttons">
                               <Link
                                 to={{
-                                  pathname: `/admin/editProduct/${row.id}`,
+                                  pathname: `/admin/addProduct`,
                                   state: { data: row },
                                 }}
                               >

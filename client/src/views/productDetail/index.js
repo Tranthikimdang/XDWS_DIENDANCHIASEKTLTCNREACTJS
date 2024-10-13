@@ -16,8 +16,6 @@ import PageContainer from 'src/components/container/PageContainer';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig';
 import './index.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faPlayCircle } from '@fortawesome/free-solid-svg-icons';
 import ReplyIcon from '@mui/icons-material/Reply';
 
 const ProductsDetail = () => {
@@ -58,6 +56,12 @@ const ProductsDetail = () => {
     fetchProductDetail();
   }, [id]);
 
+  const getEmbeddedVideo = (videoUrl) => {
+    // Chuyển đổi link video Google Drive thành mã nhúng
+    const videoId = videoUrl.split('/d/')[1]?.split('/')[0];
+    return videoId ? `<iframe src="https://drive.google.com/file/d/${videoId}/preview" width="640" height="480" allow="autoplay" frameBorder="0"></iframe>` : '';
+  };
+
   if (loading) {
     return <CircularProgress />;
   }
@@ -81,13 +85,12 @@ const ProductsDetail = () => {
             <div className="course-container">
               <div className="video-section">
                 {currentVideo && (
-                  <div className="video-embed" dangerouslySetInnerHTML={{ __html: currentVideo }} />
+                  <div className="video-embed" dangerouslySetInnerHTML={{ __html: getEmbeddedVideo(currentVideo) }} />
                 )}
-                
               </div>
               <div className="course-title">
-                  <h2>{currentName}</h2>
-                </div>
+                <h2>{currentName}</h2>
+              </div>
               <div className="nav-buttons mt-5">
                 <h4>Bình luận</h4>
               </div>
@@ -130,9 +133,7 @@ const ProductsDetail = () => {
                   <ListItem alignItems="flex-start">
                     <Avatar
                       alt="{reply.user_name}"
-                      src={
-                        'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'
-                      }
+                      src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'}
                     />
                     <Box ml={1}>
                       <Typography variant="body1" color="textPrimary">
