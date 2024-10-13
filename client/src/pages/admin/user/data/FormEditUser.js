@@ -1,22 +1,25 @@
-import React, { useEffect, useState } from "react";
-import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-import { useForm } from "react-hook-form";
-import { useLocation, useHistory } from "react-router-dom";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
-import api from "../../../apis/userApi";
-import "../index.css";
+import React, { useEffect, useState } from 'react';
+import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../../../../config/firebaseconfig';
+import '../index.css';
 
 function FormEditUser() {
-  const location = useLocation();
-  const { data } = location.state || {};
-  const history = useHistory();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [showPassword, setShowPassword] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [data, setData] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [imageFile, setImageFile] = useState(null);
 
   const {
     register,
@@ -25,55 +28,113 @@ function FormEditUser() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: data?.name || "",
-      email: data?.email || "",
-      location: data?.location || "",
-      phone: data?.phone || "",
-      birthday: data?.birthday || "",
-      cardId: data?.cardId || "",
-      password: data?.password || "",
-      role: data?.role || "user",
+      name: '',
+      email: '',
+      location: '',
+      phone: '',
+      birthday: '',
+      cardId: '',
+      password: '',
+      role: 'user',
     },
   });
 
   useEffect(() => {
-    if (data) {
-      setValue("name", data.name);
-      setValue("email", data.email);
-      setValue("location", data.location);
-      setValue("phone", data.phone);
-      setValue("birthday", data.birthday);
-      setValue("cardId", data.cardId);
-      setValue("password", data.password);
-      setValue("role", data.role);
+    const fetchUserData = async () => {
+      if (id) {
+        try {
+          const userDocRef = doc(db, 'users', id);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            setData(userDoc.data());
+            setValue('name', userDoc.data().name);
+            setValue('email', userDoc.data().email);
+            setValue('location', userDoc.data().location);
+            setValue('phone', userDoc.data().phone);
+            setValue('birthday', userDoc.data().birthday || '');
+            setValue('cardId', userDoc.data().cardId || '');
+            setValue('password', userDoc.data().password || '');
+            setValue('role', userDoc.data().role || 'user');
+            setImagePreview(userDoc.data().imageUrl || '');
+          } else {
+            setSnackbarMessage('User not found.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+          }
+        } catch (error) {
+          console.error('Error fetching user:', error);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [id, setValue]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
     }
-  }, [data, setValue]);
+  };
+
+  const uploadImageToStorage = async (file) => {
+    const storageRef = ref(storage, `images/${id}/${file.name}`);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  };
+
+  const sanitizeData = (formData) => {
+    const sanitizedData = { ...formData };
+    Object.keys(sanitizedData).forEach((key) => {
+      if (sanitizedData[key] === undefined) {
+        sanitizedData[key] = null;
+      }
+    });
+    return sanitizedData;
+  };
 
   const onSubmit = async (formData) => {
-    try {
-      const response = await api.updateUser(data.id, formData);
-      console.log("User updated successfully:", response);
-      setSnackbarMessage("User updated successfully.");
-      setSnackbarSeverity("success");
+    if (!id) {
+      setSnackbarMessage('User ID is missing. Cannot update the user.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
-      setTimeout(() => history.push("/user"), 1000);
+      return;
+    }
+
+    try {
+      let imageUrl = imagePreview;
+
+      if (imageFile) {
+        imageUrl = await uploadImageToStorage(imageFile);
+      }
+
+      const sanitizedData = sanitizeData(formData);
+      const userRef = doc(db, 'users', id);
+
+      await updateDoc(userRef, {
+        ...sanitizedData,
+        imageUrl,
+      });
+
+      setSnackbarMessage('User updated successfully.');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+
+      setTimeout(() => navigate('/admin/user'), 1000);
     } catch (error) {
-      console.error("Error updating user:", error);
-      setSnackbarMessage("Failed to update user.");
-      setSnackbarSeverity("error");
+      console.error('Error updating user:', error);
+      setSnackbarMessage('Failed to update user.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
     setSnackbarOpen(false);
-  };
-
-  const handlePasswordToggle = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -82,12 +143,14 @@ function FormEditUser() {
       <div className="container small-text">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
-            {/* Full Name */}
             <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Full Name</label>
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Tên tài khoản</label>
+              </div>
+
               <input
                 className="form-control bg-dark text-light"
-                {...register("name", { required: true, minLength: 3, maxLength: 50 })}
+                {...register('name', { required: true, minLength: 3, maxLength: 50 })}
               />
               {errors.name && (
                 <span className="text-danger">
@@ -95,13 +158,14 @@ function FormEditUser() {
                 </span>
               )}
             </div>
-            {/* Email */}
             <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Email</label>
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Email</label>
+              </div>
               <input
                 className="form-control bg-dark text-light"
                 type="email"
-                {...register("email", {
+                {...register('email', {
                   required: true,
                   pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                 })}
@@ -109,83 +173,40 @@ function FormEditUser() {
               {errors.email && <span className="text-danger">Valid email is required</span>}
             </div>
           </div>
-          <div className="row">
-            {/* Location */}
-            <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Location</label>
-              <input
-                className="form-control bg-dark text-light"
-                {...register("location", { required: true, minLength: 2, maxLength: 50 })}
-              />
-              {errors.location && (
-                <span className="text-danger">
-                  Location is required and must be between 2 and 50 characters long
-                </span>
-              )}
-            </div>
-            {/* Phone Number */}
-            <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Phone Number</label>
-              <input
-                className="form-control bg-dark text-light"
-                type="tel"
-                {...register("phone", { required: true, pattern: /^[0-9]{10,15}$/ })}
-              />
-              {errors.phone && (
-                <span className="text-danger">
-                  Phone number must be between 10 and 15 digits long
-                </span>
-              )}
-            </div>
-          </div>
-         
-          <div className="row">
-            {/* Password */}
-            <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Password</label>
-              <div className="input-group position-relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="form-control bg-dark text-light"
-                  {...register("password", { required: true, minLength: 6 })}
-                />
-                {errors.password && (
-                  <span className="text-danger">Password must be at least 6 characters long</span>
-                )}
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary position-absolute end-0 top-50 translate-middle-y"
-                  onClick={handlePasswordToggle}
-                  style={{ right: "10px", border: "none", background: "transparent", zIndex: 1 }}
-                >
-                  <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
-                </button>
-              </div>
-            </div>
 
-            {/* Role */}
+          <div className="row">
             <div className="col-md-6 mb-3">
-              <label className="text-light form-label">Role</label>
-              <select
+            <div style={{ textAlign: 'left' }}>
+            <label className="text-light form-label">Thay đổi ảnh</label>
+              </div>
+              <input
+                type="file"
                 className="form-control bg-dark text-light"
-                {...register("role", { required: true })}
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-              {errors.role && <span className="text-danger">Role is required</span>}
+                onChange={handleImageChange}
+              />
+            </div>
+            <div className="col-md-6 mb-3 text-center">
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="img-thumbnail mt-2"
+                  style={{ maxWidth: '200px' }}
+                />
+              )}
             </div>
           </div>
+
           <div className="d-flex justify-content mt-3">
             <button className="text-light btn btn-outline-info me-2" type="submit">
-              Edit User
+              Sửa
             </button>
             <button
               className="text-light btn btn-outline-secondary"
               type="button"
-              onClick={() => history.push("/user")}
+              onClick={() => navigate('/admin/user')}
             >
-              Back
+              Quay lại
             </button>
           </div>
         </form>
@@ -195,9 +216,9 @@ function FormEditUser() {
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

@@ -125,7 +125,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "User Management",
+    name: "Quản lý tài khoản",
     key: "user",
     route: "/admin/user",
     icon: <BsFillPersonPlusFill size="15px" color="inherit" />,

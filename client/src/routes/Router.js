@@ -6,6 +6,7 @@ import ForgotPassword from '../views/authentication/ForgotPassword';
 import ResetPassword from '../views/authentication/ResetPassword';
 import CommentDetail from '../pages/admin/commentDetail';
 
+
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -65,8 +66,8 @@ const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/Form
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
 
-
-
+const AddUser = Loadable(lazy(() => import('../pages/admin/user/data/formAddUser')));
+const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUser')));
 
 const renderRoutes = (role) => {
   const routes = [
@@ -102,6 +103,7 @@ const renderRoutes = (role) => {
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
+        
         { path: '/profile', exact: true, element: <Profile /> },
         { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
@@ -109,6 +111,7 @@ const renderRoutes = (role) => {
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
+      
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -132,6 +135,7 @@ const renderRoutes = (role) => {
         // { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
 
         { path: 'user', exact: true, element: <UserAdmin /> },
+       
         { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
         { path: 'addCatePro', exact: true, element: <AddCatePro /> },
@@ -143,7 +147,8 @@ const renderRoutes = (role) => {
         { path: 'editCate/:id', exact: true, element: <EditCate/> },
         { path: 'addCate', exact: true, element: <AddCate/> },
         { path: 'editCate/:id', exact: true, element: <EditCate /> },
-        
+        { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
+        { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
