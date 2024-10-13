@@ -29,6 +29,7 @@ const ProductDetailUser = Loadable(lazy(() => import('../views/productDetail/ind
 const Cart = Loadable(lazy(() => import('../views/cart/index')));
 
 
+
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -65,7 +66,7 @@ const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/Form
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
 
-
+const ProductDetailAdmin = Loadable(lazy(() => import('../pages/admin/productDetail')));
 
 
 const renderRoutes = (role) => {
@@ -143,7 +144,7 @@ const renderRoutes = (role) => {
         { path: 'editCate/:id', exact: true, element: <EditCate/> },
         { path: 'addCate', exact: true, element: <AddCate/> },
         { path: 'editCate/:id', exact: true, element: <EditCate /> },
-        
+        { path: 'productDetail/:id', exact: true, element: <ProductDetailAdmin /> },      
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

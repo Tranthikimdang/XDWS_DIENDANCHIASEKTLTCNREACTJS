@@ -69,7 +69,7 @@ const Cart = () => {
               <div className="container py-5 h-100">
                 <div className="row d-flex justify-content-center align-items-center h-100">
                   <div className="col">
-                    <div className="card-body p-4">
+                    <div className=" p-4">
                       <div className="row">
                         <div className="col-lg-12">
                           <div className="d-flex justify-content-between align-items-center mb-4">
