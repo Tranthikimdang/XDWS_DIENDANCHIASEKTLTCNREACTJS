@@ -1,31 +1,32 @@
 .category-list {
-  display: flex;
-  justify-content: flex-start; /* Align items closer together */
-  gap: 5px; /* Reduce spacing between items */
-  list-style-type: none;
-  padding: 0;
-}
-
-.category-item:hover {
-  color: #0056b3; /* Darker blue text color on hover */
-  background-color: rgba(0, 123, 255, 0.1); /* Light blue background on hover */
-}
-
-.category-item {
-  background-color: #f2f2f2;
-  border-radius: 30px; /* Rounded corners */
-  padding: 10px 20px; /* Padding for button-like appearance */
-  text-align: center;
-  color: #333;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-  transition: background-color 0.3s ease;
-  margin-right: 5px; /* Reduce margin for tighter spacing */
-}
-
-.category-item:hover {
-  background-color: #f2f2f2; /* Slightly darker on hover */
-}
-
-.category-item strong {
-  font-size: 16px; /* Adjust text size */
-}
+    display: flex;
+    justify-content: flex-start; /* Align items closer together */
+    gap: 5px; /* Reduce spacing between items */
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .category-item:hover {
+    color: #0056b3; /* Darker blue text color on hover */
+    background-color: rgba(0, 123, 255, 0.1); /* Light blue background on hover */
+  }
+  
+  .category-item {
+    background-color: #f2f2f2;
+    border-radius: 30px; /* Rounded corners */
+    padding: 10px 20px; /* Padding for button-like appearance */
+    text-align: center;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    transition: background-color 0.3s ease;
+    margin-right: 5px; /* Reduce margin for tighter spacing */
+  }
+  
+  .category-item:hover {
+    background-color: #f2f2f2; /* Slightly darker on hover */
+  }
+  
+  .category-item strong {
+    font-size: 16px; /* Adjust text size */
+  }
+  

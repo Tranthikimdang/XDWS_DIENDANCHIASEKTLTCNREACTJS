@@ -133,12 +133,7 @@ const Header = (props) => {
           <IconMenu width="20" height="20" />
         </IconButton>
 
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase placeholder="Search…" inputProps={{ 'aria-label': 'search' }} />
-        </Search>
+     
 
         <Box flexGrow={1} />
 

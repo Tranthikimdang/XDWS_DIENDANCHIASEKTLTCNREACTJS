@@ -5,7 +5,6 @@ import { IconHeart, IconMessageCircle } from '@tabler/icons';
 import { useLocation } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { Snackbar, Alert } from "@mui/material";
 //icon
@@ -40,7 +39,6 @@ const ArticleDetail = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const location = useLocation();
   const { id, user } = location.state || {};
-  console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
 
 
@@ -59,7 +57,6 @@ const ArticleDetail = () => {
       try {
         const docRef = doc(db, 'articles', id);
         const docSnap = await getDoc(docRef);
-
         if (docSnap.exists()) {
           setArticle(docSnap.data());
         } else {
@@ -88,8 +85,8 @@ const ArticleDetail = () => {
     fetchUsers();
   }, []);
 
-   // Fetch categories from Firestore
-   useEffect(() => {
+  // Fetch categories from Firestore
+  useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
@@ -104,7 +101,6 @@ const ArticleDetail = () => {
         }, {});
         setCatesMap(categoriesMap);
 
-        console.log("Fetched categories:", categoriesData);
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -168,7 +164,6 @@ const ArticleDetail = () => {
 
     try {
       const docRef = await addDoc(collection(db, "commentDetails"), commentData);
-      console.log("Comment added with ID: ", docRef.id);
       setNewComment('');
       setOpenCommentsDialog(false);
       setSnackbarMessage("Bình luận của bạn đã được gửi và đang chờ duyệt.");
@@ -286,8 +281,8 @@ const ArticleDetail = () => {
     }
 
     return updatedAtString;
-  };  
-  
+  };
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -392,7 +387,21 @@ const ArticleDetail = () => {
 
           <Box sx={{ marginTop: '20px' }}>
             <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
-            {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
+              {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton aria-label="like" sx={{ color: 'blue' }}>
+              <IconHeart />
+            </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+              15
+            </Typography>
+            <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
+              <IconMessageCircle />
+            </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+              {comments.length}
             </Typography>
           </Box>
 
@@ -418,7 +427,9 @@ const ArticleDetail = () => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Card>
-                  <CardMedia component="img" alt="Image 1" height="140" image="https://files.fullstack.edu.vn/f8-prod/blog_posts/279/6153f692d366e.jpg" title="Image 1" />
+                  <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
+                    <img src={article.image || 'https://via.placeholder.com/800x400'} alt="Article" style={{ width: '100%', borderRadius: '8px' }} />
+                  </Box>
                 </Card>
               </Grid>
             </Grid>
@@ -449,22 +460,22 @@ const ArticleDetail = () => {
                 Bài viết cùng chuyên mục
               </Typography>
               <Grid item xs={12}>
-            
-              {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                  <CircularProgress />
-                </Box>
-              ) : (
-                <ul className="category-list">
-                  {cates.map((cate) => (
-                    <Link to={`/CateArticleDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
-                      <li key={cate.id} className="category-item">
-                        <strong>{cate.name}</strong>
-                      </li>
-                    </Link>
-                  ))}
-                </ul>
-              )}
+
+                {loading ? (
+                  <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                    <CircularProgress />
+                  </Box>
+                ) : (
+                  <ul className="category-list">
+                    {cates.map((cate) => (
+                      <Link to={`/CateArticleDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
+                        <li key={cate.id} className="category-item">
+                          <strong>{cate.name}</strong>
+                        </li>
+                      </Link>
+                    ))}
+                  </ul>
+                )}
               </Grid>
             </Box>
           </Box>

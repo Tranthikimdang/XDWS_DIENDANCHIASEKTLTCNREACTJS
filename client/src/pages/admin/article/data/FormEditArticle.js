@@ -97,6 +97,7 @@ function FormEditArticle() {
       const imageRef = ref(storage, `images/${file.name}`);
       await uploadBytes(imageRef, file);
       const imageUrl = await getDownloadURL(imageRef);
+      console.log("Hình ảnh đã được tải lên thành công, URL:", imageUrl); // Thêm log để kiểm tra
       return imageUrl;
     } catch (error) {
       console.error("Lỗi khi tải ảnh lên:", error);
@@ -107,6 +108,7 @@ function FormEditArticle() {
   const onSubmit = async (formData) => {
     try {
       let imageUrl = data?.image || "";
+      console.log("Tệp hình ảnh từ formData:", formData.image[0]); // Thêm log để kiểm tra
       if (formData.image && formData.image[0]) {
         imageUrl = await handleImageUpload(formData.image[0]);
       }
@@ -132,9 +134,14 @@ function FormEditArticle() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImagePreview(URL.createObjectURL(file));
+      setImagePreview(URL.createObjectURL(file)); // Cập nhật hình ảnh xem trước
+      console.log("File chosen:", file); // Thêm log để kiểm tra file đã được chọn
+    } else {
+      console.log("No file chosen");
     }
   };
+
+
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -167,10 +174,12 @@ function FormEditArticle() {
               <input
                 className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""}`}
                 type="file"
-                onChange={handleImageChange}
+                {...register("image")} // Thêm thuộc tính name vào register
+                onChange={handleImageChange} // Gọi hàm thay đổi hình ảnh
               />
+
               {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
-              {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" style={{ maxWidth: "160px" }} />}
+
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label">Danh mục</label>
@@ -186,6 +195,7 @@ function FormEditArticle() {
               {errors.categories_id && <span className="text-danger">{errors.categories_id.message}</span>}
             </div>
           </div>
+          {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" style={{ maxWidth: "160px" }} />}
           <div className="mb-3">
             <label className="text-light form-label">Nội dung</label>
             <Editor
@@ -217,9 +227,10 @@ function FormEditArticle() {
       </div>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={500}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(100px)' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}

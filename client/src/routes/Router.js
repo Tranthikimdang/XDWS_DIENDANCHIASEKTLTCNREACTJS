@@ -6,6 +6,7 @@ import ForgotPassword from '../views/authentication/ForgotPassword';
 import ResetPassword from '../views/authentication/ResetPassword';
 import CommentDetail from '../pages/admin/commentDetail';
 
+
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
 const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
@@ -19,6 +20,7 @@ const CateArticleDetail = Loadable(
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))); // Import the ArticleDetail component
 const Questions = Loadable(lazy(() => import('../views/questions/Questions.js')));
+const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestions.js')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -48,6 +50,7 @@ const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')));
 const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')));
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')));
 
+
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')));
 // const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
 // const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
@@ -62,7 +65,7 @@ const Product = Loadable(lazy(() => import('../pages/admin/product')));
 const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormAddProduct')));
 const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
 
-const Category = Loadable(lazy(() => import('../pages/admin/category')));
+
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
 
@@ -73,6 +76,10 @@ const AddProDetaill = Loadable(
 const EditProDetaill = Loadable(
   lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')),
 );
+
+const AddUser = Loadable(lazy(() => import('../pages/admin/user/data/formAddUser')));
+const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUser')));
+
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
@@ -115,6 +122,7 @@ const renderRoutes = () => {
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
+        
         { path: '/profile', exact: true, element: <Profile /> },
         { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
@@ -139,10 +147,14 @@ const renderRoutes = () => {
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
+        { path: 'questions/:id', exact: true, element: <EditQuestions /> },
+
         // { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
         // { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
         // { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
+
         { path: 'user', exact: true, element: <UserAdmin /> },
+       
         { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
         { path: 'addCatePro', exact: true, element: <AddCatePro /> },
@@ -158,6 +170,9 @@ const renderRoutes = () => {
         { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
         { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
         { path: 'orders', exact: true, element: <Orders /> },
+        { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
+        { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
+
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
