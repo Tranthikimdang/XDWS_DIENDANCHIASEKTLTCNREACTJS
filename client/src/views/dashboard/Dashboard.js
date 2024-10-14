@@ -3,6 +3,8 @@ import PageContainer from 'src/components/container/PageContainer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Carousel } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 import {
   Box,
   Button,
@@ -18,10 +20,9 @@ import { styled } from '@mui/system';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { formatDistanceToNow } from 'date-fns';
-
+import { collection, getDocs, addDoc, where, query } from 'firebase/firestore';
 //firebase
 import { db } from '../../config/firebaseconfig';
-import { collection, getDocs } from 'firebase/firestore';
 
 const StyledBox = styled(Box)(({ theme }) => ({
   backgroundColor: '#8000ff',
@@ -32,7 +33,9 @@ const StyledBox = styled(Box)(({ theme }) => ({
   position: 'relative',
   overflow: 'hidden',
 }));
-
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 const SubText = styled(Typography)(({ theme }) => ({
   fontSize: '16px',
   color: '#fff',
@@ -70,12 +73,58 @@ const Home = () => {
   const [catesProMap, setCatesProMap] = useState({});
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
-
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
   const handleCardClick = (articleId) => {
     navigate(`/article/${articleId}`, { state: { id: articleId } });
   };
   const handleClick = (product) => {
     navigate(`/productDetail/${product}`, { state: { id: product } });
+  };
+
+  const addToCart = async (product) => {
+    if (userId) {
+      try {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, 'orders'),
+            where('user_id', '==', userId),
+            where('product_id', '==', product.id),
+          ),
+        );
+
+        if (!querySnapshot.empty) {
+          setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
+          setSnackbarSeverity('warning');
+          setSnackbarOpen(true);
+        } else {
+          await addDoc(collection(db, 'orders'), {
+            user_id: userId,
+            product_id: product.id,
+            total: 'total',
+            note: '',
+            order_day: new Date(),
+          });
+
+          setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+        }
+      } catch (error) {
+        console.error('Error adding product to cart: ', error);
+        setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    } else {
+      console.error('User is not logged in');
+      setSnackbarMessage('Bạn vẫn chưa đăng nhập');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
   };
 
   useEffect(() => {
@@ -107,7 +156,7 @@ const Home = () => {
           map[category.id] = category.name;
           return map;
         }, {});
-        setCatesMap(categoriesMap); 
+        setCatesMap(categoriesMap);
         console.log(categoriesMap); // Kiểm tra xem danh mục đã được lấy thành công
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -134,7 +183,6 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-
   const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp.seconds * 1000);
@@ -143,6 +191,16 @@ const Home = () => {
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Box>
         {/* Hiển thị loading spinner nếu đang tải dữ liệu */}
         {loading ? (
@@ -385,7 +443,7 @@ const Home = () => {
                   sm={4}
                   md={3}
                   key={product.id}
-                  onClick={() => handleClick(product.id)}
+                  
                 >
                   <div className="thumb-wrapper border p-2 shadow-sm rounded">
                     <div className="img-box mb-3">
@@ -395,6 +453,7 @@ const Home = () => {
                         src={product.image_url}
                         className="img-responsive rounded"
                         alt={product.name}
+                        onClick={() => handleClick(product.id)}
                       />
                     </div>
                     <div className="thumb-content text-center">
@@ -433,7 +492,11 @@ const Home = () => {
                         <button className="btn btn-primary btn-sm" type="button">
                           Mua ngay
                         </button>
-                        <button className="btn btn-outline-primary btn-sm mt-2" type="button">
+                        <button
+                          className="btn btn-outline-primary btn-sm mt-2"
+                          type="button"
+                          onClick={() => addToCart(product)}
+                        >
                           Thêm vào giỏ hàng
                         </button>
                       </div>
