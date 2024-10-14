@@ -339,8 +339,7 @@ function Product() {
                                     <Tooltip title="Xem" placement="top">
                                       <button
                                         className="text-light btn btn-outline-info me-2"
-                                        type="button"
-                                        // onClick={() => handleView(row.id)}
+                                        type="button"                          
                                       >
                                         <svg
                                           xmlns="http://www.w3.org/2000/svg"

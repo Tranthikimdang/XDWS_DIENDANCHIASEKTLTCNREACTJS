@@ -14,7 +14,9 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin')));
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
-const CateArticleDetail = Loadable(lazy(() => import('../views/article/components/CateArticleDetail')));
+const CateArticleDetail = Loadable(
+  lazy(() => import('../views/article/components/CateArticleDetail')),
+);
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))); // Import the ArticleDetail component
 const Questions = Loadable(lazy(() => import('../views/questions/Questions.js')));
@@ -28,8 +30,6 @@ const ProductDetail = Loadable(lazy(() => import('../views/product/components/de
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
 const ProductDetailUser = Loadable(lazy(() => import('../views/productDetail/index')));
 const Cart = Loadable(lazy(() => import('../views/cart/index')));
-
-
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -37,9 +37,7 @@ const UserList = Loadable(lazy(() => import('../views/User/User'))); // Import t
 
 // const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
 
-
-
-const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')))
+const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
 
 const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')))
 const FormAddArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormAddArticle')))
@@ -50,9 +48,7 @@ const CommentDetailAdmin = Loadable(lazy(() => import('../pages/admin/commentDet
 const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')))
 const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')))
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')))
-
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
-
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
 const AddCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormAddCate')));
@@ -65,11 +61,24 @@ const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/Form
 
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
-
 const AddUser = Loadable(lazy(() => import('../pages/admin/user/data/formAddUser')));
 const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUser')));
+const ProductDetailAdmin = Loadable(lazy(() => import('../pages/admin/productDetail')));
+const AddProDetaill = Loadable(
+  lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')),
+);
+const EditProDetaill = Loadable(
+  lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')),
+);
 
-const renderRoutes = (role) => {
+const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
+
+const renderRoutes = () => {
+  const users = JSON.parse(localStorage.getItem('user'));
+  let role = "user";
+  if (users && users.role) {
+    role = users.role;
+  } 
   const routes = [
     {
       path: '/auth',
@@ -111,7 +120,6 @@ const renderRoutes = (role) => {
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
-      
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -121,9 +129,9 @@ const renderRoutes = (role) => {
       children: [
         { path: 'dashboard', element: <DashboardAdmin /> },
         { path: 'article', exact: true, element: <ArticleAdmin /> },
-        { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
-        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle/> },
-        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
+        { path: 'formaddarticle', exact: true, element: <FormAddArticle /> },
+        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle /> },
+        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle /> },
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
@@ -144,11 +152,16 @@ const renderRoutes = (role) => {
         { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
         { path: 'addCate', exact: true, element: <AddCate /> },
-        { path: 'editCate/:id', exact: true, element: <EditCate/> },
-        { path: 'addCate', exact: true, element: <AddCate/> },
         { path: 'editCate/:id', exact: true, element: <EditCate /> },
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
+        { path: 'addCate', exact: true, element: <AddCate /> },
+        { path: 'editCate/:id', exact: true, element: <EditCate /> },
+        { path: 'productDetail/:id', exact: true, element: <ProductDetailAdmin /> },
+        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
+        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
+        { path: 'orders', exact: true, element: <Orders /> },
+
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

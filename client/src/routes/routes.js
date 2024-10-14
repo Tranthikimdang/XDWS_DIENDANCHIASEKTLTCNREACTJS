@@ -45,9 +45,14 @@ import AddProduct from "../pages/admin/product/data/FormAddProduct";
 import EditProduct from "../pages/admin/product/data/FormEditProduct";
 import productDetail from "../views/product/components/detail"
 
+
 import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
 import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+
+import Orders from 'src/pages/admin/orders';
+
+
 
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
@@ -314,7 +319,31 @@ const routes = [
     component: EditCate,
     hidden: true, // Ẩn mục này
   },
-  
+
+  // {
+  //   key: 'ProductDetail',
+  //   route: '/admin/productDetail/:id',
+  //   component: productDetailAdmin,
+  //   hidden: true, // Ẩn mục này
+  // },
+  // {
+  //   key: 'AddProDetaill',
+  //   route: '/admin/addProDetaill/:product_id',
+  //   component: AddProDetaill,
+  //   hidden: true, // Ẩn mục này
+  // },
+  // {
+  //   key: 'EditProDetaill',
+  //   route: '/admin/editProDetaill/:detailId',
+  //   component: EditProDetaill,
+  //   hidden: true, // Ẩn mục này
+  // },
+  {
+    key: 'Orders',
+    route: '/admin/orders',
+    component: Orders,
+    hidden: true, // Ẩn mục này
+  },
 
   // '/productDetail/:id'
 ];
