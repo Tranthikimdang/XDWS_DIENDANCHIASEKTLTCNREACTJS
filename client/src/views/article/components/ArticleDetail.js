@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Box, Grid, Menu, MenuItem, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -19,7 +20,7 @@ import './ArticleDetail.css';
 // Firebase
 import { db } from '../../../config/firebaseconfig';
 import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
-import './style.css';
+import './ArticleDetail.css';
 
 const ArticleDetail = () => {
   // const { id } = useParams();
@@ -153,7 +154,7 @@ const ArticleDetail = () => {
 
     const commentData = {
       article_id: id,
-      user_name: currentUser?.name || "Khiem",
+      user_name: currentUser?.name || "Không tìm thấy",
       content: newComment,
       created_date: currentDate,
       updated_date: currentDate,
@@ -330,10 +331,9 @@ const ArticleDetail = () => {
         <Grid item xs={10}>
           <Box display="flex" alignItems="center" sx={{ position: 'relative' }}>
             <img
-              src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-              width="40px"
+              src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
               alt="User Avatar"
-              style={{ borderRadius: '50%', marginRight: '10px' }}
+              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
             />
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
