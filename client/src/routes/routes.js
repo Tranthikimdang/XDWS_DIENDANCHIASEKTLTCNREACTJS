@@ -49,11 +49,13 @@ import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
 import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
 
+import Orders from "../pages/admin/orders/index";
+
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
-import { BsFillPersonPlusFill } from "react-icons/bs";
+import { BsFillPersonPlusFill,BsList } from "react-icons/bs";
 import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
@@ -130,6 +132,15 @@ const routes = [
     route: "/admin/user",
     icon: <BsFillPersonPlusFill size="15px" color="inherit" />,
     // component: User,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Quản lý đơn hàng",
+    key: "orders",
+    route: "/admin/orders",
+    icon: <BsList size="15px" color="inherit" />,
+    component: Orders,
     noCollapse: true,
   },
   { type: "title", title: "Account Pages", key: "account-pages" },
