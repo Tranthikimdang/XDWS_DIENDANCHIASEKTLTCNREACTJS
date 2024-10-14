@@ -51,6 +51,8 @@ import FormEditArticle from 'src/pages/admin/article/data/FormEditArticle';
 import AddProDetaill from 'src/pages/admin/productDetail/data/FormAddProduct';
 import EditProDetaill from 'src/pages/admin/productDetail/data/FormEditProduct';
 
+import Orders from 'src/pages/admin/orders';
+
 
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
@@ -341,7 +343,12 @@ const routes = [
     component: EditProDetaill,
     hidden: true, // Ẩn mục này
   },
-  
+  {
+    key: 'Orders',
+    route: '/admin/orders',
+    component: Orders,
+    hidden: true, // Ẩn mục này
+  },
   // '/productDetail/:id'
 ];
 
