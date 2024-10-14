@@ -437,30 +437,46 @@ const ArticleDetail = () => {
               {' '}để bình luận.
             </Typography>
           ) : (
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-              <Avatar alt="Your Avatar" src="https://i.pinimg.com/736x/0d/e2/0f/0de20f2a3e65ae8b92e263dd8340a76c.jpg" sx={{ marginRight: 2 }} />
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar
+                alt="Your Avatar"
+                src="https://i.pinimg.com/736x/0d/e2/0f/0de20f2a3e65ae8b92e263dd8340a76c.jpg"
+                sx={{ width: 56, height: 56, mr: 2 }}
+              />
               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <TextField
-                  label="Viết bình luận"
-                  variant="outlined"
-                  multiline
-                  fullWidth
-                  rows={1}
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  sx={{ width: '100%' }} // Add this line
+                {/* Flex container for text input and button */}
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TextField
+                    label="Viết bình luận"
+                    variant="outlined"
+                    multiline
+                    fullWidth
+                    rows={1}
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    sx={{ flex: 1, marginRight: 1 }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddComment}
+                    sx={{ padding: '6px 12px', height: 'fit-content' }} // Align button with the text field
+                  >
+                    Gửi
+                  </Button>
+                </Box>
+
+                {/* File input field */}
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleAddImage}
+                  style={{ marginTop: 8 }}
                 />
-                <input type="file" multiple onChange={handleAddImage} sx={{ marginTop: 2, width: '100%' }} />
               </Box>
             </Box>
           )}
-          {currentUser && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 1 }}>
-              <Button variant="contained" color="primary" onClick={handleAddComment} sx={{ padding: '6px 12px' }}>
-                Gửi bình luận
-              </Button>
-            </Box>
-          )}
+
           <List sx={{ padding: 0, margin: 0 }}>
             {comments.map((comment) => (
               <ListItem key={comment.id} alignItems="flex-start" sx={{ padding: 2, borderBottom: '1px solid #ccc' }}>
@@ -472,11 +488,11 @@ const ArticleDetail = () => {
                   {comment.images && comment.images.length > 0 && (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: 2 }}>
                       {comment.images.map((image, index) => (
-                        <img src={image} key={index} alt="Ảnh trả lời" style={{ width: '200px', height: '200px', margin: '10px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' , objectFit: 'cover'  }} />
+                        <img src={image} key={index} alt="Ảnh trả lời" style={{ width: '200px', height: '200px', margin: '10px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)', objectFit: 'cover' }} />
                       ))}
                     </Box>
                   )}
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant="body2" color="textSecondary" sx={{ fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5' }}>
                     {comment.content}
                   </Typography>
                   <Typography variant="caption" color="textSecondary">
@@ -506,30 +522,33 @@ const ArticleDetail = () => {
                       </Button>
                     )}
                   </Box>
-
                   {replyingTo === comment.id && (
                     <Box className="reply-input" mt={2}>
-                      <TextField
-                        label={`Trả lời ${replyingToUsername}`} // Đảm bảo hiển thị đúng người đang được trả lời
-                        variant="outlined"
-                        multiline
-                        fullWidth
-                        rows={1}
-                        value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
-                      />
-                      <input type="file" multiple onChange={handleAddReplyImage} sx={{ marginTop: 1 }} />
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleAddReply(comment.id)} // Gửi reply cho comment này
-                        sx={{ marginTop: 1, padding: '6px 12px' }}
-                      >
-                        Gửi trả lời
-                      </Button>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <TextField
+                          label={`Trả lời ${replyingToUsername}`}
+                          variant="outlined"
+                          multiline
+                          fullWidth
+                          rows={1}
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          sx={{ width: '80%', marginRight: 1 }}
+                        />
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleAddReply(comment.id)}
+                          sx={{ padding: '6px 12px', height: 'fit-content' }}
+                        >
+                          Gửi
+                        </Button>
+                      </Box>
+                      <Box sx={{ mt: 1 }}>
+                        <input type="file" multiple onChange={handleAddReplyImage} />
+                      </Box>
                     </Box>
                   )}
-
                   {/* Hiển thị các replies */}
                   {comment.replies?.length > 0 && (
                     <List sx={{ padding: 0, margin: 0, marginLeft: 4 }}>
@@ -546,17 +565,17 @@ const ArticleDetail = () => {
                               {reply.images && reply.images.length > 0 && (
                                 <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
                                   {reply.images.map((image, index) => (
-                                    <img src={image} key={index} alt="Ảnh trả lời" style={{ width: '300px', height: '200px', margin: '10px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)' , objectFit: 'cover' }} />
+                                    <img src={image} key={index} alt="Ảnh trả lời" style={{ width: '300px', height: '200px', margin: '10px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)', objectFit: 'cover' }} />
                                   ))}
                                 </Box>
-                              )}                             
+                              )}
                             </Box>
-                            <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
-                                {reply.content}
-                              </Typography>
-                              <Typography variant="caption" color="textSecondary">
-                                {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true })}
-                              </Typography>
+                            <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2, fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5' }}>
+                              {reply.content}
+                            </Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true })}
+                            </Typography>
                             <Box display="flex" alignItems="center" mt={1}>
                               <IconButton
                                 aria-label="reply"
@@ -581,28 +600,31 @@ const ArticleDetail = () => {
                                 </Button>
                               )}
                             </Box>
-
                             {replyingToReply === index && (
                               <Box className="reply-input" mt={2}>
-                                <TextField
-                                  label={`Trả lời ${reply.user_name}`} // Sử dụng đúng tên người dùng của reply
-                                  variant="outlined"
-                                  multiline
-                                  fullWidth
-                                  rows={1}
-                                  value={replyContent}
-                                  onChange={(e) => setReplyContent(e.target.value)}
-                                />
-                                <input type="file" multiple onChange={handleAddReplyImage} sx={{ marginTop: 1 }} />
-                                <Button
-                                  variant="contained"
-                                  color="primary"
-                                  onClick={() => handleAddReply(comment.id)} // Gửi reply cho comment này
-                                  sx={{ marginTop: 1, padding: '6px 12px' }}
-                                >
-                                  Gửi trả lời
-                                </Button>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <TextField
+                                    label={`Trả lời ${reply.user_name}`}
+                                    variant="outlined"
+                                    multiline
+                                    fullWidth
+                                    rows={1}
+                                    value={replyContent}
+                                    onChange={(e) => setReplyContent(e.target.value)}
+                                    sx={{ width: '80%', marginRight: 1 }}
+                                  />
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => handleAddReply(comment.id)}
+                                    sx={{ padding: '6px 12px', height: 'fit-content' }}
+                                  >
+                                    Gửi
+                                  </Button>
+                                </Box>
+                                <input type="file" multiple onChange={handleAddReplyImage} style={{ marginTop: 8 }} />
                               </Box>
+
                             )}
                           </Box>
                         </ListItem>

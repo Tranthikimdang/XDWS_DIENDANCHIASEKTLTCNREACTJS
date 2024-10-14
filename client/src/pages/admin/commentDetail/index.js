@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import {  useLocation , useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
@@ -122,7 +122,7 @@ function CommentDetail() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-               Bảng Chi Tiết Bình Luận
+                Bảng Chi Tiết Bình Luận
               </VuiTypography>
               {/* <Link to={{ pathname: "/formAddCmt", state: { id: id } }}>
                 <button className='text-light btn btn-outline-info' type="button">
@@ -148,6 +148,15 @@ function CommentDetail() {
                   rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
                     ...row,
                     '#': page * rowsPerPage + index + 1,
+                    image: row.images && row.images.length > 0 ? (
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        {row.images.map((img, imgIndex) => (
+                          <img key={imgIndex} src={img} alt={`comment-image-${imgIndex}`} style={{ width: '100px', height: '100px', margin: '0 5px', objectFit: 'cover', borderRadius:'5px' }} />
+                        ))}
+                      </div>
+                    ) : (
+                      'Bình luận không có ảnh'
+                    ),
                     action: (
                       <div>
                         {/* <button className="text-light btn btn-outline-success me-2" type="button" onClick={() => approveComment(row.id)}>
