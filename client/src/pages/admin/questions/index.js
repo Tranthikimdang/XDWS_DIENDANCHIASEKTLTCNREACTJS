@@ -30,7 +30,7 @@ function Questions() {
   const [rows, setRows] = useState([]);
   const [users, setUsers] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
-  const [deleteTitle, setDeleteTitle] = useState("");
+  const [deleteQuestions, setDeleteQuestions] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -94,9 +94,9 @@ function Questions() {
   };
 
   //xóa 
-  const handleDelete = (id, title) => {
+  const handleDelete = (id, questions) => {
     setDeleteId(id);
-    setDeleteTitle(title);
+    setDeleteQuestions(questions);
     setOpenDialog(true);
   };
 
@@ -105,7 +105,6 @@ function Questions() {
       const QuestionsRef = doc(db, "questions", deleteId);
       await deleteDoc(QuestionsRef);
       setReload(reload => !reload)
-
       setOpenDialog(false);
       setSnackbarMessage("Xóa câu hỏi thành công.");
       setSnackbarSeverity("success");
@@ -261,6 +260,11 @@ function Questions() {
                           ),
                           author: (
                             <VuiBox>
+                              <img
+                              src={users?.find(u => row?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                              alt="User Avatar"
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                            />
                               <VuiTypography variant="button" color="white" fontWeight="medium">
                                 {authorName}
                               </VuiTypography>
@@ -323,7 +327,7 @@ function Questions() {
                                 <button
                                   className="text-light btn btn-outline-danger me-2"
                                   type="button"
-                                  onClick={() => handleDelete(row.id, row.title)}
+                                  onClick={() => handleDelete(row.id, row.questions)}
                                 >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -388,7 +392,7 @@ function Questions() {
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Xóa tiêu đề có tên là: ${deleteTitle}`}
+        questions={`${deleteQuestions}`}
       />
        <Snackbar
           open={snackbarOpen}
