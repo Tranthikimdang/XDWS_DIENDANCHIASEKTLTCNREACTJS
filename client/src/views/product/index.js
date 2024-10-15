@@ -1,11 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Typography,
+  CircularProgress,
+  Pagination,
+  TextField,
+  InputAdornment,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 // Firebase
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc, where, query } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig';
+
 import './index.css';
+
+// Tạo Alert để hiển thị snackbar
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 const Products = () => {
   const navigate = useNavigate();
@@ -16,6 +33,13 @@ const Products = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState('');
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
+
   // Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
@@ -24,7 +48,6 @@ const Products = () => {
         const productsSnapshot = await getDocs(collection(db, 'products'));
         const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setProducts(productsData);
-        console.log('Fetched products:', productsData);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -51,7 +74,6 @@ const Products = () => {
           return map;
         }, {});
         setCatesMap(categoriesMap);
-        console.log('Fetched categories:', categoriesData);
       } catch (error) {
         console.error('Error fetching categories:', error);
       } finally {
@@ -60,6 +82,15 @@ const Products = () => {
     };
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (snackbarOpen) {
+      const timer = setTimeout(() => {
+        setSnackbarOpen(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [snackbarOpen]);
 
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -70,8 +101,61 @@ const Products = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
+  const addToCart = async (product) => {
+    if (userId) {
+
+      try {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, 'orders'),
+            where('user_id', '==', userId),
+            where('product_id', '==', product.id),
+          ),
+        );
+
+        if (!querySnapshot.empty) {
+          setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
+          setSnackbarSeverity('warning');
+          setSnackbarOpen(true);
+        } else {
+          await addDoc(collection(db, 'orders'), {
+            user_id: userId,
+            product_id: product.id,
+            total: 'total',
+            note: '',
+            order_day: new Date(),
+          });
+
+          setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+        }
+      } catch (error) {
+        console.error('Error adding product to cart: ', error);
+        setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    } else {
+      console.error('User is not logged in');
+      setSnackbarMessage('Bạn vẫn chưa đăng nhập');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
   return (
     <PageContainer title="products" description="This is products">
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
@@ -85,11 +169,29 @@ const Products = () => {
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
             <TextField
-              label="Search by name"
+              label="Tìm kiếm khóa học"
               variant="outlined"
               fullWidth
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                margin: 'auto',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
 
@@ -101,7 +203,7 @@ const Products = () => {
               </Box>
             ) : currentProducts.length > 0 ? (
               currentProducts
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                 .map((product) => (
                   <div className="container py-2" key={product.id}>
                     <div className="row justify-content-center mt-2">
@@ -212,6 +314,7 @@ const Products = () => {
                                 <button
                                   className="btn btn-outline-primary btn-sm mt-2"
                                   type="button"
+                                  onClick={() => addToCart(product)}
                                 >
                                   Thêm vào giỏ hàng
                                 </button>
@@ -224,7 +327,7 @@ const Products = () => {
                   </div>
                 ))
             ) : (
-              <p>No products available.</p>
+              <p>Không tìm thấy khóa học nào.</p>
             )}
             <Box display="flex" justifyContent="center" mt={4}>
               <Pagination

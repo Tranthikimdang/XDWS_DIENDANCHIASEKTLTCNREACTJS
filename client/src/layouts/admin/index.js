@@ -71,7 +71,7 @@ export default function AdminLayout() {  // Should be AdminLayout instead of App
       return null;
     });
 
-  const configsButton = (
+  const  configsButton = (
     <VuiBox
       display="flex"
       justifyContent="center"

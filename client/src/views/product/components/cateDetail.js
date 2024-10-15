@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
 // Firebase
-import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import '../index.css';
+import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 
 const Products = () => {
   const navigate = useNavigate();
@@ -17,6 +19,15 @@ const Products = () => {
   const [itemsPerPage] = useState(10);
   const cateId = useParams();
   const [searchTerm, setSearchTerm] = useState('');
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
+  const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
   // Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,6 +71,48 @@ const Products = () => {
     fetchCategories();
   }, []);
 
+  const addToCart = async (product) => {
+    if (userId) {
+      try {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, 'orders'),
+            where('user_id', '==', userId),
+            where('product_id', '==', product.id),
+          ),
+        );
+
+        if (!querySnapshot.empty) {
+          setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
+          setSnackbarSeverity('warning');
+          setSnackbarOpen(true);
+        } else {
+          await addDoc(collection(db, 'orders'), {
+            user_id: userId,
+            product_id: product.id,
+            total: 'total',
+            note: '',
+            order_day: new Date(),
+          });
+
+          setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+        }
+      } catch (error) {
+        console.error('Error adding product to cart: ', error);
+        setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    } else {
+      console.error('User is not logged in');
+      setSnackbarMessage('Bạn vẫn chưa đăng nhập');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -87,6 +140,16 @@ const Products = () => {
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
   return (
     <PageContainer title="products" description="This is products">
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
@@ -118,7 +181,7 @@ const Products = () => {
             ) : currentProducts.length > 0 ? (
               currentProducts
                 .filter((product) => product.cate_pro_id === cateId.id)
-                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                 .map((product) => (
                   <div className="container py-2" key={product.id}>
                     <div className="row justify-content-center mt-2">
@@ -228,6 +291,7 @@ const Products = () => {
                                 <button
                                   className="btn btn-outline-primary btn-sm mt-2"
                                   type="button"
+                                  onClick={() => addToCart(product)}
                                 >
                                   Thêm vào giỏ hàng
                                 </button>
