@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { Menu, MenuItem, Box, Grid, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
+import { Box, Grid, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconHeart, IconMessageCircle } from '@tabler/icons';
 import { useLocation } from 'react-router-dom';
@@ -9,15 +9,7 @@ import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { Snackbar, Alert } from "@mui/material";
-//icon
-import { IconBookmark, IconDots } from '@tabler/icons';
-import FacebookIcon from '@mui/icons-material/Facebook';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import EmailIcon from '@mui/icons-material/Email';
-import LinkIcon from '@mui/icons-material/Link';
-import FlagIcon from '@mui/icons-material/Flag';
-
-
+import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
 import './style.css';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
@@ -26,16 +18,14 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Firebase
 import { db } from '../../../config/firebaseconfig';
-import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
-import './ArticleDetail.css';
-
 
 const ArticleDetail = () => {
   // const { id } = useParams();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null);
   const [users, setUsers] = useState([]);
+  const [catesMap, setCatesMap] = useState({});
+  const [cates, setCates] = useState([]);
   const [comments, setComments] = useState([]);
   const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -97,6 +87,30 @@ const ArticleDetail = () => {
       }
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
+
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCatesMap(categoriesMap);
+
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -171,7 +185,7 @@ const ArticleDetail = () => {
 
     const commentData = {
       article_id: id,
-      user_name: currentUser?.name || "Không tìm thấy",
+      user_name: currentUser?.name || "Khiem",
       content: newComment,
       created_date: currentDate,
       updated_date: currentDate,
@@ -205,22 +219,6 @@ const ArticleDetail = () => {
       setSnackbarOpen(true);
     }
   };
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const menuItems = [
-    { icon: <FacebookIcon />, text: 'Share on Facebook' },
-    { icon: <TwitterIcon />, text: 'Share on Twitter' },
-    { icon: <EmailIcon />, text: 'Share via Email' },
-    { icon: <LinkIcon />, text: 'Copy Link' },
-    { icon: <FlagIcon />, text: 'Report Article' },
-  ];
 
 
   const handleAddReply = async (commentId, isReplyToReply = false, replyIndex = null) => {
@@ -327,36 +325,6 @@ const ArticleDetail = () => {
     );
   }
 
-  //date
-  const formatUpdatedAt = (updatedAt) => {
-    let updatedAtString = '';
-
-    if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
-      const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
-
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-
-      if (days > 0) {
-        updatedAtString = `${days} ngày trước`;
-      } else if (hours > 0) {
-        updatedAtString = `${hours} giờ trước`;
-      } else if (minutes > 0) {
-        updatedAtString = `${minutes} phút trước`;
-      } else {
-        updatedAtString = `${seconds} giây trước`;
-      }
-    } else {
-      updatedAtString = 'Không rõ thời gian';
-    }
-
-    return updatedAtString;
-  };
-
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={3}>
@@ -394,43 +362,7 @@ const ArticleDetail = () => {
               alt="User Avatar"
               style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
             />
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}
-              </Typography>
-              <Typography variant="subtitle1" color="textSecondary">
-                {formatUpdatedAt(article.updated_at)}
-              </Typography>
-            </Box>
-
-            {/* Nút icon bên phải */}
-            <Box sx={{ position: 'absolute', top: 0, right: 0 }}>
-              <IconButton
-                aria-label="bookmark"
-                onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
-              >
-                <IconBookmark />
-              </IconButton>
-              <IconButton
-                aria-label="more"
-                onClick={(event) => {
-                  event.stopPropagation(); // Ngăn sự kiện click thẻ Card
-                  handleClick(event);
-                }}
-              >
-                <IconDots />
-              </IconButton>
-              <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-                {menuItems.map((item, i) => (
-                  <MenuItem key={i} onClick={handleClose}>
-                    {item.icon}
-                    <span style={{ marginLeft: 10 }}>{item.text}</span>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-              style={{ borderRadius: '50%', marginRight: '10px' }}
-               <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
+            <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
               {users?.find(u => article?.user_id === u.id)?.name || "Unknown"}
             </Typography>
 
@@ -456,62 +388,34 @@ const ArticleDetail = () => {
             <img src={article.image || 'https://via.placeholder.com/800x400'} alt="Article" style={{ width: '100%', borderRadius: '8px' }} />
           </Box>
 
-          {/* <Box sx={{ marginTop: '20px' }}>
+          <Box sx={{ marginTop: '20px' }}>
             <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
-              {article.categories_id}
+              {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
             </Typography>
-          </Box> */}
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton aria-label="like" sx={{ color: 'blue' }}>
+              <IconHeart />
+            </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+              15
+            </Typography>
+            <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
+              <IconMessageCircle />
+            </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+              {comments.length}
+            </Typography>
+          </Box>
+
           {/* code  */}
-         
-          <Box sx={{ padding: '20px' }}>
-            <Box mb={4}>
-              <Typography variant="h5" gutterBottom>
-                Bài đăng cùng tác giả
-              </Typography>
-              <ul>
-                <li>
-                  <Link href="#" underline="hover" sx={{ color: 'black' }}>
-                    Thư cảm ơn gửi đến anh Sơn
-                  </Link>
-                </li>
-              </ul>
-            </Box>
-
-            <Divider sx={{ borderBottomWidth: 5, marginBottom: '20px', borderColor: '#5d86fe' }} />
-
-            <Typography variant="h5" gutterBottom>
-              Bài viết nổi bật khác
+          <Box mt={2}>
+            <Typography variant="body2">
+              Bài viết này hiện có <strong>{comments.length}</strong> bình luận
             </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Card>
-                  <CardMedia component="img" alt="Image 1" height="140" image="https://files.fullstack.edu.vn/f8-prod/blog_posts/279/6153f692d366e.jpg" title="Image 1" />
-                </Card>
-              </Grid>
-            </Grid>
-            <Box mt={2}>
-              <Typography variant="body2">
-                Bài viết này hiện có <strong>{comments.length}</strong> bình luận
-              </Typography>
-              <IconButton aria-label="reply" sx={{ marginLeft: 'auto', display: 'block' }} onClick={() => setOpenCommentsDialog(true)}>
-                {/* <ReplyIcon /> */}
-              </IconButton>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton aria-label="like" sx={{ color: 'blue' }}>
-                <IconHeart />
-              </IconButton>
-              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-                15
-              </Typography>
-              <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
-                <IconMessageCircle />
-              </IconButton>
-              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-                {comments.length}
-              </Typography>
-            </Box>
+            <IconButton aria-label="reply" sx={{ marginLeft: 'auto', display: 'block' }} onClick={() => setOpenCommentsDialog(true)}>
+              {/* <ReplyIcon /> */}
+            </IconButton>
           </Box>
         </Grid>
       </Grid>
@@ -594,7 +498,7 @@ const ArticleDetail = () => {
                     {comment.content}
                   </Typography>
                   <Typography variant="caption" color="textSecondary">
-                    {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true , locale: vi  })}
+                    {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true, locale: vi })}
                   </Typography>
                   <Box display="flex" alignItems="center" mt={1}>
                     <IconButton
@@ -672,7 +576,7 @@ const ArticleDetail = () => {
                               {reply.content}
                             </Typography>
                             <Typography variant="caption" color="textSecondary">
-                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true , locale: vi  })}
+                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true, locale: vi })}
                             </Typography>
                             <Box display="flex" alignItems="center" mt={1}>
                               <IconButton

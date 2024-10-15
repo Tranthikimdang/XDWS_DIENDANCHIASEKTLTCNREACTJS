@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import { useEffect, useRef, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
@@ -73,7 +74,7 @@ const Questions = () => {
   const [replyImages, setReplyImages] = useState([]);
   const storage = getStorage();
   const [replyingToUsername, setReplyingToUsername] = useState('');
-const handleAddReplyImage = (event) => {
+  const handleAddReplyImage = (event) => {
     const images = event.target.files;
     const imagesArray = Array.from(images);
     setReplyImages(imagesArray);
@@ -101,26 +102,45 @@ const handleAddReplyImage = (event) => {
   };
 
   // Lấy danh sách người dùng từ Firestore
+  const [currentUserImage, setCurrentUserImage] = useState('');
+
   useEffect(() => {
-    userData.current = JSON.parse(localStorage.getItem('user'));
+    const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
+    userData.current = userDataFromLocalStorage;
+
     const fetchUsers = async () => {
-      setLoading(true);
+      setLoading(true); // Bắt đầu trạng thái loading
       try {
+        // Lấy danh sách người dùng từ Firestore
         const userCollectionRef = collection(db, "users");
         const userSnapshot = await getDocs(userCollectionRef);
         const userList = userSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setUsers(userList);
+
+        setUsers(userList); // Lưu danh sách người dùng vào state
+
         console.log("Lấy người dùng:", userList);
+
+        // Tìm thông tin người dùng hiện tại dựa trên user ID trong localStorage
+        const currentUserInfo = userList.find(user => user.id === userDataFromLocalStorage?.id);
+
+        // Cập nhật hình ảnh người dùng hiện tại
+        if (currentUserInfo && currentUserInfo.imageUrl) {
+          setCurrentUserImage(currentUserInfo.imageUrl);
+        } else {
+          setCurrentUserImage('default-image-url.jpg'); // Hình ảnh mặc định nếu không có
+        }
+
       } catch (error) {
         console.error("Lỗi khi lấy người dùng:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Kết thúc trạng thái loading
       }
     };
-    fetchUsers();
+
+    fetchUsers(); // Gọi hàm lấy người dùng khi component mount
   }, []);
 
   // Fetch articles
@@ -167,7 +187,7 @@ const handleAddReplyImage = (event) => {
   const validateImageFile = (files) => {
     const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
     for (const file of files) {
-if (!allowedImageTypes.includes(file.type)) {
+      if (!allowedImageTypes.includes(file.type)) {
         return `Ảnh ${file.name} không đúng định dạng (chỉ chấp nhận JPEG, PNG, GIF)`;
       }
     }
@@ -270,7 +290,7 @@ if (!allowedImageTypes.includes(file.type)) {
         const usersCollection = collection(db, 'questions');
         // eslint-disable-next-line no-unused-vars
         const res = await addDoc(usersCollection, dataToSubmit);
-setLoading(false)
+        setLoading(false)
         setSnackbarOpen(true);
         setSnackbarMessage('Câu hỏi của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
         setSnackbarSeverity("success");
@@ -291,7 +311,7 @@ setLoading(false)
     try {
       const commentRef = doc(db, 'questions', questionId);
       const commentSnap = await getDoc(commentRef);
-  
+
       if (commentSnap.exists()) {
         const commentData = commentSnap.data();
         const newCommentData = {
@@ -301,7 +321,7 @@ setLoading(false)
           created_at: new Date(),
           replies: []
         };
-  
+
         // Upload images for the comment
         if (commentImages.length > 0) {
           const images = [];
@@ -313,7 +333,7 @@ setLoading(false)
           }
           newCommentData.imageUrls = images;
         }
-  
+
         if (!commentData.comments) {
           commentData.comments = [];
         }
@@ -321,7 +341,7 @@ setLoading(false)
         await updateDoc(commentRef, commentData);
         setNewComment(''); // Clear comment input
         setCommentImages([]); // Clear images after submission
-  
+
         // Cập nhật trạng thái của component
         setListQuestion((prevList) => {
           const newList = [...prevList];
@@ -331,7 +351,7 @@ setLoading(false)
           }
           return newList;
         });
-  
+
         // Show success notification
         setSnackbarMessage("Bình luận của bạn đã được gửi.");
         setSnackbarSeverity("success");
@@ -346,7 +366,7 @@ setLoading(false)
     try {
       const commentRef = doc(db, 'questions', questionId);
       const commentSnap = await getDoc(commentRef);
-  
+
       if (commentSnap.exists()) {
         // Tài liệu có ID là questionId tồn tại
         const commentData = commentSnap.data();
@@ -356,11 +376,11 @@ setLoading(false)
           imageUrls: [],
           created_at: new Date(),
         };
-  
+
         // Upload images for the reply
         if (replyImages.length > 0) {
           const images = [];
-for (let image of replyImages) {
+          for (let image of replyImages) {
             const imageRef = ref(storage, `images/${image.name}`);
             const snapshot = await uploadBytes(imageRef, image);
             const url = await getDownloadURL(snapshot.ref);
@@ -368,11 +388,11 @@ for (let image of replyImages) {
           }
           newReply.imageUrls = images;
         }
-  
+
         if (!commentData.comments) {
           commentData.comments = [];
         }
-  
+
         const commentIndex = commentData.comments.findIndex((comment) => comment.id === commentId);
         if (commentIndex !== -1) {
           if (!commentData.comments[commentIndex].replies) {
@@ -382,12 +402,12 @@ for (let image of replyImages) {
         } else {
           console.error("Bình luận không tồn tại");
         }
-  
+
         await updateDoc(commentRef, commentData);
         setNewReplies((prev) => ({ ...prev, [commentId]: '' })); // Clear reply input
         setReplyImages([]); // Clear reply images after submission
         setReplyingTo(null); // Close reply form
-  
+
         // Cập nhật trạng thái của component
         const newList = [...listQuestion];
         const index = newList.findIndex((item) => item.id === questionId);
@@ -395,7 +415,7 @@ for (let image of replyImages) {
           newList[index] = { ...newList[index], comments: commentData.comments };
         }
         setListQuestion(newList);
-  
+
         // Show success notification
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
@@ -445,7 +465,7 @@ for (let image of replyImages) {
           is_deleted: data.is_deleted || false,
           updated_at: new Date(),
           createdAt: serverTimestamp(),
-up_code: dataTemp?.up_code || codeSnippet, // Gán giá trị up_code từ dataTemp
+          up_code: dataTemp?.up_code || codeSnippet, // Gán giá trị up_code từ dataTemp
 
         };
 
@@ -559,7 +579,7 @@ up_code: dataTemp?.up_code || codeSnippet, // Gán giá trị up_code từ dataT
               sx={{
                 border: '1px solid #e0e0e0',
                 borderRadius: '8px',
-padding: '20px',
+                padding: '20px',
                 backgroundColor: '#fff',
               }}
             >
@@ -567,7 +587,8 @@ padding: '20px',
               <Box component="form" onSubmit={handleSubmit}>
                 <Box display="flex" alignItems="center" mb={2}>
                   <img
-                    src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                    // eslint-disable-next-line no-undef
+                    src={currentUserImage || 'default-image-url.jpg'}
                     width="40px"
                     alt="User Avatar"
                     style={{ borderRadius: '50%', marginRight: '10px' }}
@@ -634,7 +655,7 @@ padding: '20px',
                         {index === 0 && (
                           <input
                             name="image"
-type="file"
+                            type="file"
                             accept="image/*"
                             multiple
                             hidden
@@ -710,7 +731,7 @@ type="file"
                   .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                   .map((question) =>
                     // eslint-disable-next-line eqeqeq
-question.isApproved == 1 && (
+                    question.isApproved == 1 && (
                       <Box
                         key={question?.id}
                         sx={{
@@ -725,10 +746,9 @@ question.isApproved == 1 && (
                         <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
                           <Box display="flex" alignItems="center">
                             <img
-                              src={listUser.current.find(user => user.id === question?.user_id)?.avatar || "http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"}
-                              width="40px"
-                              alt="User Avatar"
-                              style={{ borderRadius: '50%', marginRight: '10px' }}
+                              src={users?.find(u => question?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                              alt="Author"
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                             />
                             <Box>
                               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -768,7 +788,7 @@ question.isApproved == 1 && (
                               rows={4}
                               name="questions"
                               value={dataTemp.questions}
-onChange={handleInputChange}
+                              onChange={handleInputChange}
                               sx={{ marginBottom: 2 }}
                             />
 
@@ -819,7 +839,7 @@ onChange={handleInputChange}
                                   <DialogContent>
                                     {showCodeField && (
                                       <FormControl fullWidth>
-<TextField
+                                        <TextField
                                           id="code-input"
                                           multiline
                                           rows={4}
@@ -878,7 +898,7 @@ onChange={handleInputChange}
                               {question?.up_code ? (
                                 <>
                                   <SyntaxHighlighter language="javascript" style={dracula}>
-{question.up_code}
+                                    {question.up_code}
                                   </SyntaxHighlighter>
                                   <Divider sx={{ mb: 2 }} />
                                 </>
@@ -931,7 +951,7 @@ onChange={handleInputChange}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         style={{
-color: 'inherit',
+                                          color: 'inherit',
                                           textDecoration: 'none',
                                           fontSize: '14px',
                                           marginRight: '10px',
@@ -978,10 +998,11 @@ color: 'inherit',
                             {/* Flex container for user avatar, text input, and button */}
                             <Box display="flex" alignItems="center" mb={1}>
                               <img
-                                src={userData.current.avatar || "http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"}
+                                // eslint-disable-next-line no-undef
+                                src={currentUserImage || 'default-image-url.jpg'}
+                                width="40px"
                                 alt="User Avatar"
                                 style={{ borderRadius: '50%', marginRight: '10px' }}
-                                width="40px"
                               />
                               <TextField
                                 label="Viết bình luận..."
@@ -991,7 +1012,7 @@ color: 'inherit',
                                 sx={{ backgroundColor: '#f0f0f0', borderRadius: '20px', flex: 1, marginRight: 1 }}
                                 value={newComment}
                                 onChange={(e) => setNewComment(e.target.value)}
-/>
+                              />
                               <Button
                                 variant="contained"
                                 color="primary"
@@ -1041,7 +1062,7 @@ color: 'inherit',
                                       <img
                                         src={image}
                                         alt=""
-style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }}
+                                        style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }}
                                       />
                                     </Box>
                                   ))}
@@ -1091,7 +1112,7 @@ style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }
                                     <input
                                       type="file"
                                       multiple
-onChange={(e) => handleAddReplyImage(e, comment.id)} // Pass comment ID for handling images
+                                      onChange={(e) => handleAddReplyImage(e, comment.id)} // Pass comment ID for handling images
                                       style={{ marginLeft: '10px' }} // Space between button and file input
                                     />
                                   </Box>
@@ -1150,7 +1171,7 @@ onChange={(e) => handleAddReplyImage(e, comment.id)} // Pass comment ID for hand
                 border: '1px solid #e0e0e0',
                 borderRadius: '8px',
                 padding: '20px',
-backgroundColor: '#fff',
+                backgroundColor: '#fff',
               }}
             >
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -1184,57 +1205,7 @@ backgroundColor: '#fff',
                 backgroundColor: '#fff',
               }}
             >
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Theo dõi người dùng khác</Typography>
-                <IconButton>
-                  <MoreHorizIcon />
-                </IconButton>
-              </Box>
-              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
-
-              {/* Follow List */}
-              <List>
-                {[
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                ].map((name, index) => (
-                  <ListItem key={index} sx={{ padding: 0 }}>
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      width="100%"
-                    >
-                      <Box display="flex" alignItems="center">
-                        <img
-                          src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg" // Replace with the correct image URL path
-                          alt={name}
-                          style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
-                        />
-                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
-                          {name}
-                        </Typography>
-                      </Box>
-<Button
-                        variant="outlined"
-                        sx={{
-                          textTransform: 'none',
-                          padding: '2px 10px',
-                          fontSize: '0.8rem',
-                          borderRadius: '16px',
-                        }}
-                      >
-                        + Theo dõi
-                      </Button>
-                    </Box>
-                  </ListItem>
-                ))}
-              </List>
+              {/* code theo doi nguoi dung o day */}
             </Box>
             {/* Popular Articles Section */}
             <Box
@@ -1287,7 +1258,7 @@ backgroundColor: '#fff',
                           <Typography variant="body2" sx={{ color: '#666' }}>
                             Số lượt thích: {article.likes} | Số bình luận: {article.comments}
                           </Typography>
-<Typography variant="body2" sx={{ color: '#666' }}>
+                          <Typography variant="body2" sx={{ color: '#666' }}>
                             Tác giả: {users?.find(u => article?.user_id === u.id)?.name || 'Không rõ'}
                           </Typography>
 
