@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Menu, MenuItem, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
+import { Menu, MenuItem, Box, Grid, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconHeart, IconMessageCircle } from '@tabler/icons';
 import { useLocation } from 'react-router-dom';
 import Link from '@mui/material/Link';
 import Card from '@mui/material/Card';
+import CardMedia from '@mui/material/CardMedia';
 import ReplyIcon from '@mui/icons-material/Reply';
 import { Snackbar, Alert } from "@mui/material";
 //icon
@@ -15,12 +16,19 @@ import TwitterIcon from '@mui/icons-material/Twitter';
 import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
-import './ArticleDetail.css';
+
+
+import './style.css';
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import { useNavigate } from 'react-router-dom';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Firebase
 import { db } from '../../../config/firebaseconfig';
 import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
 import './ArticleDetail.css';
+
 
 const ArticleDetail = () => {
   // const { id } = useParams();
@@ -28,21 +36,58 @@ const ArticleDetail = () => {
   const [loading, setLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
   const [users, setUsers] = useState([]);
-  const [catesMap, setCatesMap] = useState({});
-  const [cates, setCates] = useState([]);
   const [comments, setComments] = useState([]);
   const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [replyContent, setReplyContent] = useState('');
   const [replyingTo, setReplyingTo] = useState(null);
+  const [replyingToReply, setReplyingToReply] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const location = useLocation();
   const { id, user } = location.state || {};
+  console.log(id);
   const [currentUser, setCurrentUser] = useState(user || null);
+  const [replyingToUsername, setReplyingToUsername] = useState('');
+  const navigate = useNavigate();
+  const [commentImages, setCommentImages] = useState([]); // Thêm ảnh vào bình luận
+  const [replyImages, setReplyImages] = useState([]); // Thêm ảnh vào trả lời
 
+  const handleLoginClick = () => {
+    navigate('/auth/login'); // Điều hướng đến trang đăng nhập
+  };
+  const storage = getStorage();
 
+  const handleAddImage = (event) => {
+    const images = event.target.files;
+    const imagesArray = Array.from(images);
+    setCommentImages(imagesArray);
+
+    const storage = getStorage();
+    const imageRef = ref(storage, `images/${imagesArray[0].name}`);
+    uploadBytes(imageRef, imagesArray[0]).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        console.log(url);
+        // Lưu trữ URL của ảnh vào Firestore
+      });
+    });
+  };
+
+  const handleAddReplyImage = (event) => {
+    const images = event.target.files;
+    const imagesArray = Array.from(images);
+    setReplyImages(imagesArray);
+
+    const storage = getStorage();
+    const imageRef = ref(storage, `images/${imagesArray[0].name}`);
+    uploadBytes(imageRef, imagesArray[0]).then((snapshot) => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        console.log(url);
+        // Lưu trữ URL của ảnh vào Firestore
+      });
+    });
+  };
 
   useEffect(() => {
     if (!currentUser) {
@@ -58,6 +103,7 @@ const ArticleDetail = () => {
       try {
         const docRef = doc(db, 'articles', id);
         const docSnap = await getDoc(docRef);
+
         if (docSnap.exists()) {
           setArticle(docSnap.data());
         } else {
@@ -86,71 +132,42 @@ const ArticleDetail = () => {
     fetchUsers();
   }, []);
 
-  // Fetch categories from Firestore
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setCates(categoriesData);
+  const fetchCommentsByArticle = () => {
+    const commentsRef = collection(db, "commentDetails");
+    const q = query(commentsRef, where("article_id", "==", id));
 
-        // Create a mapping of category ID to name
-        const categoriesMap = categoriesData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCatesMap(categoriesMap);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const commentsList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setComments(commentsList || []); // Đặt trạng thái bình luận là approved
+    });
 
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
-  }, []);
+    return unsubscribe;
+  };
 
   useEffect(() => {
-    const fetchCommentsByArticle = () => {
-      const commentsRef = collection(db, "commentDetails");
-      const q = query(commentsRef, where("article_id", "==", id));
-
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const commentsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Kiểm tra nếu trạng thái comment từ pending sang approved
-        snapshot.docChanges().forEach((change) => {
-          if (change.type === "modified" && change.doc.data().status === "approved") {
-            setSnackbarMessage("Bình luận của bạn đã được phê duyệt.");
-            setSnackbarSeverity("success");
-            setSnackbarOpen(true);
-          } else if (change.type === "modified" && change.doc.data().status === "rejected") {
-            setSnackbarMessage("Bình luận của bạn không được phê duyệt.");
-            setSnackbarSeverity("error");
-            setSnackbarOpen(true);
-          }
-        });
-        const approvedComments = commentsList.filter(comment => comment.status === "approved");
-        setComments(approvedComments || []);
-      });
-
-      return unsubscribe;
-    };
-
-    fetchCommentsByArticle();
+    const unsubscribe = fetchCommentsByArticle();
+    return unsubscribe;
   }, [id]);
 
   const handleAddComment = async () => {
+    if (!currentUser) {
+      setSnackbarMessage("Bạn cần phải đăng nhập để bình luận.");
+      setSnackbarSeverity("warning");
+      setSnackbarOpen(true);
+      return;
+    }
     if (!newComment.trim()) {
       alert('Vui lòng nhập bình luận.');
       return;
     }
-
-    const currentDate = new Date().toISOString().split('T')[0];
+    if (!newComment.trim() && !commentImages.length) {
+      alert('Vui lòng nhập bình luận hoặc thêm ảnh.');
+      return;
+    }
+    const currentDate = new Date().toLocaleString(); // Lấy thời gian hiện tại với định dạng ngày và giờ
 
     const commentData = {
       article_id: id,
@@ -158,16 +175,27 @@ const ArticleDetail = () => {
       content: newComment,
       created_date: currentDate,
       updated_date: currentDate,
-      status: 'pending',
-      isNotified: false, // thong báo 
-      replies: [] // thêm mảng để lưu các câu trả lời      
+      // status: 'pending',
+      // isNotified: false,
+      replies: []
     };
-
+    if (commentImages.length > 0) {
+      const images = [];
+      for (let i = 0; i < commentImages.length; i++) {
+        const imageRef = ref(storage, `images/${commentImages[i].name}`);
+        const snapshot = await uploadBytes(imageRef, commentImages[i]);
+        const url = await getDownloadURL(snapshot.ref);
+        images.push(url);
+      }
+      commentData.images = images;
+    }
     try {
       const docRef = await addDoc(collection(db, "commentDetails"), commentData);
+      console.log("Comment added with ID: ", docRef.id);
+      fetchCommentsByArticle();
       setNewComment('');
       setOpenCommentsDialog(false);
-      setSnackbarMessage("Bình luận của bạn đã được gửi và đang chờ duyệt.");
+      setSnackbarMessage("Bình luận của bạn đã được gửi.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
@@ -178,30 +206,72 @@ const ArticleDetail = () => {
     }
   };
 
-  const handleAddReply = async (commentId) => {
-    if (!replyContent.trim()) {
-      alert('Vui lòng nhập nội dung trả lời.');
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const menuItems = [
+    { icon: <FacebookIcon />, text: 'Share on Facebook' },
+    { icon: <TwitterIcon />, text: 'Share on Twitter' },
+    { icon: <EmailIcon />, text: 'Share via Email' },
+    { icon: <LinkIcon />, text: 'Copy Link' },
+    { icon: <FlagIcon />, text: 'Report Article' },
+  ];
+
+
+  const handleAddReply = async (commentId, isReplyToReply = false, replyIndex = null) => {
+    if (!replyContent.trim() && !replyImages.length) {
+      alert('Vui lòng nhập nội dung trả lời hoặc thêm ảnh.');
       return;
     }
 
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = new Date().toLocaleString(); // Lấy thời gian hiện tại với định dạng ngày và giờ
+
     const replyData = {
       user_name: currentUser?.name || "Khiem",
       content: replyContent,
       created_date: currentDate,
+      replyingTo: commentId,
     };
+
+    if (replyImages.length > 0) {
+      const images = [];
+      for (let i = 0; i < replyImages.length; i++) {
+        const imageRef = ref(storage, `images/${replyImages[i].name}`);
+        const snapshot = await uploadBytes(imageRef, replyImages[i]);
+        const url = await getDownloadURL(snapshot.ref);
+        images.push(url);
+      }
+      replyData.images = images;
+    }
 
     try {
       const commentRef = doc(db, "commentDetails", commentId);
       const commentSnap = await getDoc(commentRef);
 
       if (commentSnap.exists()) {
-        const currentReplies = commentSnap.data().replies || [];
-        await updateDoc(commentRef, {
-          replies: [...currentReplies, replyData],
-        });
+        const commentData = commentSnap.data();
+
+        if (isReplyToReply) {
+          // Nếu đang trả lời trả lời của bình luận
+          commentData.replies[replyIndex].replies = [
+            ...(commentData.replies[replyIndex].replies || []),
+            replyData,
+          ];
+        } else {
+          // Trả lời bình luận chính
+          commentData.replies = [...commentData.replies, replyData];
+        }
+
+        await updateDoc(commentRef, commentData);
         setReplyContent('');
+        setReplyImages([]); // Xóa ảnh sau khi thêm trả lời
         setReplyingTo(null);
+        setReplyingToReply(null);
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -229,13 +299,24 @@ const ArticleDetail = () => {
     );
   }
 
-  const handleReplyClick = (commentId) => {
-    setReplyingTo(commentId);
-  };
-
   const handleCancelReply = () => {
     setReplyingTo(null);
-    setReplyContent('');
+    setReplyingToReply(null);
+    setReplyingToUsername('');
+  };
+
+  // Trả lời bình luận chính
+  const handleReplyClick = (commentId, userName) => {
+    setReplyingTo(commentId);
+    setReplyingToUsername(userName);
+  };
+
+  // Trả lời của trả lời
+  const handleReplyToReplyClick = (commentId, replyIndex, replyUserName) => {
+    setReplyingToReply(replyIndex); // Đặt index của reply đang được trả lời
+    setReplyingToUsername(replyUserName); // Đặt tên của người dùng từ reply trước đó
+    setReplyContent(''); // Xóa nội dung trả lời trước đó
+    setReplyImages([]); // Xóa ảnh trả lời trước đó
   };
 
   if (!article) {
@@ -245,14 +326,6 @@ const ArticleDetail = () => {
       </Typography>
     );
   }
-
-  const menuItems = [
-    { icon: <FacebookIcon />, text: 'Share on Facebook' },
-    { icon: <TwitterIcon />, text: 'Share on Twitter' },
-    { icon: <EmailIcon />, text: 'Share via Email' },
-    { icon: <LinkIcon />, text: 'Copy Link' },
-    { icon: <FlagIcon />, text: 'Report Article' },
-  ];
 
   //date
   const formatUpdatedAt = (updatedAt) => {
@@ -284,30 +357,12 @@ const ArticleDetail = () => {
     return updatedAtString;
   };
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={3}>
-        <Grid
-          item xs={2}
-          sx={{
-            position: 'sticky',
-            top: '85px',
-            backgroundColor: 'white',
-            zIndex: 1,
-            padding: '16px',
-            height: '100vh' // Đảm bảo chiều cao đủ dài để sticky hoạt động
-          }}
-        >
+        <Grid item xs={2} sx={{ position: 'sticky', top: '85px', backgroundColor: 'white', zIndex: 1, padding: '16px' }}>
           <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
-            <strong>{users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}</strong>
+            {users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}
           </Typography>
           <Typography variant="body2" color="textSecondary">
             Lập trình là đam mê
@@ -328,8 +383,12 @@ const ArticleDetail = () => {
             </Typography>
           </Box>
         </Grid>
+
         <Grid item xs={10}>
-          <Box display="flex" alignItems="center" sx={{ position: 'relative' }}>
+          <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
+            {article.title}
+          </Typography>
+          <Box display="flex" alignItems="center" mb={2}>
             <img
               src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
               alt="User Avatar"
@@ -370,43 +429,67 @@ const ArticleDetail = () => {
                 ))}
               </Menu>
             </Box>
+              style={{ borderRadius: '50%', marginRight: '10px' }}
+               <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
+              {users?.find(u => article?.user_id === u.id)?.name || "Unknown"}
+            </Typography>
 
           </Box>
 
+          {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+            <Avatar alt="Author Name" src="https://via.placeholder.com/150" sx={{ width: 40, height: 40 }} />
+            <Box sx={{ marginLeft: '10px' }}>
+              <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
+                {users?.find((u) => article?.user_id === u.id)?.name || 'Unknown'}
+              </Typography>
+             
+            </Box>
+          </Box> */}
 
           <Divider sx={{ marginBottom: '20px' }} />
-          <Typography variant="h3" sx={{ fontWeight: 'bold', marginBottom: '20px' }}>
-            {article.title}
-          </Typography>
+
           <Typography variant="body1" paragraph>
             <div dangerouslySetInnerHTML={{ __html: article.content }} />
           </Typography>
+
           <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
             <img src={article.image || 'https://via.placeholder.com/800x400'} alt="Article" style={{ width: '100%', borderRadius: '8px' }} />
           </Box>
 
-          <Box sx={{ marginTop: '20px' }}>
+          {/* <Box sx={{ marginTop: '20px' }}>
             <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
-              {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
+              {article.categories_id}
             </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <IconButton aria-label="like" sx={{ color: 'blue' }}>
-              <IconHeart />
-            </IconButton>
-            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-              15
-            </Typography>
-            <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
-              <IconMessageCircle />
-            </IconButton>
-            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-              {comments.length}
-            </Typography>
-          </Box>
-
+          </Box> */}
           {/* code  */}
-          <Box mt={2}>
+         
+          <Box sx={{ padding: '20px' }}>
+            <Box mb={4}>
+              <Typography variant="h5" gutterBottom>
+                Bài đăng cùng tác giả
+              </Typography>
+              <ul>
+                <li>
+                  <Link href="#" underline="hover" sx={{ color: 'black' }}>
+                    Thư cảm ơn gửi đến anh Sơn
+                  </Link>
+                </li>
+              </ul>
+            </Box>
+
+            <Divider sx={{ borderBottomWidth: 5, marginBottom: '20px', borderColor: '#5d86fe' }} />
+
+            <Typography variant="h5" gutterBottom>
+              Bài viết nổi bật khác
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Card>
+                  <CardMedia component="img" alt="Image 1" height="140" image="https://files.fullstack.edu.vn/f8-prod/blog_posts/279/6153f692d366e.jpg" title="Image 1" />
+                </Card>
+              </Grid>
+            </Grid>
+            <Box mt={2}>
               <Typography variant="body2">
                 Bài viết này hiện có <strong>{comments.length}</strong> bình luận
               </Typography>
@@ -414,8 +497,25 @@ const ArticleDetail = () => {
                 {/* <ReplyIcon /> */}
               </IconButton>
             </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <IconButton aria-label="like" sx={{ color: 'blue' }}>
+                <IconHeart />
+              </IconButton>
+              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+                15
+              </Typography>
+              <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
+                <IconMessageCircle />
+              </IconButton>
+              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+                {comments.length}
+              </Typography>
+            </Box>
+          </Box>
         </Grid>
       </Grid>
+
       {/* Dialog for Comments */}
       <Dialog open={openCommentsDialog} onClose={() => setOpenCommentsDialog(false)} maxWidth="md" fullWidth>
         <DialogTitle>
@@ -426,46 +526,94 @@ const ArticleDetail = () => {
         </DialogTitle>
         <DialogContent>
           {/* Comment Input Section */}
-          <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-            <Avatar alt="Your Avatar" src="https://i.pinimg.com/736x/0d/e2/0f/0de20f2a3e65ae8b92e263dd8340a76c.jpg" />
-            <TextField
-              label="Viết bình luận"
-              variant="outlined"
-              multiline
-              fullWidth
-              rows={1}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              sx={{ marginLeft: 2 }}
-            />
-          </Box>
+          {!currentUser ? (
+            <Typography variant="body2" color="textSecondary">
+              Vui lòng{' '}
+              <Button onClick={handleLoginClick} style={{ padding: 0, color: 'primary' }}>
+                đăng nhập
+              </Button>
+              {' '}để bình luận.
+            </Typography>
+          ) : (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar
+                alt="Your Avatar"
+                src="https://i.pinimg.com/736x/0d/e2/0f/0de20f2a3e65ae8b92e263dd8340a76c.jpg"
+                sx={{ width: 56, height: 56, mr: 2 }}
+              />
+              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                {/* Flex container for text input and button */}
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TextField
+                    label="Viết bình luận"
+                    variant="outlined"
+                    multiline
+                    fullWidth
+                    rows={1}
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    sx={{ flex: 1, marginRight: 1 }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleAddComment}
+                    sx={{ padding: '6px 12px', height: 'fit-content' }} // Align button with the text field
+                  >
+                    Gửi
+                  </Button>
+                </Box>
 
-          {/* Button for Sending Comment */}
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', marginTop: 1 }}>
-            <Button variant="contained" color="primary" onClick={handleAddComment} sx={{ padding: '6px 12px' }}>
-              Gửi bình luận
-            </Button>
-          </Box>
+                {/* File input field */}
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleAddImage}
+                  style={{ marginTop: 8 }}
+                />
+              </Box>
+            </Box>
+          )}
 
-          {/* Comments List */}
-          <List>
+          <List sx={{ padding: 0, margin: 0 }}>
             {comments.map((comment) => (
-              <ListItem key={comment.id} alignItems="flex-start">
+              <ListItem key={comment.id} alignItems="flex-start" sx={{ padding: 2, borderBottom: '1px solid #ccc' }}>
                 <Avatar alt={comment.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
                 <Box ml={1}>
                   <Typography variant="body1" color="textPrimary">
-                    {comment.user_name}
+                    <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{comment.user_name}</span>
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  {comment.images && comment.images.length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: 2 }}>
+                      {comment.images.map((image, index) => (
+                        <img src={image} key={index} alt="Ảnh trả lời" style={{ width: '200px', height: '200px', margin: '10px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)', objectFit: 'cover' }} />
+                      ))}
+                    </Box>
+                  )}
+                  <Typography variant="body2" color="textSecondary" sx={{ fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5' }}>
                     {comment.content}
                   </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true , locale: vi  })}
+                  </Typography>
                   <Box display="flex" alignItems="center" mt={1}>
-                    <IconButton aria-label="reply" onClick={() => handleReplyClick(comment.id)}>
+                    <IconButton
+                      aria-label="reply"
+                      onClick={() => {
+                        if (!currentUser) {
+                          setSnackbarMessage("Bạn cần phải đăng nhập để trả lời bình luận.");
+                          setSnackbarSeverity("warning");
+                          setSnackbarOpen(true);
+                          return;
+                        }
+                        handleReplyClick(comment.id, comment.user_name);
+                      }}
+                    >
                       <ReplyIcon fontSize="small" />
-                      <Typography variant="body2" color="textSecondary">
-                        Reply
-                      </Typography>
                     </IconButton>
+                    <Typography variant="body2" color="textSecondary" sx={{ marginRight: 1 }}>
+                      Reply
+                    </Typography>
                     {replyingTo === comment.id && (
                       <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
                         Hủy
@@ -474,32 +622,108 @@ const ArticleDetail = () => {
                   </Box>
                   {replyingTo === comment.id && (
                     <Box className="reply-input" mt={2}>
-                      <TextField
-                        label="Viết trả lời"
-                        variant="outlined"
-                        multiline
-                        fullWidth
-                        rows={1}
-                        value={replyContent}
-                        onChange={(e) => setReplyContent(e.target.value)}
-                      />
-                      <Button variant="contained" color="primary" onClick={() => handleAddReply(comment.id)} sx={{ marginTop: 1, padding: '6px 12px' }}>
-                        Gửi trả lời
-                      </Button>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                        <TextField
+                          label={`Trả lời ${replyingToUsername}`}
+                          variant="outlined"
+                          multiline
+                          fullWidth
+                          rows={1}
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          sx={{ width: '80%', marginRight: 1 }}
+                        />
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleAddReply(comment.id)}
+                          sx={{ padding: '6px 12px', height: 'fit-content' }}
+                        >
+                          Gửi
+                        </Button>
+                      </Box>
+                      <Box sx={{ mt: 1 }}>
+                        <input type="file" multiple onChange={handleAddReplyImage} />
+                      </Box>
                     </Box>
                   )}
+                  {/* Hiển thị các replies */}
                   {comment.replies?.length > 0 && (
-                    <List>
+                    <List sx={{ padding: 0, margin: 0, marginLeft: 4 }}>
                       {comment.replies.map((reply, index) => (
-                        <ListItem key={index} alignItems="flex-start">
+                        <ListItem key={index} alignItems="flex-start" sx={{ padding: 2, borderBottom: '1px solid #ccc' }}>
                           <Avatar alt={reply.user_name} src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'} />
                           <Box ml={1}>
                             <Typography variant="body1" color="textPrimary">
-                              {reply.user_name}
+                              <span style={{ fontWeight: 'bold', color: '#1976d2' }}>{reply.user_name}</span>
+                              <span style={{ fontSize: '0.8rem', color: 'gray' }}> {' > '} </span>
+                              <span style={{ fontWeight: 'bold' }}>{comment.user_name || reply.user_name}</span>
                             </Typography>
-                            <Typography variant="body2" color="textSecondary">
+                            <Box display="flex" alignItems="center">
+                              {reply.images && reply.images.length > 0 && (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                                  {reply.images.map((image, index) => (
+                                    <img src={image} key={index} alt="Ảnh trả lời" style={{ width: '300px', height: '200px', margin: '10px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)', objectFit: 'cover' }} />
+                                  ))}
+                                </Box>
+                              )}
+                            </Box>
+                            <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2, fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5' }}>
                               {reply.content}
                             </Typography>
+                            <Typography variant="caption" color="textSecondary">
+                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true , locale: vi  })}
+                            </Typography>
+                            <Box display="flex" alignItems="center" mt={1}>
+                              <IconButton
+                                aria-label="reply"
+                                onClick={() => {
+                                  if (!currentUser) {
+                                    setSnackbarMessage("Bạn cần phải đăng nhập để trả lời bình luận.");
+                                    setSnackbarSeverity("warning");
+                                    setSnackbarOpen(true);
+                                    return;
+                                  }
+                                  handleReplyToReplyClick(comment.id, index, reply.user_name);
+                                }}
+                              >
+                                <ReplyIcon fontSize="small" />
+                              </IconButton>
+                              <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2 }}>
+                                Reply
+                              </Typography>
+                              {replyingToReply === index && (
+                                <Button variant="outlined" color="inherit" onClick={handleCancelReply} sx={{ marginLeft: 1 }}>
+                                  Hủy
+                                </Button>
+                              )}
+                            </Box>
+                            {replyingToReply === index && (
+                              <Box className="reply-input" mt={2}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <TextField
+                                    label={`Trả lời ${reply.user_name}`}
+                                    variant="outlined"
+                                    multiline
+                                    fullWidth
+                                    rows={1}
+                                    value={replyContent}
+                                    onChange={(e) => setReplyContent(e.target.value)}
+                                    sx={{ width: '80%', marginRight: 1 }}
+                                  />
+                                  <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => handleAddReply(comment.id)}
+                                    sx={{ padding: '6px 12px', height: 'fit-content' }}
+                                  >
+                                    Gửi
+                                  </Button>
+                                </Box>
+                                <input type="file" multiple onChange={handleAddReplyImage} style={{ marginTop: 8 }} />
+                              </Box>
+
+                            )}
                           </Box>
                         </ListItem>
                       ))}
@@ -510,10 +734,7 @@ const ArticleDetail = () => {
             ))}
           </List>
         </DialogContent>
-
-
       </Dialog>
-
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose} anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}>
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
@@ -524,4 +745,3 @@ const ArticleDetail = () => {
 };
 
 export default ArticleDetail;
-
