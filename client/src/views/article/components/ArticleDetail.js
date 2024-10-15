@@ -365,7 +365,6 @@ const ArticleDetail = () => {
             <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
               {users?.find(u => article?.user_id === u.id)?.name || "Unknown"}
             </Typography>
-
           </Box>
 
           {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
