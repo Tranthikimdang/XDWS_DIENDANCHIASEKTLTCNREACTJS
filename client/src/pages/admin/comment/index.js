@@ -48,6 +48,10 @@ function Comment() {
     fetchComment();
   }, []);
 
+  const removeHtmlTags = (html) => {
+    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
+  };
+  
   const confirmDelete = async () => {
     try {
       await apis.deleteComment(deleteId);
@@ -175,9 +179,15 @@ function Comment() {
                             defaultImageUrl={defaultImageUrl}
                           />
                         ),
-                        content: removeSpecificHtmlTags(row.content, 'p')?.length > 20
-                          ? `${removeSpecificHtmlTags(row.content, 'p')?.substring(0, 20)}...`
-                          : removeSpecificHtmlTags(row.content, 'p'),
+                        content: (
+                          <VuiBox>
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {removeHtmlTags(row.content, 'p').length > 10
+                                ? `${removeHtmlTags(row.content, 'p').substring(0, 10)}...`
+                                : removeHtmlTags(row.content, 'p')}
+                            </VuiTypography>
+                          </VuiBox>
+                        ),
                           date: (
                             <VuiBox>
                               <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
