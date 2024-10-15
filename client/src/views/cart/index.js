@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, Modal, Button } from '@mui/material';
+import { Grid, Box, Typography, Modal, Button, TextField } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import { collection, onSnapshot, query, where, deleteDoc, doc, addDoc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, setDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig';
 import './index.css';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,6 +12,10 @@ const Cart = () => {
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [showQRCodeDialog, setShowQRCodeDialog] = useState(false);
   const [qrCodeUrl, setQRCodeUrl] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [nameError, setNameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
@@ -19,23 +23,22 @@ const Cart = () => {
   useEffect(() => {
     if (userId) {
       const q = query(collection(db, 'orders'), where('user_id', '==', userId));
-    
+
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const cartData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        
+
         setCartItems(cartData);
-    
+
         if (cartData.length === 0) {
           setShowQRCodeDialog(false);
         }
       });
-    
+
       return () => unsubscribe();
     }
-    
   }, [userId]);
 
   useEffect(() => {
@@ -55,8 +58,9 @@ const Cart = () => {
     fetchProducts();
   }, []);
 
-  const handleRemove = async (id) => {
-    await deleteDoc(doc(db, 'orders', id));
+  const handleRemove = (id) => {
+    // Do not delete the document in Firestore, just update the UI
+    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
   const formatNumber = (number) => {
@@ -66,6 +70,12 @@ const Cart = () => {
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
       alert('Giỏ hàng của bạn trống.');
+      return;
+    }
+
+    if (!name || !email) {
+      setNameError(!name);
+      setEmailError(!email);
       return;
     }
 
@@ -84,6 +94,8 @@ const Cart = () => {
       // Create order in the 'orders' collection
       await setDoc(doc(collection(db, 'orders')), {
         user_id: userId,
+        user_name: name,
+        user_email: email,
         items: cartItems.map((item) => ({
           product_id: item.product_id,
           quantity: item.quantity || 1,
@@ -94,16 +106,18 @@ const Cart = () => {
         createdAt: new Date(),
       });
 
-      await Promise.all(cartItems.map((item) => deleteDoc(doc(db, 'orders', item.id))));
+      // Remove items from cart after successful checkout
+      await Promise.all(
+        cartItems.map((item) => deleteDoc(doc(db, 'orders', item.id)))
+      );
 
       alert('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
 
       // Generate QR code URL with total amount and product names as a note
-      const qrCodeUrl = `https://qr.sepay.vn/img?bank=Techcombank&acc=19071740706018&amount=${totalAmount}&des=${encodeURIComponent(
-        productNames
+      const qrCodeUrl = `https://qr.sepay.vn/img?bank=Techcombank&acc=19071740706018&amount=${totalAmount}&des='Khoá Học '${encodeURIComponent(
+        productNames,
       )}`;
       setQRCodeUrl(qrCodeUrl);
-
 
       // Show QR code dialog for e-wallet payment
       setShowQRCodeDialog(true);
@@ -190,6 +204,53 @@ const Cart = () => {
                       VND
                     </p>
                   </div>
+
+                  {/* Name and Email Fields */}
+                  <TextField
+                    label="Tên người mua"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      setNameError(false);
+                    }}
+                    error={nameError}
+                    helperText={nameError ? 'Vui lòng nhập tên của bạn' : ''}
+                    InputLabelProps={{
+                      style: { color: 'white' }, // Label color
+                    }}
+                    InputProps={{
+                      style: { color: 'white' }, // Input text color
+                    }}
+                    FormHelperTextProps={{
+                      style: { color: 'white' }, // Helper text color
+                    }}
+                  />
+
+                  <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError(false);
+                    }}
+                    error={emailError}
+                    helperText={emailError ? 'Vui lòng nhập email của bạn' : ''}
+                    InputLabelProps={{
+                      style: { color: 'white' }, // Label color
+                    }}
+                    InputProps={{
+                      style: { color: 'white' }, // Input text color
+                    }}
+                    FormHelperTextProps={{
+                      style: { color: 'white' }, // Helper text color
+                    }}
+                  />
 
                   <Button
                     variant="contained"
