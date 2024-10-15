@@ -769,7 +769,7 @@ const Questions = () => {
                               <Box>
                                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                                   <strong>
-                                    {users?.find((u) => u.id === question?.user_id)?.name || ''}
+                                    {users?.find((u) => question?.user_id === u.id)?.name}
                                   </strong>
                                 </Typography>
                                 <Typography variant="body2">
@@ -777,7 +777,7 @@ const Questions = () => {
                                 </Typography>
                               </Box>
                             </Box>
-                            {question && question.user_id === userData.current.id && (
+                            {question?.user_id === userData.current.id && (
                               <>
                                 <Tooltip title="Options">
                                   <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
@@ -1127,7 +1127,7 @@ const Questions = () => {
                                     width="40px"
                                   />
                                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                    {users.find((user) => user.id === comment.user_id)?.name || ''}
+                                    {users.find((user) => user.id === comment.user_id)?.name}
                                   </Typography>
                                 </Box>
                                 <Typography
@@ -1245,9 +1245,7 @@ const Questions = () => {
                                   <Box key={reply.id} sx={{ pl: 4 }}>
                                     <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
                                       <span style={{ color: 'darkblue' }}>
-                                        {users.find((user) => user.id === reply.user_id)?.name ||
-                                          ''}
-                                        :
+                                        {users.find((user) => user.id === reply.user_id)?.name}:
                                       </span>
                                       <span style={{ color: 'gray' }}> {reply.content}</span>
                                     </Typography>
