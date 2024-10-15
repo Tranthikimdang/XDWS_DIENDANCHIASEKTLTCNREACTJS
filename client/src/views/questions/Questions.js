@@ -1087,7 +1087,6 @@ const Questions = () => {
                                   fullWidth
                                   sx={{
                                     backgroundColor: '#f0f0f0',
-                                    borderRadius: '20px',
                                     flex: 1,
                                     marginRight: 1,
                                   }}
@@ -1399,14 +1398,11 @@ const Questions = () => {
                         alignItems="center"
                         onClick={() => handleCardClick(article.id)}
                       >
-                        <img
-                          src={
-                            article.authorImage ||
-                            'http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg'
-                          } // Đường dẫn đến ảnh tác giả hoặc ảnh mặc định
-                          alt={article.author}
-                          style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
-                        />
+                       <img
+                              src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                              alt="Author"
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                            />
                         <Box>
                           <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
                             Tiêu đề: {article.title}
