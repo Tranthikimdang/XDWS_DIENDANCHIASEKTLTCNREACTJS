@@ -11,7 +11,7 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Home',
+    title: 'Trang chủ',
     icon: IconHome,
     href: '/home',
   },
@@ -35,7 +35,7 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Users',
+    title: 'Người dùng',
     icon: IconUsers,
     href: '/user', 
   },
