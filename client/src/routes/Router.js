@@ -14,12 +14,11 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin'))); // Ensure 
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
-
-const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail'))); // Import the ArticleDetail component
-const Newpost = Loadable(lazy(() => import('../views/article/components/new-post.js'))); // Import the ArticleDetail component
-const Questions = Loadable(lazy(() => import('../views/questions/Questions.js')));
-const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestions.js')));
 const CateArticleDetail = Loadable(lazy(() => import('../views/article/components/CateArticleDetail')));
+const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail')));
+const Newpost = Loadable(lazy(() => import('../views/article/components/new-post')));
+const Questions = Loadable(lazy(() => import('../views/questions/Questions')));
+const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestions')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -58,30 +57,18 @@ const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/Form
 
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
+
 const AddUser = Loadable(lazy(() => import('../pages/admin/user/data/formAddUser')));
 const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUser')));
-const ProductDetailAdmin = Loadable(lazy(() => import('../pages/admin/productDetail')));
-const AddProDetaill = Loadable(
-  lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')),
-);
-const EditProDetaill = Loadable(
-  lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')),
-);
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
-const Routes = () => {
-  const users = JSON.parse(localStorage.getItem('user'));
-  let role = "user";
-  if (users && users.role) {
-    role = users.role;
-  } 
 // Ensure all lazy imports point to default exported components
 // And avoid importing the same component multiple times with different casing
 
 
 
-const Routes = (role) => {
+const renderRoutes = (role) => {
   const routes = [
     {
       path: '/auth',
@@ -122,7 +109,6 @@ const Routes = (role) => {
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
-
         { path: '/orders', exact: true, element: <Orders /> },
         { path: '/payment', exact: true, element: <Payment /> },
 
@@ -135,9 +121,9 @@ const Routes = (role) => {
       children: [
         { path: 'dashboard', element: <DashboardAdmin /> },
         { path: 'article', exact: true, element: <ArticleAdmin /> },
-        { path: 'formaddarticle', exact: true, element: <FormAddArticle /> },
-        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle /> },
-        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle /> },
+        { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
+        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle/> },
+        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
@@ -157,16 +143,11 @@ const Routes = (role) => {
         { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
         { path: 'addCate', exact: true, element: <AddCate /> },
+        { path: 'editCate/:id', exact: true, element: <EditCate/> },
+        { path: 'addCate', exact: true, element: <AddCate/> },
         { path: 'editCate/:id', exact: true, element: <EditCate /> },
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
-        { path: 'addCate', exact: true, element: <AddCate /> },
-        { path: 'editCate/:id', exact: true, element: <EditCate /> },
-        { path: 'productDetail/:id', exact: true, element: <ProductDetailAdmin /> },
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
-        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
-        { path: 'orders', exact: true, element: <Orders /> },
-
         { path: 'orders', exact: true, element: <Orders /> }, 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
@@ -230,4 +211,4 @@ const Routes = (role) => {
   return routes;
 };
 
-export default Routes;
+export default renderRoutes;

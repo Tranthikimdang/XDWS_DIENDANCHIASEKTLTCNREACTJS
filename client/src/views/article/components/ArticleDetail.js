@@ -405,35 +405,8 @@ const ArticleDetail = () => {
             </Typography>
           </Box>
 
-          <Box sx={{ padding: '20px' }}>
-            <Box mb={4}>
-              <Typography variant="h5" gutterBottom>
-                Bài đăng cùng tác giả
-              </Typography>
-              <ul>
-                <li>
-                  <Link href="#" underline="hover" sx={{ color: 'black' }}>
-                    Thư cảm ơn gửi đến anh Sơn
-                  </Link>
-                </li>
-              </ul>
-            </Box>
-
-            <Divider sx={{ borderBottomWidth: 5, marginBottom: '20px', borderColor: '#5d86fe' }} />
-
-            <Typography variant="h5" gutterBottom>
-              Bài viết nổi bật khác
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Card>
-                  <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
-                    <img src={article.image || 'https://via.placeholder.com/800x400'} alt="Article" style={{ width: '100%', borderRadius: '8px' }} />
-                  </Box>
-                </Card>
-              </Grid>
-            </Grid>
-            <Box mt={2}>
+          {/* code  */}
+          <Box mt={2}>
               <Typography variant="body2">
                 Bài viết này hiện có <strong>{comments.length}</strong> bình luận
               </Typography>
@@ -441,44 +414,6 @@ const ArticleDetail = () => {
                 {/* <ReplyIcon /> */}
               </IconButton>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton aria-label="like" sx={{ color: 'blue' }}>
-                <IconHeart />
-              </IconButton>
-              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-                15
-              </Typography>
-              <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
-                <IconMessageCircle />
-              </IconButton>
-              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-                {comments.length}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
-                Bài viết cùng chuyên mục
-              </Typography>
-              <Grid item xs={12}>
-
-                {loading ? (
-                  <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                    <CircularProgress />
-                  </Box>
-                ) : (
-                  <ul className="category-list">
-                    {cates.map((cate) => (
-                      <Link to={`/CateArticleDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
-                        <li key={cate.id} className="category-item">
-                          <strong>{cate.name}</strong>
-                        </li>
-                      </Link>
-                    ))}
-                  </ul>
-                )}
-              </Grid>
-            </Box>
-          </Box>
         </Grid>
       </Grid>
       {/* Dialog for Comments */}
