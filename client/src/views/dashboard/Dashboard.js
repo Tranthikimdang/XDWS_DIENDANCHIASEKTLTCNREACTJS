@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
 import 'bootstrap/dist/css/bootstrap.min.css';

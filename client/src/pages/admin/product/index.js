@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import { Link } from 'react-router-dom';
@@ -39,7 +40,7 @@ function Product() {
   const [rows, setRows] = useState([]);
   const [users, setUsers] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
-  const [deleteTitle, setDeleteTitle] = useState('');
+  const [deleteName, setDeleteName] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -97,9 +98,9 @@ function Product() {
     console.log('Edit button clicked', id);
   };
 
-  const handleDelete = (id, title) => {
+  const handleDelete = (id, name) => {
     setDeleteId(id);
-    setDeleteTitle(title);
+    setDeleteName(name);
     setOpenDialog(true);
   };
 
@@ -429,8 +430,7 @@ function Product() {
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Delete ${deleteTitle}`}
-        content="Are you sure you want to delete this Product?"
+        itemName={`${deleteName}`}
       />
       <Snackbar
         open={snackbarOpen}
