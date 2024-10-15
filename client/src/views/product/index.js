@@ -103,7 +103,6 @@ const Products = () => {
 
   const addToCart = async (product) => {
     if (userId) {
-      const orderDay = new Date().toISOString().split('T')[0]; // Ngày đặt hàng
 
       try {
         const querySnapshot = await getDocs(
@@ -124,7 +123,7 @@ const Products = () => {
             product_id: product.id,
             total: 'total',
             note: '',
-            order_day: orderDay,
+            order_day: new Date(),
           });
 
           setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');

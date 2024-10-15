@@ -10,7 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Table from "src/examples/Tables/Table";
 import authorsArticleData from "./data/authorsArticleData";
 import ConfirmDialog from './data/FormDeleteArticle';
-import { Alert, Snackbar } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 
@@ -129,12 +129,12 @@ function Article() {
       // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
       setOpenDialog(false);
       setSnackbarMessage("Xóa Bài viết thành công");
-      setSnackbarSeverity("Thành công");
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Lỗi khi xóa bài viết:", error);
       setSnackbarMessage("Không xóa được bài viết.");
-      setSnackbarSeverity("lỗi khi xóa");
+      setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
@@ -152,7 +152,7 @@ function Article() {
 
   const handleAddArticleSuccess = () => {
     setSnackbarMessage("Thêm bài viết thành công.");
-    setSnackbarSeverity("Thành công");
+    setSnackbarSeverity("success");
     setSnackbarOpen(true);
   };
 
@@ -167,7 +167,7 @@ function Article() {
       // Cập nhật lại danh sách bài viết
       setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
       setSnackbarMessage("Duyệt bài viết thành công");
-      setSnackbarSeverity("Thành công");
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Lỗi khi phê duyệt bài viết:", error);
@@ -176,7 +176,7 @@ function Article() {
       setSnackbarOpen(true);
     }
   }
-  
+
   const removeHtmlTags = (html) => {
     return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
   };
@@ -319,7 +319,7 @@ function Article() {
                                     </strong>
                                   </VuiTypography>
                                   <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                    {cates[row.categories_id]}
+                                    {cates[row.categories_id]|| 'không có danh mục'}
                                   </VuiTypography>
                                 </VuiBox>
                               </div>
@@ -327,6 +327,11 @@ function Article() {
                           ),
                           author: (
                             <VuiBox>
+                            <img
+                              src={users?.find(u => row.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                              alt="User Avatar"
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                            />
                               <VuiTypography variant="button" color="white" fontWeight="medium">
                                 {authorName}
                               </VuiTypography>
@@ -344,7 +349,7 @@ function Article() {
                           date: (
                             <VuiBox>
                               <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {formatUpdatedAt(row.updated_at)}
+                                {formatUpdatedAt(row.updated_at)}
                               </VuiTypography>
                             </VuiBox>
                           ),
@@ -456,9 +461,10 @@ function Article() {
       />
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(100px)' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}

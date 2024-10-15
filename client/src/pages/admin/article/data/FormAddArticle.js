@@ -82,13 +82,13 @@ function FormAndArticle() {
         is_deleted: data.is_deleted || false, // Mặc định là false nếu không cung cấp
         updated_at: new Date(), // Thời gian cập nhật
       });
-      setSnackbarMessage("Article added successfully.");
+      setSnackbarMessage("Thêm bài viết thành công.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setTimeout(() => navigate('/admin/article'), 500);
     } catch (error) {
-      console.error("Error adding article:", error.message);
-      setSnackbarMessage("Failed to add article. Please try again.");
+      console.error("Lỗi khi thêm bài viết:", error.message);
+      setSnackbarMessage("Không thêm được bài viết. Vui lòng thử lại.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -266,9 +266,11 @@ function FormAndArticle() {
 
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={300}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}>
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(100px)' }}
+        >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
@@ -276,6 +278,4 @@ function FormAndArticle() {
     </DashboardLayout>
   );
 }
-
-
 export default FormAndArticle;
