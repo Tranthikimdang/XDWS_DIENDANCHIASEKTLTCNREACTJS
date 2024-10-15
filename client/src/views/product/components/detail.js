@@ -26,11 +26,11 @@ const ProductsDetail = () => {
       try {
         const productRef = doc(db, 'products', id); // Lấy reference của sản phẩm
         const productSnap = await getDoc(productRef); // Fetch dữ liệu từ Firestore
-  
+
         if (productSnap.exists()) {
           // Lấy dữ liệu sản phẩm và thêm id vào
-          const productData = { id: productSnap.id, ...productSnap.data() }; 
-          setProduct(productData); 
+          const productData = { id: productSnap.id, ...productSnap.data() };
+          setProduct(productData);
           console.log(productData);
         } else {
           console.error('Sản phẩm không tồn tại');
@@ -41,12 +41,12 @@ const ProductsDetail = () => {
         setLoading(false);
       }
     };
-  
+
     if (id) {
       fetchProduct(); // Gọi hàm nếu có ID
     }
   }, [id]);
-  
+
 
   const addToCart = async (product) => {
     if (userId) {
@@ -59,8 +59,8 @@ const ProductsDetail = () => {
             where('product_id', '==', product.id),
           ),
         );
-        
-        
+
+
         if (!querySnapshot.empty) {
           setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
           setSnackbarSeverity('warning');
@@ -102,6 +102,13 @@ const ProductsDetail = () => {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
+  const getEmbedLink = (videoDemo) => {
+    if (videoDemo.includes("/view")) {
+      // Thay thế "/view" bằng "/preview" để tạo link nhúng
+      return videoDemo.replace("/view", "/preview");
+    }
+    return videoDemo; // Trả về videoDemo nếu không có "/view"
+  };
   return (
     <Box sx={{ padding: { xs: '10px' } }}>
       <Snackbar
@@ -126,9 +133,10 @@ const ProductsDetail = () => {
                   <div className="wrapper row">
                     {/* Cột hiển thị hình ảnh sản phẩm */}
                     <div className="preview col-md-6">
-                      <div
-                        class="ratio ratio-16x9"
-                        dangerouslySetInnerHTML={{ __html: product.video_demo }}
+                      <div className="ratio ratio-16x9"
+                        dangerouslySetInnerHTML={{
+                          __html: `<iframe src="${getEmbedLink(product.video_demo)}" width="640" height="480" allow="autoplay" allowfullscreen></iframe>`,
+                        }}
                       ></div>
                     </div>
 
@@ -136,14 +144,14 @@ const ProductsDetail = () => {
                     <div className="details col-md-6 ">
                       <h3 className="product-title d-flex flex-row">{product.name}</h3>
                       <div className="rating">
-                        <div className="stars">
+                        <div className="stars d-flex flex-row">
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star"></span>
                           <span className="fa fa-star"></span>
                         </div>
-                        <span className="review-no d-flex flex-row">41 reviews</span>
+                        <span className="review-no d-flex flex-row">41 người xem khóa học này</span>
                       </div>
                       <p className="product-description d-flex flex-row">
                         Mô tả:{' '}
@@ -151,11 +159,12 @@ const ProductsDetail = () => {
                           ? product.description.replace(/(<([^>]+)>)/gi, '')
                           : 'No description available'}
                       </p>
-                      <h4 className="price d-flex flex-row">
-                        current price: <span> {product.price} VND</span>
-                      </h4>
+                      <h5 className="price d-flex flex-row ">
+                        Giá khóa học: <span> {product.price} VND</span>
+                      </h5>
                       <p className="vote d-flex flex-row">
-                        <strong>91%</strong> of buyers enjoyed this product!{' '}
+                        <strong>91%</strong>
+                        người mua rất thích sản phẩm này!{' '}
                         <strong>(87 votes)</strong>
                       </p>
                       <div className="action">

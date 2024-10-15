@@ -73,7 +73,7 @@ function FormAddProduct() {
         description: data.description,
         created_at: new Date(),
         updated_at: new Date(),
-        video_demo: "video_demo"
+        video_demo: data.video_demo
       });
 
       setSnackbarMessage('Product added successfully.');
@@ -106,7 +106,7 @@ function FormAddProduct() {
           <div className="row">
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Name
+                Tên khóa
               </label>
               <input
                 className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
@@ -121,7 +121,7 @@ function FormAddProduct() {
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Category
+                Danh mục
               </label>
               <select
                 className={`form-select bg-dark text-light ${
@@ -148,7 +148,7 @@ function FormAddProduct() {
           <div className="row">
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Price
+                Giá gốc
               </label>
               <input
                 type="number"
@@ -165,7 +165,7 @@ function FormAddProduct() {
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Discount
+                Giảm giá
               </label>
               <input
                 type="number"
@@ -184,7 +184,7 @@ function FormAddProduct() {
           <div className="row">
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Quality
+                Số lượng
               </label>
               <input
                 type="number"
@@ -200,7 +200,7 @@ function FormAddProduct() {
             </div>
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Video Demo
+                Video demo
               </label>
               <input
                 className={`form-control bg-dark text-light ${
@@ -220,7 +220,7 @@ function FormAddProduct() {
           <div className="mb-3">
             <div className="col-12 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-                Image
+               Hình ảnh
               </label>
               <input
                 className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
@@ -245,7 +245,7 @@ function FormAddProduct() {
           </div>
           <div className="mb-5">
             <label className="text-light form-label" style={smallFontStyle}>
-              Description
+              Mô tả
             </label>
             <ReactQuill
               value={watch('description')} // Dùng watch để theo dõi giá trị của field
@@ -260,7 +260,7 @@ function FormAddProduct() {
             )}
           </div>
             <button type="submit" className="btn btn-primary mt-3">
-              Add Product
+              Thêm khóa học
             </button>
         </form>
         <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>

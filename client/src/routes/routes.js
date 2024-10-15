@@ -3,35 +3,6 @@ import Dashboard from "src/pages/admin/dashboard";
 // import Comment from "layouts/comment";
 import Questions from "src/pages/admin/questions";
 import Article from "src/pages/admin/article";
-// import CommentDetail from "layouts/commentDetail";
-// import Category from "layouts/category";
-// import Profile from "layouts/profile";
-// import Article from "layouts/article";
-// import User from "layouts/user";
-// import SignIn from "layouts/authentication/sign-in";
-// import SignUp from "layouts/authentication/sign-up";
-
-// import FormAddUser from "layouts/user/data/formAddUser";
-// import FormEditUser from "layouts/user/data/FormEditUser";
-// import FormDeleteUser from "layouts/user/data/FormDeleteUser";
-
-// import FormAddCate from "layouts/category/data/FormAddCate";
-// import FormEditCate from "layouts/category/data/FormEditCate";
-// import FormDeleteCate from "layouts/category/data/FormDeleteCate";
-
-// import FormAddArticle from "layouts/article/data/FormAndArticle";
-// import FormViewArticle from "layouts/article/data/FormViewArticle";
-// import FormEditArticle from "layouts/article/data/FormEditArticle";
-// import FormDeleteArticle from "layouts/article/data/FormDeleteArticle";
-
-// import FormAddQuestions from "layouts/questions/data/formAddQuestions";
-// import FormEditQuestions from "layouts/questions/data/formEditQuestions";
-// import FormDeleteQuestions from "layouts/questions/data/formDeleteQuestions";
-
-// import FormAddCmt from "layouts/commentDetail/data/formComment";
-// import FormEditCmt from "layouts/commentDetail/data/formEditComment";
-// import FormDeleteCmt from "layouts/commentDetail/data/formDeleteComment";
-
 
 import AddCate from "../pages/admin/category/data/FormAddCate";
 import EditCate from "../pages/admin/category/data/FormEditCate";
@@ -45,6 +16,9 @@ import AddProduct from "../pages/admin/product/data/FormAddProduct";
 import EditProduct from "../pages/admin/product/data/FormEditProduct";
 import productDetail from "../views/product/components/detail"
 
+import productDetailAdmin from "../pages/admin/productDetail"
+import AddProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
+import EditProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
 
 import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
@@ -329,24 +303,24 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
 
-  // {
-  //   key: 'ProductDetail',
-  //   route: '/admin/productDetail/:id',
-  //   component: productDetailAdmin,
-  //   hidden: true, // Ẩn mục này
-  // },
-  // {
-  //   key: 'AddProDetaill',
-  //   route: '/admin/addProDetaill/:product_id',
-  //   component: AddProDetaill,
-  //   hidden: true, // Ẩn mục này
-  // },
-  // {
-  //   key: 'EditProDetaill',
-  //   route: '/admin/editProDetaill/:detailId',
-  //   component: EditProDetaill,
-  //   hidden: true, // Ẩn mục này
-  // },
+  {
+    key: 'ProductDetail',
+    route: '/admin/productDetail/:id',
+    component: productDetailAdmin,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'AddProDetaill',
+    route: '/admin/addProDetaill/:product_id',
+    component: AddProDetaill,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'EditProDetaill',
+    route: '/admin/editProDetaill/:detailId',
+    component: EditProDetaill,
+    hidden: true, // Ẩn mục này
+  },
   {
     key: 'Orders',
     route: '/admin/orders',
