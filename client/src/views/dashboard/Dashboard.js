@@ -356,7 +356,7 @@ const Home = () => {
                   Xem tất cả
                 </Link>
               </Grid>
-              {products.map((product) => (
+              {products.slice(0, 3).map((product) => (
                 <Grid item xs={12} sm={6} md={4} key={product.id}>
                   <Card>
                     <CardMedia
