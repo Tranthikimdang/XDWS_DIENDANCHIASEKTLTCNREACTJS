@@ -136,7 +136,7 @@ const ProductsDetail = () => {
                     <div className="details col-md-6 ">
                       <h3 className="product-title d-flex flex-row">{product.name}</h3>
                       <div className="rating">
-                        <div className="stars">
+                        <div className="stars d-flex flex-row">
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star checked"></span>

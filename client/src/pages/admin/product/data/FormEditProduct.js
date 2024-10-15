@@ -163,21 +163,13 @@ function FormEditProduct() {
               {errors.name && <div className="text-danger">{errors.name.message}</div>}
             </div>
             <div className="col-6 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Hình ảnh</label>
+            <label className="text-light form-label" style={smallFontStyle}>Video demo code</label>
               <input
-                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-                type="file"
-                onChange={handleImageChange}
+                type="text"
+                className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
+                {...register('video_demo', { required: 'Video demo is required' })}
               />
-              {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="img-thumbnail mt-2"
-                  style={{ maxWidth: '160px' }}
-                />
-              )}
+              {errors.video_demo && <div className="text-danger">{errors.video_demo.message}</div>}
             </div>
           </div>
           <div className="row">
@@ -234,13 +226,22 @@ function FormEditProduct() {
           </div>
           <div className="row">
             <div className="col-12 mb-3">
-              <label className="text-light form-label" style={smallFontStyle}>Video demo code</label>
+            <label className="text-light form-label" style={smallFontStyle}>Hình ảnh</label>
               <input
-                type="text"
-                className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
-                {...register('video_demo', { required: 'Video demo is required' })}
+                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
+                type="file"
+                onChange={handleImageChange}
               />
-              {errors.video_demo && <div className="text-danger">{errors.video_demo.message}</div>}
+              {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
+              {imagePreview && (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="img-thumbnail mt-2"
+                  style={{ maxWidth: '160px' }}
+                />
+              )}
+              
             </div>
           </div>
           <div className="mb-3">

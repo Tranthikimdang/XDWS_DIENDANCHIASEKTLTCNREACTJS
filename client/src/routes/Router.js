@@ -54,6 +54,10 @@ const EditCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data
 const Product = Loadable(lazy(() => import('../pages/admin/product')));
 const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormAddProduct')));
 const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
+const AddProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')));
+const ProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail')));
+
+
 
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
@@ -149,6 +153,9 @@ const renderRoutes = (role) => {
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
         { path: 'orders', exact: true, element: <Orders /> }, 
+        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
+        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
+        
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
