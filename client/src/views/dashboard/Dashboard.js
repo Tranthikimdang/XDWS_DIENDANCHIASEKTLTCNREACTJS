@@ -3,8 +3,6 @@ import PageContainer from 'src/components/container/PageContainer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Carousel } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert from '@mui/material/Alert';
 import {
   Box,
   Button,
@@ -21,7 +19,6 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { formatDistanceToNow } from 'date-fns';
 import { collection, getDocs, addDoc, where, query } from 'firebase/firestore';
-//firebase
 import { db } from '../../config/firebaseconfig';
 
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -33,9 +30,7 @@ const StyledBox = styled(Box)(({ theme }) => ({
   position: 'relative',
   overflow: 'hidden',
 }));
-const Alert = React.forwardRef(function Alert(props, ref) {
-  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
+
 const SubText = styled(Typography)(({ theme }) => ({
   fontSize: '16px',
   color: '#fff',
@@ -70,7 +65,6 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [catesMap, setCatesMap] = useState({});
-  const [catesProMap, setCatesProMap] = useState({});
   const [loadingArticles, setLoadingArticles] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -78,9 +72,11 @@ const Home = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
+
   const handleCardClick = (articleId) => {
     navigate(`/article/${articleId}`, { state: { id: articleId } });
   };
+
   const handleClick = (product) => {
     navigate(`/productDetail/${product}`, { state: { id: product } });
   };
@@ -92,8 +88,8 @@ const Home = () => {
           query(
             collection(db, 'orders'),
             where('user_id', '==', userId),
-            where('product_id', '==', product.id),
-          ),
+            where('product_id', '==', product.id)
+          )
         );
 
         if (!querySnapshot.empty) {
@@ -120,7 +116,6 @@ const Home = () => {
         setSnackbarOpen(true);
       }
     } else {
-      console.error('User is not logged in');
       setSnackbarMessage('Bạn vẫn chưa đăng nhập');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -132,7 +127,10 @@ const Home = () => {
       setLoading(true);
       try {
         const articlesSnapshot = await getDocs(collection(db, 'articles'));
-        const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const articlesData = articlesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setArticles(articlesData);
       } catch (error) {
         console.error('Error fetching articles:', error);
@@ -157,7 +155,6 @@ const Home = () => {
           return map;
         }, {});
         setCatesMap(categoriesMap);
-        console.log(categoriesMap); // Kiểm tra xem danh mục đã được lấy thành công
       } catch (error) {
         console.error('Error fetching categories:', error);
       } finally {
@@ -172,7 +169,10 @@ const Home = () => {
       setLoading(true);
       try {
         const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const productsData = productsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setProducts(productsData);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -189,76 +189,44 @@ const Home = () => {
     return formatDistanceToNow(date, { addSuffix: true });
   };
 
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000);
+      const now = new Date();
+      const diff = now - date;
+      const seconds = Math.floor(diff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+    return updatedAtString;
+  };
+
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
       <Box>
-        {/* Hiển thị loading spinner nếu đang tải dữ liệu */}
         {loading ? (
           <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
             <CircularProgress />
           </Box>
         ) : (
           <>
-            {/* Banner */}
+            {/* Carousel */} 
             <Grid>
-              <Carousel
-                variant="dark"
-                indicators={false}
-                interval={5000}
-                nextIcon={
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      right: '30px',
-                      transform: 'translateY(-50%)',
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 1,
-                    }}
-                  >
-                    <ArrowForwardIcon sx={{ color: '#333', fontSize: '20px' }} />
-                  </Box>
-                }
-                prevIcon={
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '30px',
-                      transform: 'translateY(-50%)',
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 1,
-                    }}
-                  >
-                    <ArrowBackIcon sx={{ color: '#333', fontSize: '20px' }} />
-                  </Box>
-                }
-              >
-                {/* Carousel Item 1 */}
+              <Carousel variant="dark" indicators={false} interval={5000}>
                 <Carousel.Item>
                   <StyledBox
                     sx={{
@@ -303,62 +271,10 @@ const Home = () => {
                         <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
                           <img
                             src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg"
-                            alt="Diễn đàn chia sẻ code"
-                            style={{ width: '400px', marginLeft: '-237px', borderRadius: '10px' }}
+                            alt="Diễn đàn"
+                            style={{ width: '250px', height: 'auto' }}
                           />
                         </ImageBox>
-                      </Grid>
-                    </Grid>
-                  </StyledBox>
-                </Carousel.Item>
-
-                {/* Carousel Item 2 */}
-                <Carousel.Item>
-                  <StyledBox
-                    sx={{
-                      background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)',
-                      borderRadius: '20px',
-                      padding: '20px',
-                    }}
-                  >
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} md={6}>
-                        <Typography
-                          variant="h4"
-                          component="h2"
-                          fontWeight="bold"
-                          sx={{ color: '#fff' }}
-                        >
-                          Chia Sẻ Mã Code Của Bạn!
-                        </Typography>
-                        <SubText sx={{ color: '#fff' }}>
-                          Đăng tải mã nguồn của bạn, nhận phản hồi từ cộng đồng, và cải thiện khả
-                          năng lập trình của bạn.
-                        </SubText>
-                        <ActionButton
-                          variant="contained"
-                          href="/"
-                          sx={{
-                            textTransform: 'none',
-                            backgroundColor: '#0057e6',
-                            color: '#ffffff',
-                            border: '2px solid #0044cc',
-                            '&:hover': {
-                              backgroundColor: '#0044cc',
-                            },
-                            padding: '10px 20px',
-                            borderRadius: '30px',
-                          }}
-                        >
-                          Tham Gia Cộng Đồng
-                        </ActionButton>
-                      </Grid>
-                      <Grid item xs={12} md={6} sx={{ textAlign: 'center' }}>
-                        <img
-                          src="https://files.fullstack.edu.vn/f8-prod/banners/36/6454dee96205c.png"
-                          alt="Mã code"
-                          style={{ width: '90%', maxWidth: '400px', borderRadius: '10px' }}
-                        />
                       </Grid>
                     </Grid>
                   </StyledBox>
@@ -372,136 +288,62 @@ const Home = () => {
                 <Typography variant="h5" component="h2" fontWeight="bold">
                   Bài viết nổi bật
                 </Typography>
-                <Box
-                  component="a"
-                  href="/article"
-                  sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
-                >
-                  Xem tất cả &gt;
-                </Box>
+                <Link href="/articles" underline="none">
+                  Xem tất cả
+                </Link>
               </Grid>
-              {articles
-                .filter((article) => article.isApproved === 1) // Lọc bài viết có isApproved = 1
-                .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
-                .map((article) => (
-                  <Grid item xs={6} sm={4} md={3} key={article.id}>
-                    <Card
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        height: '100%',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => handleCardClick(article.id)}
-                    >
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image={article.image}
-                        alt={article.title}
-                      />
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography gutterBottom variant="h5" component="div">
-                          {article.title}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                          <Typography
-                            variant="body2"
-                            color="textSecondary"
-                            className="category-badge"
-                          >
-                            {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                            {formatDate(article.updated_at)} {/* Hiển thị ngày định dạng */}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
+              {articles.map((article) => (
+                <Grid item xs={12} sm={6} md={4} key={article.id}>
+                  <Card>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={article.imageUrl}
+                      alt={article.title}
+                    />
+                    <CardContent>
+                      <Typography variant="h6" component="div" fontWeight="bold">
+                        {article.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(article.created_at)}
+                      </Typography>
+                    </CardContent>
+                    <Button onClick={() => handleCardClick(article.id)}>Xem chi tiết</Button>
+                  </Card>
+                </Grid>
+              ))}
             </Grid>
 
-            {/* Featured Product */}
+            {/* Featured Products */}
             <Grid container spacing={4} sx={{ marginTop: '40px' }}>
               <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h5" component="h2" fontWeight="bold">
-                  Khóa học mới nhất
+                  Sản phẩm nổi bật
                 </Typography>
-                <Box
-                  component="a"
-                  href="/products"
-                  sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
-                >
-                  Xem tất cả &gt;
-                </Box>
+                <Link href="/products" underline="none">
+                  Xem tất cả
+                </Link>
               </Grid>
-              {products.slice(0, 4).map((product) => (
-                <Grid
-                  item
-                  xs={6}
-                  sm={4}
-                  md={3}
-                  key={product.id}
-                  
-                >
-                  <div className="thumb-wrapper border p-2 shadow-sm rounded">
-                    <div className="img-box mb-3">
-                      <img
-                        height="140"
-                        width="100%"
-                        src={product.image_url}
-                        className="img-responsive rounded"
-                        alt={product.name}
-                        onClick={() => handleClick(product.id)}
-                      />
-                    </div>
-                    <div className="thumb-content text-center">
-                      <h5 className="font-weight-bold text-dark">{product.name}</h5>
-                      <p className="item-price d-flex justify-content-center align-items-center mb-2">
-                        <b
-                          className="text-danger font-weight-bold"
-                          style={{ fontSize: '1rem', marginRight: '5px' }}
-                        >
-                          {product.discount.toLocaleString()} VND
-                        </b>
-                        <strike className="text-muted" style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                          {product.price.toLocaleString()} VND
-                        </strike>
-                      </p>
-                      <div className="star-rating mb-2">
-                        <ul className="list-inline">
-                          <li className="list-inline-item">
-                            <i className="fa fa-star"></i>
-                          </li>
-                          <li className="list-inline-item">
-                            <i className="fa fa-star"></i>
-                          </li>
-                          <li className="list-inline-item">
-                            <i className="fa fa-star"></i>
-                          </li>
-                          <li className="list-inline-item">
-                            <i className="fa fa-star"></i>
-                          </li>
-                          <li className="list-inline-item">
-                            <i className="fa fa-star-o"></i>
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="d-flex flex-column mt-4">
-                        <button className="btn btn-primary btn-sm" type="button">
-                          Mua ngay
-                        </button>
-                        <button
-                          className="btn btn-outline-primary btn-sm mt-2"
-                          type="button"
-                          onClick={() => addToCart(product)}
-                        >
-                          Thêm vào giỏ hàng
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+              {products.map((product) => (
+                <Grid item xs={12} sm={6} md={4} key={product.id}>
+                  <Card>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={product.image_url}
+                      alt={product.name}
+                    />
+                    <CardContent>
+                      <Typography variant="h6" component="div" fontWeight="bold">
+                        {product.name}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatUpdatedAt(product.updated_at)}
+                      </Typography>
+                    </CardContent>
+                    <Button onClick={() => handleClick(product.id)}>Xem chi tiết</Button>
+                  </Card>
                 </Grid>
               ))}
             </Grid>

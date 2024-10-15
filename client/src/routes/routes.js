@@ -43,19 +43,22 @@ import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
 import Products from "src/pages/admin/product";
 import AddProduct from "../pages/admin/product/data/FormAddProduct";
 import EditProduct from "../pages/admin/product/data/FormEditProduct";
-import ProductDetail from "../views/product/components/detail"
+import productDetail from "../views/product/components/detail"
 
 
-import Orders from 'src/pages/admin/orders';
 import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
 import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+import Orders from 'src/pages/admin/orders';
+
+
+
 
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
-import { BsFillPersonPlusFill } from "react-icons/bs";
+import { BsFillPersonPlusFill,BsList } from "react-icons/bs";
 import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
@@ -132,6 +135,15 @@ const routes = [
     route: "/admin/user",
     icon: <BsFillPersonPlusFill size="15px" color="inherit" />,
     // component: User,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
+    name: "Quản lý đơn hàng",
+    key: "orders",
+    route: "/admin/orders",
+    icon: <BsList size="15px" color="inherit" />,
+    component: Orders,
     noCollapse: true,
   },
   { type: "title", title: "Account Pages", key: "account-pages" },
@@ -289,7 +301,7 @@ const routes = [
   {
     key: "editProduct",
     route: '/productDetail/:id',
-    component: ProductDetail,
+    component: productDetail,
     hidden: true, // Ẩn mục này
   },
   {
@@ -317,6 +329,24 @@ const routes = [
     hidden: true, // Ẩn mục này
   },
 
+  // {
+  //   key: 'ProductDetail',
+  //   route: '/admin/productDetail/:id',
+  //   component: productDetailAdmin,
+  //   hidden: true, // Ẩn mục này
+  // },
+  // {
+  //   key: 'AddProDetaill',
+  //   route: '/admin/addProDetaill/:product_id',
+  //   component: AddProDetaill,
+  //   hidden: true, // Ẩn mục này
+  // },
+  // {
+  //   key: 'EditProDetaill',
+  //   route: '/admin/editProDetaill/:detailId',
+  //   component: EditProDetaill,
+  //   hidden: true, // Ẩn mục này
+  // },
   {
     key: 'Orders',
     route: '/admin/orders',
