@@ -920,7 +920,7 @@ const Questions = () => {
                                   <img
                                     src={image}
                                     alt=""
-                                    style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }}
+                                    style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                                   />
                                 </Box>
                               ))}
