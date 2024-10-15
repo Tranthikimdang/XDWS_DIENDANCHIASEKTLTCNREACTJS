@@ -206,7 +206,7 @@ function FormAddProduct() {
                 className={`form-control bg-dark text-light ${
                   errors.video_demo ? 'is-invalid' : ''
                 }`}
-                type="file"
+               type="text"
                 {...register('video_demo', { required: 'Video is required' })}
                 style={smallFontStyle}
               />
