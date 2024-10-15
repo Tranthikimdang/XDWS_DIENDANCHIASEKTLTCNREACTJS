@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
@@ -11,7 +11,7 @@ import ConfirmDialog from './data/formDeleteComment';
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
-import { collection, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from 'src/config/firebaseconfig';
 
 function CommentDetail() {
@@ -37,7 +37,7 @@ function CommentDetail() {
         ...doc.data(),
       }));
 
-      const filteredComments = commentsList.filter(cmt => cmt.article_id == id);
+      const filteredComments = commentsList.filter(cmt => cmt.article_id === id);
       setRows(filteredComments);
       setLoading(false); // Dừng loading khi có dữ liệu
     });
@@ -50,35 +50,35 @@ function CommentDetail() {
     setOpenDialog(true);
   };
 
-  const approveComment = async (commentId) => {
-    try {
-      const commentRef = doc(db, 'commentDetails', commentId);
-      await updateDoc(commentRef, { status: 'approved' });
-      setSnackbarMessage("Bình luận đã được phê duyệt");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Error approving comment:', error);
-      setSnackbarMessage("Failed to approve comment.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
+  // const approveComment = async (commentId) => {
+  //   try {
+  //     const commentRef = doc(db, 'commentDetails', commentId);
+  //     await updateDoc(commentRef, { status: 'approved' });
+  //     setSnackbarMessage("Bình luận đã được phê duyệt");
+  //     setSnackbarSeverity("success");
+  //     setSnackbarOpen(true);
+  //   } catch (error) {
+  //     console.error('Error approving comment:', error);
+  //     setSnackbarMessage("Failed to approve comment.");
+  //     setSnackbarSeverity("error");
+  //     setSnackbarOpen(true);
+  //   }
+  // };
 
-  const rejectComment = async (commentId) => {
-    try {
-      const commentRef = doc(db, 'commentDetails', commentId);
-      await updateDoc(commentRef, { status: 'rejected' });
-      setSnackbarMessage("Bình luận không được phê duyệt.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Error rejecting comment:', error);
-      setSnackbarMessage("Lỗi Bình luận không được phê duyệt");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
+  // const rejectComment = async (commentId) => {
+  //   try {
+  //     const commentRef = doc(db, 'commentDetails', commentId);
+  //     await updateDoc(commentRef, { status: 'rejected' });
+  //     setSnackbarMessage("Bình luận không được phê duyệt.");
+  //     setSnackbarSeverity("success");
+  //     setSnackbarOpen(true);
+  //   } catch (error) {
+  //     console.error('Error rejecting comment:', error);
+  //     setSnackbarMessage("Lỗi Bình luận không được phê duyệt");
+  //     setSnackbarSeverity("error");
+  //     setSnackbarOpen(true);
+  //   }
+  // };
 
   const confirmDelete = async (deleteId) => {
     try {

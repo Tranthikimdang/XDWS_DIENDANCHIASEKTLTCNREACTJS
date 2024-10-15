@@ -11,6 +11,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { doc, getDoc, addDoc, collection, getDocs, updateDoc, query, onSnapshot, where } from 'firebase/firestore';
 import './style.css';
 import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
@@ -496,7 +497,7 @@ const ArticleDetail = () => {
                     {comment.content}
                   </Typography>
                   <Typography variant="caption" color="textSecondary">
-                    {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true , locale: vi  })}
                   </Typography>
                   <Box display="flex" alignItems="center" mt={1}>
                     <IconButton
@@ -574,7 +575,7 @@ const ArticleDetail = () => {
                               {reply.content}
                             </Typography>
                             <Typography variant="caption" color="textSecondary">
-                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true })}
+                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true , locale: vi  })}
                             </Typography>
                             <Box display="flex" alignItems="center" mt={1}>
                               <IconButton
