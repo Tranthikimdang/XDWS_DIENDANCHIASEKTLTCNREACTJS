@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import { Link } from 'react-router-dom';
 import VuiBox from 'src/components/admin/VuiBox';
+import { Grid, Box, CardContent, CardMedia } from '@mui/material';
 import VuiTypography from 'src/components/admin/VuiTypography';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
@@ -9,9 +10,19 @@ import Tooltip from '@mui/material/Tooltip';
 import Table from 'src/examples/Tables/Table';
 import ConfirmDialog from './data/FormDeleteOrder';
 import authorsOrdersData from './data/authorsOrdersData';
-import { Snackbar, Alert, TextField, InputAdornment, IconButton, Button } from '@mui/material';
+import {
+  Snackbar,
+  Alert,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Button,
+  Typography,
+} from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import SearchIcon from '@mui/icons-material/Search';
+import { IconArrowBadgeRight, IconArrowBadgeLeft } from '@tabler/icons-react';
+
 import './index.css';
 
 // Firebase
@@ -30,8 +41,8 @@ function Orders() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -49,13 +60,13 @@ function Orders() {
         const days = Math.floor(hours / 24);
 
         if (days > 0) {
-          formattedString = `${days} days ago`;
+          formattedString = `${days} ngày trước`;
         } else if (hours > 0) {
-          formattedString = `${hours} hours ago`;
+          formattedString = `${hours} giờ trước`;
         } else if (minutes > 0) {
-          formattedString = `${minutes} minutes ago`;
+          formattedString = `${minutes} phút trước`;
         } else {
-          formattedString = `${seconds} seconds ago`;
+          formattedString = `${seconds} giây trước`;
         }
       } else {
         formattedString = 'Unknown time';
@@ -74,16 +85,17 @@ function Orders() {
           return {
             id: orderDoc.id,
             user_id: data.user_id,
-            user_name: data.user_id, // Placeholder for user name
+            user_name: data.user_name || 'Unknown User',
+            user_email: data.user_email || 'unknown@example.com',
             paymentMethod: data.paymentMethod,
             totalAmount: data.totalAmount,
-            items: data.items || [], // Ensure items is always an array
+            items: data.items || [],
             order_day: formatOrderDay(data.createdAt),
-            status: data.status || 'Pending', // Adding status to track payment
+            status: data.status || 'Pending',
           };
         });
-        console.log('Fetched Orders Data: ', ordersData); // Debug to check the structure
-        setRows(ordersData); // Store data in state
+        console.log('Fetched Orders Data: ', ordersData);
+        setRows(ordersData);
       } catch (error) {
         console.error('Error fetching orders:', error);
       } finally {
@@ -103,8 +115,8 @@ function Orders() {
   const confirmDelete = async () => {
     try {
       const orderRef = doc(db, 'orders', deleteId);
-      await deleteDoc(orderRef); // Delete order from Firestore
-      setRows(rows.filter((row) => row.id !== deleteId)); // Update the orders list
+      await deleteDoc(orderRef);
+      setRows(rows.filter((row) => row.id !== deleteId));
       setOpenDialog(false);
       setSnackbarMessage('Order deleted successfully');
       setSnackbarSeverity('success');
@@ -119,19 +131,17 @@ function Orders() {
 
   const handleConfirmPayment = async (row) => {
     try {
-      // Update order status to Paid
       const orderRef = doc(db, 'orders', row.id);
       await updateDoc(orderRef, { status: 'Paid' });
 
-      // Send email confirmation
       const emailContent = {
-        to: row.user_email, // Assuming you have user's email in row data
+        to: row.user_email,
         subject: 'Payment Confirmation',
         body: `Dear ${row.user_name},\n\nYour payment for order ${row.id} has been successfully confirmed.\n\nThank you for your business!\n\nBest regards,\nYour Company Name`,
       };
       await sendEmail(emailContent);
 
-      setRows(rows.map((r) => (r.id === row.id ? { ...r, status: 'Paid' } : r))); // Update row status in state
+      setRows(rows.map((r) => (r.id === row.id ? { ...r, status: 'Paid' } : r)));
       setSnackbarMessage('Payment confirmation email sent successfully');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
@@ -154,18 +164,27 @@ function Orders() {
     setOpenDialog(false);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const filteredRows = rows.filter(
-    (row) => row.user_id && row.user_id.toLowerCase().includes(searchTerm.toLowerCase()),
+    (row) => row.user_name && row.user_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredRows.slice(indexOfFirstUser, indexOfLastUser);
+
+  const totalPages = Math.ceil(filteredRows.length / usersPerPage);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -179,27 +198,6 @@ function Orders() {
               </VuiTypography>
             </VuiBox>
 
-            {/* Search Bar */}
-            <VuiBox mb={2} display="flex" justifyContent="flex-end">
-              <TextField
-                variant="outlined"
-                size="small"
-                placeholder="Search orders..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <IconButton>
-                        <SearchIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  sx: { backgroundColor: 'white', borderRadius: '4px' },
-                }}
-                sx={{ width: '250px' }}
-              />
-            </VuiBox>
 
             {loading ? (
               <div
@@ -217,54 +215,72 @@ function Orders() {
                 <Table
                   columns={columns}
                   rows={
-                    filteredRows.length > 0
-                      ? filteredRows
-                          .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                          .map((row, index) => ({
-                            ...row,
-                            no: page * rowsPerPage + index + 1,
-                            items: row.items && Array.isArray(row.items)
+                    currentUsers.length > 0
+                      ? currentUsers.map((row, index) => ({
+                          ...row,
+                          no: indexOfFirstUser + index + 1,
+                          items:
+                            row.items && Array.isArray(row.items)
                               ? row.items
                                   .map((item) => `${item.product_id} (Qty: ${item.quantity})`)
                                   .join(', ')
                               : 'No items',
-                            order_day: row.order_day,
-                            paymentMethod: row.paymentMethod,
-                            totalAmount: row.totalAmount,
-                            status: row.status,
-                            actions: (
-                              <div className="action-buttons">
-                                <Tooltip title="Delete Order" placement="top">
-                                  {/* Delete button logic */}
+                          order_day: row.order_day,
+                          paymentMethod: row.paymentMethod,
+                          totalAmount: row.totalAmount,
+                          status: row.status,
+                          actions: (
+                            <div className="action-buttons">
+                              <Tooltip title="Delete Order" placement="top">
+                                <IconButton onClick={() => handleDelete(row.id, row.user_name)}>
+                                  Delete
+                                </IconButton>
+                              </Tooltip>
+                              {row.status === 'Pending' && (
+                                <Tooltip title="Confirm Payment" placement="top">
+                                  <Button
+                                    variant="outlined"
+                                    color="success"
+                                    size="small"
+                                    onClick={() => handleConfirmPayment(row)}
+                                  >
+                                    Confirm Payment
+                                  </Button>
                                 </Tooltip>
-                                {row.status === 'Pending' && (
-                                  <Tooltip title="Confirm Payment" placement="top">
-                                    <Button
-                                      variant="outlined"
-                                      color="success"
-                                      size="small"
-                                      onClick={() => handleConfirmPayment(row)}
-                                    >
-                                      Confirm Payment
-                                    </Button>
-                                  </Tooltip>
-                                )}
-                              </div>
-                            ),
-                          }))
+                              )}
+                            </div>
+                          ),
+                        }))
                       : []
                   }
                 />
               </VuiBox>
             )}
           </Card>
+          {/* Pagination Controls */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Button variant="contained" onClick={handlePreviousPage} disabled={currentPage === 1}>
+              <IconArrowBadgeLeft />
+            </Button>
+            <Typography sx={{ margin: '0 10px', alignSelf: 'center' }}>
+              Page {currentPage}
+            </Typography>
+            <Button
+              variant="contained"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
+              <IconArrowBadgeRight />
+            </Button>
+          </Box>
         </VuiBox>
       </VuiBox>
+
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Delete order with user ID: ${deleteNote}`}
+        title={`Delete order with user name: ${deleteNote}`}
       />
       <Snackbar
         open={snackbarOpen}
