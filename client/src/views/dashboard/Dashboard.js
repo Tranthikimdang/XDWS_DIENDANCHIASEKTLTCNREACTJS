@@ -12,18 +12,15 @@ import {
   CardContent,
   CardMedia,
   CircularProgress,
+  Link,
 } from '@mui/material';
 import { styled } from '@mui/system';
-
-// Icon
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
-// Firebase
+import { formatDistanceToNow } from 'date-fns';
+import { collection, getDocs, addDoc, where, query } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig';
-import { collection, getDocs } from 'firebase/firestore';
 
-// Styled components
 const StyledBox = styled(Box)(({ theme }) => ({
   backgroundColor: '#8000ff',
   borderRadius: '15px',
@@ -68,23 +65,72 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [catesMap, setCatesMap] = useState({});
-
+  const [loadingArticles, setLoadingArticles] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
 
   const handleCardClick = (articleId) => {
     navigate(`/article/${articleId}`, { state: { id: articleId } });
   };
 
-  const handleClick = (productId) => {
-    navigate(`/productDetail/${productId}`, { state: { id: productId } });
+  const handleClick = (product) => {
+    navigate(`/productDetail/${product}`, { state: { id: product } });
   };
 
-  // Fetch articles
+  const addToCart = async (product) => {
+    if (userId) {
+      try {
+        const querySnapshot = await getDocs(
+          query(
+            collection(db, 'orders'),
+            where('user_id', '==', userId),
+            where('product_id', '==', product.id)
+          )
+        );
+
+        if (!querySnapshot.empty) {
+          setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
+          setSnackbarSeverity('warning');
+          setSnackbarOpen(true);
+        } else {
+          await addDoc(collection(db, 'orders'), {
+            user_id: userId,
+            product_id: product.id,
+            total: 'total',
+            note: '',
+            order_day: new Date(),
+          });
+
+          setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+        }
+      } catch (error) {
+        console.error('Error adding product to cart: ', error);
+        setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    } else {
+      setSnackbarMessage('Bạn vẫn chưa đăng nhập');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  };
+
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
       try {
         const articlesSnapshot = await getDocs(collection(db, 'articles'));
-        const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const articlesData = articlesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setArticles(articlesData);
       } catch (error) {
         console.error('Error fetching articles:', error);
@@ -95,35 +141,38 @@ const Home = () => {
     fetchArticles();
   }, []);
 
-  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true);
+      setLoadingCategories(true);
       try {
         const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         const categoriesMap = categoriesData.reduce((map, category) => {
           map[category.id] = category.name;
           return map;
         }, {});
         setCatesMap(categoriesMap);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error('Error fetching categories:', error);
       } finally {
-        setLoading(false);
+        setLoadingCategories(false);
       }
     };
     fetchCategories();
   }, []);
 
-
-  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const productsData = productsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setProducts(productsData);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -134,16 +183,19 @@ const Home = () => {
     fetchProducts();
   }, []);
 
-  //date
+  const formatDate = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp.seconds * 1000);
+    return formatDistanceToNow(date, { addSuffix: true });
+  };
+
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
-
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt.seconds * 1000);
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
-
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const diff = now - date;
+      const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -160,10 +212,8 @@ const Home = () => {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-
     return updatedAtString;
   };
-
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
@@ -174,55 +224,9 @@ const Home = () => {
           </Box>
         ) : (
           <>
-            {/* Carousel Banner */}
+            {/* Carousel */} 
             <Grid>
-              <Carousel
-                variant="dark"
-                indicators={false}
-                interval={5000}
-                nextIcon={
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      right: '30px',
-                      transform: 'translateY(-50%)',
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 1,
-                    }}
-                  >
-                    <ArrowForwardIcon sx={{ color: '#333', fontSize: '20px' }} />
-                  </Box>
-                }
-                prevIcon={
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '30px',
-                      transform: 'translateY(-50%)',
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 1,
-                    }}
-                  >
-                    <ArrowBackIcon sx={{ color: '#333', fontSize: '20px' }} />
-                  </Box>
-                }
-              >
+              <Carousel variant="dark" indicators={false} interval={5000}>
                 <Carousel.Item>
                   <StyledBox
                     sx={{
@@ -267,8 +271,8 @@ const Home = () => {
                         <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
                           <img
                             src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg"
-                            alt="Diễn đàn chia sẻ code"
-                            style={{ width: '400px', marginLeft: '-237px', borderRadius: '10px' }}
+                            alt="Diễn đàn"
+                            style={{ width: '250px', height: 'auto' }}
                           />
                         </ImageBox>
                       </Grid>
@@ -277,90 +281,68 @@ const Home = () => {
                 </Carousel.Item>
               </Carousel>
             </Grid>
+
             {/* Featured Articles */}
             <Grid container spacing={4} sx={{ marginTop: '40px' }}>
               <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h5" component="h2" fontWeight="bold">
                   Bài viết nổi bật
                 </Typography>
-                <Box component="a" href="/article" sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}>
-                  Xem tất cả &gt;
-                </Box>
+                <Link href="/articles" underline="none">
+                  Xem tất cả
+                </Link>
               </Grid>
-              {articles
-                .filter(article => article.isApproved === 1) // Lọc bài viết có isApproved = 1
-                .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
-                .map((article) => (
-                  <Grid item xs={6} sm={4} md={3} key={article.id}>
-                    <Card
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        height: '100%',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => handleCardClick(article.id)}
-                    >
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image={article.image}
-                        alt={article.title}
-                      />
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography gutterBottom variant="body2" component="div" sx={{ fontSize: '0.875rem' }}>
-                          {article.title}
-                        </Typography>
-
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                          <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
-                            {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                            {formatUpdatedAt(article.updated_at)} {/* Hiển thị ngày định dạng */}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
+              {articles.map((article) => (
+                <Grid item xs={12} sm={6} md={4} key={article.id}>
+                  <Card>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={article.imageUrl}
+                      alt={article.title}
+                    />
+                    <CardContent>
+                      <Typography variant="h6" component="div" fontWeight="bold">
+                        {article.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatDate(article.created_at)}
+                      </Typography>
+                    </CardContent>
+                    <Button onClick={() => handleCardClick(article.id)}>Xem chi tiết</Button>
+                  </Card>
+                </Grid>
+              ))}
             </Grid>
 
             {/* Featured Products */}
             <Grid container spacing={4} sx={{ marginTop: '40px' }}>
               <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h5" component="h2" fontWeight="bold">
-                  Khóa học mới nhất
+                  Sản phẩm nổi bật
                 </Typography>
-                <Box component="a" href="/products" sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}>
-                  Xem tất cả &gt;
-                </Box>
+                <Link href="/products" underline="none">
+                  Xem tất cả
+                </Link>
               </Grid>
-              {products.slice(0, 4).map((product) => (
-                <Grid item xs={6} sm={4} md={3} key={product.id} onClick={() => handleClick(product.id)}>
-                  <Card
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      cursor: 'pointer',
-                    }}
-                  >
+              {products.map((product) => (
+                <Grid item xs={12} sm={6} md={4} key={product.id}>
+                  <Card>
                     <CardMedia
                       component="img"
-                      height="140"
+                      height="200"
                       image={product.image_url}
                       alt={product.name}
                     />
                     <CardContent>
-                      <Typography variant="h6" fontWeight="bold">
+                      <Typography variant="h6" component="div" fontWeight="bold">
                         {product.name}
                       </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {product.discount.toLocaleString()} VND
-                        <strike>{product.price.toLocaleString()} VND</strike>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatUpdatedAt(product.updated_at)}
                       </Typography>
                     </CardContent>
+                    <Button onClick={() => handleClick(product.id)}>Xem chi tiết</Button>
                   </Card>
                 </Grid>
               ))}
