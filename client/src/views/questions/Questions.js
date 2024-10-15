@@ -72,7 +72,7 @@ const Questions = () => {
   const [commentImages, setCommentImages] = useState([]);
   const [replyImages, setReplyImages] = useState([]);
   const storage = getStorage();
-  const [ setReplyingToUsername] = useState('');
+  const [replyingToUsername, setReplyingToUsername] = useState('');
 
 
   const handleAddReplyImage = (event) => {
@@ -101,7 +101,7 @@ const Questions = () => {
       setNewReplies((prev) => ({ ...prev, [comment.id]: '' })); // Thiết lập nội dung trả lời
     }
   };
-  
+
   // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
     userData.current = JSON.parse(localStorage.getItem('user'));
@@ -325,7 +325,14 @@ const Questions = () => {
         setCommentImages([]); // Clear images after submission
   
         // Cập nhật trạng thái của component
-        setListQuestion((prevList) => [...prevList, { ...commentData, id: questionId }]);
+        setListQuestion((prevList) => {
+          const newList = [...prevList];
+          const index = newList.findIndex((item) => item.id === questionId);
+          if (index !== -1) {
+            newList[index] = { ...newList[index], comments: commentData.comments };
+          }
+          return newList;
+        });
   
         // Show success notification
         setSnackbarMessage("Bình luận của bạn đã được gửi.");
@@ -336,15 +343,15 @@ const Questions = () => {
       console.error('Error adding comment:', error);
     }
   };
-  
+
   const handleAddReply = async (questionId, commentId) => {
     try {
       const commentRef = doc(db, 'questions', questionId);
       const commentSnap = await getDoc(commentRef);
   
       if (commentSnap.exists()) {
+        // Tài liệu có ID là questionId tồn tại
         const commentData = commentSnap.data();
-        const commentIndex = commentData.comments.findIndex((comment) => comment.id === commentId);
         const newReply = {
           user_id: userData.current.id,
           content: newReplies[commentId] || '',
@@ -364,30 +371,40 @@ const Questions = () => {
           newReply.imageUrls = images;
         }
   
-        if (!commentData.comments[commentIndex].replies) {
-          commentData.comments[commentIndex].replies = [];
+        if (!commentData.comments) {
+          commentData.comments = [];
         }
   
-        commentData.comments[commentIndex].replies.push(newReply);
+        const commentIndex = commentData.comments.findIndex((comment) => comment.id === commentId);
+        if (commentIndex !== -1) {
+          if (!commentData.comments[commentIndex].replies) {
+            commentData.comments[commentIndex].replies = [];
+          }
+          commentData.comments[commentIndex].replies.push(newReply);
+        } else {
+          console.error("Bình luận không tồn tại");
+        }
+  
         await updateDoc(commentRef, commentData);
         setNewReplies((prev) => ({ ...prev, [commentId]: '' })); // Clear reply input
         setReplyImages([]); // Clear reply images after submission
         setReplyingTo(null); // Close reply form
   
         // Cập nhật trạng thái của component
-        setListQuestion((prevList) => {
-          const newList = [...prevList];
-          const index = newList.findIndex((item) => item.id === questionId);
-          if (index !== -1) {
-            newList[index] = commentData;
-          }
-          return newList;
-        });
+        const newList = [...listQuestion];
+        const index = newList.findIndex((item) => item.id === questionId);
+        if (index !== -1) {
+          newList[index] = { ...newList[index], comments: commentData.comments };
+        }
+        setListQuestion(newList);
   
         // Show success notification
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true); // Open the Snackbar
+      } else {
+        // Tài liệu có ID là questionId không tồn tại
+        console.error("Tài liệu có ID là questionId không tồn tại");
       }
     } catch (error) {
       console.error('Error adding reply:', error);
@@ -885,7 +902,7 @@ const Questions = () => {
                                   <img
                                     src={image}
                                     alt=""
-                                    style={{ width: '100%', height: 'auto', borderRadius: '8px' , maxWidth: '300px' }}
+                                    style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }}
                                   />
                                 </Box>
                               ))}
@@ -1008,7 +1025,7 @@ const Questions = () => {
                                   {users.find((user) => user.id === comment.user_id)?.name}
                                 </Typography>
                               </Box>
-                              <Typography variant="body2" sx={{ mt: 1 , fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5' }}>
+                              <Typography variant="body2" sx={{ mt: 1, fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5' }}>
                                 {comment.content}
                               </Typography>
                               {comment.imageUrls?.length > 0 && (
@@ -1026,7 +1043,7 @@ const Questions = () => {
                                       <img
                                         src={image}
                                         alt=""
-                                        style={{ width: '100%', height: 'auto', borderRadius: '8px' , maxWidth: '300px'}}
+                                        style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }}
                                       />
                                     </Box>
                                   ))}
@@ -1086,9 +1103,33 @@ const Questions = () => {
                               {/* Displaying Replies */}
                               {comment.replies?.map((reply) => (
                                 <Box key={reply.id} sx={{ pl: 4 }}>
-                                  <Typography variant="body2" sx={{ mt: 1 }}>
-                                    {users.find((user) => user.id === reply.user_id)?.name}: {reply.content}
+                                  <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>
+                                    <span style={{ color: 'darkblue' }}>
+                                      {users.find((user) => user.id === reply.user_id)?.name}:
+                                    </span>
+                                    <span style={{ color: 'gray' }}> {reply.content}</span>
                                   </Typography>
+                                  {reply.imageUrls?.length > 0 && (
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '5px' }}>
+                                      {reply.imageUrls.map((image, index) => (
+                                        <Box
+                                          key={index}
+                                          sx={{
+                                            flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
+                                            flexGrow: 1,
+                                            maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
+                                            mb: 2,
+                                          }}
+                                        >
+                                          <img
+                                            src={image}
+                                            alt=""
+                                            style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }}
+                                          />
+                                        </Box>
+                                      ))}
+                                    </Box>
+                                  )}
                                 </Box>
                               ))}
                             </Box>
