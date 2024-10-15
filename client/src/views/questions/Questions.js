@@ -998,7 +998,12 @@ const Questions = () => {
                                 variant="contained"
                                 color="primary"
                                 onClick={() => handleAddComment(question.id, newComment, commentImages)}
-                                sx={{ padding: '6px 12px', height: 'fit-content' }}
+                                sx={{
+                                  textTransform: 'none',
+                                  borderRadius: '16px',
+                                  padding: '5px 20px',
+                                  fontWeight: 'bold',
+                                }}
                               >
                                 Gửi
                               </Button>
