@@ -56,6 +56,7 @@ const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormA
 const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
 const AddProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')));
 const ProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail')));
+const EditProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')));
 
 
 
@@ -155,7 +156,7 @@ const renderRoutes = (role) => {
         { path: 'orders', exact: true, element: <Orders /> }, 
         { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
         { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
-        
+        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
