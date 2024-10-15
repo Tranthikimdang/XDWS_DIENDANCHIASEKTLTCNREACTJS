@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
 import { useForm } from 'react-hook-form';
@@ -93,10 +94,10 @@ function FormAddCate() {
             />
             {/* Error message for required and minLength validations */}
             {errors.name && errors.name.type === 'required' && (
-              <span className='text-danger' style={smallFontStyle}>Name is required</span>
+              <span className='text-danger' style={smallFontStyle}>Tên danh mục là bắt buộc</span>
             )}
             {errors.name && errors.name.type === 'minLength' && (
-              <span className='text-danger' style={smallFontStyle}>Name must be at least 3 characters long</span>
+              <span className='text-danger' style={smallFontStyle}>Tên phải có ít nhất 3 ký tự</span>
             )}
             {/* Error message for duplicate category name */}
             {errors.name && errors.name.type === 'manual' && (
