@@ -310,7 +310,7 @@ const Questions = () => {
                     <img
                       key={index}
                       src={url}
-                      alt={`Uploaded image ${index}`}
+                      alt="không có hình ảnh nào"
                       width="100px"
                       height="100px"
                       style={{ borderRadius: '8px' }}

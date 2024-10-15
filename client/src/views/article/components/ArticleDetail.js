@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Box, Grid, Typography, IconButton, Avatar, Divider, CircularProgress, Dialog, DialogTitle, DialogContent, List, ListItem, TextField, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -23,6 +24,8 @@ const ArticleDetail = () => {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
+  const [catesMap, setCatesMap] = useState({});
+  const [cates, setCates] = useState([]);
   const [comments, setComments] = useState([]);
   const [openCommentsDialog, setOpenCommentsDialog] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -84,6 +87,30 @@ const ArticleDetail = () => {
       }
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoading(true);
+      try {
+        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        setCates(categoriesData);
+
+        // Create a mapping of category ID to name
+        const categoriesMap = categoriesData.reduce((map, category) => {
+          map[category.id] = category.name;
+          return map;
+        }, {});
+        setCatesMap(categoriesMap);
+
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchArticle = async () => {
@@ -331,14 +358,13 @@ const ArticleDetail = () => {
           </Typography>
           <Box display="flex" alignItems="center" mb={2}>
             <img
-              src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-              width="40px"
+              src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
               alt="User Avatar"
-              style={{ borderRadius: '50%', marginRight: '10px' }}
-            /> <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
+              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+            />
+            <Typography variant="subtitle1" sx={{ marginTop: '10px' }}>
               {users?.find(u => article?.user_id === u.id)?.name || "Unknown"}
             </Typography>
-
           </Box>
 
           {/* <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
@@ -361,60 +387,34 @@ const ArticleDetail = () => {
             <img src={article.image || 'https://via.placeholder.com/800x400'} alt="Article" style={{ width: '100%', borderRadius: '8px' }} />
           </Box>
 
-          {/* <Box sx={{ marginTop: '20px' }}>
+          <Box sx={{ marginTop: '20px' }}>
             <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
-              {article.categories_id}
+              {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
             </Typography>
-          </Box> */}
-
-          <Box sx={{ padding: '20px' }}>
-            <Box mb={4}>
-              <Typography variant="h5" gutterBottom>
-                Bài đăng cùng tác giả
-              </Typography>
-              <ul>
-                <li>
-                  <Link href="#" underline="hover" sx={{ color: 'black' }}>
-                    Thư cảm ơn gửi đến anh Sơn
-                  </Link>
-                </li>
-              </ul>
-            </Box>
-
-            <Divider sx={{ borderBottomWidth: 5, marginBottom: '20px', borderColor: '#5d86fe' }} />
-
-            <Typography variant="h5" gutterBottom>
-              Bài viết nổi bật khác
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton aria-label="like" sx={{ color: 'blue' }}>
+              <IconHeart />
+            </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+              15
             </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Card>
-                  <CardMedia component="img" alt="Image 1" height="140" image="https://files.fullstack.edu.vn/f8-prod/blog_posts/279/6153f692d366e.jpg" title="Image 1" />
-                </Card>
-              </Grid>
-            </Grid>
-            <Box mt={2}>
-              <Typography variant="body2">
-                Bài viết này hiện có <strong>{comments.length}</strong> bình luận
-              </Typography>
-              <IconButton aria-label="reply" sx={{ marginLeft: 'auto', display: 'block' }} onClick={() => setOpenCommentsDialog(true)}>
-                {/* <ReplyIcon /> */}
-              </IconButton>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton aria-label="like" sx={{ color: 'blue' }}>
-                <IconHeart />
-              </IconButton>
-              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-                15
-              </Typography>
-              <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
-                <IconMessageCircle />
-              </IconButton>
-              <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
-                {comments.length}
-              </Typography>
-            </Box>
+            <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => setOpenCommentsDialog(true)}>
+              <IconMessageCircle />
+            </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>
+              {comments.length}
+            </Typography>
+          </Box>
+
+          {/* code  */}
+          <Box mt={2}>
+            <Typography variant="body2">
+              Bài viết này hiện có <strong>{comments.length}</strong> bình luận
+            </Typography>
+            <IconButton aria-label="reply" sx={{ marginLeft: 'auto', display: 'block' }} onClick={() => setOpenCommentsDialog(true)}>
+              {/* <ReplyIcon /> */}
+            </IconButton>
           </Box>
         </Grid>
       </Grid>
@@ -497,7 +497,7 @@ const ArticleDetail = () => {
                     {comment.content}
                   </Typography>
                   <Typography variant="caption" color="textSecondary">
-                    {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true , locale: vi  })}
+                    {formatDistanceToNow(new Date(comment.created_date), { addSuffix: true, locale: vi })}
                   </Typography>
                   <Box display="flex" alignItems="center" mt={1}>
                     <IconButton
@@ -575,7 +575,7 @@ const ArticleDetail = () => {
                               {reply.content}
                             </Typography>
                             <Typography variant="caption" color="textSecondary">
-                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true , locale: vi  })}
+                              {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true, locale: vi })}
                             </Typography>
                             <Box display="flex" alignItems="center" mt={1}>
                               <IconButton

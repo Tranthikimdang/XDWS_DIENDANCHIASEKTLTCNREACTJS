@@ -319,7 +319,7 @@ function Article() {
                                     </strong>
                                   </VuiTypography>
                                   <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                    {cates[row.categories_id]}
+                                    {cates[row.categories_id]|| 'không có danh mục'}
                                   </VuiTypography>
                                 </VuiBox>
                               </div>
@@ -327,6 +327,11 @@ function Article() {
                           ),
                           author: (
                             <VuiBox>
+                            <img
+                              src={users?.find(u => row.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                              alt="User Avatar"
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                            />
                               <VuiTypography variant="button" color="white" fontWeight="medium">
                                 {authorName}
                               </VuiTypography>

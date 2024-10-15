@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import { useEffect, useRef, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
@@ -73,8 +74,6 @@ const Questions = () => {
   const [replyImages, setReplyImages] = useState([]);
   const storage = getStorage();
   const [replyingToUsername, setReplyingToUsername] = useState('');
-
-
   const handleAddReplyImage = (event) => {
     const images = event.target.files;
     const imagesArray = Array.from(images);
@@ -103,26 +102,45 @@ const Questions = () => {
   };
 
   // Lấy danh sách người dùng từ Firestore
+  const [currentUserImage, setCurrentUserImage] = useState('');
+
   useEffect(() => {
-    userData.current = JSON.parse(localStorage.getItem('user'));
+    const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
+    userData.current = userDataFromLocalStorage;
+
     const fetchUsers = async () => {
-      setLoading(true);
+      setLoading(true); // Bắt đầu trạng thái loading
       try {
+        // Lấy danh sách người dùng từ Firestore
         const userCollectionRef = collection(db, "users");
         const userSnapshot = await getDocs(userCollectionRef);
         const userList = userSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setUsers(userList);
+
+        setUsers(userList); // Lưu danh sách người dùng vào state
+
         console.log("Lấy người dùng:", userList);
+
+        // Tìm thông tin người dùng hiện tại dựa trên user ID trong localStorage
+        const currentUserInfo = userList.find(user => user.id === userDataFromLocalStorage?.id);
+
+        // Cập nhật hình ảnh người dùng hiện tại
+        if (currentUserInfo && currentUserInfo.imageUrl) {
+          setCurrentUserImage(currentUserInfo.imageUrl);
+        } else {
+          setCurrentUserImage('default-image-url.jpg'); // Hình ảnh mặc định nếu không có
+        }
+
       } catch (error) {
         console.error("Lỗi khi lấy người dùng:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Kết thúc trạng thái loading
       }
     };
-    fetchUsers();
+
+    fetchUsers(); // Gọi hàm lấy người dùng khi component mount
   }, []);
 
   // Fetch articles
@@ -293,7 +311,7 @@ const Questions = () => {
     try {
       const commentRef = doc(db, 'questions', questionId);
       const commentSnap = await getDoc(commentRef);
-  
+
       if (commentSnap.exists()) {
         const commentData = commentSnap.data();
         const newCommentData = {
@@ -303,7 +321,7 @@ const Questions = () => {
           created_at: new Date(),
           replies: []
         };
-  
+
         // Upload images for the comment
         if (commentImages.length > 0) {
           const images = [];
@@ -315,7 +333,7 @@ const Questions = () => {
           }
           newCommentData.imageUrls = images;
         }
-  
+
         if (!commentData.comments) {
           commentData.comments = [];
         }
@@ -323,7 +341,7 @@ const Questions = () => {
         await updateDoc(commentRef, commentData);
         setNewComment(''); // Clear comment input
         setCommentImages([]); // Clear images after submission
-  
+
         // Cập nhật trạng thái của component
         setListQuestion((prevList) => {
           const newList = [...prevList];
@@ -333,7 +351,7 @@ const Questions = () => {
           }
           return newList;
         });
-  
+
         // Show success notification
         setSnackbarMessage("Bình luận của bạn đã được gửi.");
         setSnackbarSeverity("success");
@@ -348,7 +366,7 @@ const Questions = () => {
     try {
       const commentRef = doc(db, 'questions', questionId);
       const commentSnap = await getDoc(commentRef);
-  
+
       if (commentSnap.exists()) {
         // Tài liệu có ID là questionId tồn tại
         const commentData = commentSnap.data();
@@ -358,7 +376,7 @@ const Questions = () => {
           imageUrls: [],
           created_at: new Date(),
         };
-  
+
         // Upload images for the reply
         if (replyImages.length > 0) {
           const images = [];
@@ -370,11 +388,11 @@ const Questions = () => {
           }
           newReply.imageUrls = images;
         }
-  
+
         if (!commentData.comments) {
           commentData.comments = [];
         }
-  
+
         const commentIndex = commentData.comments.findIndex((comment) => comment.id === commentId);
         if (commentIndex !== -1) {
           if (!commentData.comments[commentIndex].replies) {
@@ -384,12 +402,12 @@ const Questions = () => {
         } else {
           console.error("Bình luận không tồn tại");
         }
-  
+
         await updateDoc(commentRef, commentData);
         setNewReplies((prev) => ({ ...prev, [commentId]: '' })); // Clear reply input
         setReplyImages([]); // Clear reply images after submission
         setReplyingTo(null); // Close reply form
-  
+
         // Cập nhật trạng thái của component
         const newList = [...listQuestion];
         const index = newList.findIndex((item) => item.id === questionId);
@@ -397,7 +415,7 @@ const Questions = () => {
           newList[index] = { ...newList[index], comments: commentData.comments };
         }
         setListQuestion(newList);
-  
+
         // Show success notification
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
@@ -569,7 +587,8 @@ const Questions = () => {
               <Box component="form" onSubmit={handleSubmit}>
                 <Box display="flex" alignItems="center" mb={2}>
                   <img
-                    src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
+                    // eslint-disable-next-line no-undef
+                    src={currentUserImage || 'default-image-url.jpg'}
                     width="40px"
                     alt="User Avatar"
                     style={{ borderRadius: '50%', marginRight: '10px' }}
@@ -727,10 +746,9 @@ const Questions = () => {
                         <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
                           <Box display="flex" alignItems="center">
                             <img
-                              src={listUser.current.find(user => user.id === question?.user_id)?.avatar || "http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"}
-                              width="40px"
-                              alt="User Avatar"
-                              style={{ borderRadius: '50%', marginRight: '10px' }}
+                              src={users?.find(u => question?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                              alt="Author"
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                             />
                             <Box>
                               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -902,7 +920,7 @@ const Questions = () => {
                                   <img
                                     src={image}
                                     alt=""
-                                    style={{ width: '100%', height: 'auto', borderRadius: '8px', maxWidth: '300px' }}
+                                    style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                                   />
                                 </Box>
                               ))}
@@ -980,10 +998,11 @@ const Questions = () => {
                             {/* Flex container for user avatar, text input, and button */}
                             <Box display="flex" alignItems="center" mb={1}>
                               <img
-                                src={userData.current.avatar || "http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"}
+                                // eslint-disable-next-line no-undef
+                                src={currentUserImage || 'default-image-url.jpg'}
+                                width="40px"
                                 alt="User Avatar"
                                 style={{ borderRadius: '50%', marginRight: '10px' }}
-                                width="40px"
                               />
                               <TextField
                                 label="Viết bình luận..."
@@ -1191,57 +1210,7 @@ const Questions = () => {
                 backgroundColor: '#fff',
               }}
             >
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Theo dõi người dùng khác</Typography>
-                <IconButton>
-                  <MoreHorizIcon />
-                </IconButton>
-              </Box>
-              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
-
-              {/* Follow List */}
-              <List>
-                {[
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                  'Katheryn Winnick',
-                ].map((name, index) => (
-                  <ListItem key={index} sx={{ padding: 0 }}>
-                    <Box
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="space-between"
-                      width="100%"
-                    >
-                      <Box display="flex" alignItems="center">
-                        <img
-                          src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg" // Replace with the correct image URL path
-                          alt={name}
-                          style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
-                        />
-                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
-                          {name}
-                        </Typography>
-                      </Box>
-                      <Button
-                        variant="outlined"
-                        sx={{
-                          textTransform: 'none',
-                          padding: '2px 10px',
-                          fontSize: '0.8rem',
-                          borderRadius: '16px',
-                        }}
-                      >
-                        + Theo dõi
-                      </Button>
-                    </Box>
-                  </ListItem>
-                ))}
-              </List>
+              {/* code theo doi nguoi dung o day */}
             </Box>
             {/* Popular Articles Section */}
             <Box

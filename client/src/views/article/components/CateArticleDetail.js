@@ -108,7 +108,7 @@ const Article = () => {
     { icon: <LinkIcon />, text: 'Copy Link' },
     { icon: <FlagIcon />, text: 'Report Article' },
   ];
-  
+
   //xóa các thẻ html
   const removeHtmlTags = (html) => {
     return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
@@ -229,10 +229,9 @@ const Article = () => {
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                             <img
-                              src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-                              width="40px"
+                              src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
                               alt="User Avatar"
-                              style={{ borderRadius: '50%', marginRight: '10px' }}
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                             />
                             <Typography variant="body1" component="span" className="author-name">
                               <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>

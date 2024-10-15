@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -12,8 +13,9 @@ import {
   CardContent,
   CardMedia,
   CircularProgress,
+  Link,
 } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled,  } from '@mui/system';
 
 // Icon
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -69,7 +71,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [catesMap, setCatesMap] = useState({});
 
-
   const handleCardClick = (articleId) => {
     navigate(`/article/${articleId}`, { state: { id: articleId } });
   };
@@ -101,21 +102,23 @@ const Home = () => {
       setLoading(true);
       try {
         const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         const categoriesMap = categoriesData.reduce((map, category) => {
           map[category.id] = category.name;
           return map;
         }, {});
         setCatesMap(categoriesMap);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error('Error fetching categories:', error);
       } finally {
         setLoading(false);
       }
     };
     fetchCategories();
   }, []);
-
 
   // Fetch products
   useEffect(() => {
@@ -163,7 +166,6 @@ const Home = () => {
 
     return updatedAtString;
   };
-
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
@@ -283,12 +285,16 @@ const Home = () => {
                 <Typography variant="h5" component="h2" fontWeight="bold">
                   Bài viết nổi bật
                 </Typography>
-                <Box component="a" href="/article" sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}>
+                <Box
+                  component="a"
+                  href="/article"
+                  sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
+                >
                   Xem tất cả &gt;
                 </Box>
               </Grid>
               {articles
-                .filter(article => article.isApproved === 1) // Lọc bài viết có isApproved = 1
+                .filter((article) => article.isApproved === 1) // Lọc bài viết có isApproved = 1
                 .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
                 .map((article) => (
                   <Grid item xs={6} sm={4} md={3} key={article.id}>
@@ -308,13 +314,27 @@ const Home = () => {
                         alt={article.title}
                       />
                       <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography gutterBottom variant="body2" component="div" sx={{ fontSize: '0.875rem' }}>
+                        <Typography
+                          gutterBottom
+                          variant="body2"
+                          component="div"
+                          sx={{ fontSize: '0.875rem' }}
+                        >
                           {article.title}
                         </Typography>
 
-
                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                          <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
+                          <Typography
+                            variant="body2"
+                            color="textSecondary"
+                            sx={{
+                              backgroundColor: '#f0f0f0',
+                              borderRadius: '5px',
+                              padding: '5px 10px',
+                              color: '#555',
+                              display: 'inline-block',
+                            }}
+                          >
                             {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
                           </Typography>
                           <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
@@ -327,40 +347,33 @@ const Home = () => {
                 ))}
             </Grid>
 
-            {/* Featured Products */}
             <Grid container spacing={4} sx={{ marginTop: '40px' }}>
               <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h5" component="h2" fontWeight="bold">
-                  Khóa học mới nhất
+                  Sản phẩm nổi bật
                 </Typography>
-                <Box component="a" href="/products" sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}>
-                  Xem tất cả &gt;
-                </Box>
+                <Link href="/products" underline="none">
+                  Xem tất cả
+                </Link>
               </Grid>
-              {products.slice(0, 4).map((product) => (
-                <Grid item xs={6} sm={4} md={3} key={product.id} onClick={() => handleClick(product.id)}>
-                  <Card
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      cursor: 'pointer',
-                    }}
-                  >
+              {products.slice(0, 3).map((product) => (
+                <Grid item xs={12} sm={6} md={4} key={product.id}>
+                  <Card>
                     <CardMedia
                       component="img"
-                      height="140"
+                      height="200"
                       image={product.image_url}
                       alt={product.name}
                     />
                     <CardContent>
-                      <Typography variant="h6" fontWeight="bold">
+                      <Typography variant="h6" component="div" fontWeight="bold">
                         {product.name}
                       </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {product.discount.toLocaleString()} VND
-                        <strike>{product.price.toLocaleString()} VND</strike>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatUpdatedAt(product.updated_at)}
                       </Typography>
                     </CardContent>
+                    <Button onClick={() => handleClick(product.id)}>Xem chi tiết</Button>
                   </Card>
                 </Grid>
               ))}

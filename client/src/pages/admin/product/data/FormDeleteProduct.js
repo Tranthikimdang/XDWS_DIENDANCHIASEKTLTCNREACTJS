@@ -6,7 +6,7 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import VuiTypography from '../../../../components/admin/VuiTypography';
 
-function ConfirmDialog({ open, onClose, onConfirm, itemTitle }) {
+function ConfirmDialog({ open, onClose, onConfirm, itemName }) {
   const handleConfirm = () => {
     onConfirm();
     onClose();
@@ -14,10 +14,10 @@ function ConfirmDialog({ open, onClose, onConfirm, itemTitle }) {
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Confirm Delete</DialogTitle>
+      <DialogTitle>Xác nhận xóa</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
-          Are you sure you want to delete the post title "{itemTitle}"?
+        Bạn có chắc chắn muốn xóa sản phẩm có tên  "{itemName}"?
         </VuiTypography>
       </DialogContent>
       <DialogActions>
