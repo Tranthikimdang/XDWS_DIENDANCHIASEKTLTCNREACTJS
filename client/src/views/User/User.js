@@ -1,7 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Search as SearchIcon } from '@mui/icons-material'; // Icon for search
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig'; // Firebase configuration
 import {
   Grid,
   Box,
@@ -31,11 +28,6 @@ const User = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'users')); // Fetch users from Firestore
-        const userList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
         const querySnapshot = await getDocs(collection(db, 'users'));
         const userList = await Promise.all(
           querySnapshot.docs.map(async (doc) => {
@@ -81,13 +73,10 @@ const User = () => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter((user) => 
-    user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())
   // Filter users based on search term
   const filteredUsers = users.filter(
     (user) => user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-  
 
   // Calculate the current users to display
   const indexOfLastUser = currentPage * usersPerPage;
@@ -113,7 +102,6 @@ const User = () => {
   return (
     <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={4}>
-        {/* Title */}
         <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
           <Typography
             variant="h4"
@@ -124,8 +112,6 @@ const User = () => {
             Danh Sách Tài Khoản
           </Typography>
         </Grid>
-
-        {/* Search Field */}
 
         <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
           <TextField
@@ -156,12 +142,8 @@ const User = () => {
           />
         </Grid>
 
-        {/* User Cards */}
         {loading ? (
           <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
-        ) : filteredUsers.length > 0 ? (
-          filteredUsers.map((user) => (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={user.id}>
         ) : currentUsers.length > 0 ? (
           currentUsers.map((user) => (
             <Grid item xs={12} sm={6} md={4} key={user.id}>
@@ -178,38 +160,24 @@ const User = () => {
                   },
                 }}
               >
-                {/* User Avatar */}
                 <Box sx={{ flexShrink: 0 }}>
                   <CardMedia
                     component="img"
                     image={user.image} // Use URL from Firebase Storage or fallback
                     alt={user.name}
                     sx={{
-                      width: '100px',
-                      height: '100px',
+                      width: '120px',
+                      height: '120px',
                       objectFit: 'cover',
                       borderRadius: '50%',
-                      margin: '10px',
+                      margin: '16px',
                       border: '4px solid #fff',
                       boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
                     }}
                   />
                 </Box>
 
-                {/* User Info */}
                 <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <CardContent className="card-content" sx={{ padding: '10px' }}>
-                    <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                      {user.name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
-                      {user.email}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#7f8c8d' }}>
-                      {user.location || 'Unknown Location'}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: '#16a085' }}>
-                      Articles: {user.articleCount || 0}
                   <CardContent className="card-content" sx={{ padding: '16px' }}>
                     <Typography
                       variant="h6"
@@ -268,4 +236,3 @@ const User = () => {
 };
 
 export default User;
-

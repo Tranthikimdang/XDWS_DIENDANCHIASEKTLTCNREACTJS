@@ -3,23 +3,24 @@ import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useParams, useNavigate } from "react-router-dom";
+import { Editor } from "@tinymce/tinymce-react";
 import { Snackbar, Alert } from "@mui/material";
 
 // Firebase
 import { db, storage } from '../../../../config/firebaseconfig';
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, serverTimestamp } from "firebase/firestore";  // Add serverTimestamp
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 function FormEditBanner() {
-  const { id } = useParams(); // Lấy ID từ URL
+  const { id } = useParams(); 
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [data, setData] = useState(null); // Dữ liệu Banner
+  const [data, setData] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
 
-  // Lấy dữ liệu Banner dựa trên ID
+  // Fetch Banner data based on ID
   useEffect(() => {
     const fetchBanner = async () => {
       try {
@@ -65,6 +66,7 @@ function FormEditBanner() {
       const imageRef = ref(storage, `images/${file.name}`);
       await uploadBytes(imageRef, file);
       const imageUrl = await getDownloadURL(imageRef);
+      console.log("Hình ảnh đã được tải lên thành công, URL:", imageUrl);
       return imageUrl;
     } catch (error) {
       console.error("Lỗi khi tải ảnh lên:", error);
@@ -78,12 +80,15 @@ function FormEditBanner() {
       if (formData.image && formData.image[0]) {
         imageUrl = await handleImageUpload(formData.image[0]);
       }
+
       const BannerRef = doc(db, "Banners", id);
       await updateDoc(BannerRef, {
         title: formData.title,
-        content: formData.content, // Content is now plain text
+        content: formData.content,
         image: imageUrl,
+        lastUpdated: serverTimestamp()  // Update the lastUpdated field with current timestamp
       });
+
       setSnackbarMessage("Cập nhật Banner thành công.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -123,13 +128,12 @@ function FormEditBanner() {
               />
               {errors.title && <span className="text-danger">{errors.title.message}</span>}
             </div>
-          </div>
-          <div className="row">
             <div className="col-6 mb-3">
               <label className="text-light form-label">Hình ảnh</label>
               <input
                 className={`form-control bg-dark text-light ${errors.image ? "is-invalid" : ""}`}
                 type="file"
+                {...register("image")}
                 onChange={handleImageChange}
               />
               {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
@@ -138,10 +142,24 @@ function FormEditBanner() {
           {imagePreview && <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" style={{ maxWidth: "160px" }} />}
           <div className="mb-3">
             <label className="text-light form-label">Nội dung</label>
-            <textarea
-              className={`form-control bg-dark text-light ${errors.content ? "is-invalid" : ""}`}
-              {...register("content", { required: "Nội dung là bắt buộc" })}
-              rows="10"
+            <Editor
+              apiKey="qgviuf41lglq9gqkkx6nmyv7gc5z4a1vgfuvfxf2t38dmbss"
+              init={{
+                height: 500,
+                menubar: false,
+                plugins: [
+                  "anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount",
+                  "mediaembed casechange export formatpainter pageembed linkchecker",
+                  "a11ychecker tinymcespellchecker permanentpen powerpaste advtable",
+                  "advcode editimage advtemplate ai mentions tinycomments tableofcontents",
+                  "footnotes mergetags autocorrect typography inlinecss markdown",
+                ],
+                toolbar:
+                  "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | align lineheight | numlist bullist indent outdent | link image media table codesample | customInsertImage | removeformat | addcomment showcomments | spellcheckdialog a11ycheck typography",
+                content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+              }}
+              onEditorChange={(content) => setValue("content", content)}
+              initialValue={data?.content || ""}
             />
             {errors.content && <span className="text-danger">{errors.content.message}</span>}
           </div>
@@ -155,13 +173,12 @@ function FormEditBanner() {
         open={snackbarOpen}
         autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }} // Updated positioning
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
-
     </DashboardLayout>
   );
 }
