@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import {  useLocation , useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
@@ -11,7 +11,7 @@ import ConfirmDialog from './data/formDeleteComment';
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
-import { collection, doc, updateDoc, deleteDoc, onSnapshot } from "firebase/firestore";
+import { collection, doc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from 'src/config/firebaseconfig';
 
 function CommentDetail() {
@@ -37,7 +37,7 @@ function CommentDetail() {
         ...doc.data(),
       }));
 
-      const filteredComments = commentsList.filter(cmt => cmt.article_id == id);
+      const filteredComments = commentsList.filter(cmt => cmt.article_id === id);
       setRows(filteredComments);
       setLoading(false); // Dừng loading khi có dữ liệu
     });
@@ -50,35 +50,35 @@ function CommentDetail() {
     setOpenDialog(true);
   };
 
-  const approveComment = async (commentId) => {
-    try {
-      const commentRef = doc(db, 'commentDetails', commentId);
-      await updateDoc(commentRef, { status: 'approved' });
-      setSnackbarMessage("Bình luận đã được phê duyệt");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Error approving comment:', error);
-      setSnackbarMessage("Failed to approve comment.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
+  // const approveComment = async (commentId) => {
+  //   try {
+  //     const commentRef = doc(db, 'commentDetails', commentId);
+  //     await updateDoc(commentRef, { status: 'approved' });
+  //     setSnackbarMessage("Bình luận đã được phê duyệt");
+  //     setSnackbarSeverity("success");
+  //     setSnackbarOpen(true);
+  //   } catch (error) {
+  //     console.error('Error approving comment:', error);
+  //     setSnackbarMessage("Failed to approve comment.");
+  //     setSnackbarSeverity("error");
+  //     setSnackbarOpen(true);
+  //   }
+  // };
 
-  const rejectComment = async (commentId) => {
-    try {
-      const commentRef = doc(db, 'commentDetails', commentId);
-      await updateDoc(commentRef, { status: 'rejected' });
-      setSnackbarMessage("Bình luận không được phê duyệt.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Error rejecting comment:', error);
-      setSnackbarMessage("Lỗi Bình luận không được phê duyệt");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
-  };
+  // const rejectComment = async (commentId) => {
+  //   try {
+  //     const commentRef = doc(db, 'commentDetails', commentId);
+  //     await updateDoc(commentRef, { status: 'rejected' });
+  //     setSnackbarMessage("Bình luận không được phê duyệt.");
+  //     setSnackbarSeverity("success");
+  //     setSnackbarOpen(true);
+  //   } catch (error) {
+  //     console.error('Error rejecting comment:', error);
+  //     setSnackbarMessage("Lỗi Bình luận không được phê duyệt");
+  //     setSnackbarSeverity("error");
+  //     setSnackbarOpen(true);
+  //   }
+  // };
 
   const confirmDelete = async (deleteId) => {
     try {
@@ -122,7 +122,7 @@ function CommentDetail() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-               Bảng Chi Tiết Bình Luận
+                Bảng Chi Tiết Bình Luận
               </VuiTypography>
               {/* <Link to={{ pathname: "/formAddCmt", state: { id: id } }}>
                 <button className='text-light btn btn-outline-info' type="button">
@@ -148,9 +148,18 @@ function CommentDetail() {
                   rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
                     ...row,
                     '#': page * rowsPerPage + index + 1,
+                    image: row.images && row.images.length > 0 ? (
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        {row.images.map((img, imgIndex) => (
+                          <img key={imgIndex} src={img} alt={`comment-image-${imgIndex}`} style={{ width: '100px', height: '100px', margin: '0 5px', objectFit: 'cover', borderRadius:'5px' }} />
+                        ))}
+                      </div>
+                    ) : (
+                      'Bình luận không có ảnh'
+                    ),
                     action: (
                       <div>
-                        <button className="text-light btn btn-outline-success me-2" type="button" onClick={() => approveComment(row.id)}>
+                        {/* <button className="text-light btn btn-outline-success me-2" type="button" onClick={() => approveComment(row.id)}>
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
                             <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
                             <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
@@ -161,7 +170,7 @@ function CommentDetail() {
                             <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
                             <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
                           </svg>
-                        </button>
+                        </button> */}
                         <button className="text-light btn btn-outline-danger" onClick={() => handleDelete(row.id)}>
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
                             <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
