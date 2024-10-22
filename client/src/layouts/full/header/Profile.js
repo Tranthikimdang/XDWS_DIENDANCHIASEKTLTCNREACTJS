@@ -29,6 +29,7 @@ const Profile = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const ProfileImg = user ? user.imageUrl : 'src/assets/images/profile/user-1.jpg';
 
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/');
