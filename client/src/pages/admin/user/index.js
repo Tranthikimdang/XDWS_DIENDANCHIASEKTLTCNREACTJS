@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
 import { Link } from 'react-router-dom';
@@ -114,39 +115,40 @@ function User() {
             ) : (
               <>
                 <VuiBox>
-                <Table
-  columns={columns}
-  rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
-    ...row,
-    no: page * rowsPerPage + index + 1,
-    avatar: (
-      <div style={{ textAlign: "center" }}>
-        <img 
-          src={row.imageUrl || '/default-avatar.png'} 
-          alt={row.name} 
-          style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }} 
-        />
-      </div>
-    ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
-    action: (
-      <div>
-        <Link to={`/admin/editUser/${row.id}`}>
-  <button className="text-light btn btn-outline-warning me-2" type="button">
-    Edit
-  </button>
-</Link>
+                  <Table
+                    columns={columns}
+                    rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
+                      ...row,
+                      no: page * rowsPerPage + index + 1,
+                      avatar: (
+                        <div style={{ textAlign: "center" }}>
+                          <img
+                            src={row.imageUrl || '/default-avatar.png'}
+                            alt={row.name}
+                            style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
+                          />
+                        </div>
+                      ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
+                      
+                      action: (
+                        <div>
+                          <Link to={`/admin/editUser/${row.id}`}>
+                            <button className="text-light btn btn-outline-warning me-2" type="button">
+                              Edit
+                            </button>
+                          </Link>
 
-        <button
-          className="text-light btn btn-outline-danger"
-          type="button"
-          onClick={() => handleDelete(row.id)}
-        >
-          Delete
-        </button>
-      </div>
-    ),
-  }))}
-/>
+                          <button
+                            className="text-light btn btn-outline-danger"
+                            type="button"
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ),
+                    }))}
+                  />
 
                 </VuiBox>
                 <div className="d-flex justify-content-center p-2 custom-pagination">
