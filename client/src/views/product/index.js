@@ -259,14 +259,14 @@ const Products = () => {
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Price: {product.price}{' '}
+                                  <span className="text-primary"> • </span>Giá gốc: {product.price}{' '}
                                   VND
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Discount:{' '}
-                                  {product.discount}%
+                                  <span className="text-primary"> • </span>Giảm giá còn:{' '}
+                                  {product.discount} VND
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small d-flex justify-content-start">

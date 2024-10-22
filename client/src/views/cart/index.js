@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, Modal, Button } from '@mui/material';
+import { Grid, Box, Typography, Modal, Button, TextField } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import { collection, onSnapshot, query, where, deleteDoc, doc, addDoc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, query, where, setDoc, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig';
 import './index.css';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -13,6 +13,10 @@ const Cart = () => {
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [showQRCodeDialog, setShowQRCodeDialog] = useState(false);
   const [qrCodeUrl, setQRCodeUrl] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [nameError, setNameError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
@@ -20,23 +24,22 @@ const Cart = () => {
   useEffect(() => {
     if (userId) {
       const q = query(collection(db, 'orders'), where('user_id', '==', userId));
-    
+
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const cartData = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        
+
         setCartItems(cartData);
-    
+
         if (cartData.length === 0) {
           setShowQRCodeDialog(false);
         }
       });
-    
+
       return () => unsubscribe();
     }
-    
   }, [userId]);
 
   useEffect(() => {
@@ -57,7 +60,16 @@ const Cart = () => {
   }, []);
 
   const handleRemove = async (id) => {
-    await deleteDoc(doc(db, 'orders', id));
+    try {
+      // Xóa sản phẩm khỏi Firestore
+      await deleteDoc(doc(db, 'orders', id));
+  
+      // Cập nhật UI sau khi xóa thành công
+      setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error('Error removing item:', error);
+      alert('Đã xảy ra lỗi khi xóa sản phẩm khỏi giỏ hàng. Vui lòng thử lại.');
+    }
   };
 
   const formatNumber = (number) => {
@@ -70,6 +82,12 @@ const Cart = () => {
       return;
     }
 
+    if (!name || !email) {
+      setNameError(!name);
+      setEmailError(!email);
+      return;
+    }
+
     try {
       setLoadingCheckout(true);
 
@@ -79,12 +97,14 @@ const Cart = () => {
       }, 0);
 
       const productNames = cartItems
-        .map((item) => products[item.product_id]?.name || 'Sản phẩm không tìm thấy')
-        .join(', ');
+        .map((item) => products[item.product_id]?.name || '.')
+        // .join(', ');
 
       // Create order in the 'orders' collection
       await setDoc(doc(collection(db, 'orders')), {
         user_id: userId,
+        user_name: name,
+        user_email: email,
         items: cartItems.map((item) => ({
           product_id: item.product_id,
           quantity: item.quantity || 1,
@@ -95,16 +115,18 @@ const Cart = () => {
         createdAt: new Date(),
       });
 
-      await Promise.all(cartItems.map((item) => deleteDoc(doc(db, 'orders', item.id))));
+      // Remove items from cart after successful checkout
+      await Promise.all(
+        cartItems.map((item) => deleteDoc(doc(db, 'orders', item.id)))
+      );
 
       alert('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
 
       // Generate QR code URL with total amount and product names as a note
-      const qrCodeUrl = `https://qr.sepay.vn/img?bank=Techcombank&acc=19071740706018&amount=${totalAmount}&des=${encodeURIComponent(
-        productNames
+      const qrCodeUrl = `https://qr.sepay.vn/img?bank=Techcombank&acc=19071740706018&amount=${totalAmount}&des='Khoá Học '${encodeURIComponent(
+        productNames,
       )}`;
       setQRCodeUrl(qrCodeUrl);
-
 
       // Show QR code dialog for e-wallet payment
       setShowQRCodeDialog(true);
@@ -148,7 +170,7 @@ const Cart = () => {
                                 )}
                                 <div className="ms-3">
                                   <h5>
-                                    {products[item.product_id]?.name || 'Sản phẩm không tìm thấy'}
+                                    {products[item.product_id]?.name || ''}
                                   </h5>
                                   <p className="small mb-0">ID sản phẩm: {item.product_id}</p>
                                 </div>
@@ -191,6 +213,53 @@ const Cart = () => {
                       VND
                     </p>
                   </div>
+
+                  {/* Name and Email Fields */}
+                  <TextField
+                    label="Tên người mua"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      setNameError(false);
+                    }}
+                    error={nameError}
+                    helperText={nameError ? 'Vui lòng nhập tên của bạn' : ''}
+                    InputLabelProps={{
+                      style: { color: 'white' }, // Label color
+                    }}
+                    InputProps={{
+                      style: { color: 'white' }, // Input text color
+                    }}
+                    FormHelperTextProps={{
+                      style: { color: 'white' }, // Helper text color
+                    }}
+                  />
+
+                  <TextField
+                    label="Email"
+                    variant="outlined"
+                    fullWidth
+                    margin="normal"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailError(false);
+                    }}
+                    error={emailError}
+                    helperText={emailError ? 'Vui lòng nhập email của bạn' : ''}
+                    InputLabelProps={{
+                      style: { color: 'white' }, // Label color
+                    }}
+                    InputProps={{
+                      style: { color: 'white' }, // Input text color
+                    }}
+                    FormHelperTextProps={{
+                      style: { color: 'white' }, // Helper text color
+                    }}
+                  />
 
                   <Button
                     variant="contained"

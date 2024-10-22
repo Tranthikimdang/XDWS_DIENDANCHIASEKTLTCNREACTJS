@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { db, storage } from '../../config/firebaseconfig';
 import Logo from 'src/layouts/full/shared/logo/Logo';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, getDoc } from 'firebase/firestore';
 import emailjs from 'emailjs-com';
 import { GoogleLogin } from 'react-google-login';
+import ConfirmDialog from 'src/components/ConfirmDialog';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,10 @@ const AuthRegister = ({ subtext }) => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+
   const navigate = useNavigate();
+  const recordCreated = useRef();
 
   // Toggle password visibility
   const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -77,7 +81,7 @@ const AuthRegister = ({ subtext }) => {
     };
 
     const usersRef = collection(db, 'users');
-    await addDoc(usersRef, newUser); // Thêm dữ liệu người dùng mới vào Firestore
+    return await addDoc(usersRef, newUser); // Thêm dữ liệu người dùng mới vào Firestore
   };
 
   // Xử lý việc submit form
@@ -98,9 +102,16 @@ const AuthRegister = ({ subtext }) => {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
       } else {
-        await addUser(formData);
-        alert('Tài khoản đã được tạo thành công, đăng nhập?');
-        navigate('/auth/login');
+        const data = await addUser(formData);
+        const docSnapshot = await getDoc(data);
+
+        if (docSnapshot.exists()) {
+          recordCreated.current = {id: data.id,...docSnapshot.data()};
+          setOpenDialog(true);
+        } else {
+          console.log('Không thành công!');
+          return null;
+        }
       }
     } catch (error) {
       alert('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
@@ -171,6 +182,15 @@ const AuthRegister = ({ subtext }) => {
     // }
   };
 
+  const onCancel = () => {
+    navigate('/auth/login');
+  };
+
+  const onConfirm = () => {
+    navigate('/mentor', { state: recordCreated.current });
+    setOpenDialog(false);
+  };
+
   // Hàm gửi email qua EmailJS
   const sendEmail = (data) => {
     emailjs
@@ -201,7 +221,6 @@ const AuthRegister = ({ subtext }) => {
         position: 'relative',
         height: '100vh',
         display: 'flex',
-        
       }}
     >
       {/* Background wrapper */}
@@ -232,7 +251,7 @@ const AuthRegister = ({ subtext }) => {
               {subtext}
               <Form onSubmit={handleRegister}>
                 <Form.Group controlId="formName">
-                  <Form.Label className='d-flex justify-content-start'>Họ tên</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Họ tên</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
@@ -245,7 +264,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formEmail">
-                  <Form.Label className='d-flex justify-content-start'>Email</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Email</Form.Label>
                   <Form.Control
                     type="email"
                     name="email"
@@ -258,7 +277,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formPhone">
-                  <Form.Label className='d-flex justify-content-start'>Số điện thoại</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Số điện thoại</Form.Label>
                   <Form.Control
                     type="text"
                     name="phone"
@@ -271,7 +290,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formLocation">
-                  <Form.Label className='d-flex justify-content-start'>Địa chỉ</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Địa chỉ</Form.Label>
                   <Form.Control
                     type="text"
                     name="location"
@@ -286,7 +305,7 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formPassword">
-                  <Form.Label className='d-flex justify-content-start'>Mật khẩu</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}
@@ -315,7 +334,9 @@ const AuthRegister = ({ subtext }) => {
                 </Form.Group>
 
                 <Form.Group controlId="formConfirmPassword">
-                  <Form.Label className='d-flex justify-content-start'>Xác nhận mật khẩu</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">
+                    Xác nhận mật khẩu
+                  </Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showConfirmPassword ? 'text' : 'password'}
@@ -391,6 +412,13 @@ const AuthRegister = ({ subtext }) => {
           </Col>
         </Row>
       </Container>
+      <ConfirmDialog
+        open={openDialog}
+        onClose={onCancel}
+        onConfirm={onConfirm}
+        title={`Tạo tài khoản thành công`}
+        content={'Bạn có muốn trở thành mentor không?'}
+      />
     </div>
   );
 };
