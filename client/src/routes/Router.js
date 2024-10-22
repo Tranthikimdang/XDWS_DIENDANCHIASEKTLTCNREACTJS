@@ -34,6 +34,7 @@ const Register = Loadable(lazy(() => import('../views/authentication/Register'))
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const UserList = Loadable(lazy(() => import('../views/User/User')));
 
+//admin
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
 const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
 const FormAddArticle = Loadable(lazy(() => import('../pages/admin/article/data/FormAddArticle')));
@@ -58,18 +59,18 @@ const AddProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/d
 const ProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail')));
 const EditProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')));
 
-
-
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
 
 const AddUser = Loadable(lazy(() => import('../pages/admin/user/data/formAddUser')));
 const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUser')));
 
-const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
+const MentorAdmin = Loadable(lazy(() => import('../pages/admin/mentor')));
+const FormViewMentor = Loadable(lazy(() => import('../pages/admin/mentor/data/FormViewMentor')));
 
-// Ensure all lazy imports point to default exported components
-// And avoid importing the same component multiple times with different casing
+
+
+const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
 
 
@@ -84,10 +85,10 @@ const renderRoutes = (role) => {
         { path: 'login', element: <Login /> },
         { path: '/auth/forgot-password', element: <ForgotPassword /> },
         { path: '/auth/reset-password/:userId', element: <ResetPassword /> },
-        // { path: '*', element: <Navigate to="/auth/404" /> },
+        { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     },
-    { path: '*', element: <>TRang không tồn tại</> },
+    { path: '*', element: <>Trang không tồn tại</> },
   ];
   if (!role) return routes;
   if (role === 'admin') {
@@ -106,8 +107,8 @@ const renderRoutes = (role) => {
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
-        { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
-        { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/user', exact: true, element: <UserList /> },
+        { path: '/profile/:userId', exact: true, element: <Profile /> },
         { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
@@ -116,8 +117,6 @@ const renderRoutes = (role) => {
         { path: '/cart', exact: true, element: <Cart /> },
         { path: '/orders', exact: true, element: <Orders /> },
         { path: '/payment', exact: true, element: <Payment /> },
-
-        // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
     routes.push({
@@ -131,14 +130,8 @@ const renderRoutes = (role) => {
         { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
-        { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
         { path: 'questions/:id', exact: true, element: <EditQuestions /> },
-
-        // { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
-        // { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
-        // { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
-
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
@@ -157,7 +150,10 @@ const renderRoutes = (role) => {
         { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
         { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
         { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
-        // { path: '*', element: <Navigate to="/auth/404" /> },
+        { path: 'mentor', exact: true, element: <MentorAdmin /> },
+        { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
+        { path: 'profile', exact: true, element: <ProfileAdmin/> },
+        { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
   } else if (role === 'user') {
@@ -169,23 +165,22 @@ const renderRoutes = (role) => {
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
-        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
-        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
+        { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
-        { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
-        { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/user', exact: true, element: <UserList /> }, 
+        { path: '/profile/:userId', exact: true, element: <Profile /> },
         { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
-
-        // { path: '*', element: <Navigate to="/auth/404" /> },
+        { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
   } else {
@@ -204,15 +199,15 @@ const renderRoutes = (role) => {
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
-        { path: '/user', exact: true, element: <UserList /> }, // Add this route for UserList
-        { path: '/profile', exact: true, element: <Profile /> },
+        { path: '/user', exact: true, element: <UserList /> }, 
+        { path: '/profile/:userId', exact: true, element: <Profile /> },
         { path: '/commentDetail', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
-        // { path: '*', element: <Navigate to="/auth/404" /> },
+        { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
   }

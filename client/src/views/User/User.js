@@ -8,14 +8,12 @@ import {
   CardMedia,
   TextField,
   InputAdornment,
-  Button,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { collection, getDocs } from 'firebase/firestore';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { db } from '../../config/firebaseconfig';
-import { IconArrowBadgeRight,IconArrowBadgeLeft } from '@tabler/icons-react'; // Or the appropriate library
-
 
 const User = () => {
   const [users, setUsers] = useState([]);
@@ -23,6 +21,8 @@ const User = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1); // Current page state
   const usersPerPage = 12; // Number of users to display per page
+  const [rows, setRows] = useState([]);
+  const navigate = useNavigate();
 
   // Fetch users and images
   useEffect(() => {
@@ -73,6 +73,27 @@ const User = () => {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    const fetchMentor = async () => {
+      setLoading(true);
+      try {
+        const mentorSnapshot = await getDocs(collection(db, 'mentor'));
+        const mentorData = mentorSnapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
+        });
+        setRows(mentorData); // Lưu dữ liệu vào state
+      } catch (error) {
+        console.error("Lỗi khi tải mentor:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMentor();
+  }, []);
+
+  const handleCardClick = (userId) => {
+    navigate(`/profile/${userId}`); // Điều hướng với userId
+  };
   // Filter users based on search term
   const filteredUsers = users.filter(
     (user) => user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -83,21 +104,21 @@ const User = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  // // Calculate total pages
+  // const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-  // Handle changing pages
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+  // // Handle changing pages
+  // const handleNextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage(currentPage + 1);
+  //   }
+  // };
 
-  const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+  // const handlePreviousPage = () => {
+  //   if (currentPage > 1) {
+  //     setCurrentPage(currentPage - 1);
+  //   }
+  // };
 
   return (
     <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
@@ -141,14 +162,20 @@ const User = () => {
             }}
           />
         </Grid>
-
+        <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <Typography variant="h5" component="h2" fontWeight="bold">
+            Danh sách người hướng dẫn
+          </Typography>
+        </Grid>
         {loading ? (
           <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
-        ) : currentUsers.length > 0 ? (
-          currentUsers.map((user) => (
-            <Grid item xs={12} sm={6} md={4} key={user.id}>
+        ) : rows.length > 0 ? (
+          rows.map((mentor) => (
+            <Grid item xs={12} sm={6} md={4} key={mentor.id}>
               <Card
                 className="user-card"
+                // eslint-disable-next-line no-undef
+                key={mentor?.id}
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
@@ -159,6 +186,72 @@ const User = () => {
                     transform: 'translateY(-5px)',
                   },
                 }}
+                // eslint-disable-next-line no-undef
+                onClick={() => handleCardClick(mentor.id)} // Điều hướng đến chi tiết
+              >
+                <Box sx={{ flexShrink: 0 }}>
+                  <CardMedia
+                    component="img"
+                    image={users?.find(u => mentor.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                    alt={mentor.name}
+                    sx={{
+                      width: '120px',
+                      height: '120px',
+                      objectFit: 'cover',
+                      borderRadius: '50%',
+                      margin: '16px',
+                      border: '4px solid #fff',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+                    }}
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <CardContent className="card-content" sx={{ padding: '16px' }}>
+                    <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
+                      {users?.find(u => u.id === mentor.user_id)?.name || 'Unknown'}
+                    </Typography>
+                    <Typography variant="body2" paragraph sx={{ color: '#7f8c8d' }}>
+                      {users?.find(u => u.id === mentor.user_id)?.email || 'Unknown'}
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '8px' }}>
+                      {mentor.expertise}
+                    </Typography>
+                  </CardContent>
+                </Box>
+              </Card>
+            </Grid>
+          ))
+        ) : (
+          <Typography sx={{ textAlign: 'center', width: '100%' }}>No mentors found</Typography>
+        )}
+
+        <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <Typography variant="h5" component="h2" fontWeight="bold">
+            Danh sách người dùng
+          </Typography>
+        </Grid>
+        {loading ? (
+          <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
+        ) : currentUsers.length > 0 ? (
+          currentUsers.map((user) => (
+            // eslint-disable-next-line no-undef
+            <Grid item xs={12} sm={6} md={4} key={user.id}>
+              <Card
+                className="user-card"
+                // eslint-disable-next-line no-undef
+                key={user?.id}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  borderRadius: '12px',
+                  transition: 'transform 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                  },
+                }}
+                // eslint-disable-next-line no-undef
+                onClick={() => handleCardClick(user.id)} // Điều hướng đến chi tiết
               >
                 <Box sx={{ flexShrink: 0 }}>
                   <CardMedia
@@ -222,15 +315,15 @@ const User = () => {
       </Grid>
 
       {/* Pagination Controls */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+      {/* <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
         <Button variant="contained" onClick={handlePreviousPage} disabled={currentPage === 1}>
-        <IconArrowBadgeLeft />
+          <IconArrowBadgeLeft />
         </Button>
         <Typography sx={{ margin: '0 10px', alignSelf: 'center' }}>trang {currentPage}</Typography>
         <Button variant="contained" onClick={handleNextPage} disabled={currentPage === totalPages}>
           <IconArrowBadgeRight />
         </Button>
-      </Box>
+      </Box> */}
     </Box>
   );
 };
