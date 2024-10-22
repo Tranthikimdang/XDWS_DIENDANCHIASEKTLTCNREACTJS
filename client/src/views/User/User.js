@@ -170,7 +170,9 @@ const User = () => {
         {loading ? (
           <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
         ) : rows.length > 0 ? (
-          rows.map((mentor) => (
+          rows
+          .filter((mentor) => mentor.isApproved === 1) // Lọc bài viết có isApproved = 1
+          .map((mentor) => (
             <Grid item xs={12} sm={6} md={4} key={mentor.id}>
               <Card
                 className="user-card"

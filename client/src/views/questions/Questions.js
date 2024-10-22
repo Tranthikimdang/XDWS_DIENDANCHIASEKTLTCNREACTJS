@@ -591,9 +591,8 @@ const Questions = () => {
                   <img
                     // eslint-disable-next-line no-undef
                     src={currentUserImage || 'default-image-url.jpg'}
-                    width="40px"
                     alt="User Avatar"
-                    style={{ borderRadius: '50%', marginRight: '10px' }}
+                    style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                   />
                   <Typography variant="h6">Đặt câu hỏi</Typography>
                 </Box>
@@ -1076,9 +1075,8 @@ const Questions = () => {
                                 <img
                                   // eslint-disable-next-line no-undef
                                   src={currentUserImage || 'default-image-url.jpg'}
-                                  width="40px"
                                   alt="User Avatar"
-                                  style={{ borderRadius: '50%', marginRight: '10px' }}
+                                  style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                                 />
                                 <TextField
                                   label="Viết bình luận..."
@@ -1344,7 +1342,57 @@ const Questions = () => {
                 backgroundColor: '#fff',
               }}
             >
-              {/* code theo doi nguoi dung o day */}
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6">Theo dõi người dùng khác</Typography>
+                <IconButton>
+                  <MoreHorizIcon />
+                </IconButton>
+              </Box>
+              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
+
+              {/* Follow List */}
+              <List>
+                {[
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                ].map((name, index) => (
+                  <ListItem key={index} sx={{ padding: 0 }}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      width="100%"
+                    >
+                      <Box display="flex" alignItems="center">
+                        <img
+                          src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg" // Replace with the correct image URL path
+                          alt={name}
+                          style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
+                        />
+                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
+                          {name}
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        sx={{
+                          textTransform: 'none',
+                          padding: '2px 10px',
+                          fontSize: '0.8rem',
+                          borderRadius: '16px',
+                        }}
+                      >
+                        + Theo dõi
+                      </Button>
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
             </Box>
             {/* Popular Articles Section */}
             <Box
@@ -1398,11 +1446,11 @@ const Questions = () => {
                         alignItems="center"
                         onClick={() => handleCardClick(article.id)}
                       >
-                       <img
-                              src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
-                              alt="Author"
-                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
-                            />
+                        <img
+                          src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                          alt="Author"
+                          style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                        />
                         <Box>
                           <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
                             Tiêu đề: {article.title}
