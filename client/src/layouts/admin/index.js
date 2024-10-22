@@ -32,7 +32,7 @@ export default function AdminLayout() {  // Should be AdminLayout instead of App
     if (user?.role === 'user') {
       navigate('/home'); 
     }
-    if (user) {
+    if (!user) {
       navigate('/home'); 
     }
   }, [navigate]);
