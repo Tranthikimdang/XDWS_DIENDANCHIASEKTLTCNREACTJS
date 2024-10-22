@@ -14,7 +14,9 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin'))); // Ensure 
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
-const CateArticleDetail = Loadable(lazy(() => import('../views/article/components/CateArticleDetail')));
+const CateArticleDetail = Loadable(
+  lazy(() => import('../views/article/components/CateArticleDetail')),
+);
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail')));
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post')));
 const Questions = Loadable(lazy(() => import('../views/questions/Questions')));
@@ -33,6 +35,7 @@ const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const UserList = Loadable(lazy(() => import('../views/User/User')));
+const Mentor = Loadable(lazy(() => import('../views/mentor/mentor')));
 
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
 const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
@@ -45,19 +48,7 @@ const CategoryAdmin = Loadable(lazy(() => import('../pages/admin/category')));
 const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')));
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')));
 
-
-const BannerAdmin = Loadable(lazy(() => import('../pages/admin/banner')))
-const FormAddBanner = Loadable(lazy(() => import('../pages/admin/banner/data/FormAddBanner')))
-const FormEditBanner = Loadable(lazy(() => import('../pages/admin/banner/data/FormEditBanner')))
-const FormViewBanner = Loadable(lazy(() => import('../pages/admin/banner/data/FormViewBanner')))
-
-
-
-const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')))
-const FormAddQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formAddQuestions')))
-const FormEditQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestions')))
-const FormViewQuestions = Loadable(lazy(() => import('../pages/admin/questions/data/FormViewQuestions')))
-
+const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')));
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
 const AddCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormAddCate')));
@@ -66,11 +57,13 @@ const EditCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data
 const Product = Loadable(lazy(() => import('../pages/admin/product')));
 const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormAddProduct')));
 const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
-const AddProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')));
+const AddProDetaill = Loadable(
+  lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')),
+);
 const ProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail')));
-const EditProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')));
-
-
+const EditProDetaill = Loadable(
+  lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')),
+);
 
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
@@ -82,8 +75,6 @@ const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
 // Ensure all lazy imports point to default exported components
 // And avoid importing the same component multiple times with different casing
-
-
 
 const renderRoutes = (role) => {
   const routes = [
@@ -114,6 +105,7 @@ const renderRoutes = (role) => {
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
@@ -138,23 +130,13 @@ const renderRoutes = (role) => {
       children: [
         { path: 'dashboard', element: <DashboardAdmin /> },
         { path: 'article', exact: true, element: <ArticleAdmin /> },
-        { path: 'formaddarticle', exact: true, element: <FormAddArticle/> },
-        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle/> },
-        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle/> },
-
-        { path: 'banner', exact: true, element: <BannerAdmin /> },
-        { path: 'formaddbanner', exact: true, element: <FormAddBanner/> },
-        { path: 'formeditbanner/:id', exact: true, element: <FormEditBanner/> },
-        { path: 'formviewbanner/:id', exact: true, element: <FormViewBanner/> },
-
+        { path: 'formaddarticle', exact: true, element: <FormAddArticle /> },
+        { path: 'formeditarticle/:id', exact: true, element: <FormEditArticle /> },
+        { path: 'formviewarticle/:id', exact: true, element: <FormViewArticle /> },
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'profile', exact: true, element: <ProfileAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
-        // { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
-        // { path: 'formeditquestions/:id', exact: true, element: <FormEditQuestions/> },
-        // { path: 'formviewquestions/:id', exact: true, element: <FormViewQuestions/> },
-
         { path: 'questions/:id', exact: true, element: <EditQuestions /> },
 
         // { path: 'formaddquestions', exact: true, element: <FormAddQuestions/> },
@@ -170,15 +152,15 @@ const renderRoutes = (role) => {
         { path: 'editProduct/:id', exact: true, element: <EditProduct /> },
         { path: 'addProduct', exact: true, element: <AddProduct /> },
         { path: 'addCate', exact: true, element: <AddCate /> },
-        { path: 'editCate/:id', exact: true, element: <EditCate/> },
-        { path: 'addCate', exact: true, element: <AddCate/> },
+        { path: 'editCate/:id', exact: true, element: <EditCate /> },
+        { path: 'addCate', exact: true, element: <AddCate /> },
         { path: 'editCate/:id', exact: true, element: <EditCate /> },
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
-        { path: 'orders', exact: true, element: <Orders /> }, 
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
-        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
-        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
+        { path: 'orders', exact: true, element: <Orders /> },
+        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
+        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> },
+        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
@@ -194,6 +176,7 @@ const renderRoutes = (role) => {
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },

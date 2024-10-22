@@ -28,11 +28,6 @@ import Orders from 'src/pages/admin/orders';
 
 
 
-
-import FormAddBanner from "src/pages/admin/banner/data/FormAddBanner";
-import FormViewBanner from "src/pages/admin/banner/data/FormViewBanner";
-import FormEditBanner from "src/pages/admin/banner/data/FormEditBanner";
-
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -60,15 +55,6 @@ const routes = [
     route: "/admin/article",
     icon: <BsJournals size="15px" color="inherit" />,
     component: Article,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Quản lý Banner",
-    key: "banner",
-    route: "/admin/banner",
-    icon: <BsJournals size="15px" color="inherit" />,
-    // component: Banner,
     noCollapse: true,
   },
   {
@@ -257,27 +243,6 @@ const routes = [
   key: "formeditarticle",
   route: "/admin/formeditarticle",
   component: FormEditArticle,
-  hidden: true, // Ẩn mục này
-},
-
-
-// banner
-{
-  key: "formaddbanner",
-  route: "/admin/formaddbanner",           
-  component: FormAddBanner,
-  hidden: true, // Ẩn mục này            
-},
-{
-  key: "formviewbanner",
-  route: "/admin/formviewbanner/:id", // Thêm :id để định tuyến theo params
-  component: FormViewBanner,
-  hidden: true, // Ẩn mục này
-},
-{
-  key: "formeditbanner",
-  route: "/admin/formeditbanner",
-  component: FormEditBanner,
   hidden: true, // Ẩn mục này
 },
 

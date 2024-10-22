@@ -81,6 +81,7 @@ function Category() {
     }
     setSnackbarOpen(false);
   };
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -195,7 +196,6 @@ function Category() {
                     columns={columns}
                     rows={filteredRows
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .map((row, index) => ({
                         no: page * rowsPerPage + index + 1,
                         name: row.name,
@@ -282,3 +282,4 @@ function Category() {
 
 
 export default Category;
+

@@ -325,51 +325,6 @@ const ArticleDetail = () => {
     );
   }
 
-  const menuItems = [
-    { icon: <FacebookIcon />, text: 'Share on Facebook' },
-    { icon: <TwitterIcon />, text: 'Share on Twitter' },
-    { icon: <EmailIcon />, text: 'Share via Email' },
-    { icon: <LinkIcon />, text: 'Copy Link' },
-    { icon: <FlagIcon />, text: 'Report Article' },
-  ];
-
-  //date
-  const formatUpdatedAt = (updatedAt) => {
-    let updatedAtString = '';
-
-    if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
-      const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
-
-      if (days > 0) {
-        updatedAtString = `${days} ngày trước`;
-      } else if (hours > 0) {
-        updatedAtString = `${hours} giờ trước`;
-      } else if (minutes > 0) {
-        updatedAtString = `${minutes} phút trước`;
-      } else {
-        updatedAtString = `${seconds} giây trước`;
-      }
-    } else {
-      updatedAtString = 'Không rõ thời gian';
-    }
-
-    return updatedAtString;
-  };
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   return (
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={3}>
@@ -454,13 +409,6 @@ const ArticleDetail = () => {
 
           {/* code  */}
           <Box mt={2}>
-              <Typography variant="body2">
-              Bài viết này hiện có <strong>{comments.length}</strong> bình luận
-              </Typography>
-              <IconButton aria-label="reply" sx={{ marginLeft: 'auto', display: 'block' }} onClick={() => setOpenCommentsDialog(true)}>
-                {/* <ReplyIcon /> */}
-              </IconButton>
-            </Box>
             <Typography variant="body2">
               Bài viết này hiện có <strong>{comments.length}</strong> bình luận
             </Typography>
@@ -625,8 +573,6 @@ const ArticleDetail = () => {
                             </Box>
                             <Typography variant="body2" color="textSecondary" sx={{ marginRight: 2, fontSize: '1.2rem', fontWeight: '400', lineHeight: '1.5' }}>
                               {reply.content}
-                              </Typography>
-
                             </Typography>
                             <Typography variant="caption" color="textSecondary">
                               {formatDistanceToNow(new Date(reply.created_date), { addSuffix: true, locale: vi })}
@@ -685,7 +631,7 @@ const ArticleDetail = () => {
                         </ListItem>
                       ))}
                     </List>
-                        )}
+                  )}
                 </Box>
               </ListItem>
             ))}
