@@ -146,7 +146,7 @@ const Products = () => {
   };
 
   return (
-    <PageContainer title="products" description="This is products">
+    <PageContainer title="Products" description="This is products">
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}

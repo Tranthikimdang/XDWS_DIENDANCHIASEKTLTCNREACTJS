@@ -574,7 +574,7 @@ const Questions = () => {
   return (
     <PageContainer title="Questions">
       <DashboardCard>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} >
           {/* Left Column */}
           <Grid item md={8}>
             <Box
