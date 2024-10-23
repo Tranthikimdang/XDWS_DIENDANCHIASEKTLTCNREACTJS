@@ -15,4 +15,17 @@
     border-color: #003366; /* Dark blue border for disabled state */
     color: #ffffff; /* White text for disabled state */
   }
-  
+/* Ensure there's no margin/padding between tabs and content */
+.tabs-container {
+  margin-bottom: 0  !important;; /* or adjust padding as necessary */
+  padding-bottom: 0  !important;;
+}
+
+.table-container {
+  margin-top: 0 !important; /* Ensure the table is flush against the tabs */
+  padding-top: 0 !important;
+}
+.MuiTabs-root {
+  background: none !important; 
+}
+
