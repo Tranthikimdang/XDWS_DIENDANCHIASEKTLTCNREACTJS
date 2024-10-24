@@ -105,6 +105,8 @@ const Mentor = () => {
     const storedUserData = JSON.parse(localStorage.getItem('user'));
     if (storedUserData) {
       setUserData(storedUserData);
+    }{
+      navigate('/home')
     }
   }, []);
 
