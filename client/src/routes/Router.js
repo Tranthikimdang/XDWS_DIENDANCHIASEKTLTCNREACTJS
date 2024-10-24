@@ -62,9 +62,8 @@ const AddProDetaill = Loadable(
   lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')),
 );
 const ProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail')));
-const EditProDetaill = Loadable(
-  lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')),
-);
+const EditProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')));
+
 
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
 const EditCate = Loadable(lazy(() => import('../pages/admin/category/data/FormEditCate')));
@@ -74,6 +73,8 @@ const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUs
 
 const MentorAdmin = Loadable(lazy(() => import('../pages/admin/mentor')));
 const FormViewMentor = Loadable(lazy(() => import('../pages/admin/mentor/data/FormViewMentor')));
+
+
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
@@ -150,14 +151,19 @@ const renderRoutes = (role) => {
         { path: 'editCate/:id', exact: true, element: <EditCate /> },
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
+        { path: 'orders', exact: true, element: <Orders /> }, 
+        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
+        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
+        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
+        { path: 'mentor', exact: true, element: <MentorAdmin /> },
+        { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
+        { path: 'profile', exact: true, element: <ProfileAdmin/> },
+        { path: '*', element: <Navigate to="/auth/404" /> },
         { path: 'orders', exact: true, element: <Orders /> },
         { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
         { path: 'productDetail/:id', exact: true, element: <ProDetaill /> },
         { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
-        { path: 'mentor', exact: true, element: <MentorAdmin /> },
-        { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor /> },
-        { path: 'profile', exact: true, element: <ProfileAdmin /> },
-        { path: '*', element: <Navigate to="/auth/404" /> },
+        // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
   } else if (role === 'user') {
@@ -169,15 +175,15 @@ const renderRoutes = (role) => {
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
-        { path: '/article/:id', exact: true, element: <ArticleDetail /> },
-        { path: '/new-post', exact: true, element: <Newpost /> },
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
+        { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
         { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
-        { path: '/user', exact: true, element: <UserList /> },
+        { path: '/user', exact: true, element: <UserList /> }, 
         { path: '/profile/:userId', exact: true, element: <Profile /> },
         { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
@@ -204,7 +210,7 @@ const renderRoutes = (role) => {
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
-        { path: '/user', exact: true, element: <UserList /> },
+        { path: '/user', exact: true, element: <UserList /> }, 
         { path: '/profile/:userId', exact: true, element: <Profile /> },
         { path: '/commentDetail', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },

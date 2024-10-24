@@ -256,7 +256,9 @@ function Mentor() {
                           ),
                           information: (
                             <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {row.upfile}
+                              {row.upfile.length > 50
+                                ? `${row.upfile.substring(0, 50)}...`
+                                : row.upfile}
                             </VuiTypography>
                           ),
                           date: (

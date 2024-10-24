@@ -134,38 +134,38 @@ function User() {
                 <VuiBox>
                   <Table
                     columns={columns}
-                  //   rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
-                  //     ...row,
-                  //     no: page * rowsPerPage + index + 1,
-                  //     avatar: (
-                  //       <div style={{ textAlign: "center" }}>
-                  //         <img
-                  //           src={row.imageUrl || '/default-avatar.png'}
-                  //           alt={row.name}
-                  //           style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
-                  //         />
-                  //       </div>
-                  //     ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
+                    // rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
+                    //   ...row,
+                    //   no: page * rowsPerPage + index + 1,
+                    //   avatar: (
+                    //     <div style={{ textAlign: "center" }}>
+                    //       <img
+                    //         src={row.imageUrl || '/default-avatar.png'}
+                    //         alt={row.name}
+                    //         style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
+                    //       />
+                    //     </div>
+                    //   ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
                       
-                  //     action: (
-                  //       <div>
-                  //         <Link to={`/admin/editUser/${row.id}`}>
-                  //           <button className="text-light btn btn-outline-warning me-2" type="button">
-                  //             Edit
-                  //           </button>
-                  //         </Link>
+                    //   action: (
+                    //     <div>
+                    //       <Link to={`/admin/editUser/${row.id}`}>
+                    //         <button className="text-light btn btn-outline-warning me-2" type="button">
+                    //           Edit
+                    //         </button>
+                    //       </Link>
 
-                  //         <button
-                  //           className="text-light btn btn-outline-danger"
-                  //           type="button"
-                  //           onClick={() => handleDelete(row.id)}
-                  //         >
-                  //           Delete
-                  //         </button>
-                  //       </div>
-                  //     ),
-                  //   }))}
-                  // />
+                    //       <button
+                    //         className="text-light btn btn-outline-danger"
+                    //         type="button"
+                    //         onClick={() => handleDelete(row.id)}
+                    //       >
+                    //         Delete
+                    //       </button>
+                    //     </div>
+                    //   ),
+                    // }))}
+                  
                     rows={rows
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => ({
@@ -204,6 +204,7 @@ function User() {
                                 </svg>
                               </button>
                             </Link>
+
                             <button
                               className="text-light btn btn-outline-danger"
                               type="button"
