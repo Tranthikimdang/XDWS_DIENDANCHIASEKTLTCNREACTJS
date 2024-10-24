@@ -215,7 +215,7 @@ const AuthRegister = ({ subtext }) => {
   };
 
   const onConfirm = () => {
-    navigate('/mentor', { state: recordCreated.current });
+    navigate('/auth/mentor', { state: recordCreated.current });
     setOpenDialog(false);
   };
 
