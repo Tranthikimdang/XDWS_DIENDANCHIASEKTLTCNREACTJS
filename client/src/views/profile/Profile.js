@@ -8,24 +8,34 @@ import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Profile = () => {
-  const { userId } = useParams(); // Get userId from the URL params
-  const [user, setUser] = useState(null);
+  const { userId } = useParams(); // Lấy userId từ URL params
+  const [user, setUser] = useState([]);
+  const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
+  const [error, setError] = useState(null); // Trạng thái lỗi
 
   useEffect(() => {
     const fetchUser = async () => {
-      const userRef = doc(db, 'users', userId); // Create reference to user document using userId from URL
-      const userSnap = await getDoc(userRef); // Fetch the document from Firestore
+      try {
+        const userRef = doc(db, 'users', userId); // Tạo tham chiếu tới tài liệu người dùng dựa trên userId từ URL
+        const userSnap = await getDoc(userRef); // Lấy tài liệu từ Firestore
 
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        setUser(userData); // Update the user state
-      } else {
-        console.log('No such user document!');
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          setUser(userData); // Cập nhật state user
+        } else {
+          console.log('No such user document!');
+          setError('User not found'); // Cập nhật lỗi nếu không tìm thấy tài liệu
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setError('Failed to fetch user data'); // Xử lý lỗi nếu có vấn đề trong quá trình lấy dữ liệu
+      } finally {
+        setLoading(false); // Kết thúc quá trình tải dữ liệu
       }
     };
 
     fetchUser();
-  }, [userId]); // Dependency array includes userId
+  }, [userId]); // Mảng dependency bao gồm userId
 
   // useEffect(() => {
   //   const fetchMentor = async () => {

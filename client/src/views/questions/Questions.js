@@ -5,7 +5,6 @@ import PageContainer from 'src/components/container/PageContainer';
 import DashboardCard from '../../components/shared/DashboardCard';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
-
 import {
   Grid,
   Box,
@@ -16,12 +15,12 @@ import {
   List,
   ListItem,
   Link,
-  Divider,
   FormControl,
   FormHelperText,
   CircularProgress,
   Snackbar,
   Alert,
+  Divider,
   Menu,
   MenuItem,
   Tooltip,
@@ -173,9 +172,7 @@ const Questions = () => {
       setLoading(true);
       try {
         const QuestionssSnapshot = await getDocs(collection(db, 'questions'));
-        const QuestionssData = QuestionssSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() };
-        });
+        const QuestionssData = QuestionssSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setListQuestion(QuestionssData);
       } catch (error) {
         console.error('Error fetching Questionss:', error);
@@ -199,6 +196,7 @@ const Questions = () => {
     }
     return '';
   };
+
 
   const userData = useRef(null);
 
@@ -585,145 +583,154 @@ const Questions = () => {
                 backgroundColor: '#fff',
               }}
             >
-              {/* Create Post Header */}
-              <Box component="form" onSubmit={handleSubmit}>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <img
-                    // eslint-disable-next-line no-undef
-                    src={currentUserImage || 'default-image-url.jpg'}
-                    alt="User Avatar"
-                    style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
-                  />
-                  <Typography variant="h6">Đặt câu hỏi</Typography>
-                </Box>
-
-                {/* Post Content */}
-                <TextField
-                  label="Hãy đặt câu hỏi?"
-                  variant="outlined"
-                  multiline
-                  fullWidth
-                  rows={4}
-                  name="questions"
-                  // value={newComment}
-                  // onChange={(e) => setNewComment(e.target.value)}
-                  sx={{ marginBottom: 2 }}
-                />
-
-                {/* Add Hashtag Section */}
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Typography variant="body2" sx={{ mr: 2 }}>
-                    <strong>+ Thêm Hashtag</strong>
-                  </Typography>
-                  <Box sx={{ flexGrow: 1 }}>
-                    <TextField
-                      fullWidth
-                      placeholder="Nhập hashtag"
-                      variant="standard"
-                      name="hashtag"
-                      InputProps={{
-                        disableUnderline: true,
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                {/* Options for Image, File, Code */}
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Box display="flex" gap={1}>
-                    {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
-                      <Button
-                        key={index}
-                        variant="outlined"
-                        startIcon={
-                          index === 0 ? (
-                            <ImageIcon />
-                          ) : index === 1 ? (
-                            <AttachFileIcon />
-                          ) : (
-                            <CodeIcon />
-                          )
-                        }
-                        sx={{
-                          borderRadius: '16px',
-                          textTransform: 'none',
-                          padding: '5px 15px',
-                        }}
-                        component="label"
-                        onClick={index === 2 ? handleCodeButtonClick : undefined} // Chỉ mở dialog khi nhấn vào icon Code
-                      >
-                        {label}
-                        {index === 0 && (
-                          <input
-                            name="image"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            hidden
-                            onChange={handleImageChange}
-                          />
-                        )}
-                        {index === 1 && (
-                          <input
-                            type="file"
-                            name="file"
-                            multiple
-                            hidden
-                            onChange={handleFileChange}
-                          />
-                        )}
-                      </Button>
-                    ))}
-                  </Box>
-                  {/* Code Dialog */}
-                  <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                    <DialogTitle>Nhập code của bạn</DialogTitle>
-                    <DialogContent>
-                      {showCodeField && (
-                        <FormControl fullWidth>
-                          <TextField
-                            id="code-input"
-                            multiline
-                            rows={4}
-                            name="up_code"
-                            variant="outlined"
-                            value={codeSnippet}
-                            onChange={handleCodeChange}
-                            error={!!error}
-                          />
-                          <FormHelperText>{error}</FormHelperText>
-                        </FormControl>
-                      )}
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseDialog} color="secondary">
-                        Hủy
-                      </Button>
-                      <Button onClick={handleSubmitCode} color="primary">
-                        Lưu
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                  {/* Post Button */}
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      textTransform: 'none',
-                      borderRadius: '16px',
-                      padding: '5px 20px',
-                      fontWeight: 'bold',
-                      mt: 2,
-                    }}
-                  >
-                    Đăng
-                  </Button>
-                </Box>
-              </Box>
-
               {/* Loading Spinner */}
               {loading ? (
+                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <Box component="form" onSubmit={handleSubmit}>
+                  {/* Create Post Header */}
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <img
+                      src={
+                        currentUserImage ||
+                        'https://media.istockphoto.com/id/1181191919/vi/vec-to/h%E1%BB%93-s%C6%A1.jpg?s=612x612&w=0&k=20&c=eA2KUWx9IN0UQc1jCDSBMYHVjy8emKBc9ibB2QlSlgE='
+                      }
+                      alt="User Avatar"
+                      style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                    />
+                    <Typography variant="h6">Đặt câu hỏi</Typography>
+                  </Box>
+
+                  {/* Post Content */}
+                  <TextField
+                    label="Hãy đặt câu hỏi?"
+                    variant="outlined"
+                    multiline
+                    fullWidth
+                    rows={4}
+                    name="questions"
+                    sx={{ marginBottom: 2 }}
+                  />
+
+                  {/* Add Hashtag Section */}
+                  <Box display="flex" alignItems="center" mb={2}>
+                    <Typography variant="body2" sx={{ mr: 2 }}>
+                      <strong>+ Thêm Hashtag</strong>
+                    </Typography>
+                    <Box sx={{ flexGrow: 1 }}>
+                      <TextField
+                        fullWidth
+                        placeholder="Nhập hashtag"
+                        variant="standard"
+                        name="hashtag"
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                      />
+                    </Box>
+                  </Box>
+
+                  {/* Options for Image, File, Code */}
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box display="flex" gap={1}>
+                      {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                        <Button
+                          key={index}
+                          variant="outlined"
+                          startIcon={
+                            index === 0 ? (
+                              <ImageIcon />
+                            ) : index === 1 ? (
+                              <AttachFileIcon />
+                            ) : (
+                              <CodeIcon />
+                            )
+                          }
+                          sx={{
+                            borderRadius: '16px',
+                            textTransform: 'none',
+                            padding: '5px 15px',
+                          }}
+                          component="label"
+                          onClick={index === 2 ? handleCodeButtonClick : undefined}
+                        >
+                          {label}
+                          {index === 0 && (
+                            <input
+                              name="image"
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              hidden
+                              onChange={handleImageChange}
+                            />
+                          )}
+                          {index === 1 && (
+                            <input
+                              type="file"
+                              name="file"
+                              multiple
+                              hidden
+                              onChange={handleFileChange}
+                            />
+                          )}
+                        </Button>
+                      ))}
+                    </Box>
+
+                    {/* Code Dialog */}
+                    <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+                      <DialogTitle>Nhập code của bạn</DialogTitle>
+                      <DialogContent>
+                        {showCodeField && (
+                          <FormControl fullWidth>
+                            <TextField
+                              id="code-input"
+                              multiline
+                              rows={4}
+                              name="up_code"
+                              variant="outlined"
+                              value={codeSnippet}
+                              onChange={handleCodeChange}
+                              error={!!error}
+                            />
+                            <FormHelperText>{error}</FormHelperText>
+                          </FormControl>
+                        )}
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleCloseDialog} color="secondary">
+                          Hủy
+                        </Button>
+                        <Button onClick={handleSubmitCode} color="primary">
+                          Lưu
+                        </Button>
+                      </DialogActions>
+                    </Dialog>
+
+                    {/* Post Button */}
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      sx={{
+                        textTransform: 'none',
+                        borderRadius: '16px',
+                        padding: '5px 20px',
+                        fontWeight: 'bold',
+                        mt: 2,
+                      }}
+                    >
+                      Đăng
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+             {/* Loading Spinner */}
+             {loading ? (
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
                   <CircularProgress />
                 </Box>
@@ -1074,7 +1081,7 @@ const Questions = () => {
                               <Box display="flex" alignItems="center" mb={1}>
                                 <img
                                   // eslint-disable-next-line no-undef
-                                  src={currentUserImage || 'default-image-url.jpg'}
+                                  src={currentUserImage || 'https://media.istockphoto.com/id/1181191919/vi/vec-to/h%E1%BB%93-s%C6%A1.jpg?s=612x612&w=0&k=20&c=eA2KUWx9IN0UQc1jCDSBMYHVjy8emKBc9ibB2QlSlgE='}
                                   alt="User Avatar"
                                   style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                                 />
@@ -1292,8 +1299,8 @@ const Questions = () => {
                   Không có câu hỏi nào.
                 </Typography>
               )}
-            </Box>
           </Grid>
+
           {/* Right Column */}
           <Grid item md={4}>
             <Box
