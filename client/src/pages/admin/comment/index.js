@@ -48,11 +48,6 @@ function Comment() {
     fetchComment();
   }, []);
 
-  // const handleDelete = (id) => {
-  //   setDeleteId(id);
-  //   setOpenDialog(true);
-  // };
-
   const confirmDelete = async () => {
     try {
       await apis.deleteComment(deleteId);
@@ -85,20 +80,9 @@ function Comment() {
     return htmlString?.replace(regex, '');
   };
 
-  // const handleAddCommentSuccess = () => {
-  //   setSnackbarMessage("Comment added successfully.");
-  //   setSnackbarSeverity("success");
-  //   setSnackbarOpen(true);
-  // };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
-  // const handleChangeRowsPerPage = (event) => {
-  //   setRowsPerPage(parseInt(event.target.value, 10));
-  //   setPage(0);
-  // };
 
   const defaultImageUrl = "/path/to/default/image.png"; // Replace with your default image path
 

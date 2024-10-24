@@ -1,12 +1,11 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom'; // Sử dụng useParams để lấy product_id từ URL
 import { Snackbar, Alert } from '@mui/material';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { db } from '../../../../config/firebaseconfig.js'; // Firebase config
-import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
+import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout/index.js';
+import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar/index.js';
 
 function FormAddProductDetail() {
   const { register, handleSubmit, formState: { errors }, setValue, watch, trigger } = useForm();

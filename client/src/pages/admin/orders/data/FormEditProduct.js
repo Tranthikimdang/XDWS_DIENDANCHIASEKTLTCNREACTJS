@@ -1,78 +1,70 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom'; // Sử dụng useParams để lấy product_id từ URL
+import { useNavigate, useParams } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
-import { db } from '../../../../config/firebaseconfig.js'; // Firebase config
-import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../../config/firebaseconfig.js';
+import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout/index.js';
+import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar/index.js';
 
-function FormAddProductDetail() {
-  const { register, handleSubmit, formState: { errors }, setValue, watch, trigger } = useForm();
+function EditProductDetail() {
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
   const navigate = useNavigate();
-  const { product_id } = useParams(); // Lấy product_id từ URL
+  const { detailId } = useParams(); // Lấy detailId từ URL
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [cates, setCates] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Kiểm tra nếu không lấy được product_id
+  // Truy xuất chi tiết sản phẩm dựa trên detailId
   useEffect(() => {
-    if (!product_id) {
-      setSnackbarMessage('Không thể lấy ID sản phẩm từ URL.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    }
-  }, [product_id]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
+    const fetchProductDetail = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'categories_product'));
-        const categoriesList = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setCates(categoriesList);
+        
+        const docRef = doc(db, 'product_detail', detailId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setValue('no', data.no);
+          setValue('name', data.name);
+          setValue('video', data.video);
+        } else {
+          setSnackbarMessage('Không tìm thấy chi tiết sản phẩm.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
+        }
       } catch (error) {
-        console.error('Lỗi khi tải danh mục:', error);
-      } finally {
-        setLoading(false);
+        console.error('Lỗi khi truy xuất chi tiết sản phẩm:', error);
+        setSnackbarMessage('Lỗi khi truy xuất chi tiết sản phẩm.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
     };
-    fetchCategories();
-  }, []);
+    fetchProductDetail();
+  }, [detailId, setValue]);
 
+  // Xử lý cập nhật chi tiết sản phẩm
   const onSubmit = async (data) => {
-    if (!product_id) {
-      setSnackbarMessage('Không thể thêm chi tiết sản phẩm vì thiếu ID sản phẩm.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      return;
-    }
-
     try {
-      await addDoc(collection(db, 'product_detail'), {
-        product_id: product_id, // Lưu product_id từ URL
+      const docRef = doc(db, 'product_detail', detailId);
+      await updateDoc(docRef, {
         no: data.no,
         name: data.name,
         video: data.video,
-        created_at: new Date(),
-        updated_at: new Date(),
+        updated_at: new Date(), // Thêm ngày cập nhật
       });
-
-      setSnackbarMessage('Thêm chi tiết sản phẩm thành công.');
+      setSnackbarMessage('Cập nhật chi tiết sản phẩm thành công.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       setTimeout(() => navigate('/admin/products'), 500);
     } catch (error) {
-      console.error('Lỗi khi thêm chi tiết sản phẩm:', error.message);
-      setSnackbarMessage('Không thể thêm chi tiết sản phẩm. Vui lòng thử lại.');
+      console.error('Lỗi khi cập nhật chi tiết sản phẩm:', error);
+      setSnackbarMessage('Lỗi khi cập nhật chi tiết sản phẩm.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
 
+  // Đóng thông báo
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -119,7 +111,7 @@ function FormAddProductDetail() {
               )}
             </div>
           </div>
-          <button type="submit" className="btn btn-primary mt-3">Thêm Chi Tiết Sản Phẩm</button>
+          <button type="submit" className="btn btn-primary mt-3">Cập nhật chi tiết sản phẩm</button>
         </form>
         <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
           <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
@@ -131,4 +123,4 @@ function FormAddProductDetail() {
   );
 }
 
-export default FormAddProductDetail;
+export default EditProductDetail;

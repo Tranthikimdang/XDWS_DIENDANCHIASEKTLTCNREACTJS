@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import { Link } from 'react-router-dom';
@@ -12,7 +13,6 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Imp
 import { db } from '../../../config/firebaseconfig'; // Đảm bảo bạn đã cấu hình Firebase
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
-import { getAuth } from 'firebase/auth'; // Import Firebase Auth
 import './index.css';
 
 function User() {
@@ -27,10 +27,6 @@ function User() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Get current logged-in user
-  const auth = getAuth();
-  const currentUser = auth.currentUser;
-
   // Fetch dữ liệu từ Firestore
   useEffect(() => {
     const fetchUsers = async () => {
@@ -40,10 +36,8 @@ function User() {
           id: doc.id,
           ...doc.data(),
         }));
-        // Filter out the logged-in user
-        const filteredUsers = users.filter((user) => user.email !== currentUser?.email);
-        setRows(filteredUsers);
-        console.log('Fetched users:', filteredUsers);
+        setRows(users);
+        console.log('Fetched users:', users);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
@@ -52,7 +46,7 @@ function User() {
     };
 
     fetchUsers();
-  }, [currentUser]);
+  }, []);
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -140,6 +134,38 @@ function User() {
                 <VuiBox>
                   <Table
                     columns={columns}
+                    // rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
+                    //   ...row,
+                    //   no: page * rowsPerPage + index + 1,
+                    //   avatar: (
+                    //     <div style={{ textAlign: "center" }}>
+                    //       <img
+                    //         src={row.imageUrl || '/default-avatar.png'}
+                    //         alt={row.name}
+                    //         style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
+                    //       />
+                    //     </div>
+                    //   ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
+                      
+                    //   action: (
+                    //     <div>
+                    //       <Link to={`/admin/editUser/${row.id}`}>
+                    //         <button className="text-light btn btn-outline-warning me-2" type="button">
+                    //           Edit
+                    //         </button>
+                    //       </Link>
+
+                    //       <button
+                    //         className="text-light btn btn-outline-danger"
+                    //         type="button"
+                    //         onClick={() => handleDelete(row.id)}
+                    //       >
+                    //         Delete
+                    //       </button>
+                    //     </div>
+                    //   ),
+                    // }))}
+                  
                     rows={rows
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => ({
@@ -166,7 +192,16 @@ function User() {
                                 className="text-light btn btn-outline-warning me-2"
                                 type="button"
                               >
-                                Edit
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  fill="currentColor"
+                                  className="bi bi-pencil"
+                                  viewBox="0 0 16 16"
+                                >
+                                  <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                </svg>
                               </button>
                             </Link>
 
@@ -175,7 +210,17 @@ function User() {
                               type="button"
                               onClick={() => handleDelete(row.id)}
                             >
-                              Delete
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                className="bi bi-trash"
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118z" />
+                              </svg>
                             </button>
                           </div>
                         ),

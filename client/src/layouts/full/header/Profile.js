@@ -11,10 +11,16 @@ import {
   ListItemText,
 } from '@mui/material';
 
-import { IconListCheck, IconMail, IconUser, IconUserCircle, IconPencil, IconBook2 } from '@tabler/icons';
+import {
+  IconListCheck,
+  IconMail,
+  IconUser,
+  IconUserCircle,
+  IconPencil,
+  IconBook2,
+} from '@tabler/icons';
 
-
-import ProfileImg from 'src/assets/images/profile/user-1.jpg';
+// import ProfileImg from 'src/assets/images/profile/user-1.jpg';
 
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
@@ -27,6 +33,8 @@ const Profile = () => {
     setAnchorEl2(null);
   };
   const user = JSON.parse(localStorage.getItem('user'));
+  const ProfileImg = user ? user.imageUrl : 'src/assets/images/profile/user-1.jpg';
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     navigate('/');
@@ -78,8 +86,8 @@ const Profile = () => {
             <ListItemText>Admin</ListItemText>
           </MenuItem>
         )}
-        
-        <MenuItem component={Link} to="/profile">
+
+        <MenuItem component={Link} to={`/profile/${user?.id}`}>
           <ListItemIcon>
             <IconUser width={20} />
           </ListItemIcon>

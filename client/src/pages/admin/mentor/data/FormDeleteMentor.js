@@ -6,20 +6,18 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import VuiTypography from "src/components/admin/VuiTypography";
 
-
-function ConfirmDialog({ open, onClose, onConfirm, questions }) {
+function ConfirmDialog({ open, onClose, onConfirm, name }) {
   const handleConfirm = () => {
-    onConfirm(questions);
+    onConfirm(name);
     onClose();
   };
-  
 
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Xác nhận xóa</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
-        Bạn có chắc chắn muốn xóa câu hỏi"{questions}" không?
+          Bạn có chắc chắn muốn xóa mentor tên là "{name}" không? 
         </VuiTypography>
       </DialogContent>
       <DialogActions>
@@ -28,18 +26,17 @@ function ConfirmDialog({ open, onClose, onConfirm, questions }) {
           sx={{ color: 'error.main', borderColor: 'error.main', '&:hover': { borderColor: 'error.dark' } }}
           variant="outlined"
         >
-         Hủy bỏ
+          Hủy bỏ
         </Button>
         <Button
           onClick={handleConfirm}
           sx={{ color: 'success.main', borderColor: 'success.main', '&:hover': { borderColor: 'success.dark' } }}
           variant="outlined"
         >
-         Xác nhận
+          Xác nhận
         </Button>
       </DialogActions>
     </Dialog>
   );
 }
-
 export default ConfirmDialog;

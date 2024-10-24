@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, Modal, Button, TextField } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
@@ -58,9 +59,17 @@ const Cart = () => {
     fetchProducts();
   }, []);
 
-  const handleRemove = (id) => {
-    // Do not delete the document in Firestore, just update the UI
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  const handleRemove = async (id) => {
+    try {
+      // Xóa sản phẩm khỏi Firestore
+      await deleteDoc(doc(db, 'orders', id));
+  
+      // Cập nhật UI sau khi xóa thành công
+      setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error('Error removing item:', error);
+      alert('Đã xảy ra lỗi khi xóa sản phẩm khỏi giỏ hàng. Vui lòng thử lại.');
+    }
   };
 
   const formatNumber = (number) => {
@@ -88,8 +97,8 @@ const Cart = () => {
       }, 0);
 
       const productNames = cartItems
-        .map((item) => products[item.product_id]?.name || 'Sản phẩm không tìm thấy')
-        .join(', ');
+        .map((item) => products[item.product_id]?.name || '.')
+        // .join(', ');
 
       // Create order in the 'orders' collection
       await setDoc(doc(collection(db, 'orders')), {
@@ -161,7 +170,7 @@ const Cart = () => {
                                 )}
                                 <div className="ms-3">
                                   <h5>
-                                    {products[item.product_id]?.name || 'Sản phẩm không tìm thấy'}
+                                    {products[item.product_id]?.name || ''}
                                   </h5>
                                   <p className="small mb-0">ID sản phẩm: {item.product_id}</p>
                                 </div>

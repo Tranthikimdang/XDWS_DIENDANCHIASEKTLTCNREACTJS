@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
   Grid,
@@ -103,7 +104,6 @@ const Products = () => {
 
   const addToCart = async (product) => {
     if (userId) {
-      const orderDay = new Date().toISOString().split('T')[0]; // Ngày đặt hàng
 
       try {
         const querySnapshot = await getDocs(
@@ -124,7 +124,7 @@ const Products = () => {
             product_id: product.id,
             total: 'total',
             note: '',
-            order_day: orderDay,
+            order_day: new Date(),
           });
 
           setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
@@ -146,7 +146,7 @@ const Products = () => {
   };
 
   return (
-    <PageContainer title="products" description="This is products">
+    <PageContainer title="Products" description="This is products">
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -259,14 +259,14 @@ const Products = () => {
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Price: {product.price}{' '}
+                                  <span className="text-primary"> • </span>Giá gốc: {product.price}{' '}
                                   VND
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Discount:{' '}
-                                  {product.discount}%
+                                  <span className="text-primary"> • </span>Giảm giá còn:{' '}
+                                  {product.discount} VND
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small d-flex justify-content-start">

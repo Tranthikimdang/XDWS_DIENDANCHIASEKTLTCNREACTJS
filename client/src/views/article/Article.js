@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, IconButton, Menu, MenuItem, Card, CardContent, CardMedia, CircularProgress, TextField, InputAdornment, Pagination } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  Card,
+  CardContent,
+  CardMedia,
+  CircularProgress,
+  TextField,
+  InputAdornment,
+  Pagination,
+} from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 //icon
@@ -10,7 +24,6 @@ import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
 import SearchIcon from '@mui/icons-material/Search';
-
 
 //firebase
 import { collection, getDocs } from 'firebase/firestore';
@@ -28,7 +41,8 @@ const Article = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  
+  const selectedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
+
   // Fetch articles from Firestore
   useEffect(() => {
     const fetchArticles = async () => {
@@ -37,9 +51,9 @@ const Article = () => {
         const articlesSnapshot = await getDocs(collection(db, 'articles'));
         const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setArticles(articlesData);
-        console.log("Fetched articles:", articlesData);
+        console.log('Fetched articles:', articlesData);
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        console.error('Error fetching articles:', error);
       } finally {
         setLoading(false); // Set loading to false after data is fetched
       }
@@ -55,9 +69,9 @@ const Article = () => {
         const usersSnapshot = await getDocs(collection(db, 'users'));
         const usersData = usersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setUsers(usersData);
-        console.log("Fetched users:", usersData);
+        console.log('Fetched users:', usersData);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
@@ -65,13 +79,37 @@ const Article = () => {
     fetchUsers();
   }, []);
 
+  const prioritizeArticles = (articles) => {
+    // Ưu tiên các bài viết thuộc danh mục người dùng đã chọn
+    const prioritized = articles.filter(article => selectedCategories.includes(article.categories_id));
+  
+    // Tìm kiếm trong nội dung bài viết có từ khóa gần giống với tên danh mục
+    const relatedArticles = articles.filter(article => {
+      const contentWithoutHtml = removeHtmlTags(article.content).toLowerCase();
+      return selectedCategories.some(catId => {
+        const categoryName = catesMap[catId]?.toLowerCase();
+        return contentWithoutHtml.includes(categoryName);
+      });
+    });
+  
+    // Bỏ qua những bài đã có trong prioritized và relatedArticles
+    const otherArticles = articles.filter(article =>
+      !prioritized.includes(article) && !relatedArticles.includes(article)
+    );
+  
+    // Kết hợp: bài viết ưu tiên -> bài có từ khóa liên quan -> các bài còn lại
+    return [...prioritized, ...relatedArticles, ...otherArticles];
+  };
   // Fetch categories from Firestore
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
         const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setCates(categoriesData);
 
         // Create a mapping of category ID to name
@@ -81,9 +119,9 @@ const Article = () => {
         }, {});
         setCatesMap(categoriesMap);
 
-        console.log("Fetched categories:", categoriesData);
+        console.log('Fetched categories:', categoriesData);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error('Error fetching categories:', error);
       } finally {
         setLoading(false);
       }
@@ -105,7 +143,7 @@ const Article = () => {
   };
 
   const filteredArticles = articles.filter((article) =>
-    article.title.toLowerCase().includes(searchTerm.toLowerCase())
+    article.title.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   //date
@@ -137,7 +175,7 @@ const Article = () => {
 
     return updatedAtString;
   };
-  
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -152,9 +190,7 @@ const Article = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentArticles = filteredArticles.slice(indexOfFirstItem, indexOfLastItem);
-
-
+  const currentArticles = prioritizeArticles(filteredArticles).slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <PageContainer title="Article" description="This is Article">
@@ -165,7 +201,8 @@ const Article = () => {
               <strong>Bài viết nổi bật</strong>
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
-              Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật lập trình web.
+              Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật
+              lập trình web.
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -176,7 +213,6 @@ const Article = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{
-
                 margin: 'auto',
                 borderRadius: '50px',
                 backgroundColor: '#f7f7f7',
@@ -195,7 +231,6 @@ const Article = () => {
                 ),
               }}
             />
-
           </Grid>
           <Grid item md={8}>
             {loading ? (
@@ -204,99 +239,121 @@ const Article = () => {
               </Box>
             ) : currentArticles.length > 0 ? (
               currentArticles
-              .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
-                .map((article) => (
-                  // eslint-disable-next-line eqeqeq
-                  article.isApproved == 1 && (
-                    <Card
-                    key={article?.id}
-                    sx={{
-                      display: 'flex',
-                      mb: 3,
-                      flexDirection: { xs: 'column', md: 'row' },
-                      border: '1px solid #ddd',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      overflow: 'hidden',
-                    }}
-                    onClick={() => handleCardClick(article.id)} // Điều hướng đến chi tiết
-                  >
-                    {/* Bên trái: Nội dung */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                      <CardContent>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                          <img
-                            src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-                            width="40px"
-                            alt="User Avatar"
-                            style={{ borderRadius: '50%', marginRight: '10px' }}
-                          />
-                          <Typography variant="body1" component="span" className="author-name">
-                            <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
-                          </Typography>
-                        </Box>
-                        <Typography variant="h5" component="h2" className="article-title">
-                        {article.title.length > 100 ? `${article.title.substring(0, 100)}...` : article.title}
-                        </Typography>
-                        <Typography variant="body2" paragraph className="article-description">
-                        {removeHtmlTags(article.content, 'p').length > 10
-                              ? `${removeHtmlTags(article.content, 'p').substring(0, 10)}...`
-                              : removeHtmlTags(article.content, 'p')}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                          <Typography variant="body2" color="textSecondary" className="category-badge">
-                            {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                            {formatUpdatedAt(article.updated_at)}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Box>
-                    
-                    {/* Bên phải: Hình ảnh và các nút hành động */}
-                    <Box sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }} className="card-media">
-                      <CardMedia
-                        component="img"
+                .map(
+                  (article) =>
+                    // eslint-disable-next-line eqeqeq
+                    article.isApproved == 1 && (
+                      <Card
+                        key={article?.id}
                         sx={{
-                          width: { xs: '100%', md: 200 },
-                          height: { xs: 'auto', md: '100%' },
-                          aspectRatio: '16/9',
-                          objectFit: 'cover',
+                          display: 'flex',
+                          mb: 3,
+                          flexDirection: { xs: 'column', md: 'row' },
+                          border: '1px solid #ddd',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          overflow: 'hidden',
                         }}
-                        image={article.image}
-                        alt={article.title}
-                      />
-                      <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                        <IconButton
-                          aria-label="bookmark"
-                          onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
+                        onClick={() => handleCardClick(article.id)} // Điều hướng đến chi tiết
+                      >
+                        {/* Bên trái: Nội dung */}
+                        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                          <CardContent>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                              <img
+                                src={
+                                  users?.find((u) => article?.user_id === u.id)?.imageUrl ||
+                                  'default-image-url.jpg'
+                                }
+                                alt="User Avatar"
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  borderRadius: '50%',
+                                  marginRight: 8,
+                                }}
+                              />
+                              <Typography variant="body1" component="span" className="author-name">
+                                <strong>
+                                  {users?.find((u) => article?.user_id === u.id)?.name}
+                                </strong>
+                              </Typography>
+                            </Box>
+                            <Typography variant="h5" component="h2" className="article-title">
+                              {article.title.length > 100
+                                ? `${article.title.substring(0, 100)}...`
+                                : article.title}
+                            </Typography>
+                            <Typography variant="body2" paragraph className="article-description">
+                              {removeHtmlTags(article.content, 'p').length > 10
+                                ? `${removeHtmlTags(article.content, 'p').substring(0, 10)}...`
+                                : removeHtmlTags(article.content, 'p')}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                              <Typography
+                                variant="body2"
+                                color="textSecondary"
+                                className="category-badge"
+                              >
+                                {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
+                                {formatUpdatedAt(article.updated_at)}
+                              </Typography>
+                            </Box>
+                          </CardContent>
+                        </Box>
+
+                        {/* Bên phải: Hình ảnh và các nút hành động */}
+                        <Box
+                          sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }}
+                          className="card-media"
                         >
-                          <IconBookmark />
-                        </IconButton>
-                        <IconButton
-                          aria-label="more"
-                          onClick={(event) => {
-                            event.stopPropagation(); // Ngăn sự kiện click thẻ Card
-                            handleClick(event);
-                          }}
-                        >
-                          <IconDots />
-                        </IconButton>
-                        <Menu id="menu" anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-                          {menuItems.map((item, i) => (
-                            <MenuItem key={i} onClick={handleClose}>
-                              {item.icon}
-                              <span style={{ marginLeft: 10 }}>{item.text}</span>
-                            </MenuItem>
-                          ))}
-                        </Menu>
-                      </Box>
-                    </Box>
-                  </Card>
-                  
-                  )
-                ))
+                          <CardMedia
+                            component="img"
+                            sx={{
+                              width: { xs: '100%', md: 200 },
+                              height: { xs: 'auto', md: '100%' },
+                              aspectRatio: '16/9',
+                              objectFit: 'cover',
+                            }}
+                            image={article.image}
+                            alt={article.title}
+                          />
+                          <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
+                            <IconButton
+                              aria-label="bookmark"
+                              onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
+                            >
+                              <IconBookmark />
+                            </IconButton>
+                            <IconButton
+                              aria-label="more"
+                              onClick={(event) => {
+                                event.stopPropagation(); // Ngăn sự kiện click thẻ Card
+                                handleClick(event);
+                              }}
+                            >
+                              <IconDots />
+                            </IconButton>
+                            <Menu
+                              id="menu"
+                              anchorEl={anchorEl}
+                              open={Boolean(anchorEl)}
+                              onClose={handleClose}
+                            >
+                              {menuItems.map((item, i) => (
+                                <MenuItem key={i} onClick={handleClose}>
+                                  {item.icon}
+                                  <span style={{ marginLeft: 10 }}>{item.text}</span>
+                                </MenuItem>
+                              ))}
+                            </Menu>
+                          </Box>
+                        </Box>
+                      </Card>
+                    ),
+                )
             ) : (
               <Typography>Không tìm thấy bài viết nào.</Typography>
             )}
@@ -309,8 +366,8 @@ const Article = () => {
               />
             </Box>
           </Grid>
-         {/* Right Column */}
-         <Grid item md={4}>
+          {/* Right Column */}
+          <Grid item md={4}>
             <div className="sidebar">
               <Typography variant="h6" component="h3" sx={{ textTransform: 'uppercase' }}>
                 Bài viết cùng chuyên mục
@@ -322,8 +379,14 @@ const Article = () => {
               ) : (
                 <ul className="category-list">
                   {cates.map((cate) => (
-                    <Link to={`/CateArticleDetail/${cate.id}`} style={{ textDecoration: 'none' }}>
-                      <li key={cate.id} className="category-item">
+                    <Link
+                      to={`/CateArticleDetail/${cate.id}`}
+                      style={{ textDecoration: 'none' }}
+                      key={cate.id}
+                    >
+                      <li className="category-item mb-2">
+                        {' '}
+                        {/* Thêm mb-2 để tạo khoảng cách dưới mỗi mục */}
                         <strong>{cate.name}</strong>
                       </li>
                     </Link>
@@ -339,6 +402,3 @@ const Article = () => {
 };
 
 export default Article;
-
-
-
