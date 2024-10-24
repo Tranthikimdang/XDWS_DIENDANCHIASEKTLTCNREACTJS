@@ -10,7 +10,7 @@ import { collection, query, where, getDocs, addDoc, getDoc } from 'firebase/fire
 import emailjs from 'emailjs-com';
 import { GoogleLogin } from 'react-google-login';
 import ConfirmDialog from 'src/components/ConfirmDialog';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage'; 
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
@@ -90,15 +90,15 @@ const AuthRegister = ({ subtext }) => {
     e.preventDefault();
     setErrors({});
     const validationErrors = validateForm();
-  
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-  
+
     try {
       const emailExists = await checkEmailExists(formData.email);
-  
+
       if (emailExists) {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
@@ -106,29 +106,35 @@ const AuthRegister = ({ subtext }) => {
         // Lấy file ảnh từ input
         const file = e.target.elements.formImageUrl.files[0]; // Lấy file ảnh từ input file
         let imageUrl = '';
-  
+
         if (file) {
           // Lấy instance Firebase Storage
           const storage = getStorage();
           const storageRef = ref(storage, `images/${formData.email}/${file.name}`);
-          
+
           // Upload ảnh lên Firebase Storage
           await uploadBytes(storageRef, file);
-  
+
           // Lấy URL của ảnh sau khi upload thành công
           imageUrl = await getDownloadURL(storageRef);
         }
-        
+
         // Thêm thông tin người dùng cùng với URL ảnh đã upload
         const data = await addUser({
           ...formData,
           imageUrl, // Thêm URL của hình ảnh vào thông tin người dùng
         });
-  
+
         const docSnapshot = await getDoc(data);
-  
+
         if (docSnapshot.exists()) {
-          recordCreated.current = {id: data.id, ...docSnapshot.data()};
+          recordCreated.current = { id: data.id, ...docSnapshot.data() };
+
+          const userData = { id: data.id, ...docSnapshot.data() };
+          recordCreated.current = userData;
+
+          localStorage.setItem('user', JSON.stringify(userData));
+
           setOpenDialog(true);
         } else {
           console.log('Không thành công!');
@@ -140,7 +146,6 @@ const AuthRegister = ({ subtext }) => {
       console.error('Registration error:', error);
     }
   };
-  
 
   // Xử lý khi thay đổi thông tin trong form
   const handleChange = (e) => {
@@ -436,7 +441,7 @@ const AuthRegister = ({ subtext }) => {
 
               <div className="text-center mt-3">
                 <span>Bạn đã có tài khoảng? </span>
-                <Link to="/auth/login">Đăng nhập</Link>
+                <Link to="/home">Đăng nhập</Link>
               </div>
             </Card>
           </Col>
