@@ -5,15 +5,20 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { collection, addDoc } from 'firebase/firestore'; // Import Firebase Firestore
-import { db } from '../../../../config/firebaseconfig'; // Firebase config đã được thiết lập
+import { collection, addDoc } from 'firebase/firestore';
+import { db, storage } from '../../../../config/firebaseconfig'; // Import Firebase config and storage
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Import Firebase Storage functions
 import '../index.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage } from '@fortawesome/free-solid-svg-icons'; // Import specific icon
 
 function FormAddUser() {
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null); // State for image preview
 
   const {
     register,
@@ -21,17 +26,21 @@ function FormAddUser() {
     formState: { errors },
   } = useForm();
 
-
   const onSubmit = async (formData) => {
     console.log('Form Data:', formData);
     try {
-      // Thêm người dùng vào Firestore
-      const docRef = await addDoc(collection(db, 'users'), formData);
+      let imageUrl = '';
+      if (imageFile) {
+        const imageRef = ref(storage, `images/${imageFile.name}`);
+        await uploadBytes(imageRef, imageFile);
+        imageUrl = await getDownloadURL(imageRef);
+      }
+
+      const docRef = await addDoc(collection(db, 'users'), { ...formData, imageUrl });
       console.log('User added successfully:', docRef.id);
       setSnackbarMessage('User added successfully.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      // Điều hướng về trang danh sách người dùng
       setTimeout(() => navigate('/admin/user'), 1000);
     } catch (error) {
       console.error('Error adding user:', error);
@@ -40,13 +49,20 @@ function FormAddUser() {
       setSnackbarOpen(true);
     }
   };
-  
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
     setSnackbarOpen(false);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file)); // Generate image preview URL
+    }
   };
 
   return (
@@ -58,7 +74,7 @@ function FormAddUser() {
             <div className="col-md-6 mb-3">
               <div style={{ textAlign: 'left' }}>
                 <label className="text-light form-label">Tên tài khoản</label>
-              </div>{' '}
+              </div>
               <input
                 className="form-control bg-dark text-light"
                 {...register('name', { required: true, minLength: 3, maxLength: 50 })}
@@ -129,8 +145,42 @@ function FormAddUser() {
               >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
+                <option value="mentor">Mentor</option> {/* Added mentor option */}
               </select>
               {errors.role && <span className="text-danger">Role is required</span>}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <div className="custom-file-input-wrapper">
+                <input
+                  type="file"
+                  id="fileInput"
+                  className="form-control bg-dark text-light"
+                  style={{ display: 'none' }}
+                  onChange={handleImageChange}
+                />
+                <div style={{ textAlign: 'left' }}>
+                  <button
+                    type="button"
+                    className="btn btn-outline-info"
+                    onClick={() => document.getElementById('fileInput').click()}
+                  >
+                    Chọn ảnh đại diện_<FontAwesomeIcon icon={faImage} />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-6 mb-3">
+              {imagePreview && (
+                <div style={{ textAlign: 'left' }}>
+                  <img
+                    src={imagePreview}
+                    alt="Selected"
+                    style={{ width: '200px', height: '200px', objectFit: 'cover' }}
+                  />
+                </div>
+              )}
             </div>
           </div>
           <div className="d-flex justify-content mt-3">

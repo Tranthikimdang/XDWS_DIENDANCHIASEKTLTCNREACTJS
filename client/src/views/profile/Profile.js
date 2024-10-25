@@ -1,57 +1,60 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom'; // Import useParams
+import { useParams } from 'react-router-dom';
 import { Grid, Box, Card, CardContent, Typography } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import { doc, getDoc } from 'firebase/firestore'; 
-import { db } from '../../config/firebaseconfig'; 
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../../config/firebaseconfig';
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Profile = () => {
-  const { userId } = useParams(); // Lấy userId từ URL params
-  const [user, setUser] = useState([]);
-  const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
-  const [error, setError] = useState(null); // Trạng thái lỗi
+  const { userId } = useParams();
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userRef = doc(db, 'users', userId); // Tạo tham chiếu tới tài liệu người dùng dựa trên userId từ URL
-        const userSnap = await getDoc(userRef); // Lấy tài liệu từ Firestore
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
 
         if (userSnap.exists()) {
           const userData = userSnap.data();
-          setUser(userData); // Cập nhật state user
+          setUser(userData);
         } else {
           console.log('No such user document!');
-          setError('User not found'); // Cập nhật lỗi nếu không tìm thấy tài liệu
+          setError('User not found');
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setError('Failed to fetch user data'); // Xử lý lỗi nếu có vấn đề trong quá trình lấy dữ liệu
+        setError('Failed to fetch user data');
       } finally {
-        setLoading(false); // Kết thúc quá trình tải dữ liệu
+        setLoading(false);
       }
     };
 
     fetchUser();
-  }, [userId]); // Mảng dependency bao gồm userId
+  }, [userId]);
 
-  // useEffect(() => {
-  //   const fetchMentor = async () => {
-  //     try {
-  //       const mentorSnapshot = await getDoc(db, 'mentor');
-  //       const mentorData = mentorSnapshot.docs.map((doc) => {
-  //         return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
-  //       });
-       
-  //     } catch (error) {
-  //       console.error("Lỗi khi tải mentor:", error);
-  //     }
-  //   };
-  //   fetchMentor();
-  // }, []);
- 
+  const getRoleLabel = (role) => {
+    switch (role) {
+      case 'admin':
+        return 'Admin';
+      case 'mentor':
+        return 'Mentor';
+      default:
+        return 'User';
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <PageContainer title="User Profile" description="This is the User Profile page">
@@ -107,7 +110,7 @@ const Profile = () => {
                   {user.name}
                 </Typography>
                 <Typography variant="h6" color="textSecondary">
-                  {user.role === 'admin' ? 'Admin' : 'User'}
+                  {getRoleLabel(user.role)}
                 </Typography>
 
                 <div className="profile-details" style={{ marginTop: '20px' }}>
@@ -153,7 +156,7 @@ const Profile = () => {
                       </Typography>
                     </Grid>
                     <Grid item xs={6}>
-                      <Typography variant="body1">{user.role === 'admin' ? 'Admin' : 'User'}</Typography>
+                      <Typography variant="body1">{getRoleLabel(user.role)}</Typography>
                     </Grid>
                   </Grid>
                 </div>
