@@ -106,7 +106,7 @@ const Mentor = () => {
     if (storedUserData) {
       setUserData(storedUserData);
     }{
-      navigate('/home')
+      navigate('/auth/mentor')
     }
   }, []);
 
