@@ -94,8 +94,11 @@ const User = () => {
   }, []);
 
   const handleCardClick = (userId) => {
-    navigate(`/profile/${userId}`); // Điều hướng với userId
+    navigate(`/profile/${userId}`, { state: { id: userId } }); // Điều hướng với userId
   };
+
+
+
   // Filter users based on search term
   const filteredUsers = users.filter(
     (user) => user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -192,7 +195,7 @@ const User = () => {
                         },
                       }}
                       // eslint-disable-next-line no-undef
-                      onClick={() => handleCardClick(mentor.userId)} // Điều hướng đến chi tiết
+                      onClick={() => handleCardClick(mentor.user_id)} // Điều hướng đến chi tiết
                     >
                       <Box sx={{ flexShrink: 0 }}>
                         <CardMedia
@@ -256,7 +259,7 @@ const User = () => {
                       },
                     }}
                     // eslint-disable-next-line no-undef
-                    onClick={() => handleCardClick(user.userId)} // Điều hướng đến chi tiết
+                    onClick={() => handleCardClick(user.id)} // Điều hướng đến chi tiết
                   >
                     <Box sx={{ flexShrink: 0 }}>
                       <CardMedia
