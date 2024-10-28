@@ -79,7 +79,7 @@ const User = () => {
     const fetchMentor = async () => {
       setLoading(true);
       try {
-        const mentorSnapshot = await getDocs(collection(db, 'mentor'));
+        const mentorSnapshot = await getDocs(collection(db, 'mentors'));
         const mentorData = mentorSnapshot.docs.map((doc) => {
           return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
         });

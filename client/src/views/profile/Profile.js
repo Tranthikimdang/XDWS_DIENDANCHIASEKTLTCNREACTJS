@@ -213,7 +213,7 @@ const Profile = () => {
                 {user?.name}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                {user?.role === 'mentor' ? 'Mentor' : 'Người Dùng'}
+                {user?.role === 'mentors' ? 'Mentor' : 'Người Dùng'}
               </Typography>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
