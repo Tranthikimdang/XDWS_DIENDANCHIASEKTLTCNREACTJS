@@ -8,24 +8,25 @@ import {
   Typography
 } from '@mui/material';
 import { Card } from 'react-bootstrap';
-
+import { useNavigate } from 'react-router-dom';
 // components
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { addDoc, collection, getDoc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { useState } from 'react';
-import { useLocation } from 'react-router';
 import PageContainer from 'src/components/container/PageContainer';
 import { db } from 'src/config/firebaseconfig';
 import Logo from 'src/layouts/full/shared/logo/Logo';
+import { useEffect } from 'react';
 
 const Mentor = () => {
-  const { state } = useLocation();
   const [loading, setLoading] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [userData, setUserData] = useState(null);
+  const navigate = useNavigate();
 
   const handleUpload = async (file) => {
     const storage = getStorage();
@@ -34,6 +35,8 @@ const Mentor = () => {
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   };
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +57,7 @@ const Mentor = () => {
       const fileUrl = await handleUpload(file);
   
       const dataToSubmit = {
-        user_id: state.id,
+        user_id: userData?.id,
         upfile: fileUrl,
         expertise: "WebDevelopment", // tạm thời
         // expertise: expertiseList,  // Gán danh sách các expertise
@@ -71,6 +74,9 @@ const Mentor = () => {
       if (docSnapshot.exists()) {
         setSnackbarMessage('CV của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
         setSnackbarSeverity('success');
+        setTimeout(() => {
+          navigate('/auth/inter');  // Chuyển hướng về trang home sau khi thông báo
+        }, 3000);
       } else {
         setSnackbarMessage('Đã xảy ra lỗi khi gửi CV.');
         setSnackbarSeverity('error');
@@ -94,6 +100,16 @@ const Mentor = () => {
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
+
+  useEffect(() => {
+    const storedUserData = JSON.parse(localStorage.getItem('user'));
+    if (storedUserData) {
+      setUserData(storedUserData);
+    }{
+      navigate('/home')
+    }
+  }, []);
+
   return (
     <PageContainer title="Login" description="This is the login page">
       <Box
@@ -142,12 +158,12 @@ const Mentor = () => {
               >
                 <Box display="flex" alignItems="center" mb={2}>
                   <img
-                    src={'default-image-url.jpg'}
+                    src={userData?.imageUrl || ''}
                     width="40px"
                     alt="User Avatar"
                     style={{ borderRadius: '50%', marginRight: '10px' }}
                   />
-                  <Typography variant="h6">{state?.name || ''}</Typography>
+                  <Typography variant="h6">{userData?.name || ''}</Typography>
                 </Box>
 
                 <Box display="flex" flexDirection={'column'} sx={{ padding: '10px' }}>
