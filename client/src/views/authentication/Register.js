@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
