@@ -79,27 +79,6 @@ const Article = () => {
     fetchUsers();
   }, []);
 
-  const prioritizeArticles = (articles) => {
-    // Ưu tiên các bài viết thuộc danh mục người dùng đã chọn
-    const prioritized = articles.filter(article => selectedCategories.includes(article.categories_id));
-  
-    // Tìm kiếm trong nội dung bài viết có từ khóa gần giống với tên danh mục
-    const relatedArticles = articles.filter(article => {
-      const contentWithoutHtml = removeHtmlTags(article.content).toLowerCase();
-      return selectedCategories.some(catId => {
-        const categoryName = catesMap[catId]?.toLowerCase();
-        return contentWithoutHtml.includes(categoryName);
-      });
-    });
-  
-    // Bỏ qua những bài đã có trong prioritized và relatedArticles
-    const otherArticles = articles.filter(article =>
-      !prioritized.includes(article) && !relatedArticles.includes(article)
-    );
-  
-    // Kết hợp: bài viết ưu tiên -> bài có từ khóa liên quan -> các bài còn lại
-    return [...prioritized, ...relatedArticles, ...otherArticles];
-  };
   // Fetch categories from Firestore
   useEffect(() => {
     const fetchCategories = async () => {
@@ -128,6 +107,29 @@ const Article = () => {
     };
     fetchCategories();
   }, []);
+
+  const prioritizeArticles = (articles) => {
+    // Ưu tiên các bài viết thuộc danh mục người dùng đã chọn
+    const prioritized = articles.filter(article => selectedCategories.includes(article.categories_id));
+
+    // Tìm kiếm trong nội dung bài viết có từ khóa gần giống với tên danh mục
+    const relatedArticles = articles.filter(article => {
+      const contentWithoutHtml = removeHtmlTags(article.content).toLowerCase();
+      return selectedCategories.some(catId => {
+        const categoryName = catesMap[catId]?.toLowerCase();
+        return contentWithoutHtml.includes(categoryName);
+      });
+    });
+
+    // Bỏ qua những bài đã có trong prioritized và relatedArticles
+    const otherArticles = articles.filter(article =>
+      !prioritized.includes(article) && !relatedArticles.includes(article)
+    );
+
+    // Kết hợp: bài viết ưu tiên -> bài có từ khóa liên quan -> các bài còn lại
+    return [...prioritized, ...relatedArticles, ...otherArticles];
+  };
+
 
   const menuItems = [
     { icon: <FacebookIcon />, text: 'Share on Facebook' },

@@ -24,6 +24,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
   const [user, setUser] = useState({});
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
@@ -214,7 +215,7 @@ const Profile = () => {
                 {user?.name}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                {user?.role === 'mentors' ? 'Mentor' : 'Người Dùng'}
+                {user?.role === 'mentors' ? 'Mentors' : 'Người hướng dẫn'}
               </Typography>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
@@ -301,7 +302,9 @@ const Profile = () => {
                         </Typography>
                       </Grid>
                       <Grid item xs={6}>
-                        <Typography variant="body1">{user.role === 'admin' ? 'Quản Trị Viên' : 'Người Dùng'}</Typography>
+                        <Typography variant="body1">
+                          {user.role === 'mentor' ? 'Người Hướng Dẫn' : 'Người Dùng'}
+                        </Typography>
                       </Grid>
                     </Grid>
                   </>
@@ -331,10 +334,11 @@ const Profile = () => {
                             {/* Bên trái: Nội dung */}
                             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <CardContent>
-                                {/* <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                {/*  */}
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                   <img
                                     src={
-                                      user?.find((u) => article?.user_id === u.id)?.imageUrl ||
+                                      users?.find((u) => article?.user_id === u.id)?.imageUrl ||
                                       'default-image-url.jpg'
                                     }
                                     alt="User Avatar"
@@ -347,10 +351,11 @@ const Profile = () => {
                                   />
                                   <Typography variant="body1" component="span" className="author-name">
                                     <strong>
-                                      {user?.find((u) => article?.user_id === u.id)?.name}
+                                      {users?.find((u) => article?.user_id === u.id)?.name}
                                     </strong>
                                   </Typography>
-                                </Box> */}
+                                </Box> 
+                                {/*  */}
                                 <Typography variant="h6" component="h2" className="article-title">
                                   {article.title.length > 100
                                     ? `${article.title.substring(0, 100)}...`
@@ -479,25 +484,132 @@ const Profile = () => {
                                 </Box>
                               </Box> */}
                             </Box>
-                            <Divider sx={{ my: 2 }} />
-                            {/* Like and Comment Counts */}
-                            <Typography variant="subtitle1" color="textSecondary">
-                              345 Likes • 34 Comments
+                            {/* Display Question Content */}
+                          <Box sx={{ mt: 3, mb: 3 }}>
+                            <Typography variant="subtitle1">
+                              {question?.questions || ''}
                             </Typography>
+                            <Divider sx={{ mb: 2 }} />
+                            {question?.hashtag && (
+                              <Typography
+                                variant="h6"
+                                sx={{ color: '#007bff', fontSize: '0.8rem' }}
+                              >
+                                #{question.hashtag}
+                              </Typography>
+                            )}
                           </Box>
-                        ))
-                    ) : (
-                      <Typography variant="body2">Không có câu hỏi nào.</Typography>
+                          <Box sx={{ mt: 3, mb: 3 }}>
+                            {question?.up_code ? (
+                              <>
+                                
+                                  {question.up_code}
+                             
+                                <Divider sx={{ mb: 2 }} />
+                              </>
+                            ) : null}
+                          </Box>
+
+                          {/* Display Images */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              justifyContent: 'center',
+                              gap: '5px',
+                            }}
+                          >
+                            {question?.imageUrls?.length > 0 &&
+                              question?.imageUrls.map((image, index) => (
+                                <Box
+                                  key={index}
+                                  sx={{
+                                    flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
+                                    flexGrow: 1,
+                                    maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
+                                    mb: 2,
+                                  }}
+                                >
+                                  <img
+                                    src={image}
+                                    alt=""
+                                    style={{
+                                      width: '100%',
+                                      height: 'auto',
+                                      borderRadius: '8px',
+                                    }}
+                                  />
+                                </Box>
+                              ))}
+                          </Box>
+                          {question.fileUrls &&
+                            question.fileUrls.length > 0 &&
+                            question.fileUrls.some(
+                              (url) =>
+                                decodeURIComponent(url).split('/').pop().split('?')[0] !==
+                                'uploads',
+                            ) && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '10px',
+                                  border: '1px solid #e0e0e0',
+                                  borderRadius: '8px',
+                                  backgroundColor: '#fff',
+                                  width: 'fit-content',
+                                  height: '30px',
+                                }}
+                              >
+                                {/* <IconButton sx={{ color: '#007bff' }}>
+                                  <DescriptionIcon />
+                                </IconButton> */}
+                                <Typography variant="subtitle1">
+                                  {question.fileUrls.map((url, index) => {
+                                    const fileName = decodeURIComponent(url)
+                                      .split('/')
+                                      .pop()
+                                      .split('?')[0];
+                                    return fileName !== 'uploads' ? (
+                                      <a
+                                        key={index}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          color: 'inherit',
+                                          textDecoration: 'none',
+                                          fontSize: '14px',
+                                          marginRight: '10px',
+                                        }}
+                                      >
+                                        {fileName}
+                                      </a>
+                                    ) : null;
+                                  })}
+                                </Typography>
+                              </Box>
+                            )}
+                        
+                            <Divider sx={{ my: 2 }} />
+                            {/* Like and Comment Counts */ }
+                          < Typography variant = "subtitle1" color = "textSecondary" >
+                          345 Likes • 34 Comments
+                  </Typography>
+              </Box>
+              ))
+              ) : (
+              <Typography variant="body2">Không có câu hỏi nào.</Typography>
                     )}
-                  </>
+            </>
                 )}
 
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Box>
-    </PageContainer>
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
+      </Box >
+    </PageContainer >
   );
 };
 
