@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
@@ -25,49 +25,59 @@ function CommentDetail() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [commentType, setCommentType] = useState('article'); // State to manage comment type (article/question)
-  const [columns, setColumns] = useState(commentDetails.articleColumns); // Set default columns
-
-  useEffect(() => {
-    const unsubscribeComments = onSnapshot(collection(db, "commentDetails"), (snapshot) => {
-      const commentsList = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+  const location = useLocation()
+  const [columns, setColumns] = useState([]);
+  const queryParams = new URLSearchParams(location.search);
+  const commentType = queryParams.get('type') || 'article';
   
-      // Kiểm tra bộ sưu tập bình luận cho câu hỏi
-      const unsubscribeQuestionComments = onSnapshot(collection(db, "questions"), (questionSnapshot) => {
-        const questionCommentsList = questionSnapshot.docs.map(doc => ({
+  // Hook để hiển thị bình luận chi tiết
+  useEffect(() => {
+    // Xác định cột dựa trên commentType
+    if (commentType === 'article') {
+      setColumns(commentDetails.articleColumns);
+    } else if (commentType === 'question') {
+      setColumns(commentDetails.questionColumns);
+    }
+  
+    const unsubscribeComments = onSnapshot(
+      collection(db, commentType === 'article' ? 'commentDetails' : 'questions'),
+      (snapshot) => {
+        const commentsList = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
   
-        // Kết hợp cả hai danh sách bình luận
-        const allComments = [...commentsList, ...questionCommentsList];
-  
-        // Lọc bình luận dựa trên commentType và ID
-        const filteredComments = allComments.filter((comment) => {
-          if (commentType === 'article') {
-            return comment.article_id === id;
-          } else if (commentType === 'question') {
-            return comment.question_id === id;
+        console.log('useParams ID:', id);
+        if (commentType === 'article') {
+          // Lọc bình luận cho bài viết
+          const filteredComments = commentsList.filter(
+            (comment) => comment.article_id === id // Kiểm tra với article_id
+          );
+          console.log('Filtered article comments:', filteredComments);
+          setRows(filteredComments);
+        } else if (commentType === 'question') {
+          // Xử lý bình luận cho câu hỏi (lấy từ trường comments trong câu hỏi)
+          const questionWithComments = commentsList.find(
+            (question) => question.id === id // Kiểm tra với id câu hỏi
+          );
+          
+          if (questionWithComments && questionWithComments.comments) {
+            console.log('Firestore question comments:', questionWithComments.comments);
+            setRows(questionWithComments.comments); // Lấy bình luận từ trường comments
+          } else {
+            console.log('No comments found for question');
+            setRows([]);
           }
-          return false;
-        });
+        }
   
-        // Log bình luận sau khi lọc
-        console.log('Bình luận sau khi lọc:', filteredComments);
-  
-        setRows(filteredComments);
         setLoading(false);
-      });
+      }
+    );
   
-      return () => {
-        unsubscribeComments();
-        unsubscribeQuestionComments();
-      };
-    });
+    return () => unsubscribeComments();
   }, [id, commentType]);
+  
+  
 
   const handleDelete = (id) => {
     setDeleteId(id);
