@@ -7,10 +7,14 @@ import { Email, LocationOn, Phone, Work, Person } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../config/firebaseconfig';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
+//
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-//icon
 
+//icon
+import DescriptionIcon from '@mui/icons-material/Description';
 // import { IconBookmark, IconDots } from '@tabler/icons';
 // import FacebookIcon from '@mui/icons-material/Facebook';
 // import TwitterIcon from '@mui/icons-material/Twitter';
@@ -203,7 +207,7 @@ const Profile = () => {
               }}
             >
               <Avatar
-                src={user?.imageUrl || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS52y5aInsxSm31CvHOFHWujqUx_wWTS9iM6s7BAm21oEN_RiGoog'}
+                src={user?.imageUrl || '../../assets/images/profile/user-1.jpg'}
                 alt="Hồ Sơ"
                 sx={{
                   width: '120px',
@@ -338,8 +342,7 @@ const Profile = () => {
                                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                                   <img
                                     src={
-                                      users?.find((u) => article?.user_id === u.id)?.imageUrl ||
-                                      'default-image-url.jpg'
+                                      user.imageUrl || '../../assets/images/profile/user-1.jpg'
                                     }
                                     alt="User Avatar"
                                     style={{
@@ -351,10 +354,10 @@ const Profile = () => {
                                   />
                                   <Typography variant="body1" component="span" className="author-name">
                                     <strong>
-                                      {users?.find((u) => article?.user_id === u.id)?.name}
+                                      {user.name}
                                     </strong>
                                   </Typography>
-                                </Box> 
+                                </Box>
                                 {/*  */}
                                 <Typography variant="h6" component="h2" className="article-title">
                                   {article.title.length > 100
@@ -460,11 +463,11 @@ const Profile = () => {
                           >
                             {/* Header with Author Info */}
                             <Box display="flex" alignItems="center" justifyContent="space-between">
-                              {/* <Box display="flex" alignItems="center">
+                              <Box display="flex" alignItems="center">
                                 <img
                                   src={
-                                    users?.find((u) => question.user_id === u.id)?.imageUrl ||
-                                    'default-image-url.jpg'
+                                    user.imageUrl ||
+                                    '../../assets/images/profile/user-1.jpg'
                                   }
                                   alt="Author"
                                   style={{
@@ -476,79 +479,73 @@ const Profile = () => {
                                 />
                                 <Box>
                                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                    {users?.find((u) => question.user_id === u.id)?.name}
+                                    {user.name}
                                   </Typography>
                                   <Typography variant="body2" color="textSecondary">
                                     {formatUpdatedAt(question.updated_at)}
                                   </Typography>
                                 </Box>
-                              </Box> */}
+                              </Box>
                             </Box>
                             {/* Display Question Content */}
-                          <Box sx={{ mt: 3, mb: 3 }}>
-                            <Typography variant="subtitle1">
-                              {question?.questions || ''}
-                            </Typography>
-                            <Divider sx={{ mb: 2 }} />
-                            {question?.hashtag && (
-                              <Typography
-                                variant="h6"
-                                sx={{ color: '#007bff', fontSize: '0.8rem' }}
-                              >
-                                #{question.hashtag}
+                            <Box sx={{ mt: 3, mb: 3 }}>
+                              <Typography variant="subtitle1">
+                                {question?.questions || ''}
                               </Typography>
-                            )}
-                          </Box>
-                          <Box sx={{ mt: 3, mb: 3 }}>
-                            {question?.up_code ? (
-                              <>
-                                
-                                  {question.up_code}
-                             
-                                <Divider sx={{ mb: 2 }} />
-                              </>
-                            ) : null}
-                          </Box>
-
-                          {/* Display Images */}
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              justifyContent: 'center',
-                              gap: '5px',
-                            }}
-                          >
-                            {question?.imageUrls?.length > 0 &&
-                              question?.imageUrls.map((image, index) => (
-                                <Box
-                                  key={index}
-                                  sx={{
-                                    flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
-                                    flexGrow: 1,
-                                    maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
-                                    mb: 2,
-                                  }}
+                              <Divider sx={{ mb: 2 }} />
+                              {question?.hashtag && (
+                                <Typography
+                                  variant="h6"
+                                  sx={{ color: '#007bff', fontSize: '0.8rem' }}
                                 >
-                                  <img
-                                    src={image}
-                                    alt=""
-                                    style={{
-                                      width: '100%',
-                                      height: 'auto',
-                                      borderRadius: '8px',
+                                  #{question.hashtag}
+                                </Typography>
+                              )}
+                            </Box>
+                            <Box sx={{ mt: 3, mb: 3 }}>
+                              {question?.up_code ? (
+                                <>
+                                  <SyntaxHighlighter language="javascript" style={dracula}>
+                                    {question.up_code}
+                                  </SyntaxHighlighter>
+                                  <Divider sx={{ mb: 2 }} />
+                                </>
+                              ) : null}
+                            </Box>
+
+                            {/* Display Images */}
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                justifyContent: 'center',
+                                gap: '5px',
+                              }}
+                            >
+                              {question?.imageUrls?.length > 0 &&
+                                question?.imageUrls.map((image, index) => (
+                                  <Box
+                                    key={index}
+                                    sx={{
+                                      flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
+                                      flexGrow: 1,
+                                      maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
+                                      mb: 2,
                                     }}
-                                  />
-                                </Box>
-                              ))}
-                          </Box>
-                          {question.fileUrls &&
-                            question.fileUrls.length > 0 &&
-                            question.fileUrls.some(
-                              (url) =>
-                                decodeURIComponent(url).split('/').pop().split('?')[0] !==
-                                'uploads',
-                            ) && (
+                                  >
+                                    <img
+                                      src={image || '../../assets/images/profile/user-1.jpg'}
+                                      alt=""
+                                      style={{
+                                        width: '100%',
+                                        height: 'auto',
+                                        borderRadius: '8px',
+                                      }}
+                                    />
+                                  </Box>
+                                ))}
+                            </Box>
+                            {question.fileUrls && question.fileUrls.length > 0 && question.fileUrls.some(url => decodeURIComponent(url).split('/').pop().split('?')[0] !== 'uploads') && (
                               <Box
                                 sx={{
                                   display: 'flex',
@@ -561,15 +558,12 @@ const Profile = () => {
                                   height: '30px',
                                 }}
                               >
-                                {/* <IconButton sx={{ color: '#007bff' }}>
+                                <IconButton sx={{ color: '#007bff' }}>
                                   <DescriptionIcon />
-                                </IconButton> */}
+                                </IconButton>
                                 <Typography variant="subtitle1">
                                   {question.fileUrls.map((url, index) => {
-                                    const fileName = decodeURIComponent(url)
-                                      .split('/')
-                                      .pop()
-                                      .split('?')[0];
+                                    const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
                                     return fileName !== 'uploads' ? (
                                       <a
                                         key={index}
@@ -590,24 +584,24 @@ const Profile = () => {
                                 </Typography>
                               </Box>
                             )}
-                        
+
                             <Divider sx={{ my: 2 }} />
-                            {/* Like and Comment Counts */ }
-                          < Typography variant = "subtitle1" color = "textSecondary" >
-                          345 Likes • 34 Comments
-                  </Typography>
-              </Box>
-              ))
-              ) : (
-              <Typography variant="body2">Không có câu hỏi nào.</Typography>
+                            {/* Like and Comment Counts */}
+                            < Typography variant="subtitle1" color="textSecondary" >
+                              345 Likes • 34 Comments
+                            </Typography>
+                          </Box>
+                        ))
+                    ) : (
+                      <Typography variant="body2">Không có câu hỏi nào.</Typography>
                     )}
-            </>
+                  </>
                 )}
 
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Box >
     </PageContainer >
   );
