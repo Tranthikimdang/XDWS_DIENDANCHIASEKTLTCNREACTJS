@@ -39,7 +39,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IconMessageCircle } from '@tabler/icons-react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation ,useParams } from 'react-router-dom';
 import DescriptionIcon from '@mui/icons-material/Description';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
@@ -85,7 +85,7 @@ const Questions = () => {
   const [visibleComments, setVisibleComments] = useState({})
   const location = useLocation();
   const { id } = location.state || {};
-
+  const { id: question_id } = useParams();
   const handleToggleComments = (questionId) => {
     setVisibleComments((prev) => ({
       ...prev,
@@ -336,17 +336,18 @@ const Questions = () => {
     }
   };
 
-  const handleAddComment = async (questionId) => {
+  const handleAddComment = async (question_id) => {
+    console.log('question_id:', question_id); 
     try {
-      const commentRef = doc(db, 'questions', questionId);
+      const commentRef = doc(db, 'questions', question_id);
       const commentSnap = await getDoc(commentRef);
-      const newCommentId = doc(collection(db, 'comments')).id;
-      console.log('Adding comment for question ID:', questionId);
+      const newCommentId = doc(collection(db, 'commentDetails')).id;
+      console.log('Adding comment for question ID:', question_id);
       if (commentSnap.exists()) {
         const commentData = commentSnap.data();
         const newCommentData = {
           id: newCommentId,
-          question_id: questionId,
+          question_id: question_id,
           user_id: userData.current.id,
           content: newComment,
           imageUrls: [],
@@ -385,12 +386,14 @@ const Questions = () => {
         }
         commentData.comments.push(newCommentData);
         await updateDoc(commentRef, commentData);
-
+        console.log('Dữ liệu sau khi cập nhật:', commentData);
+        
         // Cập nhật trạng thái local
         setListQuestion((prevList) => {
           const newList = [...prevList];
-          const index = newList.findIndex((item) => item.id === questionId);
+          const index = newList.findIndex((item) => item.id === question_id);
           if (index !== -1) {
+            console.log('Bình luận mới:', commentData.comments); 
             newList[index] = { ...newList[index], comments: commentData.comments };
           }
           return newList;

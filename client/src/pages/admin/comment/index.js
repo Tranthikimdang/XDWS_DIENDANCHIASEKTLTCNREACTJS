@@ -19,13 +19,13 @@ import { db } from 'src/config/firebaseconfig';
 function Comment() {
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
-  const [deleteId, setDeleteId] = useState(null);
+  const [deleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page] = useState(0);
+  const [rowsPerPage] = useState(5);
   const [tabValue, setTabValue] = useState(0);
   const [articleRows, setArticleRows] = useState([]);
   const [questionRows, setQuestionRows] = useState([]);
@@ -71,16 +71,7 @@ function Comment() {
     }
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
-  };
-
   const removeHtmlTags = (html) => html?.replace(/<[^>]+>/g, '');
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
 
   const defaultImageUrl = "/path/to/default/image.png"; // Replace with your actual default image
 
