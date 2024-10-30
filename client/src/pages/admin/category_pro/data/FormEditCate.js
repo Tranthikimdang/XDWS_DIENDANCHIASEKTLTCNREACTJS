@@ -1,18 +1,21 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
 import { useForm } from 'react-hook-form';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
-import api from "../../../../apis/Categories_courseApI"; // Adjust the import path as necessary
+import { doc, updateDoc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../../config/firebaseconfig';
 
 function FormEditCate() {
-  const { id } = useParams(); // Get ID from URL
+  const { id } = useParams(); // Lấy ID từ URL
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(false);
+  const [data, setData] = useState(null); // Dữ liệu danh mục
   const [categories, setCategories] = useState([]);
   const { setError } = useForm();
 
@@ -23,48 +26,53 @@ function FormEditCate() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: '', // Default value
+      name: '', // Giá trị mặc định
     },
   });
 
-  // Fetch current category and all categories
+  // Lấy danh mục hiện tại và danh sách tất cả danh mục
   useEffect(() => {
     const fetchCategory = async () => {
-      try {
-        // Get current category
-        const categoryResponse = await api.getList(); // Get all categories
-        setCategories(categoryResponse); // Save categories to state
-
-        // Find and set current category by ID
-        const currentCategory = categoryResponse.find(category => category.id === parseInt(id));
-        if (currentCategory) {
-          setValue('name', currentCategory.name); // Set data to form
+      if (id) {
+        // Lấy danh mục hiện tại
+        const categoryDocRef = doc(db, 'categories_product', id);
+        const categoryDoc = await getDoc(categoryDocRef);
+        if (categoryDoc.exists()) {
+          const categoryData = categoryDoc.data();
+          setData(categoryData); // Lưu dữ liệu vào state
+          setValue('name', categoryData.name); // Gán dữ liệu vào form
         } else {
-          console.log('Category does not exist');
-          navigate('/admin/categorypro'); // Redirect if category not found
+          console.log('Danh mục không tồn tại');
+          navigate('/admin/categorypro'); // Điều hướng nếu không tìm thấy danh mục
         }
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-        navigate('/admin/categorypro');
       }
+
+      // Lấy danh sách tất cả các danh mục
+      const categoriesCollectionRef = collection(db, 'categories_product');
+      const categoriesSnapshot = await getDocs(categoriesCollectionRef);
+      const categoriesList = categoriesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setCategories(categoriesList); // Lưu danh sách các danh mục vào state
     };
 
     fetchCategory();
   }, [id, setValue, navigate]);
 
-  // Handle form submit
+  // Hàm xử lý khi người dùng submit form
   const onSubmit = async (formData) => {
     setLoading(true);
 
-    // Check if category name already exists, excluding the current one
+    // Kiểm tra tên danh mục đã tồn tại chưa, loại trừ danh mục đang chỉnh sửa
     const isNameExists = categories.some(
       (category) =>
-        category.name.toLowerCase() === formData.name.toLowerCase() && category.id !== parseInt(id),
+        category.name.toLowerCase() === formData.name.toLowerCase() && category.id !== id,
     );
 
     if (isNameExists) {
-      setError('name', { type: 'manual', message: 'Category name already exists.' });
-      setSnackbarMessage('Category name already exists.');
+      setError('name', { type: 'manual', message: 'Tên danh mục đã tồn tại.' });
+      setSnackbarMessage('Tên danh mục đã tồn tại.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       setLoading(false);
@@ -72,19 +80,18 @@ function FormEditCate() {
     }
 
     try {
-      // Update category
-      await api.updateCategory(id, {
-        name: formData.name,
-        updated_at: new Date(),
-      });
+      // Cập nhật danh mục
+      const categoryDocRef = doc(db, 'categories_product', id);
+      await updateDoc(categoryDocRef, { name: formData.name, updated_at: new Date() });
 
-      setSnackbarMessage('Category updated successfully.');
+      setSnackbarMessage('Cập nhật danh mục thành công.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
+
       setTimeout(() => navigate('/admin/categorypro'), 500);
     } catch (error) {
-      console.error('Error updating category:', error);
-      setSnackbarMessage('Failed to update category. Please try again.');
+      console.error('Lỗi khi cập nhật danh mục:', error);
+      setSnackbarMessage('Cập nhật danh mục thất bại. Vui lòng thử lại.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     } finally {
@@ -106,32 +113,32 @@ function FormEditCate() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label htmlFor="name" className="text-light form-label">
-              Category Name
+              Tên danh mục
             </label>
             <input
               className="form-control bg-dark text-light"
               type="text"
               id="name"
               {...register('name', { required: true, minLength: 3, maxLength: 20 })}
-              disabled={loading} // Disable input when processing
+              disabled={loading} // Vô hiệu hóa input khi đang xử lý
             />
             {errors.name && errors.name.type === 'required' && (
-              <span className="text-danger">Category name is required</span>
+              <span className="text-danger">Tên danh mục là bắt buộc</span>
             )}
             {errors.name && errors.name.type === 'minLength' && (
-              <span className="text-danger">Name must be at least 3 characters long</span>
+              <span className="text-danger">Tên phải có ít nhất 3 ký tự</span>
             )}
             {errors.name && errors.name.type === 'maxLength' && (
-              <span className="text-danger">Name must be less than 20 characters</span>
+              <span className="text-danger">Tên phải có ít hơn 20 ký tự</span>
             )}
           </div>
 
           <div className="mt-3">
             <button className="text-light btn btn-outline-info" type="submit" disabled={loading}>
-              {loading ? 'Updating...' : 'Edit'}
+              {loading ? 'Đang cập nhật...' : 'Sửa'}
             </button>
             <Link to="/admin/categorypro" className="btn btn-outline-light ms-3">
-              Back
+              Quay lại
             </Link>
           </div>
         </form>

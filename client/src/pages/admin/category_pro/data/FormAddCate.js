@@ -6,7 +6,9 @@ import { Snackbar, Alert } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
-import api from "../../../../apis/Categories_courseApI"; // Giả sử bạn đã tạo file api.js để xử lý các yêu cầu API
+import { collection, addDoc, getDocs } from "firebase/firestore";
+import   { db, storage } from "../../../../config/firebaseconfig.js";
+
 
 function FormAddCate() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
@@ -17,30 +19,29 @@ function FormAddCate() {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [categories, setCategories] = useState([]);
 
-  // Fetch categories from MySQL API
+  // Fetch categories from Firebase
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await api.getList(); // Gọi API để lấy danh sách danh mục
-        if (Array.isArray(response.data)) {
-          setCategories(response.data); // Đảm bảo response.data là một mảng
-        } else {
-          console.error("Response data is not an array:", response.data);
-          setCategories([]); // Đặt categories thành một mảng rỗng nếu response không phải là mảng
-        }
+        const querySnapshot = await getDocs(collection(db, "categories_product"));
+        const categoriesList = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCategories(categoriesList);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
     };
-  
+
     fetchCategories();
   }, []);
 
   const onSubmit = async (data) => {
     const isNameExists = categories.some(category => category.name.toLowerCase() === data.name.toLowerCase());
-
+    
     if (isNameExists) {
-      // Set error for duplicate category name
+      // Set error for duplicate category name with smaller font style
       setError("name", { type: "manual", message: "Category name already exists." });
       setSnackbarMessage("Category name already exists.");
       setSnackbarSeverity("error");
@@ -49,13 +50,13 @@ function FormAddCate() {
     }
 
     try {
-      // Gọi API để thêm danh mục mới
-      await api.addCategory({
-        name: data.name,
-        created_at: new Date().toISOString().slice(0, 19).replace('T', ' '), // Định dạng ngày giờ cho MySQL
-        updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      const docRef = await addDoc(collection(db, "categories_product"), {
+        name: data.name,  
+        created_at: new Date(),
+        updated_at: new Date(),
       });
-      
+      console.log("Document written with ID: ", docRef.id);
+
       setSnackbarMessage("Category added successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -125,3 +126,4 @@ function FormAddCate() {
 }
 
 export default FormAddCate;
+

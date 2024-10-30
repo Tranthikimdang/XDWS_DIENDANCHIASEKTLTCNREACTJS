@@ -8,7 +8,7 @@ import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Table from "src/examples/Tables/Table";
 import { articleColumns, questionColumns } from './data/authorsTableData';
 import ConfirmDialog from './data/formDeleteComment';
-// import apis from "src/apis/commentApi";
+import apis from "src/apis/commentApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
@@ -57,7 +57,7 @@ function Comment() {
 
   const confirmDelete = async () => {
     try {
-      // await apis.deleteComment(deleteId);
+      await apis.deleteComment(deleteId);
       setRows(rows.filter((comment) => comment.id !== deleteId));
       setOpenDialog(false);
       setSnackbarMessage("Comment deleted successfully.");
