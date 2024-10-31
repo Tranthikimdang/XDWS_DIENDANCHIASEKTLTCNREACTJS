@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react';
 import {
   Grid,
@@ -79,7 +80,7 @@ const User = () => {
     const fetchMentor = async () => {
       setLoading(true);
       try {
-        const mentorSnapshot = await getDocs(collection(db, 'mentor'));
+        const mentorSnapshot = await getDocs(collection(db, 'mentors'));
         const mentorData = mentorSnapshot.docs.map((doc) => {
           return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
         });
@@ -94,8 +95,10 @@ const User = () => {
   }, []);
 
   const handleCardClick = (userId) => {
-    navigate(`/profile/${userId}`); // Điều hướng với userId
+    navigate(`/profile/${userId}`, { state: { id: userId } }); // Điều hướng với userId
   };
+
+
 
   // Filter users based on search term
   const filteredUsers = users.filter(
@@ -107,8 +110,21 @@ const User = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-  // Filter mentors from users
-  const mentors = users.filter(user => user.role === 'mentor');
+  // // Calculate total pages
+  // const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  // // Handle changing pages
+  // const handleNextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage(currentPage + 1);
+  //   }
+  // };
+
+  // const handlePreviousPage = () => {
+  //   if (currentPage > 1) {
+  //     setCurrentPage(currentPage - 1);
+  //   }
+  // };
 
   return (
     <PageContainer title="Users" description="This is users">
@@ -160,57 +176,62 @@ const User = () => {
             </Grid>
             {loading ? (
               <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
-            ) : mentors.length > 0 ? (
-              mentors.map((mentor) => (
-                <Grid item xs={12} sm={6} md={4} key={mentor.id}>
-                  <Card
-                    className="user-card"
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      borderRadius: '12px',
-                      transition: 'transform 0.3s',
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                      },
-                    }}
-                    onClick={() => handleCardClick(mentor.id)} // Điều hướng đến chi tiết
-                  >
-                    <Box sx={{ flexShrink: 0 }}>
-                      <CardMedia
-                        component="img"
-                        image={mentor.image} // Use URL from Firebase Storage or fallback
-                        alt={mentor.name}
-                        sx={{
-                          width: '120px',
-                          height: '120px',
-                          objectFit: 'cover',
-                          borderRadius: '50%',
-                          margin: '16px',
-                          border: '4px solid #fff',
-                          boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-                        }}
-                      />
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                      <CardContent className="card-content" sx={{ padding: '16px' }}>
-                        <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
-                          {mentor.name}
-                        </Typography>
-                        <Typography variant="body2" paragraph sx={{ color: '#7f8c8d' }}>
-                          {mentor.email}
-                        </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '8px' }}>
-                          {mentor.expertise}
-                        </Typography>
-                      </CardContent>
-                    </Box>
-                  </Card>
-                </Grid>
-              ))
+            ) : rows.length > 0 ? (
+              rows
+                .filter((mentor) => mentor.isApproved === 1) // Lọc bài viết có isApproved = 1
+                .map((mentor) => (
+                  <Grid item xs={12} sm={6} md={4} key={mentor.id}>
+                    <Card
+                      className="user-card"
+                      // eslint-disable-next-line no-undef
+                      key={mentor?.id}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        borderRadius: '12px',
+                        transition: 'transform 0.3s',
+                        '&:hover': {
+                          transform: 'translateY(-5px)',
+                        },
+                      }}
+                      // eslint-disable-next-line no-undef
+                      onClick={() => handleCardClick(mentor.user_id)} // Điều hướng đến chi tiết
+                    >
+                      <Box sx={{ flexShrink: 0 }}>
+                        <CardMedia
+                          component="img"
+                          image={users?.find(u => mentor.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                          alt={mentor.name}
+                          sx={{
+                            width: '120px',
+                            height: '120px',
+                            objectFit: 'cover',
+                            borderRadius: '50%',
+                            margin: '16px',
+                            border: '4px solid #fff',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+                          }}
+                        />
+                      </Box>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                        <CardContent className="card-content" sx={{ padding: '16px' }}>
+                          <Typography variant="h6" component="h2" sx={{ fontWeight: 'bold', color: '#2c3e50' }}>
+                            {users?.find(u => u.id === mentor.user_id)?.name || 'Unknown'}
+                          </Typography>
+                          <Typography variant="body2" paragraph sx={{ color: '#7f8c8d' }}>
+                            {users?.find(u => u.id === mentor.user_id)?.email || 'Unknown'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '8px' }}>
+                            {mentor.expertise}
+                          </Typography>
+                        </CardContent>
+                      </Box>
+                    </Card>
+                  </Grid>
+                ))
             ) : (
-              <Typography sx={{ textAlign: 'center', width: '100%' }}>No mentors found</Typography>
+              <Typography sx={{ textAlign: 'center', width: '100%' }}>Không có người hướng dẫn nào...</Typography>
             )}
 
             <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -222,9 +243,12 @@ const User = () => {
               <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
             ) : currentUsers.length > 0 ? (
               currentUsers.map((user) => (
+                // eslint-disable-next-line no-undef
                 <Grid item xs={12} sm={6} md={4} key={user.id}>
                   <Card
                     className="user-card"
+                    // eslint-disable-next-line no-undef
+                    key={user?.id}
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -235,6 +259,7 @@ const User = () => {
                         transform: 'translateY(-5px)',
                       },
                     }}
+                    // eslint-disable-next-line no-undef
                     onClick={() => handleCardClick(user.id)} // Điều hướng đến chi tiết
                   >
                     <Box sx={{ flexShrink: 0 }}>
@@ -294,7 +319,7 @@ const User = () => {
                 </Grid>
               ))
             ) : (
-              <Typography sx={{ textAlign: 'center', width: '100%' }}>No users found</Typography>
+              <Typography sx={{ textAlign: 'center', width: '100%' }}>Không có người dùng nào...</Typography>
             )}
           </Grid>
         </Box>

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -215,7 +216,7 @@ const AuthRegister = ({ subtext }) => {
   };
 
   const onConfirm = () => {
-    navigate('/mentor', { state: recordCreated.current });
+    navigate('/auth/mentor', { state: recordCreated.current });
     setOpenDialog(false);
   };
 

@@ -55,7 +55,7 @@ function FormViewMentor() {
   useEffect(() => {
     const fetchMentorDetails = async () => {
       try {
-        const mentorDocRef = doc(db, "mentor", id);
+        const mentorDocRef = doc(db, "mentors", id);
         const mentorSnapshot = await getDoc(mentorDocRef);
         if (mentorSnapshot.exists()) {
           setMentor(mentorSnapshot.data());

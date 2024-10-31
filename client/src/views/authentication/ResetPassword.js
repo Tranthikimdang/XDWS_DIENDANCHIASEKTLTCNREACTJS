@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom"; 
 import { doc, updateDoc } from "firebase/firestore"; 
