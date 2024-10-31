@@ -75,12 +75,12 @@ const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUs
 const MentorAdmin = Loadable(lazy(() => import('../pages/admin/mentor')));
 const FormViewMentor = Loadable(lazy(() => import('../pages/admin/mentor/data/FormViewMentor')));
 
-
-
-
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
+
+
 const renderRoutes = (role) => {
+  
   const routes = [
     {
       path: '/auth',
