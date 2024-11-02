@@ -32,10 +32,12 @@ function User() {
     const fetchUsers = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, 'users'));
-        const users = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const users = querySnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((user) => user.role === 'admin' || user.role === 'user'); // Filter users by role
         setRows(users);
         console.log('Fetched users:', users);
       } catch (error) {
@@ -44,7 +46,7 @@ function User() {
         setLoading(false);
       }
     };
-
+  
     fetchUsers();
   }, []);
 

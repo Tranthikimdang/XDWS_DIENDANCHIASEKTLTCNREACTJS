@@ -9,6 +9,7 @@ import {
   CardMedia,
   TextField,
   InputAdornment,
+  Button,
 } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
 import DashboardCard from '../../components/shared/DashboardCard';
@@ -98,8 +99,6 @@ const User = () => {
     navigate(`/profile/${userId}`, { state: { id: userId } }); // Điều hướng với userId
   };
 
-
-
   // Filter users based on search term
   const filteredUsers = users.filter(
     (user) => user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -110,21 +109,21 @@ const User = () => {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
-  // // Calculate total pages
-  // const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
 
-  // // Handle changing pages
-  // const handleNextPage = () => {
-  //   if (currentPage < totalPages) {
-  //     setCurrentPage(currentPage + 1);
-  //   }
-  // };
+  // Handle changing pages
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-  // const handlePreviousPage = () => {
-  //   if (currentPage > 1) {
-  //     setCurrentPage(currentPage - 1);
-  //   }
-  // };
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   return (
     <PageContainer title="Users" description="This is users">
@@ -322,6 +321,25 @@ const User = () => {
               <Typography sx={{ textAlign: 'center', width: '100%' }}>Không có người dùng nào...</Typography>
             )}
           </Grid>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              sx={{ marginRight: '10px' }}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </Box>
         </Box>
       </DashboardCard>
     </PageContainer>

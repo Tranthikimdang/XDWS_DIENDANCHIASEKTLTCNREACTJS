@@ -14,8 +14,9 @@ import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 
+
 //firebase 
-import { collection, getDocs, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where,updateDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
 
@@ -35,45 +36,28 @@ function Mentor() {
 
   // Fetch mentor from Firestore
   useEffect(() => {
-    const fetchMentor = async () => {
-      setLoading(true);
-      try {
-        const mentorSnapshot = await getDocs(collection(db, 'mentors'));
-        const mentorData = mentorSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
-        });
-        setRows(mentorData); // Lưu dữ liệu vào state
-      } catch (error) {
-        console.error("Lỗi khi tải mentor:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchMentor();
-  }, []);
-
-  // Fetch users from Firebase
-  useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "users"));
+        const usersQuery = query(collection(db, "users"), where("role", "==", "mentor"));
+        const querySnapshot = await getDocs(usersQuery);
         const usersList = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
         setUsers(usersList);
       } catch (error) {
-        console.error("Lỗi khi tìm kiếm người dùng:", error);
+        console.error("Error fetching users:", error);
+        setSnackbarMessage("Failed to fetch users. Please try again later.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchUsers();
   }, []);
-
-
 
   const handleView = async (id) => {
     try {
