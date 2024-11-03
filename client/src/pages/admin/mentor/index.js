@@ -36,28 +36,47 @@ function Mentor() {
 
   // Fetch mentor from Firestore
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const usersQuery = query(collection(db, "users"), where("role", "==", "mentor"));
-        const querySnapshot = await getDocs(usersQuery);
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(usersList);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        setSnackbarMessage("Failed to fetch users. Please try again later.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchUsers();
-  }, []);
+  const fetchMentorsAndUsers = async () => {
+    setLoading(true);
+    try {
+      // Fetch mentors from mentors collection
+      const mentorsQuery = query(collection(db, "mentors"));
+      const mentorsSnapshot = await getDocs(mentorsQuery);
+      const mentorsList = mentorsSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Fetch users with role 'mentor' from users collection
+      const usersQuery = query(collection(db, "users"), where("role", "==", "mentor"));
+      const usersSnapshot = await getDocs(usersQuery);
+      const usersList = usersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // Combine mentors and users data
+      const combinedList = mentorsList.map((mentor) => {
+        const user = usersList.find((user) => user.id === mentor.user_id);
+        return {
+          ...mentor,
+          user: user || {},
+        };
+      });
+
+      setUsers(combinedList);
+    } catch (error) {
+      console.error("Error fetching mentors and users:", error);
+      setSnackbarMessage("Failed to fetch mentors and users. Please try again later.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchMentorsAndUsers();
+}, []);
 
   const handleView = async (id) => {
     try {
