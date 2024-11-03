@@ -1,45 +1,45 @@
-// index.js
 const express = require("express");
 const bodyParser = require("body-parser");
-const categoriesCourseRoutes = require("./routes/categories_courseRoutes"); // Import route cho categories_course
-const sequelize = require("./models"); // Kết nối sequelize
-
+const categoriesCourseRoutes = require("./routes/categories_courseRoutes");
+const courseRoutes = require("./routes/courseRoutes");
+const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
-const app = express();
-const port = 3000;
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+
+const app = express();
+const port = 3000;
 
 // Cấu hình body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
-// Cấu hình multer cho việc upload
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Thư mục lưu trữ tệp
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname); // Đặt tên tệp
-  },
-});
-
-const upload = multer({ storage: storage });
-const uploadDir = "uploads";
+// Đảm bảo thư mục `uploads` tồn tại
+const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// Cấu hình multer cho việc upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir); // Lưu vào thư mục uploads
+  },
+  filename: function (req, file, cb) {
+    const filename = `${Date.now()}-${file.originalname}`; // Tạo tên tệp với timestamp
+    cb(null, filename); // Đặt tên tệp
+  },
+});
 
-// Sử dụng routes
-app.use("/api/categories_course", categoriesCourseRoutes);
+const upload = multer({ storage: storage });
+app.use("/uploads", express.static(uploadDir)); // Tạo đường dẫn tĩnh cho uploads
 
 // Endpoint upload ảnh
-app.post("/upload", upload.single("image"), (req, res) => {
+app.post("/api/upload", upload.single("image"), (req, res) => {
   if (req.file) {
+    // Trả về đường dẫn của ảnh
     const imagePath = `http://localhost:${port}/uploads/${req.file.filename}`;
     res.status(201).json({
       status: 201,
@@ -50,6 +50,10 @@ app.post("/upload", upload.single("image"), (req, res) => {
     res.status(400).json({ message: "Tải lên thất bại!" });
   }
 });
+
+// Sử dụng routes cho các API khác
+app.use("/api/categories_course", categoriesCourseRoutes);
+app.use("/api/courses", courseRoutes);
 
 // Khởi chạy server
 app.listen(port, async () => {
