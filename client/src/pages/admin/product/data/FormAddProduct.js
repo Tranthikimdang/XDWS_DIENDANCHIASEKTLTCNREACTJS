@@ -6,11 +6,10 @@ import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Snackbar, Alert } from '@mui/material';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../../../config/firebaseconfig.js';
+import api from '../../../../apis/CourseApI';
+import axios from "axios";
 
-function FormAddProduct() {
+function FormAddCourse() {
   const {
     register,
     handleSubmit,
@@ -34,9 +33,8 @@ function FormAddProduct() {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, 'categories_product'));
-        const categoriesList = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setCates(categoriesList);
+        const response = await api.getCategoriesList();
+        setCates(response.data); // Điều chỉnh theo dữ liệu trả về từ API
       } catch (error) {
         console.error('Error fetching categories:', error);
       } finally {
@@ -46,45 +44,53 @@ function FormAddProduct() {
     fetchCategories();
   }, []);
 
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+  
+    try {
+      const response = await axios.post("http://localhost:3000/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data.imagePath; // Trả về đường dẫn hình ảnh
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Failed to upload image. Please try again.");
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
-      if (parseFloat(data.discount) > parseFloat(data.price)) {
-        throw new Error('Giá giảm không được cao hơn giá gốc');
-      }
-
-      let imageUrl = '';
-      if (data.image[0]) {
+      let imageName = "";
+      if (data.image && data.image.length > 0) {
         const file = data.image[0];
-        const storageRef = ref(storage, `images/${file.name}`);
-        await uploadBytes(storageRef, file);
-        imageUrl = await getDownloadURL(storageRef);
+        // Upload ảnh lên server và nhận tên tệp
+        imageName = await uploadImage(file);
       } else {
-        throw new Error('Image is required');
+        throw new Error("Image is required");
       }
-
-      await addDoc(collection(db, 'products'), {
-        cate_pro_id: data.cate_pro_id,
-        image_url: imageUrl,
+  
+      // Gửi yêu cầu tạo mới khóa học với tên tệp hình ảnh
+      await api.addCourse({
+        cate_course_id: data.cate_pro_id,
+        image: imageName, // Lưu tên tệp
         name: data.name,
-        view: '0',
+        view: "0",
         price: parseFloat(data.price),
         discount: parseFloat(data.discount),
         quality: parseInt(data.quality),
         description: data.description,
+        video_demo: data.video_demo,
         created_at: new Date(),
         updated_at: new Date(),
-        video_demo: data.video_demo
       });
-
-      setSnackbarMessage('Product added successfully.');
-      setSnackbarSeverity('success');
-      setSnackbarOpen(true);
-      setTimeout(() => navigate('/admin/products'), 500);
+  
+      navigate('/admin/products')
     } catch (error) {
-      console.error('Error adding product:', error.message);
-      setSnackbarMessage(error.message || 'Failed to add product. Please try again.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      console.error("Error adding course:", error.message);
+      alert(error.message || "Thêm khóa học thất bại. Vui lòng thử lại.");
     }
   };
 
@@ -132,6 +138,7 @@ function FormAddProduct() {
               >
                 <option value="">Select a category</option>
                 {!loading &&
+                  Array.isArray(cates) &&
                   cates.map((cate) => (
                     <option key={cate.id} value={cate.id}>
                       {cate.name}
@@ -206,7 +213,7 @@ function FormAddProduct() {
                 className={`form-control bg-dark text-light ${
                   errors.video_demo ? 'is-invalid' : ''
                 }`}
-               type="text"
+                type="text"
                 {...register('video_demo', { required: 'Video is required' })}
                 style={smallFontStyle}
               />
@@ -220,7 +227,7 @@ function FormAddProduct() {
           <div className="mb-3">
             <div className="col-12 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
-               Hình ảnh
+                Hình ảnh
               </label>
               <input
                 className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
@@ -259,9 +266,9 @@ function FormAddProduct() {
               </span>
             )}
           </div>
-            <button type="submit" className="btn btn-primary mt-3">
-              Thêm khóa học
-            </button>
+          <button type="submit" className="btn btn-primary mt-3">
+            Thêm khóa học
+          </button>
         </form>
         <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
           <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
@@ -273,4 +280,4 @@ function FormAddProduct() {
   );
 }
 
-export default FormAddProduct;
+export default FormAddCourse;
