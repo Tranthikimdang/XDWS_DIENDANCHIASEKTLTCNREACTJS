@@ -353,6 +353,7 @@ const Questions = () => {
           imageUrls: [],
           fileUrls: [], // Thêm mảng để lưu trữ URL tệp
           created_at: new Date(),
+          updated_at: new Date(),
           up_code: dataTemp?.up_code || codeSnippet,
           replies: []
         };

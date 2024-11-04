@@ -13,9 +13,13 @@ import './index.css';
 import { collection, doc, deleteDoc, onSnapshot } from "firebase/firestore";
 import { db } from 'src/config/firebaseconfig';
 import { commentDetails } from './data/authorsTableData'; // Import columns data
+import { Box, Typography, IconButton } from '@mui/material';
+import DescriptionIcon from '@mui/icons-material/Description';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 
 function CommentDetail() {
-  const { id } = useParams();
+  const { id: question_id } = useParams();
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
@@ -28,8 +32,8 @@ function CommentDetail() {
   const location = useLocation()
   const [columns, setColumns] = useState([]);
   const queryParams = new URLSearchParams(location.search);
-  const commentType = queryParams.get('type') || 'article';
-  
+  const commentType = queryParams.get('type') || 'question';
+
   // Hook để hiển thị bình luận chi tiết
   useEffect(() => {
     // Xác định cột dựa trên commentType
@@ -38,7 +42,7 @@ function CommentDetail() {
     } else if (commentType === 'question') {
       setColumns(commentDetails.questionColumns);
     }
-  
+
     const unsubscribeComments = onSnapshot(
       collection(db, commentType === 'article' ? 'commentDetails' : 'questions'),
       (snapshot) => {
@@ -46,21 +50,21 @@ function CommentDetail() {
           id: doc.id,
           ...doc.data(),
         }));
-  
-        console.log('useParams ID:', id);
+
+        console.log('useParams ID:', question_id);
         if (commentType === 'article') {
           // Lọc bình luận cho bài viết
           const filteredComments = commentsList.filter(
-            (comment) => comment.article_id === id // Kiểm tra với article_id
+            (comment) => comment.article_id === question_id // Kiểm tra với article_id
           );
           console.log('Filtered article comments:', filteredComments);
           setRows(filteredComments);
         } else if (commentType === 'question') {
           // Xử lý bình luận cho câu hỏi (lấy từ trường comments trong câu hỏi)
           const questionWithComments = commentsList.find(
-            (question) => question.id === id // Kiểm tra với id câu hỏi
+            (question) => question.id === question_id // Kiểm tra với id câu hỏi
           );
-          
+
           if (questionWithComments && questionWithComments.comments) {
             console.log('Firestore question comments:', questionWithComments.comments);
             setRows(questionWithComments.comments); // Lấy bình luận từ trường comments
@@ -69,15 +73,14 @@ function CommentDetail() {
             setRows([]);
           }
         }
-  
+
         setLoading(false);
       }
     );
-  
+
     return () => unsubscribeComments();
-  }, [id, commentType]);
-  
-  
+  }, [question_id, commentType]);
+
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -86,21 +89,25 @@ function CommentDetail() {
 
   const confirmDelete = async (deleteId) => {
     try {
-      const commentDocRef = doc(db, "commentDetails", deleteId);
+      const collectionName = commentType === 'article' ? 'commentDetails' : 'questions';
+      const commentDocRef = doc(db, collectionName, deleteId);
+      
       await deleteDoc(commentDocRef);
+  
+      // Cập nhật lại danh sách bình luận mà không gọi lại fetchComments
       setRows((prevRows) => prevRows.filter((comment) => comment.id !== deleteId));
-      setOpenDialog(false);
+      
       setSnackbarMessage("Xóa bình luận thành công.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error deleting comment:", error.message);
       setSnackbarMessage("Failed to delete comment.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   };
-
+  
+  
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -116,6 +123,23 @@ function CommentDetail() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  const formatUpdatedAt = (updatedAt) => {
+    if (!updatedAt) return 'Unknown time';
+    const date = updatedAt.seconds ? new Date(updatedAt.seconds * 1000) : new Date(updatedAt);
+    const now = new Date();
+    const diff = now - date;
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days} ngày trước`;
+    if (hours > 0) return `${hours} giờ trước`;
+    if (minutes > 0) return `${minutes} phút trước`;
+    return `${seconds} giây trước`;
   };
 
   return (
@@ -153,6 +177,67 @@ function CommentDetail() {
                     ) : (
                       'Bình luận không có ảnh'
                     ),
+                    date: (
+                      <VuiTypography variant="caption" color="text">
+                        {formatUpdatedAt(row.updated_at)}
+                      </VuiTypography>
+                    ),
+                    images: row.imageUrls.length > 0 ? (
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        {row.imageUrls.map((img, imgIndex) => (
+                          <img key={imgIndex} src={img} alt={`comment-image-${imgIndex}`} style={{ width: '200px', height: 'auto', margin: '0 5px', objectFit: 'cover', borderRadius: '5px' }} />
+                        ))}
+                      </div>
+                    ) : 'No images',
+                    code: row.up_code ?(
+                      <Box sx={{ mt: 1 , width: 'auto', height: 'auto' }}>
+                        <SyntaxHighlighter language="javascript" style={dracula}>
+                          {row.up_code}
+                        </SyntaxHighlighter>
+                      </Box>
+                    ) : 'No code',
+                    files: row.fileUrls?.length > 0 ? (
+                      <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {row.fileUrls.map((fileUrl, index) => {
+                          const fileName = decodeURIComponent(fileUrl).split('/').pop().split('?')[0];
+                          return (
+                            <Box
+                              key={index}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '8px 16px',
+                                border: '1px solid #e0e0e0',
+                                borderRadius: '8px',
+                                backgroundColor: 'unset',
+                                width: 'fit-content',
+                              }}
+                            >
+                              <IconButton sx={{ color: '#007bff', padding: '0' }}>
+                                <DescriptionIcon />
+                              </IconButton>
+                              <Typography
+                                component="a"
+                                href={fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                sx={{
+                                  marginLeft: '8px',
+                                  color: 'white',
+                                  textDecoration: 'none',
+                                  fontSize: '14px',
+                                  fontWeight: '500',
+                                  wordBreak: 'break-all',
+                                }}
+                              >
+                                {fileName}
+                              </Typography>
+                            </Box>
+                          );
+                        })}
+                      </Box>
+                    ) : 'No files',
+
                     action: (
                       <div>
                         <button className="text-light btn btn-outline-danger" onClick={() => handleDelete(row.id)}>

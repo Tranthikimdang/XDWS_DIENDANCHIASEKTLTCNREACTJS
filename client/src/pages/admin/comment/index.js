@@ -150,6 +150,13 @@ function Comment() {
                   : removeHtmlTags(row.content || "")}
               </VuiTypography>
             ),
+            questions: (
+              <VuiTypography variant="caption" color="text">
+                {removeHtmlTags(row?.questions || "").length > 50
+                  ? `${removeHtmlTags(row.questions).substring(0, 50)}...`
+                  : removeHtmlTags(row.questions || "")}
+              </VuiTypography>
+            ),
             date: (
               <VuiTypography variant="caption" color="text">
                 {formatUpdatedAt(row.updated_at)}
