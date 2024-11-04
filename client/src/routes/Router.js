@@ -157,17 +157,13 @@ const renderRoutes = (role) => {
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
         { path: 'orders', exact: true, element: <Orders /> }, 
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
+        { path: 'addProDetaill/:course_id', exact: true, element: <AddProDetaill /> }, 
         { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
         { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
         { path: '*', element: <Navigate to="/auth/404" /> },
-        { path: 'orders', exact: true, element: <Orders /> },
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
-        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> },
-        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
