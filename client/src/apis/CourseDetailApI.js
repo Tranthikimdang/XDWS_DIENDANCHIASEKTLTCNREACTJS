@@ -37,7 +37,7 @@ const addCourseDetail = async (courseDetail) => apiRequest('post', COURSE_DETAIL
 const getCourseDetailsList = async () => apiRequest('get', COURSE_DETAILS_URL);
 const updateCourseDetail = async (id, updatedData) => apiRequest('put', `${COURSE_DETAILS_URL}/${id}`, updatedData);
 const deleteCourseDetail = async (id) => apiRequest('delete', `${COURSE_DETAILS_URL}/${id}`);
-
+const getProductByCourseId = async (detailId) => apiRequest('get', `${COURSE_DETAILS_URL}/${detailId}`);
 /// Endpoint lấy sản phẩm theo course_id
 
 // Upload hình ảnh lên server
@@ -69,4 +69,5 @@ export default {
   updateCourseDetail,
   deleteCourseDetail,
   uploadImage,
+  getProductByCourseId
 };

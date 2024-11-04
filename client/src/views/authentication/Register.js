@@ -4,13 +4,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import React, { useRef, useState } from 'react';
-import { db, storage } from '../../config/firebaseconfig';
 import Logo from 'src/layouts/full/shared/logo/Logo';
-import { collection, query, where, getDocs, addDoc, getDoc } from 'firebase/firestore';
 import emailjs from 'emailjs-com';
 import { GoogleLogin } from 'react-google-login';
 import ConfirmDialog from 'src/components/ConfirmDialog';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import axios from "axios";
+
+import apiUser from '../../apis/UserApI';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
@@ -61,91 +61,102 @@ const AuthRegister = ({ subtext }) => {
     return validationErrors;
   };
 
-  const checkEmailExists = async (email) => {
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email)); // Truy vấn email trong Firestore
-    const snapshot = await getDocs(q);
-
-    return !snapshot.empty; // Trả về true nếu email đã tồn tại
-  };
-
   // Firestore: Thêm người dùng mới
   const addUser = async (userData) => {
-    const role = 'user';
-    const created_at = new Date().toLocaleDateString('vi-VN');
-    const updated_at = new Date().toLocaleDateString('vi-VN');
-    const newUser = {
-      ...userData, // Giữ lại các trường hiện có trong userData
-      role,
-      created_at,
-      updated_at,
-    };
-
-    const usersRef = collection(db, 'users');
-    return await addDoc(usersRef, newUser); // Thêm dữ liệu người dùng mới vào Firestore
+    try {
+      const role = 'user';
+      const created_at = new Date().toLocaleDateString('vi-VN');
+      const updated_at = new Date().toLocaleDateString('vi-VN');
+      const newUser = {
+        ...userData,
+        role,
+        created_at,
+        updated_at,
+      };
+  
+      // Gọi API để thêm người dùng vào cơ sở dữ liệu
+      const response = await apiUser.addUser(newUser);
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi thêm người dùng:', error);
+      throw error;
+    }
   };
 
-  // Xử lý việc submit form
+  const checkEmailExists = async (email) => {
+    try {
+      const users = await apiUser.getUsersList(); // Lấy tất cả người dùng
+      
+      // Kiểm tra xem có email nào trùng với email đã nhập không
+      const exists = users.data.users.some(user => user.email === email);
+      return exists; // Trả về true nếu email đã tồn tại, false nếu không
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra email:', error);
+      return false; // Trả về false trong trường hợp có lỗi
+    }
+  };
+
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+  
+    try {
+      const response = await axios.post("http://localhost:3000/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data.imagePath; // Trả về đường dẫn hình ảnh
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Failed to upload image. Please try again.");
+    }
+  };
+  
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setErrors({});
     const validationErrors = validateForm();
-
+  
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
+  
     try {
       const emailExists = await checkEmailExists(formData.email);
-
+  
       if (emailExists) {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
       } else {
-        // Lấy file ảnh từ input
-        const file = e.target.elements.formImageUrl.files[0]; // Lấy file ảnh từ input file
+        // Xử lý upload ảnh, kiểm tra và thêm người dùng
+        const file = e.target.elements.formImageUrl.files[0];
         let imageUrl = '';
-
+  
         if (file) {
-          // Lấy instance Firebase Storage
-          const storage = getStorage();
-          const storageRef = ref(storage, `images/${formData.email}/${file.name}`);
-
-          // Upload ảnh lên Firebase Storage
-          await uploadBytes(storageRef, file);
-
-          // Lấy URL của ảnh sau khi upload thành công
-          imageUrl = await getDownloadURL(storageRef);
+          // Lấy URL của ảnh đã upload
+          imageUrl = await uploadImage(file);
         }
-
-        // Thêm thông tin người dùng cùng với URL ảnh đã upload
-        const data = await addUser({
+  
+        const newUser = await addUser({
           ...formData,
-          imageUrl, // Thêm URL của hình ảnh vào thông tin người dùng
+          imageUrl,
         });
-
-        const docSnapshot = await getDoc(data);
-
-        if (docSnapshot.exists()) {
-          recordCreated.current = { id: data.id, ...docSnapshot.data() };
-
-          const userData = { id: data.id, ...docSnapshot.data() };
-          recordCreated.current = userData;
-
-          localStorage.setItem('user', JSON.stringify(userData));
-
+  
+        if (newUser) {
+          localStorage.setItem('user', JSON.stringify(newUser));
           setOpenDialog(true);
-        } else {
-          console.log('Không thành công!');
-          return null;
         }
       }
     } catch (error) {
       alert('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
-      console.error('Registration error:', error);
+      console.error('Lỗi đăng ký:', error);
     }
   };
+  
+
 
   // Xử lý khi thay đổi thông tin trong form
   const handleChange = (e) => {
@@ -157,10 +168,18 @@ const AuthRegister = ({ subtext }) => {
   };
 
   const checkEmailGoogle = async (email) => {
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email));
-    const snapshot = await getDocs(q);
-    return !snapshot.empty; // Trả về true nếu email đã tồn tại
+    try {
+      // Giả sử bạn có một API để lấy tất cả người dùng
+      const response = await apiUser.getAllUsers(); // Gọi API để lấy danh sách người dùng
+      const users = response.data.users; // Dữ liệu trả về từ API
+  
+      // Kiểm tra xem có người dùng nào có email khớp hay không
+      const exists = users.some(user => user.email === email); // Trả về true nếu có ít nhất một người dùng có email khớp
+      return exists;
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra email:', error);
+      return false; // Trả về false nếu có lỗi xảy ra
+    }
   };
 
   const responseGoogle = async (response) => {
@@ -211,7 +230,7 @@ const AuthRegister = ({ subtext }) => {
   };
 
   const onCancel = () => {
-    navigate('/auth/login');
+    navigate('/auth/inter');
   };
 
   const onConfirm = () => {
@@ -247,7 +266,7 @@ const AuthRegister = ({ subtext }) => {
     <div
       style={{
         position: 'relative',
-        height: '100vh',
+        height: '100%',
         display: 'flex',
       }}
     >
@@ -260,7 +279,7 @@ const AuthRegister = ({ subtext }) => {
           height: '100%',
           width: '100%',
           background: 'radial-gradient(#d2f1df, #d3d7fa, #bad8f4)',
-          backgroundSize: '400% 400%',
+          backgroundSize: '100% 100%',
           animation: 'gradient 15s ease infinite',
           opacity: 0.3,
           zIndex: -1,
@@ -441,7 +460,7 @@ const AuthRegister = ({ subtext }) => {
 
               <div className="text-center mt-3">
                 <span>Bạn đã có tài khoảng? </span>
-                <Link to="/home">Đăng nhập</Link>
+                <Link to="/auth/login">Đăng nhập</Link>
               </div>
             </Card>
           </Col>

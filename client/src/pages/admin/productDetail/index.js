@@ -135,17 +135,17 @@ function ProductDetail() {
 
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
-
+  
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
       const now = new Date();
       const diff = now - date; // Tính toán khoảng cách thời gian
-
+  
       const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
-
+  
       if (days > 0) {
         updatedAtString = `${days} ngày trước`;
       } else if (hours > 0) {
@@ -158,7 +158,7 @@ function ProductDetail() {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-
+  
     return updatedAtString;
   };
 

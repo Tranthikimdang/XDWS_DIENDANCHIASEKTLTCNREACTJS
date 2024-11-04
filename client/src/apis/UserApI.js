@@ -22,6 +22,10 @@ const addUser = async (user) => apiRequest('post', USERS_URL, user);
 const getUsersList = async () => apiRequest('get', USERS_URL);
 const updateUser = async (id, updatedData) => apiRequest('put', `${USERS_URL}/${id}`, updatedData);
 const deleteUser = async (id) => apiRequest('delete', `${USERS_URL}/${id}`);
+const checkEmail = async (email) => apiRequest('post', `${USERS_URL}/checkEmail`, { email });
+const updateUserPassword = async (userId, newPassword) => {
+  return apiRequest('put', `${USERS_URL}/${userId}`, { password: newPassword });
+};
 
 // Upload hình ảnh lên server (nếu cần)
 const uploadImage = async (file) => {
@@ -44,4 +48,6 @@ export default {
   updateUser,
   deleteUser,
   uploadImage,
+  checkEmail,
+  updateUserPassword
 };

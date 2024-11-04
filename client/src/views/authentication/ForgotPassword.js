@@ -1,6 +1,4 @@
 import React from 'react';
-// import { getAuth } from 'firebase/auth'; // Import Firebase auth
-import { collection, where, query, doc, setDoc, getDocs } from 'firebase/firestore'; // Import Firestore
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -9,44 +7,42 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { Card, CardContent } from '@mui/material';
-import { toast } from 'react-toastify'; // Thông báo khi gửi email thành công hoặc thất bại
-import { db, storage } from '../../config/firebaseconfig'; // Import Firestore database
+import { toast } from 'react-toastify';
 import emailjs from 'emailjs-com';
+import apiUser from '../../apis/UserApI';
 
 const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const email = data.get('email');
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email));
-    try {
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        // Nếu tìm thấy người dùng
-        querySnapshot.forEach((doc) => {
-          sendEmail({
-            name: '',
-            email: email,
-            message: `Vui lòng truy cập link để đổi lại mật khẩu: http://localhost:3000/auth/reset-password/${doc.id}`,
-          });
 
-          alert('Kiểm tra email cập nhật mật khẩu');
+    try {
+      // Gọi API để lấy toàn bộ người dùng
+      const users = await apiUser.getUsersList(); // Lấy danh sách tất cả người dùng
+      const user = users.data.users.find(user => user.email === email); // Tìm người dùng có email tương ứng
+
+      if (user) {
+        // Nếu tìm thấy người dùng
+        sendEmail({
+          name: user.name || '', // Có thể cập nhật tên nếu có thông tin
+          email: email,
+          message: `Vui lòng truy cập link để đổi lại mật khẩu: http://localhost:3000/auth/reset-password/${user.id}`,
         });
+
+        toast.success('Kiểm tra email để cập nhật mật khẩu.');
       } else {
-        console.log('Không tìm thấy người dùng với email:', email);
+        toast.error('Không tìm thấy người dùng với email: ' + email);
       }
     } catch (error) {
-      console.error('Lỗi khi lấy ID người dùng:', error);
+      console.error('Lỗi khi lấy dữ liệu người dùng:', error);
+      toast.error('Đã xảy ra lỗi, vui lòng thử lại.');
     }
 
     try {
-      // Ghi lại thông tin gửi email vào Firestore
+      // Ghi lại thông tin gửi email vào cơ sở dữ liệu nếu cần
       const timestamp = new Date();
-      await setDoc(doc(db, 'passwordResetRequests', email), {
-        email: email,
-        timestamp: timestamp,
-      });
+      await apiUser.logPasswordResetRequest(email, timestamp);
     } catch (error) {
       toast.error('Không thể gửi email reset password, vui lòng kiểm tra lại!', {
         autoClose: 5000,
@@ -69,13 +65,14 @@ const ForgotPassword = () => {
       )
       .then(
         (result) => {
-          alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+          toast.success('Email đã được gửi thành công!');
         },
         (error) => {
-          alert('Đã xảy ra lỗi, vui lòng thử lại.');
+          toast.error('Đã xảy ra lỗi khi gửi email.');
         },
       );
   };
+
   return (
     <Container maxWidth="sm">
       <Box
@@ -97,7 +94,7 @@ const ForgotPassword = () => {
               <LockOutlinedIcon />
             </Avatar>
             <Typography component="h1" variant="h5" sx={{ mt: 1 }}>
-              Forgot Password
+              Quên Mật Khẩu
             </Typography>
 
             <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
@@ -106,7 +103,7 @@ const ForgotPassword = () => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label="Địa chỉ Email"
                 name="email"
                 autoComplete="email"
                 autoFocus
