@@ -1,14 +1,17 @@
+/* eslint-disable no-unused-vars */
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { db, storage } from '../../config/firebaseconfig';
 import Logo from 'src/layouts/full/shared/logo/Logo';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, getDoc } from 'firebase/firestore';
 import emailjs from 'emailjs-com';
 import { GoogleLogin } from 'react-google-login';
+import ConfirmDialog from 'src/components/ConfirmDialog';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +25,10 @@ const AuthRegister = ({ subtext }) => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+
   const navigate = useNavigate();
+  const recordCreated = useRef();
 
   // Toggle password visibility
   const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -77,7 +83,7 @@ const AuthRegister = ({ subtext }) => {
     };
 
     const usersRef = collection(db, 'users');
-    await addDoc(usersRef, newUser); // Thêm dữ liệu người dùng mới vào Firestore
+    return await addDoc(usersRef, newUser); // Thêm dữ liệu người dùng mới vào Firestore
   };
 
   // Xử lý việc submit form
@@ -98,9 +104,43 @@ const AuthRegister = ({ subtext }) => {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
       } else {
-        await addUser(formData);
-        alert('Tài khoản đã được tạo thành công, đăng nhập?');
-        navigate('/auth/login');
+        // Lấy file ảnh từ input
+        const file = e.target.elements.formImageUrl.files[0]; // Lấy file ảnh từ input file
+        let imageUrl = '';
+
+        if (file) {
+          // Lấy instance Firebase Storage
+          const storage = getStorage();
+          const storageRef = ref(storage, `images/${formData.email}/${file.name}`);
+
+          // Upload ảnh lên Firebase Storage
+          await uploadBytes(storageRef, file);
+
+          // Lấy URL của ảnh sau khi upload thành công
+          imageUrl = await getDownloadURL(storageRef);
+        }
+
+        // Thêm thông tin người dùng cùng với URL ảnh đã upload
+        const data = await addUser({
+          ...formData,
+          imageUrl, // Thêm URL của hình ảnh vào thông tin người dùng
+        });
+
+        const docSnapshot = await getDoc(data);
+
+        if (docSnapshot.exists()) {
+          recordCreated.current = { id: data.id, ...docSnapshot.data() };
+
+          const userData = { id: data.id, ...docSnapshot.data() };
+          recordCreated.current = userData;
+
+          localStorage.setItem('user', JSON.stringify(userData));
+
+          setOpenDialog(true);
+        } else {
+          console.log('Không thành công!');
+          return null;
+        }
       }
     } catch (error) {
       alert('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
@@ -171,6 +211,15 @@ const AuthRegister = ({ subtext }) => {
     // }
   };
 
+  const onCancel = () => {
+    navigate('/auth/login');
+  };
+
+  const onConfirm = () => {
+    navigate('/auth/mentor', { state: recordCreated.current });
+    setOpenDialog(false);
+  };
+
   // Hàm gửi email qua EmailJS
   const sendEmail = (data) => {
     emailjs
@@ -201,7 +250,6 @@ const AuthRegister = ({ subtext }) => {
         position: 'relative',
         height: '100vh',
         display: 'flex',
-        
       }}
     >
       {/* Background wrapper */}
@@ -232,7 +280,7 @@ const AuthRegister = ({ subtext }) => {
               {subtext}
               <Form onSubmit={handleRegister}>
                 <Form.Group controlId="formName">
-                  <Form.Label className='d-flex justify-content-start'>Họ tên</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Họ tên</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
@@ -243,9 +291,21 @@ const AuthRegister = ({ subtext }) => {
                   />
                   {errors.name && <Form.Text className="text-danger">{errors.name}</Form.Text>}
                 </Form.Group>
-
+                <Form.Group controlId="formImageUrl">
+                  <Form.Label className="d-flex justify-content-start">Ảnh đại diện</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="imageUrl"
+                    // Không cần sử dụng value cho input file
+                    onChange={handleChange}
+                    isInvalid={!!errors.imageUrl}
+                  />
+                  {errors.imageUrl && (
+                    <Form.Text className="text-danger">{errors.imageUrl}</Form.Text>
+                  )}
+                </Form.Group>
                 <Form.Group controlId="formEmail">
-                  <Form.Label className='d-flex justify-content-start'>Email</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Email</Form.Label>
                   <Form.Control
                     type="email"
                     name="email"
@@ -256,9 +316,8 @@ const AuthRegister = ({ subtext }) => {
                   />
                   {errors.email && <Form.Text className="text-danger">{errors.email}</Form.Text>}
                 </Form.Group>
-
                 <Form.Group controlId="formPhone">
-                  <Form.Label className='d-flex justify-content-start'>Số điện thoại</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Số điện thoại</Form.Label>
                   <Form.Control
                     type="text"
                     name="phone"
@@ -269,9 +328,8 @@ const AuthRegister = ({ subtext }) => {
                   />
                   {errors.phone && <Form.Text className="text-danger">{errors.phone}</Form.Text>}
                 </Form.Group>
-
                 <Form.Group controlId="formLocation">
-                  <Form.Label className='d-flex justify-content-start'>Địa chỉ</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Địa chỉ</Form.Label>
                   <Form.Control
                     type="text"
                     name="location"
@@ -284,9 +342,8 @@ const AuthRegister = ({ subtext }) => {
                     <Form.Text className="text-danger">{errors.location}</Form.Text>
                   )}
                 </Form.Group>
-
                 <Form.Group controlId="formPassword">
-                  <Form.Label className='d-flex justify-content-start'>Mật khẩu</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}
@@ -313,9 +370,10 @@ const AuthRegister = ({ subtext }) => {
                     </Button>
                   </div>
                 </Form.Group>
-
                 <Form.Group controlId="formConfirmPassword">
-                  <Form.Label className='d-flex justify-content-start'>Xác nhận mật khẩu</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">
+                    Xác nhận mật khẩu
+                  </Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showConfirmPassword ? 'text' : 'password'}
@@ -342,7 +400,6 @@ const AuthRegister = ({ subtext }) => {
                     </Button>
                   </div>
                 </Form.Group>
-
                 <Button type="submit" variant="primary" className="w-100 mt-3">
                   Đăng ký
                 </Button>
@@ -385,12 +442,19 @@ const AuthRegister = ({ subtext }) => {
 
               <div className="text-center mt-3">
                 <span>Bạn đã có tài khoảng? </span>
-                <Link to="/auth/login">Đăng nhập</Link>
+                <Link to="/home">Đăng nhập</Link>
               </div>
             </Card>
           </Col>
         </Row>
       </Container>
+      <ConfirmDialog
+        open={openDialog}
+        onClose={onCancel}
+        onConfirm={onConfirm}
+        title={`Tạo tài khoản thành công`}
+        content={'Bạn có muốn trở thành mentor không?'}
+      />
     </div>
   );
 };

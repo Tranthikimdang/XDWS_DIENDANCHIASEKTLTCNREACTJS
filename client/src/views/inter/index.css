@@ -1,0 +1,11 @@
+.bigger-btn {
+  font-size: 1em; /* Kích thước font to gấp 3 lần */
+  padding: 10px 20px; /* Tăng padding để nút to hơn */
+  width: auto; /* Tùy chỉnh chiều rộng nút */
+  border-radius: 50px !important;
+}
+
+.bigger-btn.selected {
+  background-color: #007bff;
+  color: white;
+}

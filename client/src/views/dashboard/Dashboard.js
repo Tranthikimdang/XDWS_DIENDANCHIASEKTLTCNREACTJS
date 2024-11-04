@@ -350,7 +350,7 @@ const Home = () => {
             <Grid container spacing={4} sx={{ marginTop: '40px' }}>
               <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h5" component="h2" fontWeight="bold">
-                  Sản phẩm nổi bật
+                  Khóa học nổi bật
                 </Typography>
                 <Link href="/products" underline="none">
                   Xem tất cả

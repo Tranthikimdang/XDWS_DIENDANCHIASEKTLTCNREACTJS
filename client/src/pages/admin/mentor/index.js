@@ -8,8 +8,8 @@ import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Tooltip from "@mui/material/Tooltip";
 import Table from "src/examples/Tables/Table";
-import authorsArticleData from "./data/authorsArticleData";
-import ConfirmDialog from './data/FormDeleteArticle';
+import authorsMentorData from "./data/authorsMentorData";
+import ConfirmDialog from './data/FormDeleteMentor';
 import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
@@ -19,63 +19,37 @@ import { collection, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
 
-function Article() {
-  const { columns } = authorsArticleData;
+function Mentor() {
+  const { columns } = authorsMentorData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [users, setUsers] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
-  const [deleteTitle, setDeleteTitle] = useState("");
+  const [deleteName, setDeleteName] = useState("");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-  const [cates, setCates] = useState([]);
 
-  // Fetch articles from Firestore
+  // Fetch mentor from Firestore
   useEffect(() => {
-    const fetchArticles = async () => {
+    const fetchMentor = async () => {
       setLoading(true);
       try {
-        const articlesSnapshot = await getDocs(collection(db, 'articles'));
-        const articlesData = articlesSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() }; // Trả về đối tượng bài viết
+        const mentorSnapshot = await getDocs(collection(db, 'mentors'));
+        const mentorData = mentorSnapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
         });
-        setRows(articlesData); // Lưu dữ liệu vào state
+        setRows(mentorData); // Lưu dữ liệu vào state
       } catch (error) {
-        console.error("Lỗi khi tải bài viết:", error);
+        console.error("Lỗi khi tải mentor:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchArticles();
-  }, []);
-  // Fetch categories from Firestore
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setCates(categoriesData);
-
-        // Create a mapping of category ID to name
-        const categoriesMap = categoriesData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCates(categoriesMap);
-
-        console.log("Các danh mục đã lấy:", categoriesData);
-      } catch (error) {
-        console.error("Lỗi khi tìm kiếm danh mục:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
+    fetchMentor();
   }, []);
 
   // Fetch users from Firebase
@@ -99,44 +73,45 @@ function Article() {
     fetchUsers();
   }, []);
 
-  //sửa 
-  const handleEdit = (id) => {
-    console.log("Đã nhấp vào nút chỉnh sửa", id);
-  };
+
 
   const handleView = async (id) => {
     try {
-      console.log("Xem bài viết với ID:", id);
+      console.log("Xem mentor với ID:", id);
     } catch (error) {
-      console.error("Lỗi khi tải thông tin chi tiết bài viết:", error);
+      console.error("Lỗi khi tải thông tin chi tiết mentor:", error);
     }
   };
 
   //xóa 
-  const handleDelete = (id, title) => {
+  const handleDelete = (id, name) => {
     setDeleteId(id);
-    setDeleteTitle(title);
+    setDeleteName(name);
     setOpenDialog(true);
   };
-
+  // xóa
   const confirmDelete = async () => {
     try {
-      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
-      const articleRef = doc(db, "articles", deleteId);
-      await deleteDoc(articleRef); // Thực hiện xóa bài viết từ Firestore
-      // Cập nhật lại danh sách bài viết sau khi xóa
+      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của mentor
+      const mentorRef = doc(db, "mentors", deleteId);
+      await deleteDoc(mentorRef); // Thực hiện xóa mentor từ Firestore
+      // Cập nhật lại danh sách mentor sau khi xóa
       setRows(rows.filter((row) => row.id !== deleteId));
       // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
       setOpenDialog(false);
-      setSnackbarMessage("Xóa Bài viết thành công");
+      setSnackbarMessage("Xóa mentor thành công");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Lỗi khi xóa bài viết:", error);
-      setSnackbarMessage("Không xóa được bài viết.");
+      console.error("Lỗi khi xóa mentor:", error);
+      setSnackbarMessage("Không xóa được mentor.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
+  };
+
+  const cancelDelete = () => {
+    setOpenDialog(false);
   };
 
   const handleSnackbarClose = (event, reason) => {
@@ -146,40 +121,26 @@ function Article() {
     setSnackbarOpen(false);
   };
 
-  const cancelDelete = () => {
-    setOpenDialog(false);
-  };
-
-  const handleAddArticleSuccess = () => {
-    setSnackbarMessage("Thêm bài viết thành công.");
-    setSnackbarSeverity("success");
-    setSnackbarOpen(true);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
+  //duyệt
   const handleApprove = async (id) => {
     try {
-      const articleRef = doc(db, "articles", id); // Tạo DocumentReference
-      await updateDoc(articleRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
-      // Cập nhật lại danh sách bài viết
+      const mentorRef = doc(db, "mentors", id); // Tạo DocumentReference
+      await updateDoc(mentorRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
+      // Cập nhật lại danh sách mentor
       setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
-      setSnackbarMessage("Duyệt bài viết thành công");
+      setSnackbarMessage("Duyệt mentor thành công");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Lỗi khi phê duyệt bài viết:", error);
-      setSnackbarMessage("Không thể duyệt bài viết.");
+      console.error("Lỗi khi phê duyệt mentor:", error);
+      setSnackbarMessage("Không thể duyệt mentor.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   }
-
-  const removeHtmlTags = (html) => {
-    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
-  };
 
   //date
   const formatUpdatedAt = (updatedAt) => {
@@ -219,26 +180,8 @@ function Article() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Bảng bài viết
+                Danh sách mentor
               </VuiTypography>
-              <Link to="/admin/formaddarticle">
-                <button className='text-light btn btn-outline-info' onClick={handleAddArticleSuccess}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-plus"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
-                    />
-                  </svg>
-                  Add
-                </button>
-              </Link>
             </VuiBox>
             {loading ? (
               <div
@@ -273,78 +216,50 @@ function Article() {
                       .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
-                        const authorName = users.find(u => u.id === row.user_id)?.name || 'Unknown';
                         return {
                           ...row,
                           no: page * rowsPerPage + index + 1,
-                          fuction: (
-                            <div
-                              className="article-row"
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '10px',
-                                borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-                                height: '70px', // Fixed height to avoid expanding/collapsing
-                              }}
-                            >
-                              <div className="image-column" style={{ flex: '0 0 100px' }}>
-                                <img
-                                  src={row.image}
-                                  alt={
-                                    row.title
-                                      ? row.title.length > 10
-                                        ? `${row.title.substring(0, 10).toUpperCase()}...`
-                                        : row.title.toUpperCase()
-                                      : "Image of the article"
-                                  }
-                                  style={{
-                                    width: '100px',
-                                    height: '50px',
-                                    objectFit: 'cover',
-                                    objectPosition: 'center',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                  }}
-                                />
-                              </div>
-                              <div className="content-column" style={{ flex: 1, marginLeft: '10px' }}>
-                                <VuiBox display="flex" flexDirection="column">
-                                  <VuiTypography variant="caption" fontWeight="medium" color="white" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    <strong>
-                                      {row.title?.length > 10
-                                        ? `${row.title.toUpperCase()?.substring(0, 10)}...`
-                                        : row.title.toUpperCase()}
-                                    </strong>
-                                  </VuiTypography>
-                                  <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                    {cates[row.categories_id] || 'không có danh mục'}
-                                  </VuiTypography>
-                                </VuiBox>
-                              </div>
-                            </div>
-                          ),
+
                           author: (
-                            <VuiBox>
+                            <VuiBox style={{ display: 'flex', alignItems: 'center' }}>
                               <img
                                 src={users?.find(u => row.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
                                 alt="User Avatar"
                                 style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                               />
-                              <VuiTypography variant="button" color="white" fontWeight="medium">
-                                {authorName}
-                              </VuiTypography>
+
+                              <VuiBox style={{ display: 'flex', flexDirection: 'column' }}>
+                                <VuiTypography variant="button" color="white" fontWeight="medium">
+                                  {users?.find(u => u.id === row.user_id)?.name || 'Unknown'}
+                                </VuiTypography>
+                                <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                  {users?.find(u => u.id === row.user_id)?.email || 'Unknown'}
+                                </VuiTypography>
+                              </VuiBox>
                             </VuiBox>
+
                           ),
-                          content: (
-                            <VuiBox>
-                              <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                {removeHtmlTags(row.content, 'p').length > 10
-                                  ? `${removeHtmlTags(row.content, 'p').substring(0, 10)}...`
-                                  : removeHtmlTags(row.content, 'p')}
-                              </VuiTypography>
-                            </VuiBox>
+                          expertise: (
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {row.expertise}
+                            </VuiTypography>
+                          ),
+                          location: (
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {users?.find(u => u.id === row.user_id)?.location || 'Unknown'}
+                            </VuiTypography>
+                          ),
+                          phone: (
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {users?.find(u => u.id === row.user_id)?.phone || 'Unknown'}
+                            </VuiTypography>
+                          ),
+                          information: (
+                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              {row.upfile.length > 50
+                                ? `${row.upfile.substring(0, 50)}...`
+                                : row.upfile}
+                            </VuiTypography>
                           ),
                           date: (
                             <VuiBox>
@@ -355,8 +270,8 @@ function Article() {
                           ),
                           action: (
                             <div className="action-buttons">
-                              <Link to={`/admin/formviewarticle/${row.id}`}>
-                                <Tooltip title="Xem bài viết" placement="top">
+                              <Link to={`/admin/formviewmentor/${row.id}`}>
+                                <Tooltip title="Xem mentor" placement="top">
                                   <button
                                     className="text-light btn btn-outline-info me-2"
                                     type="button"
@@ -376,24 +291,11 @@ function Article() {
                                   </button>
                                 </Tooltip>
                               </Link>
-                              <Link to={`/admin/formeditarticle/${row.id}`}>
-                                <Tooltip title="Sửa bài viết" placement="top">
-                                  <button
-                                    className="text-light btn btn-outline-warning me-2"
-                                    type="button"
-                                    onClick={() => handleEdit(row.id)}
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
-                                      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
-                                    </svg>
-                                  </button>
-                                </Tooltip>
-                              </Link>
-                              <Tooltip title="Xóa bài viết" placement="top">
+                              <Tooltip title="Xóa mentor" placement="top">
                                 <button
                                   className="text-light btn btn-outline-danger me-2"
                                   type="button"
-                                  onClick={() => handleDelete(row.id, row.title)}
+                                  onClick={() => handleDelete(row.id, users?.find(u => u.id === row.user_id)?.name || 'Unknown')}
                                 >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -410,7 +312,7 @@ function Article() {
                               </Tooltip>
                               {row.isApproved == 0 && (
                                 <>
-                                  <Tooltip title="Duyệt bài viết" placement="top">
+                                  <Tooltip title="Duyệt mentor" placement="top">
                                     <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
                                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
                                         <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
@@ -457,7 +359,7 @@ function Article() {
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Xóa tiêu đề có tên là: ${deleteTitle}`}
+        name={`${deleteName}`}
       />
       <Snackbar
         open={snackbarOpen}
@@ -474,4 +376,4 @@ function Article() {
   );
 }
 
-export default Article;
+export default Mentor;

@@ -1,8 +1,6 @@
 // Vision UI Dashboard React layouts
 import Dashboard from "src/pages/admin/dashboard";
-// import Comment from "layouts/comment";
 import Questions from "src/pages/admin/questions";
-import Article from "src/pages/admin/article";
 
 import AddCate from "../pages/admin/category/data/FormAddCate";
 import EditCate from "../pages/admin/category/data/FormEditCate";
@@ -16,29 +14,33 @@ import AddProduct from "../pages/admin/product/data/FormAddProduct";
 import EditProduct from "../pages/admin/product/data/FormEditProduct";
 import productDetail from "../views/product/components/detail"
 
+
 import productDetailAdmin from "../pages/admin/productDetail"
 import AddProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
 import EditProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
 
+import Article from "src/pages/admin/article";
 import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
 import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+
+import Mentor from "src/pages/admin/mentor";
+import FormViewMentor from "src/pages/admin/mentor/data/FormViewMentor";
+
+
 import Orders from 'src/pages/admin/orders';
-
-
-
 
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
-import { BsFillPersonPlusFill,BsList } from "react-icons/bs";
+import { BsFillPersonPlusFill, BsList } from "react-icons/bs";
 import { BsFillFileEarmarkTextFill } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
 import { FaQuestionCircle, FaYoutube } from "react-icons/fa";
 const routes = [
- 
+
   {
     type: "collapse",
     name: "Bảng điều khiển",
@@ -59,7 +61,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý danh mục bài viết",
+    name: "Danh mục bài viết",
     key: "category",
     route: "/admin/category",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
@@ -113,6 +115,15 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Quản lý mentor",
+    key: "mentor",
+    route: "/admin/mentor",
+    icon: <BsJournals size="15px" color="inherit" />,
+    component: Mentor,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
     name: "Quản lý đơn hàng",
     key: "orders",
     route: "/admin/orders",
@@ -156,7 +167,7 @@ const routes = [
     key: "formeditcmt",
     route: "/admin/formeditcmt",
     // component: FormEditCmt,
-    hidden: true, 
+    hidden: true,
   },
   {
     key: "formdeletecmt",
@@ -164,8 +175,8 @@ const routes = [
     // component: FormDeleteCmt,
     hidden: true, // Ẩn mục này
   },
-   // questions
-   {
+  // questions
+  {
     key: "formaddquestions",
     route: "/admin/formAddQuestions",
     // component: FormAddQuestions,
@@ -175,7 +186,7 @@ const routes = [
     key: "formeditquestions",
     route: "/admin/formEditQuestions",
     // component: FormEditQuestions,
-    hidden: true, 
+    hidden: true,
   },
   {
     key: "formdeletequestions",
@@ -226,28 +237,25 @@ const routes = [
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
- //article
- {
-  key: "formeandarticle",
-  route: "/admin/formaddarticle",           
-  component: FormAddArticle,
-  hidden: true, // Ẩn mục này            
-},
-{
-  key: "formviewarticle",
-  route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
-  component: FormViewArticle,
-  hidden: true, // Ẩn mục này
-},
-{
-  key: "formeditarticle",
-  route: "/admin/formeditarticle",
-  component: FormEditArticle,
-  hidden: true, // Ẩn mục này
-},
-
-
- 
+  //article
+  {
+    key: "formeandarticle",
+    route: "/admin/formaddarticle",
+    component: FormAddArticle,
+    hidden: true, // Ẩn mục này            
+  },
+  {
+    key: "formviewarticle",
+    route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
+    component: FormViewArticle,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: "formeditarticle",
+    route: "/admin/formeditarticle",
+    component: FormEditArticle,
+    hidden: true, // Ẩn mục này
+  },
   {
     key: "addCatePro",
     route: "/admin/addCatePro",
@@ -327,8 +335,13 @@ const routes = [
     component: Orders,
     hidden: true, // Ẩn mục này
   },
-
-  // '/productDetail/:id'
+  //mentor
+  {
+    key: "formviewmentor",
+    route: "/admin/formviewmentor/:id", // Thêm :id để định tuyến theo params
+    component: FormViewMentor,
+    hidden: true, // Ẩn mục này
+  },
 ];
 
 export default routes;

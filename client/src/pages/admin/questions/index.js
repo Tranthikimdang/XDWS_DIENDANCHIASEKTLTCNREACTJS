@@ -261,10 +261,10 @@ function Questions() {
                           author: (
                             <VuiBox>
                               <img
-                              src={users?.find(u => row?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
-                              alt="User Avatar"
-                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
-                            />
+                                src={users?.find(u => row?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                                alt="User Avatar"
+                                style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                              />
                               <VuiTypography variant="button" color="white" fontWeight="medium">
                                 {authorName}
                               </VuiTypography>
@@ -394,20 +394,20 @@ function Questions() {
         onConfirm={confirmDelete}
         questions={`${deleteQuestions}`}
       />
-       <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          sx={{ transform: 'translateY(100px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
-        >
-          <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{
-            width: '100%',
-            border: '1px solid #ccc' // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
-          }}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(100px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{
+          width: '100%',
+          border: '1px solid #ccc' // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+        }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </DashboardLayout>
   );
 }

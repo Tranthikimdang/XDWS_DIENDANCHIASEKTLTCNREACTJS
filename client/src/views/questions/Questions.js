@@ -39,7 +39,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { IconMessageCircle } from '@tabler/icons-react';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { useNavigate, useLocation ,useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import DescriptionIcon from '@mui/icons-material/Description';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
@@ -337,7 +337,7 @@ const Questions = () => {
   };
 
   const handleAddComment = async (question_id) => {
-    console.log('question_id:', question_id); 
+    console.log('question_id:', question_id);
     try {
       const commentRef = doc(db, 'questions', question_id);
       const commentSnap = await getDoc(commentRef);
@@ -388,13 +388,13 @@ const Questions = () => {
         commentData.comments.push(newCommentData);
         await updateDoc(commentRef, commentData);
         console.log('Dữ liệu sau khi cập nhật:', commentData);
-        
+
         // Cập nhật trạng thái local
         setListQuestion((prevList) => {
           const newList = [...prevList];
           const index = newList.findIndex((item) => item.id === question_id);
           if (index !== -1) {
-            console.log('Bình luận mới:', commentData.comments); 
+            console.log('Bình luận mới:', commentData.comments);
             newList[index] = { ...newList[index], comments: commentData.comments };
           }
           return newList;
@@ -1521,7 +1521,6 @@ const Questions = () => {
                 ))}
               </List>
             </Box>
-
             <Box
               sx={{
                 border: '1px solid #e0e0e0',
@@ -1559,7 +1558,6 @@ const Questions = () => {
               </Box>
               <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
               {/* Article List */}
-
               {articles
                 .filter(article => article.isApproved === 1)
                 .slice(0, 4)
@@ -1587,7 +1585,6 @@ const Questions = () => {
                           <Typography variant="body2" sx={{ color: '#666' }}>
                             Tác giả: {users?.find(u => article?.user_id === u.id)?.name || 'Không rõ'}
                           </Typography>
-
                         </Box>
                       </Box>
                     </Box>
