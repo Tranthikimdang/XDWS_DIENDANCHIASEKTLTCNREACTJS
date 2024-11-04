@@ -8,7 +8,6 @@ import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Table from "src/examples/Tables/Table";
 import { articleColumns, questionColumns } from './data/authorsTableData';
 import ConfirmDialog from './data/formDeleteComment';
-import apis from "src/apis/commentApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
@@ -17,9 +16,6 @@ import { collection, getDocs } from "firebase/firestore";
 import { db } from 'src/config/firebaseconfig';
 
 function Comment() {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [rows, setRows] = useState([]);
-  const [deleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
@@ -53,22 +49,6 @@ function Comment() {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-  };
-
-  const confirmDelete = async () => {
-    try {
-      await apis.deleteComment(deleteId);
-      setRows(rows.filter((comment) => comment.id !== deleteId));
-      setOpenDialog(false);
-      setSnackbarMessage("Comment deleted successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      setSnackbarMessage("Failed to delete comment.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
   };
 
   const removeHtmlTags = (html) => html?.replace(/<[^>]+>/g, '');
@@ -206,7 +186,7 @@ function Comment() {
 
         </Card>
       </VuiBox>
-      <ConfirmDialog open={openDialog} onClose={() => setOpenDialog(false)} onConfirm={confirmDelete} />
+      {/* <ConfirmDialog open={openDialog} onClose={() => setOpenDialog(false)} onConfirm={confirmDelete} /> */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}
