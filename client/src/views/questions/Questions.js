@@ -1073,7 +1073,7 @@ const Questions = () => {
                               </Box>
 
                               {/* Hàng biểu tượng cho Emojis, GIFs, Hình ảnh */}
-                              <Box display="flex" justifyContent="center" sx={{ width: '100%', gap: 1, marginRight: '345px', marginTop: '-20px' }}>
+                              <Box display="flex" justifyContent="center" sx={{ width: '100%', gap: 1, marginRight: '345px', marginTop: '-18px' }}>
                                 <IconButton>
                                   <InsertEmoticonIcon fontSize="medium" />
                                 </IconButton>
