@@ -53,7 +53,7 @@ function FormAddCourseDetail() {
       setSnackbarMessage('Thêm chi tiết khóa học thành công.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      setTimeout(() => navigate('/admin/courses'), 500);
+      setTimeout(() => navigate('/admin/products'), 500);
     } catch (error) {
       console.error('Lỗi khi thêm chi tiết khóa học:', error.message);
       setSnackbarMessage('Không thể thêm chi tiết khóa học. Vui lòng thử lại.');
