@@ -163,8 +163,8 @@ const renderRoutes = (role) => {
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
-        { path: '*', element: <Navigate to="/auth/404" /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
+
       ],
     });
   } else if (role === 'user') {

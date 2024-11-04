@@ -14,11 +14,11 @@ import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
 import api from '../../../apis/CourseApI';
+import apiUser from '../../../apis/UserApI';
 
 //firebase
 import { ref, getDownloadURL } from 'firebase/storage';
 import { collection, getDocs } from 'firebase/firestore';
-import { db, storage } from '../../../config/firebaseconfig'; // Verify this path
 
 function Course() {
   const { columns } = authorsProductData;
@@ -57,27 +57,21 @@ function Course() {
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
-
       try {
-        const querySnapshot = await getDocs(collection(db, 'users'));
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(usersList);
+        const response = await apiUser.getUsersList();
+        console.log('Users data:', response.data); // Kiểm tra dữ liệu
+        // Gán mảng users từ response.data.users
+        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchUsers();
   }, []);
 
-  const handleEdit = (id) => {
-    console.log('Edit button clicked', id);
-  };
 
   const handleDelete = (id, name) => {
     setDeleteId(id);
@@ -235,8 +229,9 @@ function Course() {
                       .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
-                        const authorName =
-                          users.find((u) => u.id === row.user_id)?.name || 'Unknown';
+                        const authorName = Array.isArray(users)
+                          ? users.find((u) => u.id === row.user_id)?.name
+                          : 'Unknown';
 
                         return {
                           ...row,

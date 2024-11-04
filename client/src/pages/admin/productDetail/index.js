@@ -20,19 +20,6 @@ import { db, storage } from '../../../config/firebaseconfig'; // Verify this pat
 import { doc, deleteDoc } from 'firebase/firestore'; // Import deleteDoc từ Firebase Firestore
 import { Update } from '@mui/icons-material';
 
-const sanitizeImagePath = (path) => path.replace(/\\/g, '/'); // Convert backslashes to forward slashes
-
-const getImageUrl = async (path) => {
-  try {
-    if (!path) throw new Error('Image path is undefined'); // Kiểm tra giá trị path
-    const imageRef = ref(storage, `images/${path}`);
-    const url = await getDownloadURL(imageRef);
-    return url;
-  } catch (error) {
-    console.error('Error getting image URL:', error);
-    return null;
-  }
-};
 
 function ProductDetail() {
   const { columns } = authorsProductData;

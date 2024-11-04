@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const categoriesCourseRoutes = require("./routes/categories_courseRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const courseDetailRoutes = require("./routes/courseDetailRoutes");
+const userRouter = require("./routes/userRoutes");
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
 const multer = require("multer");
@@ -60,7 +61,7 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
 app.use("/api/categories_course", categoriesCourseRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/course-details", courseDetailRoutes);
-
+app.use("/api/users", userRouter);
 
 
 
