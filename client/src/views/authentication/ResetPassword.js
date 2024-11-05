@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom"; 
-import { doc, updateDoc } from "firebase/firestore"; 
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -10,8 +9,7 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Card, CardContent } from "@mui/material";
-import { db, storage } from '../../config/firebaseconfig';
-
+import apiUser from '../../apis/UserApI'; // Import API User
 
 const ResetPassword = () => {
     const { userId } = useParams(); // Lấy userId từ URL
@@ -29,11 +27,8 @@ const ResetPassword = () => {
         }
 
         try {
-            // Cập nhật mật khẩu trong Firestore
-            const userRef = doc(db, "users", userId); // Sử dụng userId từ URL
-            await updateDoc(userRef, {
-                password: newPassword, // Cập nhật mật khẩu
-            });
+            // Gọi API để cập nhật mật khẩu
+            await apiUser.updateUserPassword(userId, newPassword); // Giả định có phương thức updateUserPassword trong apiUser
             alert("Đặt lại mật khẩu thành công!"); 
             setTimeout(() => {
                 navigate("/auth/login");
