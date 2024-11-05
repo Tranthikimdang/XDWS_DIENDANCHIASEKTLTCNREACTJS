@@ -6,7 +6,8 @@ const BASE_URL = "http://localhost:3000/api";
 // Categories Course API
 const CATEGORIES_URL = `${BASE_URL}/categories_course`;
 const COURSES_URL = `${BASE_URL}/courses`;
-const COURSE_DETAILS_URL = `${BASE_URL}/course-details`; // URL mới cho courseDetail
+const COURSE_DETAILS_URL = `${BASE_URL}/course-details`;
+const PRODUCTS_URL = `${BASE_URL}/products`; // URL cho sản phẩm
 
 // Hàm API chung để xử lý các yêu cầu
 const apiRequest = async (method, url, data) => {
@@ -36,6 +37,8 @@ const addCourseDetail = async (courseDetail) => apiRequest('post', COURSE_DETAIL
 const getCourseDetailsList = async () => apiRequest('get', COURSE_DETAILS_URL);
 const updateCourseDetail = async (id, updatedData) => apiRequest('put', `${COURSE_DETAILS_URL}/${id}`, updatedData);
 const deleteCourseDetail = async (id) => apiRequest('delete', `${COURSE_DETAILS_URL}/${id}`);
+const getProductByCourseId = async (detailId) => apiRequest('get', `${COURSE_DETAILS_URL}/${detailId}`);
+/// Endpoint lấy sản phẩm theo course_id
 
 // Upload hình ảnh lên server
 const uploadImage = async (file) => {
@@ -66,4 +69,5 @@ export default {
   updateCourseDetail,
   deleteCourseDetail,
   uploadImage,
+  getProductByCourseId
 };

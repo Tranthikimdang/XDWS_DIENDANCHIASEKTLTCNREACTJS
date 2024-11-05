@@ -17,8 +17,6 @@ import api from '../../../apis/CourseApI';
 import apiUser from '../../../apis/UserApI';
 
 //firebase
-import { ref, getDownloadURL } from 'firebase/storage';
-import { collection, getDocs } from 'firebase/firestore';
 
 function Course() {
   const { columns } = authorsProductData;

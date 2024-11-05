@@ -16,10 +16,10 @@ import './index.css';
 //firebase
 import { ref, getDownloadURL } from 'firebase/storage';
 import { collection, getDocs, getDoc } from 'firebase/firestore';
-import { db, storage } from '../../../config/firebaseconfig'; // Verify this path
 import { doc, deleteDoc } from 'firebase/firestore'; // Import deleteDoc từ Firebase Firestore
 import { Update } from '@mui/icons-material';
-
+import api from '../../../apis/CourseDetailApI';
+import apiUser from '../../../apis/UserApI';
 
 function ProductDetail() {
   const { columns } = authorsProductData;
@@ -34,45 +34,38 @@ function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-  const { id } = useParams();
-  // Fetch Products from Firebas
+  const { course_id } = useParams(); 
 
+  // Fetch Products from API
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        // Truy vấn tất cả sản phẩm
-        const querySnapshot = await getDocs(collection(db, 'product_detail'));
-        const ProductsList = querySnapshot.docs
-          .map((doc) => {
-            const ProductData = { id: doc.id, ...doc.data() };
-            return ProductData; // Trả về dữ liệu sản phẩm
-          })
-          // Lọc sản phẩm dựa vào product_id
-          .filter((product) => product.product_id === id);
-
-        console.log(ProductsList);
-        setRows(ProductsList); // Lưu sản phẩm vào state
+        const response = await api.getCourseDetailsList(); // Lấy toàn bộ sản phẩm
+        console.log(response);
+        
+        const filteredProducts = response.data.courseDetails.filter(product => product.course_id === Number(course_id)); // Lọc sản phẩm theo course_id
+        setRows(filteredProducts); // Cập nhật danh sách sản phẩm
       } catch (error) {
-        console.error('Error fetching Products:', error);
+        console.error('Error fetching products:', error);
+        setSnackbarMessage('Failed to fetch products.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [id]);
+  }, [course_id]);
 
   // Fetch users from Firebase
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, 'users'));
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const response = await apiUser.get('/users'); // Gọi API để lấy danh sách người dùng
+        const usersList = response.data; // Giả định API trả về danh sách người dùng
         setUsers(usersList);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -96,11 +89,9 @@ function ProductDetail() {
 
   const confirmDelete = async () => {
     try {
-      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
-      const productRef = doc(db, 'product_detail', deleteId);
-      await deleteDoc(productRef); // Thực hiện xóa bài viết từ Firestore
+      await api.deleteCourseDetail(deleteId); // Gọi API để xóa sản phẩm
 
-      // Cập nhật lại danh sách bài viết sau khi xóa
+      // Cập nhật lại danh sách sản phẩm sau khi xóa
       setRows(rows.filter((row) => row.id !== deleteId));
 
       // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
@@ -144,17 +135,17 @@ function ProductDetail() {
 
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
-
+  
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
       const now = new Date();
       const diff = now - date; // Tính toán khoảng cách thời gian
-
+  
       const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
-
+  
       if (days > 0) {
         updatedAtString = `${days} ngày trước`;
       } else if (hours > 0) {
@@ -167,7 +158,7 @@ function ProductDetail() {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-
+  
     return updatedAtString;
   };
 
@@ -187,7 +178,7 @@ function ProductDetail() {
               <VuiTypography variant="lg" color="white">
                 Các khóa học
               </VuiTypography>
-              <Link to={`/admin/addProDetaill/${id}`}>
+              <Link to={`/admin/addProDetaill/${course_id}`}>
                 <button
                   className="text-light btn btn-outline-info"
                   onClick={handleAddProductSuccess}
