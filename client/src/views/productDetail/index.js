@@ -14,10 +14,9 @@ import {
 } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig';
 import './index.css';
 import ReplyIcon from '@mui/icons-material/Reply';
+import CourseDetailApi from '../../apis/CourseDetailApI';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id_product từ URL
@@ -32,18 +31,24 @@ const ProductsDetail = () => {
         console.error('id_product is undefined');
         return;
       }
-
+  
       setLoading(true);
       try {
-        const q = query(collection(db, 'product_detail'), where('product_id', '==', id));
-        const detailSnapshot = await getDocs(q);
-        const detailData = detailSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setProductDetail(detailData);
-
+        // Lấy tất cả sản phẩm
+        const allProducts = await CourseDetailApi.getCourseDetailsList();
+        console.log(allProducts);
+        
+        // Lọc và sắp xếp sản phẩm theo course_id và no
+        const filteredDetails = allProducts.data.courseDetails
+          .filter(detail => detail.course_id == id)
+          .sort((a, b) => a.no - b.no); // Sắp xếp theo cột no
+  
+        setProductDetail(filteredDetails);
+  
         // Lấy bài học đầu tiên để hiển thị khi mới vào
-        const firstLesson = detailData.find((lesson) => lesson.no == 1);
+        const firstLesson = filteredDetails.find((lesson) => lesson.no == 1);
         if (firstLesson) {
-          setCurrentVideo(firstLesson.video); // Đảm bảo firstLesson.video có định dạng HTML hợp lệ
+          setCurrentVideo(firstLesson.video);
           setCurrentName(firstLesson.name);
         } else {
           console.warn('No first lesson found');

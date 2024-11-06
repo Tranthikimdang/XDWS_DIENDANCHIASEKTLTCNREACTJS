@@ -88,7 +88,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Danh mục sản phẩm",
+    name: "Danh mục khóa học",
     key: "categoryPro",
     route: "/admin/categoryPro",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
@@ -97,7 +97,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý sản phẩm",
+    name: "Quản lý khóa học",
     key: "products",
     route: "/admin/products",
     icon: <FaYoutube size="15px" color="inherit" />,
