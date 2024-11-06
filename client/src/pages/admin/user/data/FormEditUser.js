@@ -5,10 +5,9 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../../../config/firebaseconfig';
 import '../index.css';
+import UserApi from 'src/apis/UserApI';
+import axios from 'axios';
 
 function FormEditUser() {
   const { id } = useParams();
@@ -25,6 +24,7 @@ function FormEditUser() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -38,32 +38,51 @@ function FormEditUser() {
       role: 'user',
     },
   });
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.imagePath;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw new Error('Failed to upload image. Please try again.');
+    }
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (id) {
-        try {
-          const userDocRef = doc(db, 'users', id);
-          const userDoc = await getDoc(userDocRef);
-          if (userDoc.exists()) {
-            setData(userDoc.data());
-            setValue('name', userDoc.data().name);
-            setValue('email', userDoc.data().email);
-            setValue('location', userDoc.data().location);
-            setValue('phone', userDoc.data().phone);
-            setValue('birthday', userDoc.data().birthday || '');
-            setValue('cardId', userDoc.data().cardId || '');
-            setValue('password', userDoc.data().password || '');
-            setValue('role', userDoc.data().role || 'user');
-            setImagePreview(userDoc.data().imageUrl || '');
-          } else {
-            setSnackbarMessage('User not found.');
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-          }
-        } catch (error) {
-          console.error('Error fetching user:', error);
+      try {
+        const response = await UserApi.getUsersList();
+        
+        const userData = response.data.users.find((user) => user.id == id);
+
+        console.log(userData);
+        
+        if (userData) {
+          setData(userData);
+          setValue('name', userData.name);
+          setValue('email', userData.email);
+          setValue('location', userData.location);
+          setValue('phone', userData.phone);
+          setValue('birthday', userData.birthday || '');
+          setValue('cardId', userData.cardId || '');
+          setValue('password', userData.password || '');
+          setValue('confirmPassword', userData.password || '');
+          setValue('role', userData.role || 'user');
+          setImagePreview(userData.imageUrl || '');
+        } else {
+          setSnackbarMessage('User not found.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
         }
+      } catch (error) {
+        console.error('Error fetching user:', error);
       }
     };
 
@@ -78,21 +97,8 @@ function FormEditUser() {
     }
   };
 
-  const uploadImageToStorage = async (file) => {
-    const storageRef = ref(storage, `images/${id}/${file.name}`);
-    await uploadBytes(storageRef, file);
-    return await getDownloadURL(storageRef);
-  };
-
-  const sanitizeData = (formData) => {
-    const sanitizedData = { ...formData };
-    Object.keys(sanitizedData).forEach((key) => {
-      if (sanitizedData[key] === undefined) {
-        sanitizedData[key] = null;
-      }
-    });
-    return sanitizedData;
-  };
+  const watchPassword = watch('password');
+  const watchConfirmPassword = watch('confirmPassword');
 
   const onSubmit = async (formData) => {
     if (!id) {
@@ -106,16 +112,12 @@ function FormEditUser() {
       let imageUrl = imagePreview;
 
       if (imageFile) {
-        imageUrl = await uploadImageToStorage(imageFile);
+        imageUrl = await uploadImage(imageFile);
       }
 
-      const sanitizedData = sanitizeData(formData);
-      const userRef = doc(db, 'users', id);
+      const sanitizedData = { ...formData, imageUrl };
 
-      await updateDoc(userRef, {
-        ...sanitizedData,
-        imageUrl,
-      });
+      await UserApi.updateUser(id, sanitizedData);
 
       setSnackbarMessage('User updated successfully.');
       setSnackbarSeverity('success');
@@ -129,7 +131,6 @@ function FormEditUser() {
       setSnackbarOpen(true);
     }
   };
-
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -146,16 +147,17 @@ function FormEditUser() {
             <div className="col-md-6 mb-3">
               <div style={{ textAlign: 'left' }}>
                 <label className="text-light form-label">Tên tài khoản</label>
-              </div>
-
+              </div>{' '}
               <input
                 className="form-control bg-dark text-light"
                 {...register('name', { required: true, minLength: 3, maxLength: 50 })}
               />
               {errors.name && (
-                <span className="text-danger">
-                  Name is required and must be between 3 and 50 characters long
-                </span>
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">
+                    Name is required and must be between 3 and 50 characters long
+                  </span>
+                </div>
               )}
             </div>
             <div className="col-md-6 mb-3">
@@ -164,39 +166,136 @@ function FormEditUser() {
               </div>
               <input
                 className="form-control bg-dark text-light"
-                type="email"
                 {...register('email', {
                   required: true,
                   pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
                 })}
               />
-              {errors.email && <span className="text-danger">Valid email is required</span>}
-            </div>
-          </div>
-
-          <div className="row">
-            <div className="col-md-6 mb-3">
-            <div style={{ textAlign: 'left' }}>
-            <label className="text-light form-label">Thay đổi ảnh</label>
-              </div>
-              <input
-                type="file"
-                className="form-control bg-dark text-light"
-                onChange={handleImageChange}
-              />
-            </div>
-            <div className="col-md-6 mb-3 text-center">
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="img-thumbnail mt-2"
-                  style={{ maxWidth: '200px' }}
-                />
+              {errors.email && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Valid email is required</span>
+                </div>
               )}
             </div>
           </div>
-
+          <div className="row">
+            {/* Các trường nhập dữ liệu khác... */}
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Ngày sinh</label>
+              </div>
+              <input
+                type="date"
+                className="form-control bg-dark text-light"
+                {...register('birthday', { required: true })}
+              />
+              {errors.birthday && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Bạn phải điền này sinh</span>
+                </div>
+              )}
+            </div>
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Phân quyền</label>
+              </div>
+              <select
+                className="form-control bg-dark text-light"
+                {...register('role', { required: true })}
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+              {errors.role && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Bạn phải phân quyền</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Địa chỉ</label>
+              </div>
+              <input
+                className="form-control bg-dark text-light"
+                {...register('location', { required: true })}
+              />
+              {errors.location && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Bạn phải điền địa chỉ</span>
+                </div>
+              )}
+            </div>
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Số điện thoại</label>
+              </div>
+              <input
+                className="form-control bg-dark text-light"
+                {...register('phone', { required: true, pattern: /^[0-9]{10}$/ })}
+              />
+              {errors.phone && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger  form-label">Số điện thoại phải là số</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Mật khẩu</label>
+              </div>
+              <input
+                type="text"
+                className="form-control bg-dark text-light"
+                {...register('password', { required: true, minLength: 6 })}
+              />
+              {errors.password && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Mật khẩu phải trên 6 kí tự</span>
+                </div>
+              )}
+            </div>
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Xác nhận mật khẩu</label>
+              </div>
+              <input
+                type="text"
+                className="form-control bg-dark text-light"
+                {...register('confirmPassword', {
+                  required: false,
+                  validate: (value) => value === watchPassword || 'Mật khẩu xác nhận không giống',
+                })}
+              />
+              {errors.confirmPassword && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">{errors.confirmPassword.message}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Trường dữ liệu Hình ảnh */}
+          <div className="col-12 mb-3">
+            <label className="text-light form-label">Hình ảnh</label>
+            <input
+              className="form-control bg-dark text-light"
+              type="file"
+              onChange={handleImageChange}
+            />
+            {errors.image && <div className="text-danger form-label">{errors.image.message}</div>}
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="img-thumbnail mt-2"
+                style={{ maxWidth: '160px' }}
+              />
+            )}
+          </div>
           <div className="d-flex justify-content mt-3">
             <button className="text-light btn btn-outline-info me-2" type="submit">
               Sửa
