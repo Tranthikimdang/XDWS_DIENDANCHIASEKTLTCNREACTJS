@@ -24,7 +24,7 @@ const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestio
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
-const Shadow = Loadable(lazy(() => import('../')));
+const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')));
 const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
@@ -75,7 +75,10 @@ const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUs
 const MentorAdmin = Loadable(lazy(() => import('../pages/admin/mentor')));
 const FormViewMentor = Loadable(lazy(() => import('../pages/admin/mentor/data/FormViewMentor')));
 
-
+const HasgtagAdmin = Loadable(lazy(() => import('../pages/admin/hashtag/')));
+const AddHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormAddHashtag')));
+const EditHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormEditHashtag')));
+ 
 
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
@@ -158,11 +161,14 @@ const renderRoutes = (role) => {
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
         { path: 'orders', exact: true, element: <Orders /> }, 
         { path: 'addProDetaill/:course_id', exact: true, element: <AddProDetaill /> }, 
-        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
+        { path: 'productDetail/:course_id', exact: true, element: <ProDetaill /> }, 
         { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
+        { path: 'hashtag', exact: true, element: <HasgtagAdmin/> },
+        { path: 'addhashtag', exact: true, element: <AddHasgtag /> },
+        { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
 
       ],

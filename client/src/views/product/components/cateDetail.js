@@ -5,9 +5,10 @@ import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 // Firebase
-import { db } from '../../../config/firebaseconfig';
 import '../index.css';
-import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore';
+import CourseApi from '../../../apis/CourseApI';
+import CateCourseApi from '../../../apis/Categories_courseApI';
+
 
 const Products = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const cateId = useParams();
+  const { id: cateId } = useParams(); // Lấy ID danh mục từ tham số
   const [searchTerm, setSearchTerm] = useState('');
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -25,119 +26,83 @@ const Products = () => {
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
+
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
-  // Fetch products from Firestore
+
+  // Fetch products based on category ID
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setProducts(productsData);
+        const response = await CourseApi.getCoursesList(); // Gọi API để lấy tất cả sản phẩm
+        const filteredProducts = response.data.courses.filter(
+          (product) => String(product.cate_course_id) === cateId,
+        ); // Lọc theo ID danh mục
+        setProducts(filteredProducts); // Lưu dữ liệu vào state
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
   }, [cateId]);
 
-  // Fetch categories from Firestore
+  // Fetch categories using API
   useEffect(() => {
     const fetchCategories = async () => {
-      setLoading(true);
+      setLoading(true); // Start loading
       try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories_product'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCates(categoriesData);
+        const response = await CateCourseApi.getList(); // Fetch categories
+        const categories = response || []; // Ensure you have data
 
-        const categoriesMap = categoriesData.reduce((map, category) => {
+        setCates(categories); // Save categories to state
+
+        // Create a map for categories
+        const categoriesMap = categories.reduce((map, category) => {
           map[category.id] = category.name;
           return map;
         }, {});
-        setCatesMap(categoriesMap);
+        console.log('categoriesMap', categoriesMap);
+        console.log('cateId:', cateId);
+        setCatesMap(categoriesMap); // Save categories map to state
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching categories:', error); // Log errors
       } finally {
-        setLoading(false);
+        setLoading(false); // Stop loading
       }
     };
-    fetchCategories();
+
+    fetchCategories(); // Call the function
   }, []);
 
   const addToCart = async (product) => {
     if (userId) {
       try {
-        const querySnapshot = await getDocs(
-          query(
-            collection(db, 'orders'),
-            where('user_id', '==', userId),
-            where('product_id', '==', product.id),
-          ),
-        );
-
-        if (!querySnapshot.empty) {
-          setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
-          setSnackbarSeverity('warning');
-          setSnackbarOpen(true);
-        } else {
-          await addDoc(collection(db, 'orders'), {
-            user_id: userId,
-            product_id: product.id,
-            total: 'total',
-            note: '',
-            order_day: new Date(),
-          });
-
-          setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
-          setSnackbarSeverity('success');
-          setSnackbarOpen(true);
-        }
+        // Thêm sản phẩm vào giỏ hàng logic
       } catch (error) {
         console.error('Error adding product to cart: ', error);
-        setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
       }
     } else {
       console.error('User is not logged in');
-      setSnackbarMessage('Bạn vẫn chưa đăng nhập');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
     }
   };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  // const fetchProducts = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const productsSnapshot = await getDocs(collection(db, 'products'));
-  //     const productsData = productsSnapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-
-  //     setProducts(productsData);
-  //     console.log('Fetched products:', productsData);
-  //   } catch (error) {
-  //     console.error('Error fetching products:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+  // Move the filteredProducts definition here
+  const filteredProducts = products.filter((product) => {
+    const isInCategory = String(product.cate_course_id) === String(cateId); // Ensure the comparison is valid
+    const matchesSearchTerm = product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return isInCategory && matchesSearchTerm;
+  });
+
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <PageContainer title="products" description="This is products">
       <Snackbar
@@ -155,7 +120,13 @@ const Products = () => {
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
               Danh mục khóa học{' '}
-              {catesMap[cateId.id] ? catesMap[cateId.id] : 'Danh mục không tồn tại'}
+              {loading ? (
+                <span>Đang tải danh mục...</span>
+              ) : catesMap[Number(cateId)] ? ( // Chuyển đổi cateId thành số
+                catesMap[Number(cateId)]
+              ) : (
+                'Danh mục không tồn tại'
+              )}
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
               A collection of products sharing experiences of self-learning programming online and
@@ -205,7 +176,7 @@ const Products = () => {
                                   }}
                                 >
                                   <img
-                                    src={product.image_url}
+                                    src={product.image}
                                     className="w-100"
                                     alt={product.name}
                                     style={{

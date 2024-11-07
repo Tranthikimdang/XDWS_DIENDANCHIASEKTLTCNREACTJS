@@ -1,49 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Box, Card, Button } from '@mui/material';
-import { db } from '../../config/firebaseconfig';
-import { collection, getDocs } from 'firebase/firestore'; // Import Firestore methods
 import PageContainer from 'src/components/container/PageContainer';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import HashtagApi from "../../apis/HashtagApI"; // Import Hashtag API
 
 const Inter = () => {
-  // State để lưu các danh mục lấy từ Firestore
-  const [categories, setCategories] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  // State để lưu các hashtag lấy từ API
+  const [hashtags, setHashtags] = useState([]);
+  const [selectedHashtags, setSelectedHashtags] = useState([]);
   const navigate = useNavigate();
-  // Hàm lấy dữ liệu từ Firestore
-  const fetchCategories = async () => {
+
+  // Hàm lấy dữ liệu từ Hashtag API
+  const fetchHashtags = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'categories')); // Truy vấn dữ liệu từ Firestore
-      const categoryList = [];
-      querySnapshot.forEach((doc) => {
-        categoryList.push({ id: doc.id, ...doc.data() });
-      });
-      setCategories(categoryList); // Lưu danh mục vào state
+      const response = await HashtagApi.getHashtags(); // Gọi API lấy hashtags 
+      setHashtags(response.data.hashtags); // Lưu hashtags vào state
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching hashtags:', error);
     }
   };
 
   // Lấy dữ liệu từ localStorage khi trang load lại
   useEffect(() => {
-    const savedCategories = JSON.parse(localStorage.getItem('selectedCategories')) || [];
-    setSelectedCategories(savedCategories);
-    fetchCategories();
+    const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
+    setSelectedHashtags(savedHashtags);
+    fetchHashtags();
   }, []);
 
-  // Hàm xử lý khi người dùng chọn hoặc bỏ chọn một danh mục
-  const handleCategorySelect = (categoryId) => {
-    setSelectedCategories((prevSelected) => {
+  // Hàm xử lý khi người dùng chọn hoặc bỏ chọn một hashtag
+  const handleHashtagSelect = (hashtagId) => {
+    setSelectedHashtags((prevSelected) => {
       let updatedSelection;
 
-      if (prevSelected.includes(categoryId)) {
-        updatedSelection = prevSelected.filter((id) => id !== categoryId); // Bỏ chọn nếu đã được chọn
+      if (prevSelected.includes(hashtagId)) {
+        updatedSelection = prevSelected.filter((id) => id !== hashtagId); // Bỏ chọn nếu đã được chọn
       } else {
-        updatedSelection = [...prevSelected, categoryId]; // Thêm vào nếu chưa được chọn
+        updatedSelection = [...prevSelected, hashtagId]; // Thêm vào nếu chưa được chọn
       }
 
       // Lưu lựa chọn vào localStorage
-      localStorage.setItem('selectedCategories', JSON.stringify(updatedSelection));
+      localStorage.setItem('selectedHashtags', JSON.stringify(updatedSelection));
 
       return updatedSelection;
     });
@@ -51,9 +47,9 @@ const Inter = () => {
 
   const handleContinue = () => {
     // Điều hướng đến một trang khác hoặc xử lý logic tiếp theo
-    // Ở đây, mình điều hướng đến trang "/next-page" (có thể thay bằng trang khác của bạn)
     navigate('/home');
   };
+  
   return (
     <PageContainer title="Interests" description="Select your interests">
       <Box
@@ -94,16 +90,16 @@ const Inter = () => {
                 display="flex"
                 flexWrap="wrap"
               >
-                {categories.map((category) => (
+                {hashtags.map((hashtag) => (
                   <button
-                    key={category.id}
+                    key={hashtag.id}
                     type="button"
                     className={`btn btn-outline-secondary m-2 bigger-btn ${
-                      selectedCategories.includes(category.id) ? 'selected' : ''
+                      selectedHashtags.includes(hashtag.id) ? 'selected' : ''
                     }`}
-                    onClick={() => handleCategorySelect(category.id)}
+                    onClick={() => handleHashtagSelect(hashtag.id)}
                   >
-                    {category.name} {/* Hiển thị tên danh mục */}
+                    {hashtag.name} {/* Hiển thị tên hashtag */}
                   </button>
                 ))}
               </Box>
@@ -112,7 +108,7 @@ const Inter = () => {
                   variant="contained"
                   color="success"
                   onClick={handleContinue}
-                  disabled={selectedCategories.length === 0} // Vô hiệu hóa nếu không có danh mục nào được chọn
+                  disabled={selectedHashtags.length === 0} // Vô hiệu hóa nếu không có hashtag nào được chọn
                 >
                   Hoàn thành
                 </Button>
@@ -131,8 +127,8 @@ const Inter = () => {
             border-color: #007bff;
           }
             .bigger-btn {
-      border-radius: 50px !important;
-}
+              border-radius: 50px !important;
+            }
         `}
       </style>
     </PageContainer>
