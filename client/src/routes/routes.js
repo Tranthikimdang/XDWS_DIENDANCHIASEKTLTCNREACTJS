@@ -61,7 +61,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý danh mục bài viết",
+    name: "Danh mục bài viết",
     key: "category",
     route: "/admin/category",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,

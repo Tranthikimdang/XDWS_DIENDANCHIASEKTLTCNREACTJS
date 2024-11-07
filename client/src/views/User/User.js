@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react';
 import {
   Grid,
@@ -79,7 +80,7 @@ const User = () => {
     const fetchMentor = async () => {
       setLoading(true);
       try {
-        const mentorSnapshot = await getDocs(collection(db, 'mentor'));
+        const mentorSnapshot = await getDocs(collection(db, 'mentors'));
         const mentorData = mentorSnapshot.docs.map((doc) => {
           return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
         });
@@ -94,8 +95,11 @@ const User = () => {
   }, []);
 
   const handleCardClick = (userId) => {
-    navigate(`/profile/${userId}`); // Điều hướng với userId
+    navigate(`/profile/${userId}`, { state: { id: userId } }); // Điều hướng với userId
   };
+
+
+
   // Filter users based on search term
   const filteredUsers = users.filter(
     (user) => user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -192,7 +196,7 @@ const User = () => {
                         },
                       }}
                       // eslint-disable-next-line no-undef
-                      onClick={() => handleCardClick(mentor.userId)} // Điều hướng đến chi tiết
+                      onClick={() => handleCardClick(mentor.user_id)} // Điều hướng đến chi tiết
                     >
                       <Box sx={{ flexShrink: 0 }}>
                         <CardMedia
@@ -227,7 +231,7 @@ const User = () => {
                   </Grid>
                 ))
             ) : (
-              <Typography sx={{ textAlign: 'center', width: '100%' }}>No mentors found</Typography>
+              <Typography sx={{ textAlign: 'center', width: '100%' }}>Không có người hướng dẫn nào...</Typography>
             )}
 
             <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -256,7 +260,7 @@ const User = () => {
                       },
                     }}
                     // eslint-disable-next-line no-undef
-                    onClick={() => handleCardClick(user.userId)} // Điều hướng đến chi tiết
+                    onClick={() => handleCardClick(user.id)} // Điều hướng đến chi tiết
                   >
                     <Box sx={{ flexShrink: 0 }}>
                       <CardMedia
@@ -315,20 +319,9 @@ const User = () => {
                 </Grid>
               ))
             ) : (
-              <Typography sx={{ textAlign: 'center', width: '100%' }}>No users found</Typography>
+              <Typography sx={{ textAlign: 'center', width: '100%' }}>Không có người dùng nào...</Typography>
             )}
           </Grid>
-
-          {/* Pagination Controls */}
-          {/* <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
-        <Button variant="contained" onClick={handlePreviousPage} disabled={currentPage === 1}>
-          <IconArrowBadgeLeft />
-        </Button>
-        <Typography sx={{ margin: '0 10px', alignSelf: 'center' }}>trang {currentPage}</Typography>
-        <Button variant="contained" onClick={handleNextPage} disabled={currentPage === totalPages}>
-          <IconArrowBadgeRight />
-        </Button>
-      </Box> */}
         </Box>
       </DashboardCard>
     </PageContainer>

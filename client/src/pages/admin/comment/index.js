@@ -8,7 +8,7 @@ import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Table from "src/examples/Tables/Table";
 import { articleColumns, questionColumns } from './data/authorsTableData';
 import ConfirmDialog from './data/formDeleteComment';
-import apis from "src/apis/commentApi";
+// import apis from "src/apis/commentApi";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
@@ -19,13 +19,13 @@ import { db } from 'src/config/firebaseconfig';
 function Comment() {
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
-  const [deleteId, setDeleteId] = useState(null);
+  const [deleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [page] = useState(0);
+  const [rowsPerPage] = useState(5);
   const [tabValue, setTabValue] = useState(0);
   const [articleRows, setArticleRows] = useState([]);
   const [questionRows, setQuestionRows] = useState([]);
@@ -57,7 +57,7 @@ function Comment() {
 
   const confirmDelete = async () => {
     try {
-      await apis.deleteComment(deleteId);
+      // await apis.deleteComment(deleteId);
       setRows(rows.filter((comment) => comment.id !== deleteId));
       setOpenDialog(false);
       setSnackbarMessage("Comment deleted successfully.");
@@ -71,16 +71,7 @@ function Comment() {
     }
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") return;
-    setSnackbarOpen(false);
-  };
-
   const removeHtmlTags = (html) => html?.replace(/<[^>]+>/g, '');
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
 
   const defaultImageUrl = "/path/to/default/image.png"; // Replace with your actual default image
 

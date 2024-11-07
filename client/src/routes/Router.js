@@ -24,7 +24,7 @@ const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestio
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
-const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')));
+const Shadow = Loadable(lazy(() => import('../')));
 const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
@@ -92,6 +92,7 @@ const renderRoutes = (role) => {
         { path: '/auth/forgot-password', element: <ForgotPassword /> },
         { path: '/auth/reset-password/:userId', element: <ResetPassword /> },
         { path: '/auth/inter', exact: true, element: <Inter /> },
+        { path: '/auth/mentor', exact: true, element: <Mentor /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     },
@@ -156,18 +157,14 @@ const renderRoutes = (role) => {
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
         { path: 'orders', exact: true, element: <Orders /> }, 
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
+        { path: 'addProDetaill/:course_id', exact: true, element: <AddProDetaill /> }, 
         { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
         { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
-        { path: '*', element: <Navigate to="/auth/404" /> },
-        { path: 'orders', exact: true, element: <Orders /> },
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
-        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> },
-        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
+
       ],
     });
   } else if (role === 'user') {
@@ -182,7 +179,7 @@ const renderRoutes = (role) => {
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
         { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
-        { path: '/mentor', exact: true, element: <Mentor /> },
+        // { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Box, Card, Button } from '@mui/material';
-import { db } from '../../config/firebaseconfig'; 
+import { db } from '../../config/firebaseconfig';
 import { collection, getDocs } from 'firebase/firestore'; // Import Firestore methods
 import PageContainer from 'src/components/container/PageContainer';
 import { useNavigate, Link } from 'react-router-dom';
@@ -81,15 +81,26 @@ const Inter = () => {
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6} lg={4}>
             <Card elevation={9} sx={{ p: 4 }}>
-              <h3 style={{ display: 'flex', justifyContent: 'center' }} className="text-center mb-4">
+              <h3
+                style={{ display: 'flex', justifyContent: 'center' }}
+                className="text-center mb-4"
+              >
                 Bạn quan tâm đến những nội dung nào?
               </h3>
-              <Box alignItems="center" justifyContent="center" mb={2} display="flex" flexWrap="wrap">
+              <Box
+                alignItems="center"
+                justifyContent="center"
+                mb={2}
+                display="flex"
+                flexWrap="wrap"
+              >
                 {categories.map((category) => (
                   <button
                     key={category.id}
                     type="button"
-                    className={`btn btn-outline-secondary m-2 bigger-btn ${selectedCategories.includes(category.id) ? 'selected' : ''}`}
+                    className={`btn btn-outline-secondary m-2 bigger-btn ${
+                      selectedCategories.includes(category.id) ? 'selected' : ''
+                    }`}
                     onClick={() => handleCategorySelect(category.id)}
                   >
                     {category.name} {/* Hiển thị tên danh mục */}
@@ -119,6 +130,9 @@ const Inter = () => {
             color: white;
             border-color: #007bff;
           }
+            .bigger-btn {
+      border-radius: 50px !important;
+}
         `}
       </style>
     </PageContainer>

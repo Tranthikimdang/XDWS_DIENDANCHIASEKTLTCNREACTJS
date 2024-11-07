@@ -1,49 +1,47 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:4000/api"; 
+// Địa chỉ cơ sở cho API
+const BASE_URL = "http://localhost:3000/api"; 
 
-const addUser = async (userData) => {
+// Users API
+const USERS_URL = `${BASE_URL}/users`;
+
+// Hàm API chung để xử lý các yêu cầu
+const apiRequest = async (method, url, data) => {
   try {
-    console.log("Sending data:", userData); // Log the data being sent
-    const response = await axios.post(`${API_URL}/users`, userData);
+    const response = await axios({ method, url, data });
     return response.data;
   } catch (error) {
-    console.error("Error in addUser:", error); // Log the error
-    throw error;
+    console.error(`Error in ${method.toUpperCase()} request to ${url}:`, error);
+    throw new Error(error.response?.data?.message || 'Request failed. Please try again.');
   }
 };
 
+// Users API
+const addUser = async (user) => apiRequest('post', USERS_URL, user);
+const getUsersList = async () => apiRequest('get', USERS_URL);
+const updateUser = async (id, updatedData) => apiRequest('put', `${USERS_URL}/${id}`, updatedData);
+const deleteUser = async (id) => apiRequest('delete', `${USERS_URL}/${id}`);
 
-const getList = async () => {
+// Upload hình ảnh lên server (nếu cần)
+const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+
   try {
-    const response = await axios.get(`${API_URL}/users`);
-    return response.data;
+    const response = await axios.post('/api/upload', formData); // Đảm bảo đường dẫn này đúng
+    return response.data.filename; // Trả về tên file hình ảnh
   } catch (error) {
-    throw error;
+    console.error("Error uploading image:", error);
+    throw new Error('Failed to upload image. Please try again.');
   }
 };
 
-const updateUser = async (id, userData) => {
-  try {
-    const response = await axios.put(`${API_URL}/users/${id}`, userData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-const deleteUser = async (id) => {
-  try {
-    const response = await axios.delete(`${API_URL}/users/${id}`);
-    return response.status === 204;
-  } catch (error) {
-    throw error;
-  }
-};
-
+// Xuất các hàm API
 export default {
   addUser,
-  getList,
+  getUsersList,
   updateUser,
   deleteUser,
+  uploadImage,
 };
