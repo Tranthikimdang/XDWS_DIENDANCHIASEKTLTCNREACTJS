@@ -8,7 +8,6 @@ import './detail.css';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import CourseApi from '../../../apis/CourseApI';
-import CateCourseApi from '../../../apis/Categories_courseApI';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -139,10 +138,20 @@ const ProductsDetail = () => {
   });
 
   const getEmbedLink = (videoDemo) => {
+    // Kiểm tra nếu link có dạng "/view", chuyển thành "/preview"
     if (videoDemo.includes("/view")) {
       return videoDemo.replace("/view", "/preview");
     }
-    return videoDemo; // Trả về videoDemo nếu không có "/view"
+  
+    // Kiểm tra nếu link là dạng link YouTube và chuyển thành dạng nhúng
+    if (videoDemo.includes("youtube.com") || videoDemo.includes("youtu.be")) {
+      const videoId = videoDemo.includes("youtube.com")
+        ? videoDemo.split("v=")[1] // Lấy ID từ link YouTube dài
+        : videoDemo.split("youtu.be/")[1]; // Lấy ID từ link YouTube ngắn
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  
+    return videoDemo; // Trả về videoDemo nếu không có thay đổi
   };
   return (
     <Box sx={{ padding: { xs: '10px' } }}>
