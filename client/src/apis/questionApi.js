@@ -1,19 +1,19 @@
 /* eslint-disable import/no-anonymous-default-export */
 import axios from "axios";
+const API_URL = "http://localhost:3000/api"; 
 
-const API_URL = "http://localhost:4000/api"; 
-const addQuestion = async (questions) => {
+const getList = async () => {
   try {
-    const response = await axios.post(`${API_URL}/questions`, questions);
+    const response = await axios.get(`${API_URL}/questions`);
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-const getList = async () => {
+const addQuestion = async (questions) => {
   try {
-    const response = await axios.get(`${API_URL}/questions`);
+    const response = await axios.post(`${API_URL}/questions`, questions);
     return response.data;
   } catch (error) {
     throw error;
@@ -45,7 +45,6 @@ const getQuestionDetails = async (id) => {
   }
 };
 
-
 const updateQuestion = async (id, updatedData) => {
   try {
     const response = await axios.put(`${API_URL}/questions/${id}`, updatedData);
@@ -65,8 +64,8 @@ const deleteQuestion = async (id) => {
 };
 
 export default {
-  addQuestion,
   getList,
+  addQuestion,
   getQuestionDetails,
   updateQuestion,
   deleteQuestion,

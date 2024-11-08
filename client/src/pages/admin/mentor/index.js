@@ -38,7 +38,7 @@ function Mentor() {
     const fetchMentor = async () => {
       setLoading(true);
       try {
-        const mentorSnapshot = await getDocs(collection(db, 'mentors'));
+        const mentorSnapshot = await getDocs(collection(db, 'mentor'));
         const mentorData = mentorSnapshot.docs.map((doc) => {
           return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
         });
@@ -93,7 +93,7 @@ function Mentor() {
   const confirmDelete = async () => {
     try {
       // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của mentor
-      const mentorRef = doc(db, "mentors", deleteId);
+      const mentorRef = doc(db, "mentor", deleteId);
       await deleteDoc(mentorRef); // Thực hiện xóa mentor từ Firestore
       // Cập nhật lại danh sách mentor sau khi xóa
       setRows(rows.filter((row) => row.id !== deleteId));
@@ -127,7 +127,7 @@ function Mentor() {
   //duyệt
   const handleApprove = async (id) => {
     try {
-      const mentorRef = doc(db, "mentors", id); // Tạo DocumentReference
+      const mentorRef = doc(db, "mentor", id); // Tạo DocumentReference
       await updateDoc(mentorRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
       // Cập nhật lại danh sách mentor
       setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));

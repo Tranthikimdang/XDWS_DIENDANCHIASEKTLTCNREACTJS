@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 // api.js
 import axios from "axios";
 
