@@ -20,8 +20,6 @@ import {
   IconBook2,
 } from '@tabler/icons';
 
-// import ProfileImg from 'src/assets/images/profile/user-1.jpg';
-
 const Profile = () => {
   const [anchorEl2, setAnchorEl2] = useState(null);
   const navigate = useNavigate();

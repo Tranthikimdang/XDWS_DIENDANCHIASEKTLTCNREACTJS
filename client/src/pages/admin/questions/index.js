@@ -17,7 +17,7 @@ import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 
-//firebase 
+//kết nối sql
 import { collection, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";

@@ -648,7 +648,7 @@ const Questions = () => {
                 <Box display="flex" alignItems="center" mb={2}>
                   <img
                     // eslint-disable-next-line no-undef
-                    src={currentUserImage || '../../assets/images/profile/user-1.jpg'}
+                    src={currentUserImage || '../../../src/assets/images/profile/user-1.jpg'}
                     alt="avatar"
                     style={{
                       width: 40,
@@ -659,7 +659,6 @@ const Questions = () => {
                   />
                   <Typography variant="h6">Đặt câu hỏi</Typography>
                 </Box>
-
                 {/* Post Content */}
                 <TextField
                   label="Hãy đặt câu hỏi?"
@@ -1561,7 +1560,7 @@ const Questions = () => {
                     >
                       <Box display="flex" alignItems="center">
                         <img
-                          src='../../assets/images/profile/user-1.jpg'// Replace with the correct image URL path
+                          src='/client/src/assets/images/profile/user-1.jpg'// Replace with the correct image URL path
                           alt='avatar'
                           style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
                         />
