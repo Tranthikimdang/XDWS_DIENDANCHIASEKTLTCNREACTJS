@@ -1,22 +1,20 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import Card from '@mui/material/Card';
 import { Link } from 'react-router-dom';
+import Card from '@mui/material/Card';
 import VuiBox from 'src/components/admin/VuiBox';
 import VuiTypography from 'src/components/admin/VuiTypography';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
 import Table from 'src/examples/Tables/Table';
 import authorsTableData from './data/authorsTableData';
-import ConfirmDialog from './data/FormDeleteUser';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Import từ Firebase
-import { db } from '../../../config/firebaseconfig'; // Đảm bảo bạn đã cấu hình Firebase
+import ConfirmDialog from './data/FormDeleteHashtag';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
-import UserApI from 'src/apis/UserApI';
-import './index.css';
+import { TextField, InputAdornment, IconButton } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import HashtagApi from 'src/apis/HashtagApI';
 
-function User() {
+function Hashtag() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
@@ -27,50 +25,47 @@ function User() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  // tim kiem
+  const [searchTerm, setSearchTerm] = useState(''); // New state for search input
 
-  
-  const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user ? user.id : null;
-  const userRole = user ? user.role : null;  // Lấy role của user từ localStorage
-  
-  // Fetch dữ liệu từ MySQL chỉ khi user không phải là admin hoặc userId không trùng với id
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchHashtags = async () => {
+      setLoading(true);
       try {
-        const users = await UserApI.getUsersList();  // Gọi API để lấy dữ liệu người dùng từ MySQL
-        console.log(users);
-  
-        // Lọc những tài khoản có role là admin và id trùng với userId trong localStorage
-        const filteredUsers = users.data.users.filter(user => !(user.role === 'admin' && user.id === userId));
-  
-        setRows(filteredUsers);  // Cập nhật danh sách người dùng đã lọc
-        console.log('Filtered users:', filteredUsers);
+        const hashtagsList = await HashtagApi.getHashtags();
+        console.log(hashtagsList);
+        
+        setRows(hashtagsList.data.hashtags);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching hashtags:', error);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchUsers();
-  }, [userRole, userId]); 
+
+    fetchHashtags();
+  }, []);
 
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
   };
+  // Define cancelDelete function to close the dialog
+  const cancelDelete = () => {
+    setOpenDialog(false);
+  };
 
   const confirmDelete = async (deleteId) => {
     try {
-      await UserApI.deleteUser(deleteId); // Xóa người dùng từ MySQL
-      setRows(rows.filter((user) => user.id !== deleteId));
+      await HashtagApi.deleteHashtag(deleteId);
+      setRows(rows.filter((row) => row.id !== deleteId));
       setOpenDialog(false);
-      setSnackbarMessage('User deleted successfully.');
+      setSnackbarMessage('Hashtag deleted successfully.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
-      console.error('Error deleting user:', error);
-      setSnackbarMessage('Failed to delete user.');
+      console.error('Error deleting hashtag:', error);
+      setSnackbarMessage('Failed to delete the hashtag.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
@@ -83,10 +78,6 @@ function User() {
     setSnackbarOpen(false);
   };
 
-  const cancelDelete = () => {
-    setOpenDialog(false);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -94,6 +85,40 @@ function User() {
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
+  };
+
+  // Lọc các hàng dựa trên thuật ngữ tìm kiếm
+  const filteredRows = rows.filter((row) =>
+    row.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+  // update
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt);
+      const now = new Date();
+      const diff = now - date;
+
+      const seconds = Math.floor(diff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
   };
 
   return (
@@ -104,27 +129,49 @@ function User() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                User table
+                Hashtag Table
               </VuiTypography>
-              <Link to="/admin/addUser">
+              <Link to="/admin/addhashtag">
                 <button className="text-light btn btn-outline-info" type="button">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
                     height="16"
                     fill="currentColor"
-                    className="bi bi-plus"
+                    class="bi bi-plus"
                     viewBox="0 0 16 16"
                   >
                     <path
                       fillRule="evenodd"
-                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
+                      d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
                     />
                   </svg>
                   Add
                 </button>
               </Link>
             </VuiBox>
+
+            <VuiBox mb={2} display="flex" justifyContent="flex-end">
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Search hashtag..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IconButton>
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                  sx: { backgroundColor: 'white', borderRadius: '4px' },
+                }}
+                sx={{ width: '250px' }}
+              />
+            </VuiBox>
+
             {loading ? (
               <div
                 style={{
@@ -141,28 +188,15 @@ function User() {
                 <VuiBox>
                   <Table
                     columns={columns}
-                    rows={rows
+                    rows={filteredRows
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => ({
-                        ...row,
                         no: page * rowsPerPage + index + 1,
-                        avatar: (
-                          <div style={{ textAlign: 'center' }}>
-                            <img
-                              src={row.imageUrl || '/default-avatar.png'}
-                              alt={row.name}
-                              style={{
-                                width: '50px',
-                                height: '50px',
-                                borderRadius: '50%',
-                                objectFit: 'cover',
-                              }}
-                            />
-                          </div>
-                        ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
+                        name: row.name,
+                        updated_at: formatUpdatedAt(row.updated_at),
                         action: (
                           <div>
-                            <Link to={`/admin/editUser/${row.id}`}>
+                            <Link to={`/admin/edithashtag/${row.id}`}>
                               <button
                                 className="text-light btn btn-outline-warning me-2"
                                 type="button"
@@ -200,44 +234,33 @@ function User() {
                           </div>
                         ),
                       }))}
+                    pagination={{
+                      count: filteredRows.length,
+                      page: page,
+                      rowsPerPage: rowsPerPage,
+                      onPageChange: handleChangePage,
+                      onRowsPerPageChange: handleChangeRowsPerPage,
+                    }}
                   />
                 </VuiBox>
-                <div className="d-flex justify-content-center p-2 custom-pagination">
-                  <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
-                    <button
-                      className="btn btn-light"
-                      onClick={() => handleChangePage(null, page - 1)}
-                      disabled={page === 0}
-                    >
-                      &laquo;
-                    </button>
-                    <span className="btn btn-light disabled">
-                      Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
-                    </span>
-                    <button
-                      className="btn btn-light"
-                      onClick={() => handleChangePage(null, page + 1)}
-                      disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
-                    >
-                      &raquo;
-                    </button>
-                  </div>
-                </div>
               </>
             )}
           </Card>
         </VuiBox>
       </VuiBox>
+
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
-        onConfirm={() => confirmDelete(deleteId)}
+        onConfirm={confirmDelete}
+        itemId={deleteId}
       />
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
           {snackbarMessage}
@@ -247,4 +270,4 @@ function User() {
   );
 }
 
-export default User;
+export default Hashtag;

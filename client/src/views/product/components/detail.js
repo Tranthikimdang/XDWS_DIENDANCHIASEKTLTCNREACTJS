@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Grid, Box, Typography, CircularProgress } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Lấy id từ URL
 import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore'; // Sử dụng để lấy dữ liệu cụ thể từ Firestore
@@ -7,6 +7,8 @@ import { formatDistanceToNow } from 'date-fns'; // Format ngày
 import './detail.css';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import CourseApi from '../../../apis/CourseApI';
+import CateCourseApi from '../../../apis/Categories_courseApI';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -19,33 +21,64 @@ const ProductsDetail = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
 
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+      const handleLoad = () => {
+          const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
+
+          // Tìm và ẩn các nút cụ thể trong iframe
+          const header = iframeDoc.querySelector('.drive-viewer-header');
+          const downloadBtn = iframeDoc.querySelector('.drive-viewer-download');
+          const btn = iframeDoc.querySelector('.ndfHFb-c4YZDc-Wrql6b');
+          if (btn) btn.style.display = 'none';
+          if (header) header.style.display = 'none';
+          if (downloadBtn) downloadBtn.style.display = 'none';
+      };
+
+      const iframeElement = iframeRef.current;
+      if (iframeElement) {
+          iframeElement.addEventListener('load', handleLoad);
+      }
+
+      // Cleanup event listener
+      return () => {
+          if (iframeElement) {
+              iframeElement.removeEventListener('load', handleLoad);
+          }
+      };
+  }, []);
+
   // Lấy dữ liệu sản phẩm theo ID từ Firestore
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const productRef = doc(db, 'products', id); // Lấy reference của sản phẩm
-        const productSnap = await getDoc(productRef); // Fetch dữ liệu từ Firestore
+        const response = await CourseApi.getCoursesList(); // Lấy toàn bộ dữ liệu khóa học
+        const allCourses = response.data.courses;
+        
+        // Tìm khóa học có id phù hợp sau khi chuyển đổi id từ useParams sang số
+        const foundCourse = allCourses.find((course) => course.id === Number(id));
 
-        if (productSnap.exists()) {
-          // Lấy dữ liệu sản phẩm và thêm id vào
-          const productData = { id: productSnap.id, ...productSnap.data() };
-          setProduct(productData);
-          console.log(productData);
+  
+        if (foundCourse) {
+          setProduct(foundCourse);
         } else {
-          console.error('Sản phẩm không tồn tại');
+          console.error('Không tìm thấy khóa học với ID này');
         }
       } catch (error) {
-        console.error('Lỗi khi lấy sản phẩm:', error);
+        console.error('Lỗi khi lấy danh sách khóa học:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     if (id) {
-      fetchProduct(); // Gọi hàm nếu có ID
+      fetchProduct();
     }
   }, [id]);
+  
+  
 
 
   const addToCart = async (product) => {
@@ -92,9 +125,12 @@ const ProductsDetail = () => {
     }
   };
   // Hàm định dạng ngày
-  const formatDate = (timestamp) => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp.seconds * 1000);
+  const formatDate = (createdAt) => {
+    if (!createdAt) return 'N/A';
+  
+    const date = new Date(createdAt);
+    if (isNaN(date)) return 'Invalid date';
+  
     return formatDistanceToNow(date, { addSuffix: true });
   };
 
@@ -104,7 +140,6 @@ const ProductsDetail = () => {
 
   const getEmbedLink = (videoDemo) => {
     if (videoDemo.includes("/view")) {
-      // Thay thế "/view" bằng "/preview" để tạo link nhúng
       return videoDemo.replace("/view", "/preview");
     }
     return videoDemo; // Trả về videoDemo nếu không có "/view"
@@ -138,6 +173,7 @@ const ProductsDetail = () => {
                           __html: `<iframe src="${getEmbedLink(product.video_demo)}" width="640" height="480" allow="autoplay" allowfullscreen></iframe>`,
                         }}
                       ></div>
+                      <div class="overlay" id="overlay"></div>
                     </div>
 
                     {/* Cột hiển thị chi tiết sản phẩm */}

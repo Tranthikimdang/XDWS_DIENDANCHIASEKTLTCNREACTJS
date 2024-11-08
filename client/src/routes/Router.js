@@ -75,7 +75,10 @@ const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUs
 const MentorAdmin = Loadable(lazy(() => import('../pages/admin/mentor')));
 const FormViewMentor = Loadable(lazy(() => import('../pages/admin/mentor/data/FormViewMentor')));
 
-
+const HasgtagAdmin = Loadable(lazy(() => import('../pages/admin/hashtag/')));
+const AddHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormAddHashtag')));
+const EditHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormEditHashtag')));
+ 
 
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
@@ -163,6 +166,9 @@ const renderRoutes = (role) => {
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
+        { path: 'hashtag', exact: true, element: <HasgtagAdmin/> },
+        { path: 'addhashtag', exact: true, element: <AddHasgtag /> },
+        { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
 
       ],

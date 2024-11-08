@@ -14,10 +14,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-// Firebase
-import { collection, getDocs, addDoc, where, query } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig';
 
+import CourseApi from '../../apis/CourseApI';
+import CateCourseApi from '../../apis/Categories_courseApI';
 import './index.css';
 
 // Tạo Alert để hiển thị snackbar
@@ -25,7 +24,7 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-const Products = () => {
+const Course = () => {
   const navigate = useNavigate();
   const [cates, setCates] = useState([]);
   const [catesMap, setCatesMap] = useState({});
@@ -46,9 +45,11 @@ const Products = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setProducts(productsData);
+        const response = await CourseApi.getCoursesList();
+        const course = response.data.courses;
+        console.log(course);
+        
+        setProducts(course);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -58,19 +59,17 @@ const Products = () => {
     fetchProducts();
   }, []);
 
-  // Fetch categories from Firestore
+  // Fetch categories using API
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories_product'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCates(categoriesData);
+        const response = await CateCourseApi.getList();
+        const cate = response;
+        console.log(cate);
+        setCates(cate);
 
-        const categoriesMap = categoriesData.reduce((map, category) => {
+        const categoriesMap = response.data.reduce((map, category) => {
           map[category.id] = category.name;
           return map;
         }, {});
@@ -104,27 +103,20 @@ const Products = () => {
 
   const addToCart = async (product) => {
     if (userId) {
-
       try {
-        const querySnapshot = await getDocs(
-          query(
-            collection(db, 'orders'),
-            where('user_id', '==', userId),
-            where('product_id', '==', product.id),
-          ),
-        );
-
-        if (!querySnapshot.empty) {
+        const existingOrder = await CourseApi.checkOrderExists(userId, product.id);
+        
+        if (existingOrder.data.exists) {
           setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
           setSnackbarSeverity('warning');
           setSnackbarOpen(true);
         } else {
-          await addDoc(collection(db, 'orders'), {
-            user_id: userId,
-            product_id: product.id,
-            total: 'total',
-            note: '',
-            order_day: new Date(),
+          await CourseApi.addToCart({ 
+            user_id: userId, 
+            product_id: product.id, 
+            total: 'total', 
+            note: '', 
+            order_day: new Date() 
           });
 
           setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
@@ -132,7 +124,7 @@ const Products = () => {
           setSnackbarOpen(true);
         }
       } catch (error) {
-        console.error('Error adding product to cart: ', error);
+        console.error('Error adding product to cart:', error);
         setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
         setSnackbarSeverity('error');
         setSnackbarOpen(true);
@@ -228,7 +220,7 @@ const Products = () => {
                                   }}
                                 >
                                   <img
-                                    src={product.image_url}
+                                    src={product.image}
                                     className="w-100"
                                     alt={product.name}
                                     style={{
@@ -369,4 +361,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default Course;

@@ -27,15 +27,18 @@ import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
 import Mentor from "src/pages/admin/mentor";
 import FormViewMentor from "src/pages/admin/mentor/data/FormViewMentor";
 
-
 import Orders from 'src/pages/admin/orders';
+
+import HashtagAdmin from 'src/pages/admin/hashtag';
+import AddHashtag from "../pages/admin/hashtag/data/FormAddHashtag"
+import EditHashtag from "../pages/admin/hashtag/data/FormEditHashtag"
 
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
 import { IoHome } from "react-icons/io5";
 import { BsFillPersonPlusFill, BsList } from "react-icons/bs";
-import { BsFillFileEarmarkTextFill } from "react-icons/bs";
+import { BsFillFileEarmarkTextFill, BsHash } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
 import { FaQuestionCircle, FaYoutube } from "react-icons/fa";
@@ -88,7 +91,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Danh mục sản phẩm",
+    name: "Danh mục khóa học",
     key: "categoryPro",
     route: "/admin/categoryPro",
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
@@ -97,7 +100,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý sản phẩm",
+    name: "Quản lý khóa học",
     key: "products",
     route: "/admin/products",
     icon: <FaYoutube size="15px" color="inherit" />,
@@ -131,6 +134,15 @@ const routes = [
     component: Orders,
     noCollapse: true,
   },
+  {
+    type: "collapse",
+    name: "Quản lý hashtag",
+    key: "hashtag",
+    route: "/admin/hashtag",
+    icon: <BsHash size="15px" color="inherit" />,
+    component: HashtagAdmin,
+    noCollapse: true,
+  },
   { type: "title", title: "Account Pages", key: "account-pages" },
   {
     type: "collapse",
@@ -141,15 +153,6 @@ const routes = [
     // component: Profile,
     noCollapse: true,
   },
-  // {
-  //   type: "collapse",
-  //   name: "Logout",
-  //   key: "sign-in",
-  //   route: "/admin/authentication/sign-in",
-  //   icon: <IoIosDocument size="15px" color="inherit" />,
-  //   // component: SignIn,
-  //   noCollapse: true,
-  // },
 
   {
     key: "commentDetail",
@@ -340,6 +343,18 @@ const routes = [
     key: "formviewmentor",
     route: "/admin/formviewmentor/:id", // Thêm :id để định tuyến theo params
     component: FormViewMentor,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'AddHashTag',
+    route: '/admin/addhashtag',
+    component: AddHashtag,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'EditHashTag',
+    route: '/admin/edithashtag/:id',
+    component: EditHashtag,
     hidden: true, // Ẩn mục này
   },
 ];
