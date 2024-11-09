@@ -75,12 +75,15 @@ const EditUser = Loadable(lazy(() => import('../pages/admin/user/data/FormEditUs
 const MentorAdmin = Loadable(lazy(() => import('../pages/admin/mentor')));
 const FormViewMentor = Loadable(lazy(() => import('../pages/admin/mentor/data/FormViewMentor')));
 
+const HasgtagAdmin = Loadable(lazy(() => import('../pages/admin/hashtag/')));
+const AddHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormAddHashtag')));
+const EditHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormEditHashtag')));
+ 
+
+
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
-
-
 const renderRoutes = (role) => {
-  
   const routes = [
     {
       path: '/auth',
@@ -157,18 +160,17 @@ const renderRoutes = (role) => {
         { path: 'addUser', exact: true, element: <AddUser /> }, // Add User route
         { path: 'editUser/:id', exact: true, element: <EditUser /> }, // Edit User route
         { path: 'orders', exact: true, element: <Orders /> }, 
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> }, 
-        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> }, 
+        { path: 'addProDetaill/:course_id', exact: true, element: <AddProDetaill /> }, 
+        { path: 'productDetail/:course_id', exact: true, element: <ProDetaill /> }, 
         { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
-        { path: '*', element: <Navigate to="/auth/404" /> },
-        { path: 'orders', exact: true, element: <Orders /> },
-        { path: 'addProDetaill/:product_id', exact: true, element: <AddProDetaill /> },
-        { path: 'productDetail/:id', exact: true, element: <ProDetaill /> },
-        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> },
+        { path: 'hashtag', exact: true, element: <HasgtagAdmin/> },
+        { path: 'addhashtag', exact: true, element: <AddHasgtag /> },
+        { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
+
       ],
     });
   } else if (role === 'user') {

@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../../../../config/firebaseconfig.js';
 import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
+import api from '../../../../apis/CourseDetailApI';
 
 function EditProductDetail() {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
@@ -14,16 +13,18 @@ function EditProductDetail() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-
   // Truy xuất chi tiết sản phẩm dựa trên detailId
   useEffect(() => {
     const fetchProductDetail = async () => {
       try {
+        // Lấy toàn bộ dữ liệu
+        const allData = await api.getCourseDetailsList();
+        console.log(allData);
         
-        const docRef = doc(db, 'product_detail', detailId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        // Tìm chi tiết sản phẩm có id trùng với detailId
+        const data = allData.data.courseDetails.find(item => item.id === parseInt(detailId));
+        
+        if (data) {
           setValue('no', data.no);
           setValue('name', data.name);
           setValue('video', data.video);
@@ -42,11 +43,13 @@ function EditProductDetail() {
     fetchProductDetail();
   }, [detailId, setValue]);
 
+  const smallFontStyle = {
+    fontSize: '0.9rem',
+  };
   // Xử lý cập nhật chi tiết sản phẩm
   const onSubmit = async (data) => {
     try {
-      const docRef = doc(db, 'product_detail', detailId);
-      await updateDoc(docRef, {
+      await api.updateCourseDetail(detailId, {
         no: data.no,
         name: data.name,
         video: data.video,
@@ -76,7 +79,7 @@ function EditProductDetail() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Số thứ tự</label>
+              <label className="text-light form-label" style={smallFontStyle}>Số thứ tự</label>
               <input
                 className={`form-control bg-dark text-light ${errors.no ? 'is-invalid' : ''}`}
                 {...register('no', {
@@ -89,7 +92,7 @@ function EditProductDetail() {
               )}
             </div>
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Tên</label>
+              <label className="text-light form-label" style={smallFontStyle}>Tên</label>
               <input
                 className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
                 {...register('name', { required: 'Tên là bắt buộc.' })}
@@ -101,7 +104,7 @@ function EditProductDetail() {
           </div>
           <div className="row">
             <div className="col-12 mb-3">
-              <label className="text-light form-label">Video</label>
+              <label className="text-light form-label" style={smallFontStyle}>Video</label>
               <input
                 className={`form-control bg-dark text-light ${errors.video ? 'is-invalid' : ''}`}
                 {...register('video', { required: 'Liên kết video là bắt buộc.' })}
@@ -111,7 +114,7 @@ function EditProductDetail() {
               )}
             </div>
           </div>
-          <button type="submit" className="btn btn-primary mt-3">Cập nhật chi tiết sản phẩm</button>
+          <button type="submit" className="btn btn-primary mt-3" style={smallFontStyle}>Cập nhật chi tiết sản phẩm</button>
         </form>
         <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
           <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>

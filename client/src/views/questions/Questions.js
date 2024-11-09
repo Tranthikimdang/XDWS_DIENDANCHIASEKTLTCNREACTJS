@@ -648,14 +648,17 @@ const Questions = () => {
                 <Box display="flex" alignItems="center" mb={2}>
                   <img
                     // eslint-disable-next-line no-undef
-                    src={currentUserImage || 'default-image-url.jpg'}
-                    width="40px"
-                    alt="User Avatar"
-                    style={{ borderRadius: '50%', marginRight: '10px' }}
+                    src={currentUserImage || '../../../src/assets/images/profile/user-1.jpg'}
+                    alt="avatar"
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: '50%',
+                      marginRight: 8,
+                    }}
                   />
                   <Typography variant="h6">Đặt câu hỏi</Typography>
                 </Box>
-
                 {/* Post Content */}
                 <TextField
                   label="Hãy đặt câu hỏi?"
@@ -806,7 +809,7 @@ const Questions = () => {
                         <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
                           <Box display="flex" alignItems="center">
                             <img
-                              src={users?.find(u => question?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                              src={users?.find(u => question?.user_id === u.id)?.imageUrl || '../../assets/images/profile/user-1.jpg'}
                               alt="Author"
                               style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                             />
@@ -978,7 +981,7 @@ const Questions = () => {
                                   }}
                                 >
                                   <img
-                                    src={image}
+                                    src={image||'../../assets/images/profile/user-1.jpg'}
                                     alt=""
                                     style={{ width: '100%', height: 'auto', borderRadius: '8px' }}
                                   />
@@ -1052,7 +1055,7 @@ const Questions = () => {
                               {/* Avatar và Text Input */}
                               <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
                                 <img
-                                  src={currentUserImage || 'default-image-url.jpg'}
+                                  src={currentUserImage || '../../assets/images/profile/user-1.jpg'}
                                   width="30px"
                                   alt="User Avatar"
                                   style={{ borderRadius: '50%', marginRight: '10px' }}
@@ -1185,7 +1188,7 @@ const Questions = () => {
                               <Box key={comment.id} sx={{ mt: 2 }}>
                                 <Box display="flex" alignItems="center">
                                   <img
-                                    src={currentUserImage || 'default-image-url.jpg'}
+                                    src={currentUserImage || '../../assets/images/profile/user-1.jpg'}
                                     alt="Commenter Avatar"
                                     style={{ borderRadius: '50%', marginRight: '10px' }}
                                     width="30px"
@@ -1211,7 +1214,7 @@ const Questions = () => {
                                     {comment.imageUrls.map((imageUrl, index) => (
                                       <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                                         <img
-                                          src={imageUrl}
+                                          src={imageUrl|| '../../assets/images/profile/user-1.jpg'}
                                           alt={`Comment image ${index + 1}`}
                                           style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
                                         />
@@ -1279,7 +1282,7 @@ const Questions = () => {
                                   <Box sx={{ mt: 2 }}>
                                     <Box display="flex" alignItems="center">
                                       <img
-                                        src={currentUserImage || 'default-image-url.jpg'}
+                                        src={currentUserImage ||'../../assets/images/profile/user-1.jpg'}
                                         width="30px"
                                         alt="User  Avatar"
                                         style={{ borderRadius: '50%', marginRight: '10px' }}
@@ -1397,7 +1400,7 @@ const Questions = () => {
                                   <Box key={reply.id} sx={{ pl: 4, mt: 2 }}>
                                     <Box display="flex" alignItems="center">
                                       <img
-                                        src={currentUserImage || 'default-image-url.jpg'}
+                                        src={currentUserImage ||'../../assets/images/profile/user-1.jpg'}
                                         alt="Commenter Avatar"
                                         style={{ borderRadius: '50%', marginRight: '10px' }}
                                         width="20px"
@@ -1422,7 +1425,7 @@ const Questions = () => {
                                         {reply.imageUrls.map((imageUrl, index) => (
                                           <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                                             <img
-                                              src={imageUrl}
+                                              src={imageUrl||'../../assets/images/profile/user-1.jpg'}
                                               alt={`Reply image ${index + 1}`}
                                               style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
                                             />
@@ -1529,7 +1532,57 @@ const Questions = () => {
                 backgroundColor: '#fff',
               }}
             >
-              {/* code theo doi nguoi dung o day */}
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6">Theo dõi người dùng khác</Typography>
+                <IconButton>
+                  <MoreHorizIcon />
+                </IconButton>
+              </Box>
+              <hr style={{ border: 'none', height: '1px', backgroundColor: '#007bff', margin: '1px 0' }} />
+
+              {/* Follow List */}
+              <List>
+                {[
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                ].map((name, index) => (
+                  <ListItem key={index} sx={{ padding: 0 }}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      width="100%"
+                    >
+                      <Box display="flex" alignItems="center">
+                        <img
+                          src='/client/src/assets/images/profile/user-1.jpg'// Replace with the correct image URL path
+                          alt='avatar'
+                          style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
+                        />
+                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
+                          {name}
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        sx={{
+                          textTransform: 'none',
+                          padding: '2px 10px',
+                          fontSize: '0.8rem',
+                          borderRadius: '16px',
+                        }}
+                      >
+                        + Theo dõi
+                      </Button>
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
             </Box>
             {/* Popular Articles Section */}
             <Box
@@ -1570,8 +1623,8 @@ const Questions = () => {
                     >
                       <Box display="flex" alignItems="center" onClick={() => handleCardClick(article.id)}>
                         <img
-                          src={article.authorImage || 'http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg'} // Đường dẫn đến ảnh tác giả hoặc ảnh mặc định
-                          alt={article.author}
+                          src={users?.find(u=>article?.user_id===u.id)?.imageUrl || '../../assets/images/profile/user-1.jpg'} // Đường dẫn đến ảnh tác giả hoặc ảnh mặc định
+                          alt="avatar"
                           style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
                         />
                         <Box>

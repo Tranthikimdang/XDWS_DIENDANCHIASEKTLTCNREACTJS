@@ -14,9 +14,8 @@ import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 
-
 //firebase 
-import { collection, getDocs, query, where,updateDoc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
 
@@ -36,47 +35,45 @@ function Mentor() {
 
   // Fetch mentor from Firestore
   useEffect(() => {
-  const fetchMentorsAndUsers = async () => {
-    setLoading(true);
-    try {
-      // Fetch mentors from mentors collection
-      const mentorsQuery = query(collection(db, "mentors"));
-      const mentorsSnapshot = await getDocs(mentorsQuery);
-      const mentorsList = mentorsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    const fetchMentor = async () => {
+      setLoading(true);
+      try {
+        const mentorSnapshot = await getDocs(collection(db, 'mentor'));
+        const mentorData = mentorSnapshot.docs.map((doc) => {
+          return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
+        });
+        setRows(mentorData); // Lưu dữ liệu vào state
+      } catch (error) {
+        console.error("Lỗi khi tải mentor:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMentor();
+  }, []);
 
-      // Fetch users with role 'mentor' from users collection
-      const usersQuery = query(collection(db, "users"), where("role", "==", "mentor"));
-      const usersSnapshot = await getDocs(usersQuery);
-      const usersList = usersSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+  // Fetch users from Firebase
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const usersList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setUsers(usersList);
+      } catch (error) {
+        console.error("Lỗi khi tìm kiếm người dùng:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      // Combine mentors and users data
-      const combinedList = mentorsList.map((mentor) => {
-        const user = usersList.find((user) => user.id === mentor.user_id);
-        return {
-          ...mentor,
-          user: user || {},
-        };
-      });
+    fetchUsers();
+  }, []);
 
-      setUsers(combinedList);
-    } catch (error) {
-      console.error("Error fetching mentors and users:", error);
-      setSnackbarMessage("Failed to fetch mentors and users. Please try again later.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  fetchMentorsAndUsers();
-}, []);
 
   const handleView = async (id) => {
     try {
@@ -96,7 +93,7 @@ function Mentor() {
   const confirmDelete = async () => {
     try {
       // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của mentor
-      const mentorRef = doc(db, "mentors", deleteId);
+      const mentorRef = doc(db, "mentor", deleteId);
       await deleteDoc(mentorRef); // Thực hiện xóa mentor từ Firestore
       // Cập nhật lại danh sách mentor sau khi xóa
       setRows(rows.filter((row) => row.id !== deleteId));
@@ -130,7 +127,7 @@ function Mentor() {
   //duyệt
   const handleApprove = async (id) => {
     try {
-      const mentorRef = doc(db, "mentors", id); // Tạo DocumentReference
+      const mentorRef = doc(db, "mentor", id); // Tạo DocumentReference
       await updateDoc(mentorRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
       // Cập nhật lại danh sách mentor
       setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
