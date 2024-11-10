@@ -13,10 +13,11 @@ import ConfirmDialog from './data/FormDeleteProduct';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
+//sql
 import api from '../../../apis/CourseApI';
 import apiUser from '../../../apis/UserApI';
 
-//firebase
+
 
 function Course() {
   const { columns } = authorsProductData;
