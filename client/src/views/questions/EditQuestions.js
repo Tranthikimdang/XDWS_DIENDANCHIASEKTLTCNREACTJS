@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CodeIcon from '@mui/icons-material/Code';
@@ -6,15 +7,13 @@ import {
   Alert,
   Box,
   Button,
-  FormControl,
-  FormHelperText,
-  InputLabel,
   Snackbar,
   TextField,
   Typography,
 } from '@mui/material';
+// eslint-disable-next-line no-unused-vars
 import { da } from 'date-fns/locale';
-import { addDoc, collection, doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -53,10 +52,10 @@ const Questions = () => {
           setQuestionData(questionData); // Gán dữ liệu vào state
           console.log(questionData);
         } else {
-          console.log('No such document!');
+          console.log('Không có tài liệu nào như vậy!');
         }
       } catch (error) {
-        console.error('Error fetching question by ID:', error);
+        console.error('Lỗi khi tìm câu hỏi theo ID:', error);
       }
     };
 
@@ -173,11 +172,11 @@ const Questions = () => {
         const docRef = doc(db, 'questions', id);
         await updateDoc(docRef, dataToSubmit);
         setSnackbarOpen(true);
-        setSnackbarMessage('Questions updated successfully.');
+        setSnackbarMessage('Cập nhật câu hỏi thành công.');
         setSnackbarSeverity("success");
-         setTimeout(() => {
-        navigate(-1); // Quay lại trang trước sau khi Snackbar đã hiển thị
-      }, 2000);
+        setTimeout(() => {
+          navigate(-1); // Quay lại trang trước sau khi Snackbar đã hiển thị
+        }, 2000);
         e.target.reset();
       } catch (error) {
         console.error('Lỗi khi gửi dữ liệu lên Firestore:', error);
@@ -311,7 +310,7 @@ const Questions = () => {
                     <img
                       key={index}
                       src={url}
-                      alt={`Uploaded image ${index}`}
+                      alt="không có hình ảnh nào"
                       width="100px"
                       height="100px"
                       style={{ borderRadius: '8px' }}
@@ -324,9 +323,10 @@ const Questions = () => {
                 File tải lên:
               </Typography>
               <Box flex={1}>
-                {questionData.fileUrls &&
+                {questionData.fileUrls && questionData.fileUrls.length > 0 && questionData.fileUrls.some(url => decodeURIComponent(url).split('/').pop().split('?')[0] !== 'uploads') ? (
                   questionData.fileUrls.map((url, index) => {
-                    return (
+                    const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
+                    return fileName !== 'uploads' ? (
                       <a
                         key={index}
                         href={url}
@@ -339,12 +339,18 @@ const Questions = () => {
                           marginRight: '10px',
                         }}
                       >
-                        {decodeURIComponent(url).split('/').pop().split('?')[0]}
+                        {fileName}
                       </a>
-                    );
-                  })}
+                    ) : null;
+                  })
+                ) : (
+                  <Typography variant="caption" sx={{ color: '#fff', marginRight: '10px' }}>
+                    Không có file được tải lên
+                  </Typography>
+                )}
               </Box>
             </Box>
+
             <Box mt={2}>
               <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
                 Code tải lên
@@ -461,11 +467,11 @@ const Questions = () => {
       </Box>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>

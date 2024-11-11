@@ -7,9 +7,9 @@ import Button from '@mui/material/Button';
 import VuiTypography from "src/components/admin/VuiTypography";
 
 
-function ConfirmDialog({ open, onClose, onConfirm, user_id }) {
+function ConfirmDialog({ open, onClose, onConfirm, questions }) {
   const handleConfirm = () => {
-    onConfirm();
+    onConfirm(questions);
     onClose();
   };
   
@@ -19,7 +19,7 @@ function ConfirmDialog({ open, onClose, onConfirm, user_id }) {
       <DialogTitle>Xác nhận xóa</DialogTitle>
       <DialogContent>
         <VuiTypography variant="body2">
-        Bạn có chắc chắn muốn xóa tiêu đề câu hỏi không? "{user_id}"?
+        Bạn có chắc chắn muốn xóa câu hỏi"{questions}" không?
         </VuiTypography>
       </DialogContent>
       <DialogActions>

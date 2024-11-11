@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Card from "@mui/material/Card";
@@ -10,10 +11,7 @@ import authorsTableData from "./data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
-
-import { collection, getDocs } from "firebase/firestore";
-import   { db, storage }  from '../../../config/firebaseconfig'; // Nhập đúng
-import { doc, deleteDoc } from "firebase/firestore"; // Import deleteDoc từ Firebase Firestore
+import api from "../../../apis/Categories_courseApI";
 
 
 function Category() {
@@ -28,19 +26,21 @@ function Category() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const handleEdit = (id) => {
-    console.log("Edit button clicked", id);
-  };
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "categories_product"));
-        const categoriesList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setRows(categoriesList);
+        const categoriesList = await api.getList(); // Lấy danh sách từ API
+        if (Array.isArray(categoriesList)) {
+          categoriesList.sort((a, b) => {
+            const dateA = new Date(a.updated_at);
+            const dateB = new Date(b.updated_at);
+            return dateB - dateA; // Sắp xếp theo ngày cập nhật
+          });
+          setRows(categoriesList);
+        } else {
+          console.error("categoriesList is not an array:", categoriesList);
+        }
       } catch (error) {
         console.error("Error fetching categories:", error);
       } finally {
@@ -58,24 +58,22 @@ function Category() {
   };
 
   const confirmDelete = async (deleteId) => {
+    setLoading(true); // Bắt đầu trạng thái loading
     try {
-      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của cate
-      const articleRef = doc(db, "categories_product", deleteId);
-      await deleteDoc(articleRef); // Thực hiện xóa cate từ Firestore
-
-      // Cập nhật lại danh sách cate sau khi xóa
-      setRows(rows.filter((row) => row.id !== deleteId));
-
-      // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
-      setOpenDialog(false);
-      setSnackbarMessage("Article deleted successfully.");
+      await api.deleteCategory(deleteId); // Gọi API để xóa danh mục
+      // Lấy lại danh sách danh mục từ API
+      const categoriesList = await api.getList();
+      setRows(categoriesList);
+      setSnackbarMessage("Category deleted successfully.");
       setSnackbarSeverity("success");
-      setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error deleting article:", error);
-      setSnackbarMessage("Failed to delete the article.");
+      console.error("Error deleting category:", error);
+      setSnackbarMessage("Failed to delete the category.");
       setSnackbarSeverity("error");
+    } finally {
+      setOpenDialog(false);
       setSnackbarOpen(true);
+      setLoading(false); // Kết thúc trạng thái loading
     }
   };
 
@@ -94,16 +92,12 @@ function Category() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
   
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
       const now = new Date();
       const diff = now - date; // Tính toán khoảng cách thời gian
   
@@ -127,6 +121,8 @@ function Category() {
   
     return updatedAtString;
   };
+  
+
 
   return (
     <DashboardLayout>
@@ -187,7 +183,6 @@ function Category() {
               <Table
                 columns={columns}
                 rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                  console.log(row);
                   return {
                     no: page * rowsPerPage + index + 1,
                     name: row.name,
@@ -197,8 +192,6 @@ function Category() {
                         <Link  to={`/admin/editCatePro/${row.id}`}>
                           <button className="text-light btn btn-outline-warning me-2" 
                           type="button">
-                      
-
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
                             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
                           </svg>

@@ -3,12 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
-import { db, storage } from '../../config/firebaseconfig';
+import React, { useRef, useState } from 'react';
 import Logo from 'src/layouts/full/shared/logo/Logo';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import emailjs from 'emailjs-com';
 import { GoogleLogin } from 'react-google-login';
+import ConfirmDialog from 'src/components/ConfirmDialog';
+import axios from "axios";
+
+import apiUser from '../../apis/UserApI';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +24,10 @@ const AuthRegister = ({ subtext }) => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+
   const navigate = useNavigate();
+  const recordCreated = useRef();
 
   // Toggle password visibility
   const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -56,57 +61,102 @@ const AuthRegister = ({ subtext }) => {
     return validationErrors;
   };
 
-  const checkEmailExists = async (email) => {
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email)); // Truy vấn email trong Firestore
-    const snapshot = await getDocs(q);
-
-    return !snapshot.empty; // Trả về true nếu email đã tồn tại
-  };
-
   // Firestore: Thêm người dùng mới
   const addUser = async (userData) => {
-    const role = 'user';
-    const created_at = new Date().toLocaleDateString('vi-VN');
-    const updated_at = new Date().toLocaleDateString('vi-VN');
-    const newUser = {
-      ...userData, // Giữ lại các trường hiện có trong userData
-      role,
-      created_at,
-      updated_at,
-    };
-
-    const usersRef = collection(db, 'users');
-    await addDoc(usersRef, newUser); // Thêm dữ liệu người dùng mới vào Firestore
+    try {
+      const role = 'user';
+      const created_at = new Date().toLocaleDateString('vi-VN');
+      const updated_at = new Date().toLocaleDateString('vi-VN');
+      const newUser = {
+        ...userData,
+        role,
+        created_at,
+        updated_at,
+      };
+  
+      // Gọi API để thêm người dùng vào cơ sở dữ liệu
+      const response = await apiUser.addUser(newUser);
+      return response.data;
+    } catch (error) {
+      console.error('Lỗi khi thêm người dùng:', error);
+      throw error;
+    }
   };
 
-  // Xử lý việc submit form
+  const checkEmailExists = async (email) => {
+    try {
+      const users = await apiUser.getUsersList(); // Lấy tất cả người dùng
+      
+      // Kiểm tra xem có email nào trùng với email đã nhập không
+      const exists = users.data.users.some(user => user.email === email);
+      return exists; // Trả về true nếu email đã tồn tại, false nếu không
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra email:', error);
+      return false; // Trả về false trong trường hợp có lỗi
+    }
+  };
+
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
+  
+    try {
+      const response = await axios.post("http://localhost:3000/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data.imagePath; // Trả về đường dẫn hình ảnh
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw new Error("Failed to upload image. Please try again.");
+    }
+  };
+  
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setErrors({});
     const validationErrors = validateForm();
-
+  
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
+  
     try {
       const emailExists = await checkEmailExists(formData.email);
-
+  
       if (emailExists) {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
       } else {
-        await addUser(formData);
-        alert('Tài khoản đã được tạo thành công, đăng nhập?');
-        navigate('/auth/login');
+        // Xử lý upload ảnh, kiểm tra và thêm người dùng
+        const file = e.target.elements.formImageUrl.files[0];
+        let imageUrl = '';
+  
+        if (file) {
+          // Lấy URL của ảnh đã upload
+          imageUrl = await uploadImage(file);
+        }
+  
+        const newUser = await addUser({
+          ...formData,
+          imageUrl,
+        });
+  
+        if (newUser) {
+          localStorage.setItem('user', JSON.stringify(newUser));
+          setOpenDialog(true);
+        }
       }
     } catch (error) {
       alert('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
-      console.error('Registration error:', error);
+      console.error('Lỗi đăng ký:', error);
     }
   };
+  
+
 
   // Xử lý khi thay đổi thông tin trong form
   const handleChange = (e) => {
@@ -118,10 +168,18 @@ const AuthRegister = ({ subtext }) => {
   };
 
   const checkEmailGoogle = async (email) => {
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('email', '==', email));
-    const snapshot = await getDocs(q);
-    return !snapshot.empty; // Trả về true nếu email đã tồn tại
+    try {
+      // Giả sử bạn có một API để lấy tất cả người dùng
+      const response = await apiUser.getAllUsers(); // Gọi API để lấy danh sách người dùng
+      const users = response.data.users; // Dữ liệu trả về từ API
+  
+      // Kiểm tra xem có người dùng nào có email khớp hay không
+      const exists = users.some(user => user.email === email); // Trả về true nếu có ít nhất một người dùng có email khớp
+      return exists;
+    } catch (error) {
+      console.error('Lỗi khi kiểm tra email:', error);
+      return false; // Trả về false nếu có lỗi xảy ra
+    }
   };
 
   const responseGoogle = async (response) => {
@@ -171,6 +229,15 @@ const AuthRegister = ({ subtext }) => {
     // }
   };
 
+  const onCancel = () => {
+    navigate('/auth/inter');
+  };
+
+  const onConfirm = () => {
+    navigate('/auth/mentor', { state: recordCreated.current });
+    setOpenDialog(false);
+  };
+
   // Hàm gửi email qua EmailJS
   const sendEmail = (data) => {
     emailjs
@@ -199,9 +266,8 @@ const AuthRegister = ({ subtext }) => {
     <div
       style={{
         position: 'relative',
-        height: '100vh',
+        height: '100%',
         display: 'flex',
-        
       }}
     >
       {/* Background wrapper */}
@@ -213,7 +279,7 @@ const AuthRegister = ({ subtext }) => {
           height: '100%',
           width: '100%',
           background: 'radial-gradient(#d2f1df, #d3d7fa, #bad8f4)',
-          backgroundSize: '400% 400%',
+          backgroundSize: '100% 100%',
           animation: 'gradient 15s ease infinite',
           opacity: 0.3,
           zIndex: -1,
@@ -232,7 +298,7 @@ const AuthRegister = ({ subtext }) => {
               {subtext}
               <Form onSubmit={handleRegister}>
                 <Form.Group controlId="formName">
-                  <Form.Label className='d-flex justify-content-start'>Họ tên</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Họ tên</Form.Label>
                   <Form.Control
                     type="text"
                     name="name"
@@ -243,9 +309,21 @@ const AuthRegister = ({ subtext }) => {
                   />
                   {errors.name && <Form.Text className="text-danger">{errors.name}</Form.Text>}
                 </Form.Group>
-
+                <Form.Group controlId="formImageUrl">
+                  <Form.Label className="d-flex justify-content-start">Ảnh đại diện</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="imageUrl"
+                    // Không cần sử dụng value cho input file
+                    onChange={handleChange}
+                    isInvalid={!!errors.imageUrl}
+                  />
+                  {errors.imageUrl && (
+                    <Form.Text className="text-danger">{errors.imageUrl}</Form.Text>
+                  )}
+                </Form.Group>
                 <Form.Group controlId="formEmail">
-                  <Form.Label className='d-flex justify-content-start'>Email</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Email</Form.Label>
                   <Form.Control
                     type="email"
                     name="email"
@@ -256,9 +334,8 @@ const AuthRegister = ({ subtext }) => {
                   />
                   {errors.email && <Form.Text className="text-danger">{errors.email}</Form.Text>}
                 </Form.Group>
-
                 <Form.Group controlId="formPhone">
-                  <Form.Label className='d-flex justify-content-start'>Số điện thoại</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Số điện thoại</Form.Label>
                   <Form.Control
                     type="text"
                     name="phone"
@@ -269,9 +346,8 @@ const AuthRegister = ({ subtext }) => {
                   />
                   {errors.phone && <Form.Text className="text-danger">{errors.phone}</Form.Text>}
                 </Form.Group>
-
                 <Form.Group controlId="formLocation">
-                  <Form.Label className='d-flex justify-content-start'>Địa chỉ</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Địa chỉ</Form.Label>
                   <Form.Control
                     type="text"
                     name="location"
@@ -284,9 +360,8 @@ const AuthRegister = ({ subtext }) => {
                     <Form.Text className="text-danger">{errors.location}</Form.Text>
                   )}
                 </Form.Group>
-
                 <Form.Group controlId="formPassword">
-                  <Form.Label className='d-flex justify-content-start'>Mật khẩu</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">Mật khẩu</Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showPassword ? 'text' : 'password'}
@@ -313,9 +388,10 @@ const AuthRegister = ({ subtext }) => {
                     </Button>
                   </div>
                 </Form.Group>
-
                 <Form.Group controlId="formConfirmPassword">
-                  <Form.Label className='d-flex justify-content-start'>Xác nhận mật khẩu</Form.Label>
+                  <Form.Label className="d-flex justify-content-start">
+                    Xác nhận mật khẩu
+                  </Form.Label>
                   <div className="position-relative">
                     <Form.Control
                       type={showConfirmPassword ? 'text' : 'password'}
@@ -342,7 +418,6 @@ const AuthRegister = ({ subtext }) => {
                     </Button>
                   </div>
                 </Form.Group>
-
                 <Button type="submit" variant="primary" className="w-100 mt-3">
                   Đăng ký
                 </Button>
@@ -391,6 +466,13 @@ const AuthRegister = ({ subtext }) => {
           </Col>
         </Row>
       </Container>
+      <ConfirmDialog
+        open={openDialog}
+        onClose={onCancel}
+        onConfirm={onConfirm}
+        title={`Tạo tài khoản thành công`}
+        content={'Bạn có muốn trở thành mentor không?'}
+      />
     </div>
   );
 };

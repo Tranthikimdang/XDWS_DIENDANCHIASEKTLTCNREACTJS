@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
@@ -6,11 +7,10 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { getDoc, doc, updateDoc, collection, getDocs } from 'firebase/firestore';
-import { db, storage } from '../../../../config/firebaseconfig';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import api from '../../../../apis/CourseApI';
+import axios from 'axios';
 
-function FormEditProduct() {
+function FormEditCourse() {
   const { id } = useParams(); // Lấy id từ URL param
   const navigate = useNavigate();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -25,15 +25,14 @@ function FormEditProduct() {
     const fetchProduct = async () => {
       setLoading(true);
       try {
-        const docRef = doc(db, 'products', id); // Lấy sản phẩm từ Firestore bằng param id
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const data = docSnap.data();
+        const response = await api.getCoursesList();
+        const resp = response.data.courses;
+        const data = resp.find((course) => course.id === parseInt(id));
+        if (data) {
           setProductData(data);
-          setImagePreview(data.image_url); // Hiện hình ảnh
+          setImagePreview(data.image);
         } else {
-          console.log('No such document!');
+          throw new Error('Course not found');
         }
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -41,20 +40,19 @@ function FormEditProduct() {
         setLoading(false);
       }
     };
-    fetchCategories();
-    fetchProduct();
-  }, [id]);
 
-  const fetchCategories = async () => {
-    try {
-      const categoriesCollectionRef = collection(db, 'categories_product'); // Cập nhật đây
-      const snapshot = await getDocs(categoriesCollectionRef);
-      const categoryList = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setCategories(categoryList);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
+    const fetchCategories = async () => {
+      try {
+        const response = await api.getCategoriesList();
+        setCategories(response.data); // Cập nhật danh sách danh mục
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories(); // Gọi hàm fetchCategories ở đây
+    fetchProduct(); // Gọi hàm fetchProduct
+  }, [id]);
 
   const {
     register,
@@ -65,64 +63,63 @@ function FormEditProduct() {
 
   useEffect(() => {
     if (productData) {
-      console.log(productData.description);
-
       setValue('name', productData.name);
       setValue('price', productData.price);
       setValue('discount', productData.discount);
-      setValue('quality', productData.quality);
       setValue('description', productData.description);
-      setValue('cate_pro_id', productData.cate_pro_id);
+      setValue('cate_course_id', productData.cate_course_id); // Đặt giá trị cate_course_id
       setValue('video_demo', productData.video_demo);
     }
   }, [productData, setValue]);
 
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.imagePath; // Trả về đường dẫn hình ảnh
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw new Error('Failed to upload image. Please try again.');
+    }
+  };
+
   const onSubmit = async (data) => {
     try {
-      let downloadURL = imagePreview; // URL hình ảnh hiện tại
+      let imageName = productData.image; // Giữ tên tệp hình ảnh cũ nếu không có ảnh mới
 
-      // Nếu người dùng chọn hình mới thì upload
-      if (data.image && data.image[0]) {
-        const imageFile = data.image[0];
-        const storageRef = ref(storage, `products/${id}/${imageFile.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-        await new Promise((resolve, reject) => {
-          uploadTask.on(
-            'state_changed',
-            () => {},
-            (error) => reject(error),
-            () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((url) => {
-                downloadURL = url;
-                resolve();
-              });
-            },
-          );
-        });
+      // Kiểm tra xem có hình ảnh mới hay không
+      if (data.image && data.image.length > 0) {
+        const file = data.image[0];
+        // Upload ảnh mới lên server và nhận tên tệp
+        imageName = await uploadImage(file); // Cập nhật tên tệp với ảnh mới
       }
 
-      // Cập nhật dữ liệu
-      const productRef = doc(db, 'products', id);
-      await updateDoc(productRef, {
-        cate_pro_id: data.cate_pro_id,
-        image_url: downloadURL,
+      // Gọi API để cập nhật dữ liệu khóa học
+      await api.updateCourse(id, {
+        cate_course_id: data.cate_course_id, // Sử dụng đúng tên khóa ngoại
+        image: imageName, // Lưu tên tệp đã upload hoặc giữ nguyên tên tệp cũ
         name: data.name,
         price: parseFloat(data.price), // Chuyển đổi chuỗi thành số
         discount: parseFloat(data.discount), // Chuyển đổi chuỗi thành số
-        quality: parseInt(data.quality), // Chuyển đổi chuỗi thành số nguyên
         description: data.description,
         video_demo: data.video_demo,
         updated_at: new Date(),
       });
+      
 
       setSnackbarMessage('Product updated successfully.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
-      setTimeout(() => navigate('/admin/products'), 500);
+      setTimeout(() => navigate('/admin/products'), 500); // Điều hướng sau khi cập nhật
     } catch (error) {
       console.error('Error updating Product:', error);
-      setSnackbarMessage('Failed to update Product.');
+      setSnackbarMessage('Failed to update Product: ' + error.message); // Hiển thị thông báo lỗi
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
@@ -131,12 +128,13 @@ function FormEditProduct() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImagePreview(URL.createObjectURL(file));
+      setImagePreview(URL.createObjectURL(file)); // Hiển thị ảnh xem trước
+      setValue('image', e.target.files); // Lưu tệp vào react-hook-form
     }
   };
-  
+
   const onDescriptionChange = (value) => {
-    setValue("description", value); // Cập nhật giá trị vào react-hook-form
+    setValue('description', value); // Cập nhật giá trị vào react-hook-form
   };
 
   const handleSnackbarClose = (event, reason) => {
@@ -146,6 +144,10 @@ function FormEditProduct() {
     setSnackbarOpen(false);
   };
 
+  const smallFontStyle = {
+    fontSize: '0.9rem',
+  };
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -153,7 +155,9 @@ function FormEditProduct() {
         <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Name</label>
+              <label className="text-light form-label" style={smallFontStyle}>
+                Name
+              </label>
               <input
                 className={`form-control bg-dark text-light ${errors.name ? 'is-invalid' : ''}`}
                 {...register('name', { required: 'Name is required' })}
@@ -161,26 +165,22 @@ function FormEditProduct() {
               {errors.name && <div className="text-danger">{errors.name.message}</div>}
             </div>
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Hình ảnh</label>
+              <label className="text-light form-label" style={smallFontStyle}>
+                Video demo code
+              </label>
               <input
-                className={`form-control bg-dark text-light ${errors.image ? 'is-invalid' : ''}`}
-                type="file"
-                onChange={handleImageChange}
+                type="text"
+                className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
+                {...register('video_demo', { required: 'Video demo is required' })}
               />
-              {errors.image && <div className="invalid-feedback">{errors.image.message}</div>}
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="img-thumbnail mt-2"
-                  style={{ maxWidth: '160px' }}
-                />
-              )}
+              {errors.video_demo && <div className="text-danger">{errors.video_demo.message}</div>}
             </div>
           </div>
           <div className="row">
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Price</label>
+              <label className="text-light form-label" style={smallFontStyle}>
+                Price
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -190,7 +190,9 @@ function FormEditProduct() {
               {errors.price && <div className="text-danger">{errors.price.message}</div>}
             </div>
             <div className="col-6 mb-3">
-              <label className="text-light form-label">Discount</label>
+              <label className="text-light form-label" style={smallFontStyle}>
+                Discount
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -201,66 +203,66 @@ function FormEditProduct() {
             </div>
           </div>
           <div className="row">
-            <div className="col-6 mb-3">
-              <label className="text-light form-label">Quality</label>
-              <input
-                type="number"
-                className={`form-control bg-dark text-light ${errors.quality ? 'is-invalid' : ''}`}
-                {...register('quality', { required: 'Quality is required' })}
-              />
-              {errors.quality && <div className="text-danger">{errors.quality.message}</div>}
-            </div>
-            <div className="col-6 mb-3">
-              <label className="text-light form-label">Category</label>
+            <div className="col-12 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Category
+              </label>
               <select
-                className={`form-select bg-dark text-light ${
-                  errors.cate_pro_id ? 'is-invalid' : ''
-                }`}
-                {...register('cate_pro_id', { required: 'Category is required' })}
+                className={`form-select bg-dark text-light ${errors.cate_course_id ? 'is-invalid' : ''}`}
+                {...register('cate_course_id', { required: 'Category is required' })} // Thêm validation cho danh mục
               >
-                <option value="">Select Category</option>
+                <option value="" style={smallFontStyle} disabled>
+                  Select Category
+                </option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
+                  <option key={category.id} value={category.id} style={smallFontStyle}>
                     {category.name}
                   </option>
                 ))}
               </select>
-              {errors.cate_pro_id && (
-                <div className="text-danger">{errors.cate_pro_id.message}</div>
-              )}
+              {errors.cate_course_id && <div className="text-danger">{errors.cate_course_id.message}</div>}
             </div>
           </div>
           <div className="row">
             <div className="col-12 mb-3">
-              <label className="text-light form-label">Video demo code</label>
+              <label className="text-light form-label" style={smallFontStyle}>
+                Image
+              </label>
               <input
-                type="text"
-                className={`form-control bg-dark text-light ${errors.video_demo ? 'is-invalid' : ''}`}
-                {...register('video_demo', { required: 'Video demo is required' })}
+                type="file"
+                className="form-control bg-dark text-light"
+                accept="image/*"
+                onChange={handleImageChange} // Gọi hàm xử lý thay đổi ảnh
               />
-              {errors.video_demo && <div className="text-danger">{errors.video_demo.message}</div>}
+              <img src={imagePreview} alt="Preview" className="img-thumbnail mt-2" style={{ width: '100px', height: '100px' }} />
             </div>
           </div>
-          <div className="mb-3">
-            <label className="text-light form-label">Description</label>
-            <ReactQuill
-              className={`bg-dark text-light ${errors.description ? 'is-invalid' : ''}`}
-              value={productData ? productData.description : ''}
-              onChange={onDescriptionChange} // Sử dụng onChange để cập nhật
-            />
-            {errors.description && <div className="text-danger">{errors.description.message}</div>}
+          <div className="row">
+            <div className="col-12 mb-3">
+              <label className="text-light form-label" style={smallFontStyle}>
+                Description
+              </label>
+              <ReactQuill
+                className={`bg-dark text-light ${errors.description ? 'is-invalid' : ''}`}
+                value={productData ? productData.description : ''} // Đảm bảo không có lỗi khi productData chưa có dữ liệu
+                onChange={onDescriptionChange}
+                theme="snow"
+                modules={{
+                  toolbar: [
+                    [{ header: [1, 2, false] }],
+                    ['bold', 'italic', 'underline'],
+                    ['link', 'image'],
+                    ['clean'],
+                  ],
+                }}
+              />
+              {errors.description && <div className="text-danger">{errors.description.message}</div>}
+            </div>
           </div>
-          <button type="submit" className="btn btn-primary me-2">
-            Update Product
-          </button>
-          <button
-              className="text-light btn btn-outline-secondary "
-              type="button"
-              onClick={() => navigate('/admin/products')}
-            >
-              Back
-            </button>
+          
+          <button type="submit" className="btn btn-primary">Save Changes</button>
         </form>
+
         <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleSnackbarClose}>
           <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
             {snackbarMessage}
@@ -271,4 +273,4 @@ function FormEditProduct() {
   );
 }
 
-export default FormEditProduct;
+export default FormEditCourse;

@@ -11,13 +11,13 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Home',
+    title: 'Trang chủ',
     icon: IconHome,
     href: '/home',
   },
   {
     id: uniqueId(),
-    title: 'Hỏi',
+    title: 'Câu hỏi',
     icon: IconInfoSquareRounded,
     href: '/questions',
   },
@@ -35,7 +35,7 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Users',
+    title: 'Người dùng',
     icon: IconUsers,
     href: '/user', 
   },

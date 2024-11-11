@@ -10,7 +10,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Table from "src/examples/Tables/Table";
 import authorsArticleData from "./data/authorsArticleData";
 import ConfirmDialog from './data/FormDeleteArticle';
-import { Alert, Snackbar } from "@mui/material";
+import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
 
@@ -45,7 +45,7 @@ function Article() {
         });
         setRows(articlesData); // Lưu dữ liệu vào state
       } catch (error) {
-        console.error("Error fetching articles:", error);
+        console.error("Lỗi khi tải bài viết:", error);
       } finally {
         setLoading(false);
       }
@@ -68,9 +68,9 @@ function Article() {
         }, {});
         setCates(categoriesMap);
 
-        console.log("Fetched categories:", categoriesData);
+        console.log("Các danh mục đã lấy:", categoriesData);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Lỗi khi tìm kiếm danh mục:", error);
       } finally {
         setLoading(false);
       }
@@ -90,7 +90,7 @@ function Article() {
         }));
         setUsers(usersList);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Lỗi khi tìm kiếm người dùng:", error);
       } finally {
         setLoading(false);
       }
@@ -101,14 +101,14 @@ function Article() {
 
   //sửa 
   const handleEdit = (id) => {
-    console.log("Edit button clicked", id);
+    console.log("Đã nhấp vào nút chỉnh sửa", id);
   };
 
   const handleView = async (id) => {
     try {
-      console.log("View Article with ID:", id);
+      console.log("Xem bài viết với ID:", id);
     } catch (error) {
-      console.error("Error fetching article details:", error);
+      console.error("Lỗi khi tải thông tin chi tiết bài viết:", error);
     }
   };
 
@@ -128,12 +128,12 @@ function Article() {
       setRows(rows.filter((row) => row.id !== deleteId));
       // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
       setOpenDialog(false);
-      setSnackbarMessage("Article deleted successfully.");
+      setSnackbarMessage("Xóa Bài viết thành công");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error deleting article:", error);
-      setSnackbarMessage("Failed to delete the article.");
+      console.error("Lỗi khi xóa bài viết:", error);
+      setSnackbarMessage("Không xóa được bài viết.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
@@ -151,7 +151,7 @@ function Article() {
   };
 
   const handleAddArticleSuccess = () => {
-    setSnackbarMessage("Article added successfully.");
+    setSnackbarMessage("Thêm bài viết thành công.");
     setSnackbarSeverity("success");
     setSnackbarOpen(true);
   };
@@ -166,19 +166,19 @@ function Article() {
       await updateDoc(articleRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
       // Cập nhật lại danh sách bài viết
       setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
-      setSnackbarMessage("Article approved successfully.");
+      setSnackbarMessage("Duyệt bài viết thành công");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Error approving article:", error);
-      setSnackbarMessage("Failed to approve the article.");
+      console.error("Lỗi khi phê duyệt bài viết:", error);
+      setSnackbarMessage("Không thể duyệt bài viết.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   }
-  const removeSpecificHtmlTags = (html, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
-    return html?.replace(regex, '');
+
+  const removeHtmlTags = (html) => {
+    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
   };
 
   //date
@@ -219,7 +219,7 @@ function Article() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Bảng Bài Viết
+                Bảng bài viết
               </VuiTypography>
               <Link to="/admin/formaddarticle">
                 <button className='text-light btn btn-outline-info' onClick={handleAddArticleSuccess}>
@@ -236,7 +236,7 @@ function Article() {
                       d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
                     />
                   </svg>
-                  Thêm
+                  Add
                 </button>
               </Link>
             </VuiBox>
@@ -319,7 +319,7 @@ function Article() {
                                     </strong>
                                   </VuiTypography>
                                   <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                    {cates[row.categories_id]}
+                                    {cates[row.categories_id] || 'không có danh mục'}
                                   </VuiTypography>
                                 </VuiBox>
                               </div>
@@ -327,6 +327,11 @@ function Article() {
                           ),
                           author: (
                             <VuiBox>
+                              <img
+                                src={users?.find(u => row.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                                alt="User Avatar"
+                                style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                              />
                               <VuiTypography variant="button" color="white" fontWeight="medium">
                                 {authorName}
                               </VuiTypography>
@@ -335,9 +340,9 @@ function Article() {
                           content: (
                             <VuiBox>
                               <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                {removeSpecificHtmlTags(row.content, 'p').length > 10
-                                  ? `${removeSpecificHtmlTags(row.content, 'p').substring(0, 10)}...`
-                                  : removeSpecificHtmlTags(row.content, 'p')}
+                                {removeHtmlTags(row.content, 'p').length > 10
+                                  ? `${removeHtmlTags(row.content, 'p').substring(0, 10)}...`
+                                  : removeHtmlTags(row.content, 'p')}
                               </VuiTypography>
                             </VuiBox>
                           ),
@@ -456,9 +461,10 @@ function Article() {
       />
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(100px)' }}
       >
         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}

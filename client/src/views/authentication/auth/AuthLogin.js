@@ -17,7 +17,7 @@ import emailjs from 'emailjs-com';
 // import FacebookLogin from '@greatsumini/react-facebook-login';
 import context from 'src/store/context';
 import { setAccount } from 'src/store/action';
-
+import apiUser from '../../../apis/UserApI'
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
   const [state, dispatch] = useContext(context)
@@ -63,20 +63,26 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     if (!validate()) return;
-
+  
     try {
-      const usersCollection = collection(db, 'users');
-      const snapshot = await getDocs(usersCollection);
-      const users = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-      const user = users.find((user) => user.email === email && user.password === password);
-
+      // Gọi API để lấy tất cả người dùng
+      const response = await apiUser.getUsersList(); // Bạn cần tạo hàm này trong UserAPI.js
+    
+      if (!response || !response.data) {
+        alert('Không thể lấy danh sách người dùng.');
+        return;
+      }
+  
+      // Kiểm tra xem người dùng có tồn tại và thông tin có đúng không
+      const user = response.data.users.find((user) => user.email === email && user.password === password);
+  
       if (user) {
-        dispatch(setAccount(user))
+        // Nếu thông tin đăng nhập hợp lệ
+        dispatch(setAccount(user));
         localStorage.setItem('user', JSON.stringify(user));
-          navigate('/home')
+        navigate('/home'); // Chuyển hướng đến trang chính
       } else {
         alert('Email hoặc mật khẩu chưa hợp lệ');
       }
@@ -85,6 +91,8 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       console.error('Lỗi đăng nhập:', error);
     }
   };
+  
+  
 
   const responseGoogle = async (response) => {
     console.log(response);

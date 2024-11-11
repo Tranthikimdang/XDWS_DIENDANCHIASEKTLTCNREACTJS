@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import { Link } from 'react-router-dom';
@@ -12,64 +13,42 @@ import ConfirmDialog from './data/FormDeleteProduct';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
+import api from '../../../apis/CourseApI';
+import apiUser from '../../../apis/UserApI';
+
 //firebase
-import { ref, getDownloadURL } from 'firebase/storage';
-import { collection, getDocs } from 'firebase/firestore';
-import { db, storage } from '../../../config/firebaseconfig'; // Verify this path
-import { doc, deleteDoc } from 'firebase/firestore'; // Import deleteDoc từ Firebase Firestore
-import { Update } from '@mui/icons-material';
 
-const sanitizeImagePath = (path) => path.replace(/\\/g, '/'); // Convert backslashes to forward slashes
-
-const getImageUrl = async (path) => {
-  try {
-    if (!path) throw new Error('Image path is undefined'); // Kiểm tra giá trị path
-    const imageRef = ref(storage, `images/${path}`);
-    const url = await getDownloadURL(imageRef);
-    return url;
-  } catch (error) {
-    console.error('Error getting image URL:', error);
-    return null;
-  }
-};
-
-function Product() {
+function Course() {
   const { columns } = authorsProductData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [users, setUsers] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
-  const [deleteTitle, setDeleteTitle] = useState('');
+  const [deleteName, setDeleteName] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
+  const [imageUrl, setImageUrl] = useState('');
 
-  // Fetch Products from Firebase
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
+    const fetchCourses = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'products'));
-        const ProductsList = await Promise.all(
-          querySnapshot.docs.map(async (doc) => {
-            const ProductData = { id: doc.id, ...doc.data() };
-            const imageUrl = await getImageUrl(ProductData.image); // Đảm bảo giá trị hợp lệ
-            return { ...ProductData, image: imageUrl };
-          }),
-        );
-        console.log(ProductsList);
+        const response = await api.getCoursesList();
+        console.log('Dữ liệu trả về:', response.data); // Kiểm tra dữ liệu trả về
 
-        setRows(ProductsList);
+        // Đảm bảo courses lấy đúng mảng từ response.data.courses
+        const courses = Array.isArray(response.data.courses) ? response.data.courses : [];
+        setRows(courses);
       } catch (error) {
-        console.error('Error fetching Products:', error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching courses:', error);
+        setRows([]); // Thiết lập rows là mảng rỗng trong trường hợp có lỗi
       }
     };
-    fetchProducts();
+
+    fetchCourses();
   }, []);
 
   // Fetch users from Firebase
@@ -77,49 +56,45 @@ function Product() {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, 'users'));
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(usersList);
+        const response = await apiUser.getUsersList();
+        console.log('Users data:', response.data); // Kiểm tra dữ liệu
+        // Gán mảng users từ response.data.users
+        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchUsers();
   }, []);
 
-  const handleEdit = (id) => {
-    console.log('Edit button clicked', id);
-  };
 
-  const handleDelete = (id, title) => {
+  const handleDelete = (id, name) => {
     setDeleteId(id);
-    setDeleteTitle(title);
+    setDeleteName(name);
     setOpenDialog(true);
   };
 
   const confirmDelete = async () => {
     try {
-      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của bài viết
-      const productRef = doc(db, 'products', deleteId);
-      await deleteDoc(productRef); // Thực hiện xóa bài viết từ Firestore
+      // Gọi API để xóa khóa học
+      await api.deleteCourse(deleteId); // Gọi delete từ CourseAPI
 
-      // Cập nhật lại danh sách bài viết sau khi xóa
+      // Cập nhật lại danh sách khóa học sau khi xóa
       setRows(rows.filter((row) => row.id !== deleteId));
 
       // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
       setOpenDialog(false);
-      setSnackbarMessage('Product deleted successfully.');
+      setSnackbarMessage('Course deleted successfully.');
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
-      console.error('Error deleting Product:', error);
-      setSnackbarMessage('Failed to delete the Product.');
+      console.error('Error deleting course:', error);
+      setSnackbarMessage(
+        'Failed to delete the course: ' + (error.response?.data?.message || 'Unknown error.'),
+      );
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
@@ -153,17 +128,17 @@ function Product() {
 
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
-  
+
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
       const now = new Date();
       const diff = now - date; // Tính toán khoảng cách thời gian
-  
+
       const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
-  
+
       if (days > 0) {
         updatedAtString = `${days} ngày trước`;
       } else if (hours > 0) {
@@ -176,7 +151,7 @@ function Product() {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-  
+
     return updatedAtString;
   };
 
@@ -184,7 +159,7 @@ function Product() {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
       currency: 'VND',
-      currencyDisplay: 'code' // Hiển thị 'VND' thay vì '₫'
+      currencyDisplay: 'code', // Hiển thị 'VND' thay vì '₫'
     }).format(value);
   };
   return (
@@ -252,10 +227,10 @@ function Product() {
                       .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
-                        const authorName =
-                          users.find((u) => u.id === row.user_id)?.name || 'Unknown';
-                          console.log(row.image_url);
-                          
+                        const authorName = Array.isArray(users)
+                          ? users.find((u) => u.id === row.user_id)?.name
+                          : 'Unknown';
+
                         return {
                           ...row,
                           updated_at: formatUpdatedAt(row.updated_at),
@@ -263,40 +238,39 @@ function Product() {
                           price: formatCurrency(row.price),
                           discount: formatCurrency(row.discount),
                           image: (
-                              <div
-                                className="Product-row"
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  padding: '10px',
-                                  borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-                                  height: '70px',
-                                }}
-                              >
-                                <div className="image-column" style={{ flex: '0 0 100px' }}>
-                                  <img
-                                    src={row.image_url} 
-                                    alt={
-                                      row.name && row.name.length > 10
-                                        ? `${row.name.substring(0, 10).toUpperCase()}...`
-                                        : row.name
-                                        ? row.name.toUpperCase()
-                                        : 'Image of the Product'
-                                    } 
-                                    style={{
-                                      width: '100px',
-                                      height: '50px', 
-                                      objectFit: 'cover', 
-                                      objectPosition: 'center', 
-                                      borderRadius: '8px', 
-                                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', 
-                                    }}
-                                  />
-                                </div>
+                            <div
+                              className="Product-row"
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                padding: '10px',
+                                borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+                                height: '70px',
+                              }}
+                            >
+                              <div className="image-column" style={{ flex: '0 0 100px' }}>
+                                <img
+                                  src={`${row.image}`}
+                                  alt={
+                                    row.name && row.name.length > 10
+                                      ? `${row.name.substring(0, 10).toUpperCase()}...`
+                                      : row.name
+                                      ? row.name.toUpperCase()
+                                      : 'Image of the Product'
+                                  }
+                                  style={{
+                                    width: '100px',
+                                    height: '50px',
+                                    objectFit: 'cover',
+                                    objectPosition: 'center',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                  }}
+                                />
                               </div>
-                            ),
-                         
+                            </div>
+                          ),
 
                           Author: (
                             <VuiBox>
@@ -311,27 +285,73 @@ function Product() {
                               : removeSpecificHtmlTags(row.content, 'p'),
                           action: (
                             <div className="action-buttons">
-                              <Link to={{ pathname: `/admin/editProduct/${row.id}`, state: { data: row } }}>
-                                <Tooltip title="Sửa bài viết" placement="top">
+                              <Link
+                                to={{
+                                  pathname: `/admin/addProDetaill/${row.id}`,
+                                  state: { data: row },
+                                }}
+                              >
+                                <Tooltip title="Thêm" placement="top">
                                   <button
-                                    className="text-light btn btn-outline-warning me-2"
-                                    type="button"
-                                    onClick={() => handleEdit(row.id)}
+                                    className="text-light btn btn-outline-info me-2"
+                                    onClick={handleAddProductSuccess}
                                   >
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
                                       width="16"
                                       height="16"
                                       fill="currentColor"
-                                      className="bi bi-pencil"
+                                      class="bi bi-plus"
                                       viewBox="0 0 16 16"
                                     >
-                                      <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                      <path
+                                        fill-rule="evenodd"
+                                        d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
+                                      />
                                     </svg>
                                   </button>
+                                  <Link to={`/admin/productDetail/${row.id}`}>
+                                    <Tooltip title="Xem" placement="top">
+                                      <button
+                                        className="text-light btn btn-outline-info me-2"
+                                        type="button"
+                                      >
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="16"
+                                          height="16"
+                                          fill="currentColor"
+                                          className="bi bi-eye"
+                                          viewBox="0 0 16 16"
+                                        >
+                                          <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                          <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                        </svg>
+                                      </button>
+                                    </Tooltip>
+                                  </Link>
+                                  <Link to={`/admin/editProduct/${row.id}`}>
+                                    <Tooltip title="Sửa" placement="top">
+                                      <button
+                                        className="text-light btn  btn-outline-warning me-2"
+                                        type="button"
+                                      >
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="16"
+                                          height="16"
+                                          fill="currentColor"
+                                          className="bi bi-pencil"
+                                          viewBox="0 0 16 16"
+                                        >
+                                          <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                                        </svg>
+                                      </button>
+                                    </Tooltip>
+                                  </Link>
                                 </Tooltip>
                               </Link>
-                              <Tooltip title="Xóa bài viết" placement="top">
+                              <Tooltip title="Xóa" placement="top">
                                 <button
                                   className="text-light btn btn-outline-danger me-2"
                                   type="button"
@@ -387,8 +407,7 @@ function Product() {
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Delete ${deleteTitle}`}
-        content="Are you sure you want to delete this Product?"
+        itemName={`${deleteName}`}
       />
       <Snackbar
         open={snackbarOpen}
@@ -404,4 +423,4 @@ function Product() {
   );
 }
 
-export default Product;
+export default Course;

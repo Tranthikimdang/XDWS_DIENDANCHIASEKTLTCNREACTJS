@@ -6,24 +6,23 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
   max-width: 800px;
-  display: flex; /* Sử dụng Flexbox để căn chỉnh các phần tử ngang hàng */
-  align-items: flex-start; /* Căn chỉnh các phần tử ở đầu hàng ngang */
-  justify-content: center; /* Căn giữa các phần tử */
-  flex-wrap: wrap; /* Cho phép các phần tử xuống dòng khi không đủ không gian */
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .profile-img {
-  margin-right: 20px; /* Khoảng cách giữa hình ảnh và nội dung */
-  flex: 0 0 150px; /* Chiều rộng cố định cho hình ảnh */
+  margin-right: 20px;
+  flex: 0 0 200px; /* Adjusted width for a rectangular image */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .profile-img img {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+  width: 200px; /* Set width for rectangular shape */
+  height: 250px; /* Set height for rectangular shape */
   object-fit: cover;
   border: 2px solid #007bff;
   margin-bottom: 10px;
@@ -31,7 +30,7 @@
 }
 
 .profile-img img:hover {
-  transform: scale(1.1); /* Hiệu ứng khi rê chuột lên ảnh */
+  transform: scale(1.1);
 }
 
 .profile-img .file {
@@ -53,8 +52,8 @@
 }
 
 .profile-head {
-  flex: 1; /* Chiếm phần còn lại của không gian */
-  text-align: left; /* Căn chỉnh nội dung về bên trái */
+  flex: 1;
+  text-align: left;
   margin-top: 20px;
 }
 
@@ -62,7 +61,7 @@
   color: #333;
   font-weight: bold;
   font-size: 22px;
-  margin: 0 0 10px; /* Khoảng cách dưới tiêu đề */
+  margin: 0 0 10px;
 }
 
 .profile-head h6 {
@@ -84,18 +83,21 @@
   font-weight: 600;
 }
 
-.profile-edit-btn {
+.profile-edit-btn,
+.profile-img .file { /* Target both buttons */
   border: none;
   border-radius: 1.5rem;
-  padding: 10px;
+  padding: 10px 20px;
   font-weight: 600;
   color: #fff;
-  background-color: #28a745;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
   text-align: center;
-  margin: 20px auto 0;
-  width: auto; /* Để nút có kích thước vừa vặn */
+  margin: 20px 10px 0; /* Adjust margins */
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.profile-edit-btn {
+  background-color: #28a745;
 }
 
 .profile-edit-btn:hover {
@@ -103,14 +105,30 @@
   transform: scale(1.05);
 }
 
+.profile-img .file {
+  background-color: #007bff;
+}
+
+.profile-img .file:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Aligning buttons side by side */
+.buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .row {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap; /* Giúp các phần tử có thể xuống dòng khi cần */
+  flex-wrap: wrap;
 }
 
 .col-md-4, .col-md-6, .col-md-8 {
   text-align: center;
-  margin-bottom: 20px; /* Khoảng cách giữa các phần tử */
+  margin-bottom: 20px;
 }

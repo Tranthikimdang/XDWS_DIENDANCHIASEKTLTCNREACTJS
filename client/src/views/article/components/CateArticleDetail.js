@@ -10,7 +10,6 @@ import EmailIcon from '@mui/icons-material/Email';
 import LinkIcon from '@mui/icons-material/Link';
 import FlagIcon from '@mui/icons-material/Flag';
 import SearchIcon from '@mui/icons-material/Search';
-import { formatDistanceToNow } from 'date-fns';
 
 //firebase
 import { collection, getDocs } from 'firebase/firestore';
@@ -109,25 +108,50 @@ const Article = () => {
     { icon: <LinkIcon />, text: 'Copy Link' },
     { icon: <FlagIcon />, text: 'Report Article' },
   ];
-  const removeSpecificHtmlTags = (html, tag) => {
-    const regex = new RegExp(`<${tag}[^>]*>|</${tag}>`, 'gi');
-    return html?.replace(regex, '');
+
+  //xóa các thẻ html
+  const removeHtmlTags = (html) => {
+    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
   };
 
   const filteredArticles = articles.filter((article) =>
     article.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Helper function to format date as "1 hour ago", "2 days ago", etc.
-  const formatDate = (timestamp) => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp.seconds * 1000);
-    return formatDistanceToNow(date, { addSuffix: true });
-  };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentArticles = filteredArticles.slice(indexOfFirstItem, indexOfLastItem);
+
+  //date
+  const formatUpdatedAt = (updatedAt) => {
+    let updatedAtString = '';
+
+    if (updatedAt) {
+      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const now = new Date();
+      const diff = now - date; // Tính toán khoảng cách thời gian
+
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
+
+      if (days > 0) {
+        updatedAtString = `${days} ngày trước`;
+      } else if (hours > 0) {
+        updatedAtString = `${hours} giờ trước`;
+      } else if (minutes > 0) {
+        updatedAtString = `${minutes} phút trước`;
+      } else {
+        updatedAtString = `${seconds} giây trước`;
+      }
+    } else {
+      updatedAtString = 'Không rõ thời gian';
+    }
+
+    return updatedAtString;
+  };
 
 
 
@@ -205,29 +229,29 @@ const Article = () => {
                         <CardContent>
                           <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                             <img
-                              src="http://localhost:3000/static/media/user-1.479b494978354b339dab.jpg"
-                              width="40px"
+                              src={users?.find(u => article?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
                               alt="User Avatar"
-                              style={{ borderRadius: '50%', marginRight: '10px' }}
+                              style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                             />
                             <Typography variant="body1" component="span" className="author-name">
                               <strong>{users?.find((u) => article?.user_id === u.id)?.name}</strong>
                             </Typography>
                           </Box>
                           <Typography variant="h5" component="h2" className="article-title">
-                            {article.title}
+                            {article.title.length > 100 ? `${article.title.substring(0, 100)}...` : article.title}
                           </Typography>
+
                           <Typography variant="body2" paragraph className="article-description">
-                            {removeSpecificHtmlTags(article.content, 'p').length > 100
-                              ? `${removeSpecificHtmlTags(article.content, 'p').substring(0, 100)}...`
-                              : removeSpecificHtmlTags(article.content, 'p')}
+                            {removeHtmlTags(article.content, 'p').length > 10
+                              ? `${removeHtmlTags(article.content, 'p').substring(0, 10)}...`
+                              : removeHtmlTags(article.content, 'p')}
                           </Typography>
                           <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                             <Typography variant="body2" color="textSecondary" className="category-badge">
                               {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
                             </Typography>
                             <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                              {formatDate(article.updated_at)} {/* Hiển thị ngày định dạng */}
+                              {formatUpdatedAt(article.updated_at)} {/* Hiển thị ngày định dạng */}
                             </Typography>
                           </Box>
                         </CardContent>
@@ -268,7 +292,7 @@ const Article = () => {
                   )
                 ))
             ) : (
-              <Typography>Không tìm thấy bài viết nào.</Typography>
+              <Typography>Không tìm thấy bài viết nào...</Typography>
             )}
             <Box display="flex" justifyContent="center" mt={4}>
               <Pagination
