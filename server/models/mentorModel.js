@@ -1,19 +1,23 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./index");
 
-const mentors = sequelize.define("mentors", {
+const Mentor = sequelize.define("Mentor", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
   user_id: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
-  name: {
-    type: DataTypes.STRING,
+  student_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  isApproved: {
+    type: DataTypes.TINYINT(1),
+    defaultValue: 0, // 0 là chưa phê duyệt, 1 là đã phê duyệt
   },
   created_at: {
     type: DataTypes.DATE,
@@ -23,9 +27,13 @@ const mentors = sequelize.define("mentors", {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  is_deleted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 }, {
   tableName: "mentors",
-  timestamps: false, // Nếu bạn không cần `createdAt` và `updatedAt`
+  timestamps: false,
 });
 
-module.exports = mentors;
+module.exports = Mentor;
