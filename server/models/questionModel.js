@@ -1,67 +1,65 @@
-const { collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } = require('firebase/firestore/lite');
-const db = require('../config/firebaseconfig.js');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
+const UserModel = require('./userModel'); // Import mô hình User
 
-const addQuestion = async (article) => {
+const syncDatabase = async () => {
     try {
-        const docRef = await addDoc(collection(db, 'questions'), article);
-        return docRef.id;
-    } catch (e) {
-        console.clear()
-        console.log(e);
-        throw new Error('Lỗi khi thêm câu hỏi: ' + e.message);
+      await sequelize.sync({ force: false }); // force: false để không xóa bảng cũ
+      console.log('Database synchronized successfully.');
+    } catch (error) {
+      console.error('Error during synchronization:', error);
     }
-};
-
-const getList = async () => {
-    try {
-        const querySnapshot = await getDocs(collection(db, 'questions'));
-        const questions = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        return questions;
-    } catch (e) {
-        throw new Error('Lỗi khi lấy câu hỏi: ' + e.message);
+  };
+  
+  syncDatabase();
+const Questions = sequelize.define('Questions', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: UserModel,
+            key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+    },
+    questions: {
+        type: DataTypes.STRING,
+    },
+    imageUrls: {
+        type: DataTypes.JSON,
+        defaultValue: []
+    },
+    fileUrls: {
+        type: DataTypes.JSON, 
+        defaultValue: []
+    },
+    isApproved: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    is_deleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
+    up_code: {
+        type: DataTypes.STRING,
+    },
+    comments: {
+        type: DataTypes.JSON,
+        defaultValue: [], // Mặc định là mảng trống
+    },
+    replies: {
+        type: DataTypes.JSON,
+        defaultValue: [], // Mặc định là mảng trống
     }
-};
+}, {
+    tableName: 'questions',
+    timestamps: true, // Đảm bảo Sequelize tự động xử lý createdAt và updatedAt
+});
 
-const getQuestionById = async (id) => {
-    try {
-        const docRef = doc(db, 'questions', id);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            return { id: docSnap.id, ...docSnap.data() };
-        } else {
-            throw new Error('Không có câu hỏi nào như vậy!');
-        }
-    } catch (e) {
-        throw new Error('Lỗi khi tải câu hỏi: ' + e.message);
-    }
-};
-
-const updateQuestion = async (id, updatedData) => {
-    try {
-        const articleDoc = doc(db, 'questions', id);
-        await updateDoc(questionDoc, updatedData);
-        return `Câu hỏi có ID ${id} cập nhật thành công.`;
-    } catch (e) {
-        console.error('Lỗi khi cập nhật câu hỏi:', e);
-        throw new Error('Lỗi khi cập nhật câu hỏi: ' + e.message);
-    }
-};
-
-const deleteQuestion = async (id) => {
-    try {
-        const docRef = doc(db, 'questions', id);
-        await deleteDoc(docRef);
-        return true;
-    } catch (e) {
-        throw new Error('Lỗi khi xóa câu hỏi: ' + e.message);
-    }
-};
-
-module.exports = {
-    addQuestion,
-    getList,
-    getQuestionById,
-    updateQuestion,
-    deleteQuestion
-};
+module.exports = Questions;

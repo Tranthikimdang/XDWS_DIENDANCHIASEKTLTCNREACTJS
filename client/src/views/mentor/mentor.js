@@ -42,7 +42,7 @@ const Mentor = () => {
     setLoading(true);
   
     const formData = new FormData(e.target);
-    const file = formData.get('upfile');
+    const file = formData.get('cv_url');
   
     if (!file) {
       setSnackbarMessage('Vui lòng chọn một file CV.');
@@ -57,19 +57,15 @@ const Mentor = () => {
   
       const dataToSubmit = {
         user_id: userData?.id,
-        upfile: fileUrl,
-        expertise: "WebDevelopment", // tạm thời
-        // expertise: expertiseList,  // Gán danh sách các expertise
+        cv_url: fileUrl,
         isApproved: '0',
         created_at: new Date(),  // Thời gian tạo
         is_deleted: false,  // Mặc định là false
         updated_at: new Date(),  // Thời gian cập nhật
       };
-  
       const mentorsCollection = collection(db, 'mentors');
       const res = await addDoc(mentorsCollection, dataToSubmit);
       const docSnapshot = await getDoc(res);
-  
       if (docSnapshot.exists()) {
         setSnackbarMessage('CV của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
         setSnackbarSeverity('success');
@@ -179,7 +175,7 @@ const Mentor = () => {
                     >
                       Tải CV lên
                       <input
-                        name="upfile"
+                        name="cv_url"
                         type="file"
                         accept=".pdf,.doc,.docx"
                         hidden
