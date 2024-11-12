@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns'; // Format ngày
 import './detail.css';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-import CourseApi from '../../../apis/CourseApI';
+import CourseApi from '../../../apis/CourseApi';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id từ URL

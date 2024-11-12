@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'; // Sử dụng usePar
 import { Snackbar, Alert } from '@mui/material';
 import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
-import api from '../../../../apis/CourseDetailApI'; // Import API module của bạn nếu đã tạo các hàm cho courseDetail
+import api from '../../../../apis/CourseDetailApi'; // Import API module của bạn nếu đã tạo các hàm cho courseDetail
 
 function FormAddCourseDetail() {
   const {

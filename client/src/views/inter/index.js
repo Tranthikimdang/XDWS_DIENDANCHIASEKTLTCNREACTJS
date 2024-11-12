@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Box, Card, Button } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
 import { useNavigate } from 'react-router-dom';
-import HashtagApi from "../../apis/HashtagApI"; // Import Hashtag API
+import HashtagApi from "../../apis/HashtagApi"; // Import Hashtag API
 
 const Inter = () => {
   // State để lưu các hashtag lấy từ API

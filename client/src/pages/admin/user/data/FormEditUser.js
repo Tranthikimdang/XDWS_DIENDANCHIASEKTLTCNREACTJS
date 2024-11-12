@@ -6,7 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import '../index.css';
-import UserApi from 'src/apis/UserApI';
+import UserApi from 'src/apis/UserApi';
 import axios from 'axios';
 
 function FormEditUser() {

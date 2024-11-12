@@ -12,7 +12,7 @@ import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import HashtagApi from 'src/apis/HashtagApI';
+import HashtagApi from 'src/apis/HashtagApi';
 
 function Hashtag() {
   const { columns } = authorsTableData;

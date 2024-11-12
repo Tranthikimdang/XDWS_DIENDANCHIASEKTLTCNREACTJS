@@ -17,7 +17,7 @@ import emailjs from 'emailjs-com';
 // import FacebookLogin from '@greatsumini/react-facebook-login';
 import context from 'src/store/context';
 import { setAccount } from 'src/store/action';
-import apiUser from '../../../apis/UserApI'
+import apiUser from '../../../apis/UserApi'
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
   const [state, dispatch] = useContext(context)

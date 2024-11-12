@@ -6,7 +6,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
-import api from "../../../../apis/Categories_courseApI"; // Giả sử bạn đã tạo file api.js để xử lý các yêu cầu API
+import api from "../../../../apis/Categories_courseApi"; // Giả sử bạn đã tạo file api.js để xử lý các yêu cầu API
 
 function FormAddCate() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();

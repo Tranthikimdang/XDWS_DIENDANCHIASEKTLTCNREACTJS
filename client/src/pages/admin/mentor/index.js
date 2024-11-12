@@ -15,7 +15,7 @@ import './index.css';
 
 // SQL
 import api from "../../../apis/mentorApi";
-import apiUser from '../../../apis/UserApI';
+import apiUser from '../../../apis/UserApi';
 
 function Mentor() {
   const { columns } = authorsMentorData;

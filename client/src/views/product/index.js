@@ -15,8 +15,8 @@ import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 
-import CourseApi from '../../apis/CourseApI';
-import CateCourseApi from '../../apis/Categories_courseApI';
+import CourseApi from '../../apis/CourseApi';
+import CateCourseApi from '../../apis/Categories_courseApi';
 import './index.css';
 
 // Tạo Alert để hiển thị snackbar

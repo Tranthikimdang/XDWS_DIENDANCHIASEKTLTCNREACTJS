@@ -7,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import api from '../../../../apis/CourseApI';
+import api from '../../../../apis/CourseApi';
 import axios from 'axios';
 
 function FormEditCourse() {

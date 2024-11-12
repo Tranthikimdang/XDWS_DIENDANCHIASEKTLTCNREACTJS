@@ -13,9 +13,8 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Imp
 import { db } from '../../../config/firebaseconfig'; // Đảm bảo bạn đã cấu hình Firebase
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
-import UserApI from 'src/apis/UserApI';
+import UserApI from 'src/apis/UserApi';
 import './index.css';
-import mysql from 'mysql2/promise'; // Import mysql2
 
 function User() {
   const { columns } = authorsTableData;
@@ -33,25 +32,12 @@ function User() {
   const userId = user ? user.id : null;
   const userRole = user ? user.role : null;  // Lấy role của user từ localStorage
 
-  // Fetch dữ liệu từ MySQL chỉ khi user không phải là admin hoặc userId không trùng với id
+  // Fetch dữ liệu từ UserAPI chỉ khi user không phải là admin hoặc userId không trùng với id
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Create a connection to the database
-        const connection = await mysql.createConnection({
-          host: 'your-database-host',
-          user: 'your-database-username',
-          password: 'your-database-password',
-          database: 'your-database-name'
-        });
-
-        // Query the database
-        const [users] = await connection.execute('SELECT * FROM users');
-
-        // Close the connection
-        await connection.end();
-
-        console.log(users);
+        const response = await UserApI.getUsers();
+        const users = response.data;
 
         // Lọc những tài khoản có role là admin và id trùng với userId trong localStorage
         const filteredUsers = users.filter(user => !(user.role === 'admin' && user.id === userId));

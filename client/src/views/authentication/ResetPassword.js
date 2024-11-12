@@ -9,7 +9,7 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Card, CardContent } from "@mui/material";
-import apiUser from '../../apis/UserApI'; // Import API User
+import apiUser from '../../apis/UserApi'; // Import API User
 
 const ResetPassword = () => {
     const { userId } = useParams(); // Lấy userId từ URL

@@ -10,7 +10,7 @@ import Container from '@mui/material/Container';
 import { Card, CardContent } from '@mui/material';
 import { toast } from 'react-toastify';
 import emailjs from 'emailjs-com';
-import apiUser from '../../apis/UserApI';
+import apiUser from '../../apis/UserApi';
 
 const ForgotPassword = () => {
   const handleSubmit = async (e) => {

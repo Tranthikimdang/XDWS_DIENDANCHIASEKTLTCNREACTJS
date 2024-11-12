@@ -11,7 +11,7 @@ import { GoogleLogin } from 'react-google-login';
 import ConfirmDialog from 'src/components/ConfirmDialog';
 import axios from "axios";
 
-import apiUser from '../../apis/UserApI';
+import apiUser from '../../apis/UserApi';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({

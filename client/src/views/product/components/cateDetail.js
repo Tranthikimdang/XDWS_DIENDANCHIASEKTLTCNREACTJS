@@ -6,8 +6,8 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 // Firebase
 import '../index.css';
-import CourseApi from '../../../apis/CourseApI';
-import CateCourseApi from '../../../apis/Categories_courseApI';
+import CourseApi from '../../../apis/CourseApi';
+import CateCourseApi from '../../../apis/Categories_courseApi';
 
 
 const Products = () => {

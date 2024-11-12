@@ -16,7 +16,7 @@ import { useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import './index.css';
 import ReplyIcon from '@mui/icons-material/Reply';
-import CourseDetailApi from '../../apis/CourseDetailApI';
+import CourseDetailApi from '../../apis/CourseDetailApi';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id_product từ URL
