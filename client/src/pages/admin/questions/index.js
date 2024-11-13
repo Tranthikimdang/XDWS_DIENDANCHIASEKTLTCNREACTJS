@@ -21,6 +21,8 @@ import './index.css';
 import { collection, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../../../config/firebaseconfig';
 import { doc, deleteDoc } from "firebase/firestore";
+import userApis from 'src/apis/UserApI';
+import { getQuestionsList } from 'src/apis/QuestionsApis';
 
 function Questions() {
   // eslint-disable-next-line no-unused-vars
@@ -43,13 +45,11 @@ function Questions() {
     const fetchQuestionss = async () => {
       setLoading(true);
       try {
-        const QuestionssSnapshot = await getDocs(collection(db, 'questions'));
-        const QuestionssData = QuestionssSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() };
-        });
-        console.log(QuestionssData)
-
-        setRows(QuestionssData); // Lưu dữ liệu vào state
+        const res = await getQuestionsList();
+        if (res.status == 'success') {
+          setRows(res?.data?.questions); 
+        }
+        
       } catch (error) {
         console.error("Lỗi khi tải câu hỏi:", error);
       } finally {
@@ -63,12 +63,10 @@ function Questions() {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(usersList);
+        const res = await userApis.getUsersList()
+        if(res.status == "success"){
+          setUsers(res?.data.users); 
+        }
       } catch (error) {
         console.error("Lỗi khi tải user:", error);
       } finally {
@@ -149,17 +147,15 @@ function Questions() {
     }
   }
 
-
-  //date
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt);
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
+      const diff = now - date;
 
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -223,6 +219,8 @@ function Questions() {
                     rows={rows
                       .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                        console.log(row);
+                        
                         const authorName = users.find(u => u.id === row.user_id)?.name || 'không có';
                         return {
                           ...row,
@@ -240,11 +238,9 @@ function Questions() {
                               }}
                             >
 
-
                               <div className="image-column" style={{ flex: '0 0 100px' }}>
-
                                 <img
-                                  src={row.imageUrls}
+                                  src={JSON.parse(row.imageUrls)?.[0]}
                                   alt="Không có hình ảnh"
                                   style={{
                                     width: '100px',
@@ -283,7 +279,7 @@ function Questions() {
                           date: (
                             <VuiBox>
                               <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                {formatUpdatedAt(row.updated_at)}
+                                {formatUpdatedAt(row.updatedAt)}
                               </VuiTypography>
                             </VuiBox>
                           ),

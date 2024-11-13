@@ -12,12 +12,13 @@ const LinkStyled = styled(Link)(() => ({
 
 const LogoImage = styled('img')(() => ({
   height: '70px',
+  marginRight: '0',
 }));
 
 const LogoText = styled('span')({
   fontSize: '24px',
   fontWeight: 'bold',
-  marginLeft: '10px',
+  marginLeft: '0px',
   color: '#11142D', // Adjust the color as needed
   whiteSpace: 'nowrap', // Prevents text from wrapping
   display: 'flex', // Aligns text on the same line as the image
