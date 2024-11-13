@@ -1,3 +1,4 @@
+import Categories_courseApI from './Categories_courseApI';
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
