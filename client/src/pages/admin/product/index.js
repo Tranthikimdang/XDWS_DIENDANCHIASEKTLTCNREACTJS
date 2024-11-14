@@ -13,10 +13,11 @@ import ConfirmDialog from './data/FormDeleteProduct';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
+//sql
 import api from '../../../apis/CourseApI';
 import apiUser from '../../../apis/UserApI';
 
-//firebase
+
 
 function Course() {
   const { columns } = authorsProductData;
@@ -51,7 +52,6 @@ function Course() {
     fetchCourses();
   }, []);
 
-  // Fetch users from Firebase
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
@@ -66,7 +66,7 @@ function Course() {
         setLoading(false);
       }
     };
-  
+
     fetchUsers();
   }, []);
 
@@ -256,8 +256,8 @@ function Course() {
                                     row.name && row.name.length > 10
                                       ? `${row.name.substring(0, 10).toUpperCase()}...`
                                       : row.name
-                                      ? row.name.toUpperCase()
-                                      : 'Image of the Product'
+                                        ? row.name.toUpperCase()
+                                        : 'Image of the Product'
                                   }
                                   style={{
                                     width: '100px',

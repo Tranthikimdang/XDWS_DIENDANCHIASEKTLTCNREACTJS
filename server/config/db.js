@@ -15,7 +15,7 @@ const sequelize = new Sequelize(
 
 sequelize
   .authenticate()
-  .then(() => console.log("Connection has been established successfully."))
-  .catch((err) => console.error("Unable to connect to the database:", err));
+  .then(() => console.log("Kết nối đã được thiết lập thành công."))
+  .catch((err) => console.error("Không thể kết nối với cơ sở dữ liệu:", err));
 
 module.exports = sequelize;
