@@ -21,9 +21,43 @@ exports.getAllQuestions = async (req, res) => {
     }
 };
 
+exports.getQuestionId = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        let questions;
+        if (id) {
+            // Tìm câu hỏi theo ID
+            questions = await Question.findByPk(id);
+            if (!questions) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: `No question found with ID ${id}`
+                });
+            }
+        } else {
+            // Lấy tất cả câu hỏi
+            questions = await Question.findAll();
+        }
+
+        res.status(200).json({
+            status: 'success',
+            results: Array.isArray(questions) ? questions.length : 1,
+            data: {
+                questions
+            }
+        });
+    } catch (err) {
+        res.status(500).send({
+            status: 'error',
+            message: err.message || 'Some error occurred while retrieving questions.'
+        });
+    }
+};
+
 // Tạo câu hỏi mới
 exports.createQuestion = async (req, res) => {
-    const { user_id,questions, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id,questions,hashtag, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies } = req.body;
     console.log(questions);
     
     
@@ -39,7 +73,7 @@ exports.createQuestion = async (req, res) => {
 
     try {
         const newQuestion = await Question.create({
-            user_id,questions, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies
+            user_id,questions,hashtag, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies
         });
         res.status(201).json({
             status: 'success',
@@ -59,7 +93,7 @@ exports.createQuestion = async (req, res) => {
 // Cập nhật câu hỏi
 exports.updateQuestion = async (req, res) => {
     const { id } = req.params;
-    const { user_id,questions, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id,questions,hashtag, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies } = req.body;
 
     try {
         const question = await Question.findByPk(id);
@@ -72,6 +106,7 @@ exports.updateQuestion = async (req, res) => {
 
         question.user_id = user_id || question.user_id;
         question.questions = questions || question.questions;
+        question.hashtag = hashtag || question.hashtag;
         question.imageUrls = imageUrls || question.imageUrls;
         question.fileUrls = fileUrls || question.fileUrls;
         question.isApproved = isApproved !== undefined ? isApproved : question.isApproved;

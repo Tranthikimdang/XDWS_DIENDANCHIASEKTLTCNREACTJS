@@ -52,6 +52,7 @@ function Course() {
     fetchCourses();
   }, []);
 
+  // Fetch users from Firebase
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
@@ -66,7 +67,7 @@ function Course() {
         setLoading(false);
       }
     };
-
+  
     fetchUsers();
   }, []);
 
@@ -256,8 +257,8 @@ function Course() {
                                     row.name && row.name.length > 10
                                       ? `${row.name.substring(0, 10).toUpperCase()}...`
                                       : row.name
-                                        ? row.name.toUpperCase()
-                                        : 'Image of the Product'
+                                      ? row.name.toUpperCase()
+                                      : 'Image of the Product'
                                   }
                                   style={{
                                     width: '100px',

@@ -149,11 +149,11 @@ const Questions = () => {
     userData.current = userDataFromLocalStorage;
 
     const fetchUsers = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
         const res = await userApis.getUsersList()
-        if(res.status == "success"){
-          setUsers(res?.data.users); 
+        if (res.status == "success") {
+          setUsers(res?.data.users);
         }
         // Tìm thông tin người dùng hiện tại dựa trên user ID trong localStorage
         // const currentUserInfo = userList.find((user) => user.id === userDataFromLocalStorage?.id);
@@ -295,14 +295,14 @@ const Questions = () => {
         // Nếu có ảnh, upload ảnh lên server
         let imageUrls = [];
         if (imageFiles.length > 0) {
-          const uploadImagePromises = imageFiles.filter(file=>file.size > 0).map((imageFile) => handleUploadImage(imageFile));
+          const uploadImagePromises = imageFiles.filter(file => file.size > 0).map((imageFile) => handleUploadImage(imageFile));
           const allImageUrls = await Promise.all(uploadImagePromises);
           imageUrls = allImageUrls?.map((imgUrl) => (imgUrl.status == 201 ? imgUrl.imagePath : ''));
         }
 
         let fileUrls = [];
         if (otherFiles.length > 0) {
-          const uploadFilePromises = otherFiles.filter(file=>file.size > 0).map((file) => handleUploadFile(file));
+          const uploadFilePromises = otherFiles.filter(file => file.size > 0).map((file) => handleUploadFile(file));
           fileUrls = await Promise.all(uploadFilePromises);
         }
 
@@ -312,8 +312,8 @@ const Questions = () => {
         const dataToSubmit = {
           ...data,
           user_id: userData.current.id,
-          imageUrls, 
-          fileUrls, 
+          imageUrls,
+          fileUrls,
           isApproved: false, // Mặc định là false
           is_deleted: data.is_deleted || false,
           up_code: dataTemp?.up_code || codeSnippet,
@@ -363,7 +363,7 @@ const Questions = () => {
       const response = await axios.post('http://localhost:3000/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      return response.data; 
+      return response.data;
     } catch (error) {
       console.error('Lỗi khi tải ảnh lên server:', error);
       throw new Error('Lỗi khi tải ảnh lên server');
@@ -553,7 +553,6 @@ const Questions = () => {
 
     if (!imageError && !fileError) {
       try {
-        // Upload ảnh nếu có
         let imageUrls = [];
         if (imageFiles.length > 0) {
           const uploadImagePromises = imageFiles.filter(file => file.size > 0).map((imageFile) => handleUploadImage(imageFile));
@@ -561,18 +560,15 @@ const Questions = () => {
           imageUrls = allImageUrls?.map((imgUrl) => (imgUrl.status === 201 ? imgUrl.imagePath : ''));
         }
 
-        // Upload các tệp khác nếu có
         let fileUrls = [];
         if (otherFiles.length > 0) {
           const uploadFilePromises = otherFiles.filter(file => file.size > 0).map((file) => handleUploadFile(file));
           fileUrls = await Promise.all(uploadFilePromises);
         }
 
-        // Xóa các trường 'file' và 'image' trong data
         delete data.file;
         delete data.image;
 
-        // Tạo dữ liệu cần gửi
         const dataToSubmit = {
           ...data,
           imageUrls: imageUrls.length > 0 ? imageUrls : dataTemp.imageUrls,
@@ -604,8 +600,6 @@ const Questions = () => {
       } catch (error) {
         setLoading(false);
 
-        // Xử lý lỗi khi xảy ra lỗi không phải 2xx
-        console.error('Error:', error.message);
         setSnackbarOpen(true);
         setSnackbarMessage(error.message || 'Có lỗi xảy ra khi cập nhật câu hỏi. Vui lòng thử lại sau.');
         setSnackbarSeverity('error');
@@ -616,7 +610,7 @@ const Questions = () => {
       setSnackbarMessage('Có lỗi khi tải lên ảnh hoặc tệp.');
       setSnackbarSeverity('error');
     }
-};
+  };
 
 
   const onEdit = (data) => {
@@ -868,10 +862,11 @@ const Questions = () => {
                     moment(a.updatedAt).unix() < moment(b.updatedAt).unix() ? 1 : -1,
                   )
                   .map((question) => {
-                    const listImgUrl = question.imageUrls ? JSON.parse(question.imageUrls) : [];
-                    const listFileUrl = question.fileUrls ? JSON.parse(question.fileUrls) : [];
+                    console.log(question)
+                    const listImgUrl = question.imageUrls;
+                    const listFileUrl = question.fileUrls;
                     return (
-                      question.isApproved == false && (
+                      question.isApproved == true && (
                         <Box
                           key={question?.id}
                           sx={{
@@ -1216,10 +1211,9 @@ const Questions = () => {
                                     style={{ borderRadius: '50%', marginRight: '10px' }}
                                   />
                                   <TextField
-                                    placeholder={`Bình luận dưới tên ${
-                                      users.find((user) => user.id === userData.current.id)?.name ||
+                                    placeholder={`Bình luận dưới tên ${users.find((user) => user.id === userData.current.id)?.name ||
                                       'Người dùng'
-                                    } `}
+                                      } `}
                                     variant="outlined"
                                     size="small"
                                     fullWidth
@@ -1506,10 +1500,9 @@ const Questions = () => {
                                           style={{ borderRadius: '50%', marginRight: '10px' }}
                                         />
                                         <TextField
-                                          placeholder={`Trả lời dưới tên ${
-                                            users.find((user) => user.id === userData.current.id)
-                                              ?.name || 'Người dùng'
-                                          }`}
+                                          placeholder={`Trả lời dưới tên ${users.find((user) => user.id === userData.current.id)
+                                            ?.name || 'Người dùng'
+                                            }`}
                                           variant="outlined"
                                           size="small"
                                           fullWidth
@@ -1934,7 +1927,7 @@ const Questions = () => {
               />
               {/* Article List */}
               {articles
-                .filter((article) => article.isApproved === false)
+                .filter((article) => article.isApproved === true)
                 .slice(0, 4)
                 .map((article) => (
                   <ListItem key={article.id} sx={{ padding: '10px 0' }}>
