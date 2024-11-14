@@ -219,7 +219,6 @@ function Questions() {
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
                         console.log(row);
-
                         const authorName =
                           users.find((u) => u.id === row.user_id)?.name || 'không có';
                         return {
@@ -239,7 +238,7 @@ function Questions() {
                             >
                               <div className="image-column" style={{ flex: '0 0 100px' }}>
                                 <img
-                                  src={JSON.parse(row.imageUrls)?.[0]}
+                                  src={row.imageUrls}
                                   alt="Không có hình ảnh"
                                   style={{
                                     width: '100px',
