@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Card from "@mui/material/Card";
 import { Link } from 'react-router-dom';
 import VuiBox from "src/components/admin/VuiBox";
+import VuiInput from "src/components/admin/VuiInput";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
@@ -13,11 +14,11 @@ import ConfirmDialog from './data/FormDeleteMentor';
 import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
-
-//firebase 
-import { collection, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '../../../config/firebaseconfig';
-import { doc, deleteDoc } from "firebase/firestore";
+//icon
+import SearchIcon from '@mui/icons-material/Search';
+//sql
+import api from '../../../apis/mentorApi';
+import apiUser from '../../../apis/UserApI';
 
 function Mentor() {
   const { columns } = authorsMentorData;
@@ -33,47 +34,38 @@ function Mentor() {
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
 
-  // Fetch mentor from Firestore
   useEffect(() => {
     const fetchMentor = async () => {
-      setLoading(true);
       try {
-        const mentorSnapshot = await getDocs(collection(db, 'mentor'));
-        const mentorData = mentorSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() }; // Trả về đối tượng mentor
-        });
-        setRows(mentorData); // Lưu dữ liệu vào state
+        const mentorsData = await api.getMentors();
+        console.log('Fetched mentors data:', mentorsData); // Log the response
+
+        // Check if mentorsData is an array; if not, fallback to an empty array
+        setRows(Array.isArray(mentorsData) ? mentorsData : []);
       } catch (error) {
-        console.error("Lỗi khi tải mentor:", error);
-      } finally {
-        setLoading(false);
+        console.error('Error fetching mentors:', error);
+        setRows([]); // Set rows to empty array in case of error
       }
     };
     fetchMentor();
   }, []);
 
-  // Fetch users from Firebase
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(usersList);
+        const response = await apiUser.getUsersList();
+        console.log('Users data:', response.data); // Kiểm tra dữ liệu
+        // Gán mảng users từ response.data.users
+        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
       } catch (error) {
-        console.error("Lỗi khi tìm kiếm người dùng:", error);
+        console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
-
-
 
   const handleView = async (id) => {
     try {
@@ -89,15 +81,12 @@ function Mentor() {
     setDeleteName(name);
     setOpenDialog(true);
   };
+
   // xóa
   const confirmDelete = async () => {
     try {
-      // Tạo tham chiếu đến tài liệu cần xóa trong Firestore bằng ID của mentor
-      const mentorRef = doc(db, "mentor", deleteId);
-      await deleteDoc(mentorRef); // Thực hiện xóa mentor từ Firestore
-      // Cập nhật lại danh sách mentor sau khi xóa
+      await api.deleteMentor(deleteId);  // API call to delete the mentor
       setRows(rows.filter((row) => row.id !== deleteId));
-      // Đóng hộp thoại xác nhận xóa và hiển thị thông báo thành công
       setOpenDialog(false);
       setSnackbarMessage("Xóa mentor thành công");
       setSnackbarSeverity("success");
@@ -124,12 +113,12 @@ function Mentor() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+
   //duyệt
   const handleApprove = async (id) => {
     try {
-      const mentorRef = doc(db, "mentor", id); // Tạo DocumentReference
-      await updateDoc(mentorRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
-      // Cập nhật lại danh sách mentor
+      // Make an API request to update the mentor's approval status in the SQL database
+      await api.updateMentorApproval(id);
       setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
       setSnackbarMessage("Duyệt mentor thành công");
       setSnackbarSeverity("success");
@@ -140,18 +129,18 @@ function Mentor() {
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
-  }
+  };
 
-  //date
+  // date
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt);
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
+      const diff = now - date;
 
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -180,8 +169,39 @@ function Mentor() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Danh sách mentor
+                Danh sách người hướng dẫn
               </VuiTypography>
+              <VuiBox pr={1}>
+                <VuiInput
+                  placeholder="Nhập vào đây..."
+                  icon={{ component: <SearchIcon />, direction: "left" }}
+                  sx={({ breakpoints }) => ({
+                    [breakpoints.down("sm")]: {
+                      maxWidth: "80px",
+                    },
+                    [breakpoints.only("sm")]: {
+                      maxWidth: "80px",
+                    },
+                    backgroundColor: "info.main !important",
+                  })}
+                />
+              </VuiBox>
+            </VuiBox>
+            <VuiBox
+              display="flex"
+              justifyContent="flex-end" // Aligns content to the right
+              alignItems="center"
+              mb="24px"
+              sx={{
+                backgroundColor: 'transparent', // Keeping it clean with a transparent background
+                paddingBottom: '12px', // Removing the border and maintaining space at the bottom
+              }}
+            >
+              <VuiBox display="flex" alignItems="center">
+                <VuiTypography variant="body2" color="info.main" sx={{ mr: 1 }}>
+                  Lịch sử xóa mentor
+                </VuiTypography>
+              </VuiBox>
             </VuiBox>
             {loading ? (
               <div
@@ -219,7 +239,6 @@ function Mentor() {
                         return {
                           ...row,
                           no: page * rowsPerPage + index + 1,
-
                           author: (
                             <VuiBox style={{ display: 'flex', alignItems: 'center' }}>
                               <img
@@ -237,12 +256,6 @@ function Mentor() {
                                 </VuiTypography>
                               </VuiBox>
                             </VuiBox>
-
-                          ),
-                          expertise: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {row.expertise}
-                            </VuiTypography>
                           ),
                           location: (
                             <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
@@ -256,9 +269,9 @@ function Mentor() {
                           ),
                           information: (
                             <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {row.upfile.length > 50
-                                ? `${row.upfile.substring(0, 50)}...`
-                                : row.upfile}
+                              {row.cv_url.length > 50
+                                ? `${row.cv_url.substring(0, 50)}...`
+                                : row.cv_url}
                             </VuiTypography>
                           ),
                           date: (

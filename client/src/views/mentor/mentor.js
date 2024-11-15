@@ -1,3 +1,4 @@
+/* eslint-disable no-lone-blocks */
 import {
   Alert,
   Box,
@@ -36,8 +37,6 @@ const Mentor = () => {
     return downloadURL;
   };
 
-  
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -67,7 +66,7 @@ const Mentor = () => {
         updated_at: new Date(),  // Thời gian cập nhật
       };
   
-      const mentorsCollection = collection(db, 'mentor');
+      const mentorsCollection = collection(db, 'mentors');
       const res = await addDoc(mentorsCollection, dataToSubmit);
       const docSnapshot = await getDoc(res);
   
