@@ -73,7 +73,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản Lý Bình Luận",
+    name: "Quản lý bình luận",
     key: "comment",
     route: "/admin/comment",
     icon: <BsFillPencilFill size="15px" color="inherit" />,
@@ -118,7 +118,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý mentor",
+    name: "Quản lý người hướng dẫn",
     key: "mentor",
     route: "/admin/mentor",
     icon: <BsJournals size="15px" color="inherit" />,
