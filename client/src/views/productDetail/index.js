@@ -12,11 +12,12 @@ import {
   Avatar,
   IconButton,
 } from '@mui/material';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import './index.css';
 import ReplyIcon from '@mui/icons-material/Reply';
 import CourseDetailApi from '../../apis/CourseDetailApI';
+import StudyTimeApi from '../../apis/StudyTimeApI';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id_product từ URL
@@ -24,6 +25,36 @@ const ProductsDetail = () => {
   const [currentVideo, setCurrentVideo] = useState(null); // Video đang hiển thị
   const [currentName, setCurrentName] = useState(''); // Tên bài học đang hiển thị
   const [loading, setLoading] = useState(true);
+  const [StudyTime, setStudyTime] = useState([]);
+  const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
+
+
+  useEffect(() => {
+    const fetchStudyTime = async () => {
+      setLoading(true);
+      try {
+        const response = await StudyTimeApi.getStudyTimesList();
+        const studyTimes = response.data.studyTimes;
+        setStudyTime(studyTimes);
+
+        // Kiểm tra nếu không có studyTime nào trùng khớp với userId và id product
+        const hasAccess = studyTimes.some(
+          (item) => item.user_id === userId && item.course_id == id
+        );
+        if (!hasAccess) {
+          navigate('/products'); // Chuyển hướng nếu không có quyền truy cập
+        }
+      } catch (error) {
+        console.error('Error fetching study time:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudyTime();
+  }, [id, navigate, userId]);
 
   useEffect(() => {
     const fetchProductDetail = async () => {
