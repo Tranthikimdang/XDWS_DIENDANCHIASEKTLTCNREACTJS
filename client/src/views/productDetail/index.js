@@ -41,11 +41,24 @@ const ProductsDetail = () => {
         setStudyTime(studyTimes);
 
         // Kiểm tra nếu không có studyTime nào trùng khớp với userId và id product
-        const hasAccess = studyTimes.some(
+        const currentStudyTime = studyTimes.find(
           (item) => item.user_id === userId && item.course_id == id
         );
-        if (!hasAccess) {
+
+        if (!currentStudyTime) {
           navigate('/products'); // Chuyển hướng nếu không có quyền truy cập
+        } else {
+          const endDate = new Date(currentStudyTime.enddate);
+          const currentDate = new Date();
+          const daysLeft = Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24));
+
+          if (daysLeft <= 3 && daysLeft > 0) {
+            alert('Hạn học của bạn chỉ còn ba ngày, vui lòng đẩy nhanh tiến đội học!');
+          } else if (daysLeft <= 0) {
+            alert('Bạn đã hết thời gian cho khóa học này');
+            await StudyTimeApi.deleteStudyTime(currentStudyTime.id); // Xóa dữ liệu khỏi StudyTime
+            navigate('/products'); // Chuyển hướng về trang sản phẩm
+          }
         }
       } catch (error) {
         console.error('Error fetching study time:', error);
