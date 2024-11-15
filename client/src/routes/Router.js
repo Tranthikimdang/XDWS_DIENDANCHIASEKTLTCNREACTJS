@@ -24,7 +24,7 @@ const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestio
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
-const Shadow = Loadable(lazy(() => import('../views/utilities/Shadow')));
+const Shadow = Loadable(lazy(() => import('../')));
 const ProductClient = Loadable(lazy(() => import('../views/product/index')));
 const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
 const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));

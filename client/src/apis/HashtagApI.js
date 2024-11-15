@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Địa chỉ cơ sở cho API
-const BASE_URL = "http://localhost:3000/api"; 
+const BASE_URL = "http://localhost:3000/api";
 
 // Hashtags API
 const HASHTAGS_URL = `${BASE_URL}/hashtags`;
