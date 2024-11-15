@@ -15,13 +15,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 //icon
 import DescriptionIcon from '@mui/icons-material/Description';
-// import { IconBookmark, IconDots } from '@tabler/icons';
-// import FacebookIcon from '@mui/icons-material/Facebook';
-// import TwitterIcon from '@mui/icons-material/Twitter';
-// import EmailIcon from '@mui/icons-material/Email';
-// import LinkIcon from '@mui/icons-material/Link';
-// import FlagIcon from '@mui/icons-material/Flag';
-// import SearchIcon from '@mui/icons-material/Search';
+import { IconBookmark, IconDots } from '@tabler/icons';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import EmailIcon from '@mui/icons-material/Email';
+import LinkIcon from '@mui/icons-material/Link';
+import FlagIcon from '@mui/icons-material/Flag';
+import SearchIcon from '@mui/icons-material/Search';
 
 
 const Profile = () => {
