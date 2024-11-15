@@ -18,7 +18,7 @@ import './index.css';
 import SearchIcon from '@mui/icons-material/Search';
 //sql
 import api from '../../../apis/mentorApi';
-import apiUser from '../../../apis/UserApI';
+import apiUser from '../../apis/UserApI';
 
 function Mentor() {
   const { columns } = authorsMentorData;
