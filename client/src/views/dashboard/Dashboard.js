@@ -277,6 +277,58 @@ const Home = () => {
                     </Grid>
                   </StyledBox>
                 </Carousel.Item>
+                <Carousel.Item>
+                  <StyledBox
+                    sx={{
+                      background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)',
+                      borderRadius: '20px',
+                      padding: '20px',
+                    }}
+                  >
+                    <Grid container spacing={2} alignItems="center">
+                      <Grid item xs={12} md={8}>
+                        <Typography
+                          variant="h4"
+                          component="h2"
+                          fontWeight="bold"
+                          sx={{ color: '#fff' }}
+                        >
+                           Trở Thành Mentor và Chia Sẻ Kiến Thức!
+                        </Typography>
+                        <SubText sx={{ color: '#fff' }}>
+                        Hướng dẫn và hỗ trợ những lập trình viên mới bắt đầu. 
+                        Tham gia vào đội ngũ mentors của chúng tôi ngay hôm nay.
+                        </SubText>
+                        <ActionButton
+                          variant="contained"
+                          href="/auth/mentor"
+                          sx={{
+                            textTransform: 'none',
+                            backgroundColor: '#0057e6',
+                            color: '#ffffff',
+                            border: '2px solid #0044cc',
+                            '&:hover': {
+                              backgroundColor: '#0044cc',
+                            },
+                            padding: '10px 20px',
+                            borderRadius: '30px',
+                          }}
+                        >
+                          Tham Gia Đội Ngũ Mentors
+                        </ActionButton>
+                      </Grid>
+                      <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
+                        <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
+                          <img
+                            src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg"
+                            alt="Diễn đàn chia sẻ code"
+                            style={{ width: '400px', marginLeft: '-237px', borderRadius: '10px' }}
+                          />
+                        </ImageBox>
+                      </Grid>
+                    </Grid>
+                  </StyledBox>
+                </Carousel.Item>
               </Carousel>
             </Grid>
             {/* Featured Articles */}
