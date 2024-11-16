@@ -1,16 +1,16 @@
 /* eslint-disable no-unused-vars */
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import { Box } from '@mui/material';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import React, { useRef, useState } from 'react';
 import Logo from 'src/layouts/full/shared/logo/Logo';
 import emailjs from 'emailjs-com';
 import { GoogleLogin } from 'react-google-login';
-import ConfirmDialog from 'src/components/ConfirmDialog';
 import axios from "axios";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Box } from '@mui/material';
+//sql
 import apiUser from '../../apis/UserApI';
 
 const AuthRegister = ({ subtext }) => {
@@ -25,7 +25,6 @@ const AuthRegister = ({ subtext }) => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
 
   const navigate = useNavigate();
   const recordCreated = useRef();
@@ -132,12 +131,10 @@ const AuthRegister = ({ subtext }) => {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
       } else {
-        // Xử lý upload ảnh, kiểm tra và thêm người dùng
         const file = e.target.elements.formImageUrl.files[0];
         let imageUrl = '';
 
         if (file) {
-          // Lấy URL của ảnh đã upload
           imageUrl = await uploadImage(file);
         }
 
@@ -148,7 +145,8 @@ const AuthRegister = ({ subtext }) => {
 
         if (newUser) {
           localStorage.setItem('user', JSON.stringify(newUser));
-          setOpenDialog(true);
+          alert('Đăng ký thành công!');
+          onCancel();  // Chuyển hướng sau khi đăng ký thành công
         }
       }
     } catch (error) {
@@ -156,7 +154,6 @@ const AuthRegister = ({ subtext }) => {
       console.error('Lỗi đăng ký:', error);
     }
   };
-
 
 
   // Xử lý khi thay đổi thông tin trong form
@@ -232,11 +229,6 @@ const AuthRegister = ({ subtext }) => {
 
   const onCancel = () => {
     navigate('/auth/inter');
-  };
-
-  const onConfirm = () => {
-    navigate('/auth/mentor', { state: recordCreated.current });
-    setOpenDialog(false);
   };
 
   // Hàm gửi email qua EmailJS
@@ -462,20 +454,13 @@ const AuthRegister = ({ subtext }) => {
               </Form>
 
               <div className="text-center mt-3">
-                <span>Bạn đã có tài khoảng? </span>
+                <span>Bạn đã có tài khoản? </span>
                 <Link to="/auth/login">Đăng nhập</Link>
               </div>
             </Card>
           </Col>
         </Row>
-      </Container>
-      <ConfirmDialog
-        open={openDialog}
-        onClose={onCancel}
-        onConfirm={onConfirm}
-        title={`Tạo tài khoản thành công`}
-        content={'Bạn có muốn trở thành mentor không?'}
-      />
+      </Container> 
     </div>
   );
 };

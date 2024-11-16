@@ -6,7 +6,7 @@ const courseDetailRoutes = require("./routes/courseDetailRoutes");
 const userRouter = require("./routes/userRoutes");
 const orderRouter = require('./routes/orderRoutes');
 const hashtagRouter = require('./routes/hashtagRoutes')
-const mentorRouter = require('./routes/mentorRoutes');
+const mentorRoutes = require('./routes/mentorRoutes');
 const questionRouter = require('./routes/questionRoutes');
 const studyTimeRouter = require('./routes/studyRoutes'); 
 
@@ -80,9 +80,10 @@ app.use("/api/course-details", courseDetailRoutes);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
-app.use("/api", mentorRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/study-times", studyTimeRouter);
+app.use("/api", mentorRoutes);
+app.use(mentorRoutes);       // Sử dụng mentor routes
 
 // Khởi chạy server
 app.listen(port, async () => {

@@ -30,6 +30,9 @@ const Questions = sequelize.define('Questions', {
     questions: {
         type: DataTypes.STRING,
     },
+    hashtag:{
+        type: DataTypes.STRING,
+    },
     imageUrls: {
         type: DataTypes.JSON,
         defaultValue: []

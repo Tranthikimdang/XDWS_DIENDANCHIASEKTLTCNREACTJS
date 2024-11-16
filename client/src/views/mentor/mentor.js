@@ -42,7 +42,7 @@ const Mentor = () => {
     setLoading(true);
   
     const formData = new FormData(e.target);
-    const file = formData.get('cv_url');
+    const file = formData.get('upfile');
   
     if (!file) {
       setSnackbarMessage('Vui lòng chọn một file CV.');
@@ -57,15 +57,19 @@ const Mentor = () => {
   
       const dataToSubmit = {
         user_id: userData?.id,
-        cv_url: fileUrl,
+        upfile: fileUrl,
+        expertise: "WebDevelopment", // tạm thời
+        // expertise: expertiseList,  // Gán danh sách các expertise
         isApproved: '0',
         created_at: new Date(),  // Thời gian tạo
         is_deleted: false,  // Mặc định là false
         updated_at: new Date(),  // Thời gian cập nhật
       };
+  
       const mentorsCollection = collection(db, 'mentors');
       const res = await addDoc(mentorsCollection, dataToSubmit);
       const docSnapshot = await getDoc(res);
+  
       if (docSnapshot.exists()) {
         setSnackbarMessage('CV của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
         setSnackbarSeverity('success');
@@ -160,7 +164,6 @@ const Mentor = () => {
                   />
                   <Typography variant="h6">{userData?.name || ''}</Typography>
                 </Box>
-
                 <Box display="flex" flexDirection={'column'} sx={{ padding: '10px' }}>
                   <Box display="flex" gap={1}>
                     <Button
@@ -175,7 +178,7 @@ const Mentor = () => {
                     >
                       Tải CV lên
                       <input
-                        name="cv_url"
+                        name="upfile"
                         type="file"
                         accept=".pdf,.doc,.docx"
                         hidden
@@ -188,7 +191,6 @@ const Mentor = () => {
                       File đã chọn: {selectedFile}
                     </Typography>
                   )}
-
                   <Button
                     type="submit"
                     variant="contained"
