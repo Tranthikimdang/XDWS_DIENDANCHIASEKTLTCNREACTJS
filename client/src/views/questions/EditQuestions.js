@@ -20,6 +20,8 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { db } from 'src/config/firebaseconfig';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import {getQuestionId, updateQuestion} from 'src/apis/QuestionsApis'
+import axios from 'axios';
 
 const Questions = () => {
   const [imageError, setImageError] = useState('');
@@ -31,7 +33,7 @@ const Questions = () => {
     question: '',
     hashtag: '',
     up_code: '',
-    imageUrls: [], // Added for images
+    imageUrls: [], 
     fileUrls: [],
   });
 
@@ -44,33 +46,32 @@ const Questions = () => {
   useEffect(() => {
     const fetchQuestionById = async (id) => {
       try {
-        const docRef = doc(db, 'questions', id);
-        const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-          const questionData = docSnap.data();
-          setQuestionData(questionData); // Gán dữ liệu vào state
-          console.log(questionData);
-        } else {
-          console.log('Không có tài liệu nào như vậy!');
+        const res = await getQuestionId(id)
+        console.log(res);
+        if(res.status == 'success'){
+          setQuestionData({
+            ...res?.data?.questions,
+            imageUrls: JSON.parse(res?.data?.questions?.imageUrls) || [],
+            fileUrls: JSON.parse(res?.data?.questions?.fileUrls) || [],
+          });
         }
+        
       } catch (error) {
         console.error('Lỗi khi tìm câu hỏi theo ID:', error);
       }
     };
 
     if (id) {
-      fetchQuestionById(id); // Gọi hàm lấy dữ liệu nếu có ID
+      fetchQuestionById(id); 
     }
   }, [id]);
 
   // Xử lý thay đổi trong form
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    console.log(value);
     setQuestionData((prevData) => ({
       ...prevData,
-      [name]: value, // Cập nhật dữ liệu khi thay đổi form
+      [name]: value, 
     }));
   };
 
@@ -92,8 +93,6 @@ const Questions = () => {
     ];
     for (const file of files) {
       if (!allowedFileTypes.includes(file.type)) {
-        console.log(`Tệp ${file.name} không đúng định dạng (chỉ chấp nhận PDF, DOC, DOCX)`);
-
         return `Tệp ${file.name} không đúng định dạng (chỉ chấp nhận PDF, DOC, DOCX)`;
       }
     }
@@ -104,8 +103,6 @@ const Questions = () => {
     const files = e.target.files;
     const errorMsg = validateImageFile(files);
     if (errorMsg) {
-      console.log(errorMsg);
-
       setImageError(errorMsg);
     } else {
       setImageError(''); // Xóa lỗi nếu hợp lệ
@@ -119,8 +116,7 @@ const Questions = () => {
     if (errorMsg) {
       setFileError(errorMsg);
     } else {
-      setFileError(''); // Xóa lỗi nếu hợp lệ
-      console.log('Tệp hợp lệ:', files);
+      setFileError('');
     }
   };
 
@@ -139,50 +135,98 @@ const Questions = () => {
 
     return urls;
   };
+  const handleUploadImage = async (imageFile) => {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    try {
+      const response = await axios.post('http://localhost:3000/api/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data; 
+    } catch (error) {
+      console.error('Lỗi khi tải ảnh lên server:', error);
+      throw new Error('Lỗi khi tải ảnh lên server');
+    }
+  };
 
+  const handleUploadFile = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/upload-file', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data.fileUrl; // Đường dẫn tệp trả về từ server
+    } catch (error) {
+      console.error('Lỗi khi tải tệp lên server:', error);
+      throw new Error('Lỗi khi tải tệp lên server');
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
 
+    // Lấy các tệp ảnh và tệp khác
     const imageFiles = formData.getAll('image');
     const otherFiles = formData.getAll('file');
 
     if (!imageError && !fileError) {
       try {
         let imageUrls = [];
-        let fileUrls = [];
-        if (imageFiles[0].size !== 0) {
-          imageUrls = await handleUpload(imageFiles);
+        if (imageFiles.length > 0) {
+          const uploadImagePromises = imageFiles.filter(file => file.size > 0).map((imageFile) => handleUploadImage(imageFile));
+          const allImageUrls = await Promise.all(uploadImagePromises);
+          imageUrls = allImageUrls?.map((imgUrl) => (imgUrl.status === 201 ? imgUrl.imagePath : ''));
         }
-        if (imageFiles[0].size !== 0) {
-          fileUrls = await handleUpload(otherFiles);
+
+        let fileUrls = [];
+        if (otherFiles.length > 0) {
+          const uploadFilePromises = otherFiles.filter(file => file.size > 0).map((file) => handleUploadFile(file));
+          fileUrls = await Promise.all(uploadFilePromises);
         }
 
         delete data.file;
         delete data.image;
+console.log();
+
         const dataToSubmit = {
           ...data,
           imageUrls: imageUrls.length > 0 ? imageUrls : questionData.imageUrls,
-          fileUrls: fileUrls.length > 0 ? fileUrls : questionData.fileUrls,
-          createdAt: serverTimestamp(),
+          fileUrls: fileUrls.length > 0 ? fileUrls : questionData.imageUrls,
+          isApproved: false,
+          is_deleted: data.is_deleted || false,
+          up_code: data?.up_code,
         };
 
-        const docRef = doc(db, 'questions', id);
-        await updateDoc(docRef, dataToSubmit);
-        setSnackbarOpen(true);
-        setSnackbarMessage('Cập nhật câu hỏi thành công.');
-        setSnackbarSeverity("success");
-        setTimeout(() => {
-          navigate(-1); // Quay lại trang trước sau khi Snackbar đã hiển thị
-        }, 2000);
-        e.target.reset();
+        // Gọi API cập nhật câu hỏi
+        const res = await updateQuestion(id, dataToSubmit);
+
+        if (res.status === 'success') {
+          // Thông báo khi cập nhật thành công
+          setSnackbarOpen(true);
+          setSnackbarMessage('Câu hỏi đã được cập nhật thành công.');
+          setSnackbarSeverity('success');
+          setTimeout(() => {
+            navigate(-1); 
+          }, 2000);
+          e.target.reset();
+        } else {
+          setSnackbarOpen(true);
+          setSnackbarMessage(res.data?.message || 'Có lỗi khi cập nhật câu hỏi. Vui lòng thử lại.');
+          setSnackbarSeverity('error');
+        }
       } catch (error) {
-        console.error('Lỗi khi gửi dữ liệu lên Firestore:', error);
+        setSnackbarOpen(true);
+        setSnackbarMessage(error.message || 'Có lỗi xảy ra khi cập nhật câu hỏi. Vui lòng thử lại sau.');
+        setSnackbarSeverity('error');
       }
     } else {
-      console.log('Có lỗi khi tải lên');
+      setSnackbarOpen(true);
+      setSnackbarMessage('Có lỗi khi tải lên ảnh hoặc tệp.');
+      setSnackbarSeverity('error');
     }
   };
 
@@ -305,8 +349,7 @@ const Questions = () => {
                 Hình ảnh tải lên
               </Typography>
               <Box display="flex" flexWrap="wrap" gap={2} justifyContent={'center'} flex={1}>
-                {questionData.imageUrls &&
-                  questionData.imageUrls.map((url, index) => (
+                {questionData.imageUrls.map((url, index) => (
                     <img
                       key={index}
                       src={url}

@@ -1,21 +1,26 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+
+const categoriesCourseRoutes = require("./routes/categories_courseRoutes");
+const courseRoutes = require("./routes/courseRoutes");
+const courseDetailRoutes = require("./routes/courseDetailRoutes");
+const userRouter = require("./routes/userRoutes");
+const orderRouter = require('./routes/orderRoutes');
+const hashtagRouter = require('./routes/hashtagRoutes')
+const mentorRoutes = require('./routes/mentorRoutes');
+const questionRouter = require('./routes/questionRoutes');
+const commentRoutes = require("./routes/commentRoutes");
+
+const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const categoriesCourseRoutes = require("./routes/categories_courseRoutes");
-const courseRoutes = require("./routes/courseRoutes");
-const courseDetailRoutes = require("./routes/courseDetailRoutes");
-const commentRoutes = require("./routes/commentRoutes");
-const userRouter = require("./routes/userRoutes");
-const sequelize = require("./models"); // Kết nối Sequelize
-
 const app = express();
 const port = 3000;
 
-//  Cấu hình body-parser middleware
+// Cấu hình body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
@@ -28,37 +33,23 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Cấu hình multer cho việc upload
-app.use("/uploads", express.static(uploadDir));
-
-// Configure Multer storage
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads');  
+  destination: function (req, file, cb) {
+    cb(null, uploadDir); // Lưu vào thư mục uploads
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));  
+  filename: function (req, file, cb) {
+    const filename = `${Date.now()}-${file.originalname}`; // Tạo tên tệp với timestamp
+    cb(null, filename); // Đặt tên tệp
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
-    cb(null, true);  // Accept image files
-  } else {
-    cb(new Error('Invalid file type'), false);  // Reject non-image files
-  }
-};
+const upload = multer({ storage: storage });
+app.use("/uploads", express.static(uploadDir)); // Tạo đường dẫn tĩnh cho uploads
 
-// Set up Multer with the storage configuration
-const upload = multer({
-  storage: storage,
-  fileFilter: fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },  // Limit file size to 5MB
-});
-
-// Upload endpoint for single image field
-app.post("/api/upload-image", upload.single("image"), (req, res) => {
-  console.log(req.file);
+// Endpoint upload ảnh
+app.post("/api/upload", upload.single("image"), (req, res) => {
   if (req.file) {
+    // Trả về đường dẫn của ảnh
     const imagePath = `http://localhost:${port}/uploads/${req.file.filename}`;
     res.status(201).json({
       status: 201,
@@ -70,19 +61,17 @@ app.post("/api/upload-image", upload.single("image"), (req, res) => {
   }
 });
 
-// Upload endpoint for single file field (separate from the image)
-app.post("/api/upload-file", upload.single("file"), (req, res) => {
-  console.log(req.file);
-  if (req.file) {
-    const filePath = `http://localhost:${port}/uploads/${req.file.filename}`;
-    res.status(200).json({
-      status: 200,
-      message: "File uploaded successfully!",
-      filePath: filePath,
+
+app.post('/api/upload-file', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send({
+      message: 'Không có tệp nào được tải lên.'
     });
-  } else {
-    res.status(400).json({ message: "No file uploaded" });
   }
+
+  res.status(200).send({
+    fileUrl: `/uploads/${req.file.filename}`
+  });
 });
 
 // Sử dụng routes cho các API khác
@@ -92,6 +81,11 @@ app.use("/api/course-details", courseDetailRoutes);
 app.use("/api/users", userRouter);
 app.use("/api/comments", commentRoutes); 
 
+app.use("/api/orders", orderRouter);
+app.use("/api/hashtags", hashtagRouter);
+app.use("/api/questions", questionRouter);
+app.use("/api", mentorRoutes);
+app.use(mentorRoutes);       // Sử dụng mentor routes
 // Khởi chạy server
 app.listen(port, async () => {
   try {

@@ -13,6 +13,7 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Imp
 import { db } from '../../../config/firebaseconfig'; // Đảm bảo bạn đã cấu hình Firebase
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
+import UserApI from 'src/apis/UserApI';
 import './index.css';
 
 function User() {
@@ -27,26 +28,32 @@ function User() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Fetch dữ liệu từ Firestore
+  
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
+  const userRole = user ? user.role : null;  // Lấy role của user từ localStorage
+  
+  // Fetch dữ liệu từ MySQL chỉ khi user không phải là admin hoặc userId không trùng với id
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'users'));
-        const users = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setRows(users);
-        console.log('Fetched users:', users);
+        const users = await UserApI.getUsersList();  // Gọi API để lấy dữ liệu người dùng từ MySQL
+        console.log(users);
+  
+        // Lọc những tài khoản có role là admin và id trùng với userId trong localStorage
+        const filteredUsers = users.data.users.filter(user => !(user.role === 'admin' && user.id === userId));
+  
+        setRows(filteredUsers);  // Cập nhật danh sách người dùng đã lọc
+        console.log('Filtered users:', filteredUsers);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchUsers();
-  }, []);
+  }, [userRole, userId]); 
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -55,7 +62,7 @@ function User() {
 
   const confirmDelete = async (deleteId) => {
     try {
-      await deleteDoc(doc(db, 'users', deleteId)); // Xóa user từ Firestore
+      await UserApI.deleteUser(deleteId); // Xóa người dùng từ MySQL
       setRows(rows.filter((user) => user.id !== deleteId));
       setOpenDialog(false);
       setSnackbarMessage('User deleted successfully.');
@@ -134,38 +141,6 @@ function User() {
                 <VuiBox>
                   <Table
                     columns={columns}
-                    // rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
-                    //   ...row,
-                    //   no: page * rowsPerPage + index + 1,
-                    //   avatar: (
-                    //     <div style={{ textAlign: "center" }}>
-                    //       <img
-                    //         src={row.imageUrl || '/default-avatar.png'}
-                    //         alt={row.name}
-                    //         style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
-                    //       />
-                    //     </div>
-                    //   ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
-                      
-                    //   action: (
-                    //     <div>
-                    //       <Link to={`/admin/editUser/${row.id}`}>
-                    //         <button className="text-light btn btn-outline-warning me-2" type="button">
-                    //           Edit
-                    //         </button>
-                    //       </Link>
-
-                    //       <button
-                    //         className="text-light btn btn-outline-danger"
-                    //         type="button"
-                    //         onClick={() => handleDelete(row.id)}
-                    //       >
-                    //         Delete
-                    //       </button>
-                    //     </div>
-                    //   ),
-                    // }))}
-                  
                     rows={rows
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => ({

@@ -3,24 +3,23 @@
 /* eslint-disable eqeqeq */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Card from "@mui/material/Card";
+import Card from '@mui/material/Card';
 import { Link } from 'react-router-dom';
-import VuiBox from "src/components/admin/VuiBox";
-import VuiTypography from "src/components/admin/VuiTypography";
-import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-import Tooltip from "@mui/material/Tooltip";
-import Table from "src/examples/Tables/Table";
-import authorsQuestionsData from "./data/authorsTableData";
+import VuiBox from 'src/components/admin/VuiBox';
+import VuiTypography from 'src/components/admin/VuiTypography';
+import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import Tooltip from '@mui/material/Tooltip';
+import Table from 'src/examples/Tables/Table';
+import authorsQuestionsData from './data/authorsTableData';
 import ConfirmDialog from './data/formDeleteQuestions';
-import { Alert, Snackbar } from "@mui/material";
-import { ClipLoader } from "react-spinners";
+import { Alert, Snackbar } from '@mui/material';
+import { ClipLoader } from 'react-spinners';
 import './index.css';
 
-//firebase 
-import { collection, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '../../../config/firebaseconfig';
-import { doc, deleteDoc } from "firebase/firestore";
+//kết nối sql
+import userApis from 'src/apis/UserApI';
+import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
 
 function Questions() {
   // eslint-disable-next-line no-unused-vars
@@ -30,47 +29,42 @@ function Questions() {
   const [rows, setRows] = useState([]);
   const [users, setUsers] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
-  const [deleteQuestions, setDeleteQuestions] = useState("");
+  const [deleteQuestions, setDeleteQuestions] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-  const [reload, setReload] = useState(false)
+  const [reload, setReload] = useState(false);
   // Fetch Questionss from Firestore
   useEffect(() => {
-    const fetchQuestionss = async () => {
+    const fetchQuestions = async () => {
       setLoading(true);
       try {
-        const QuestionssSnapshot = await getDocs(collection(db, 'questions'));
-        const QuestionssData = QuestionssSnapshot.docs.map((doc) => {
-          return { id: doc.id, ...doc.data() };
-        });
-        console.log(QuestionssData)
-
-        setRows(QuestionssData); // Lưu dữ liệu vào state
+        const res = await getQuestionsList();
+        if (res.status == 'success') {
+          setRows(res?.data?.questions);
+        }
       } catch (error) {
-        console.error("Lỗi khi tải câu hỏi:", error);
+        console.error('Lỗi khi tải câu hỏi:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchQuestionss();
+    fetchQuestions();
   }, [reload]);
   // Fetch users from Firebase
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "users"));
-        const usersList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(usersList);
+        const res = await userApis.getUsersList();
+        if (res.status == 'success') {
+          setUsers(res?.data.users);
+        }
       } catch (error) {
-        console.error("Lỗi khi tải user:", error);
+        console.error('Lỗi khi tải user:', error);
       } finally {
         setLoading(false);
       }
@@ -79,21 +73,20 @@ function Questions() {
     fetchUsers();
   }, []);
 
-  //sửa 
+  //sửa
   const handleEdit = (id) => {
-    console.log("Đã nhấp vào nút chỉnh sửa", id);
+    console.log('Đã nhấp vào nút chỉnh sửa', id);
   };
 
   const handleView = async (id) => {
     try {
-      console.log("Xem câu hỏi với ID:", id);
-
+      console.log('Xem câu hỏi với ID:', id);
     } catch (error) {
-      console.error("Lỗi khi tải chi tiết câu hỏi:", error);
+      console.error('Lỗi khi tải chi tiết câu hỏi:', error);
     }
   };
 
-  //xóa 
+  //xóa
   const handleDelete = (id, questions) => {
     setDeleteId(id);
     setDeleteQuestions(questions);
@@ -102,23 +95,24 @@ function Questions() {
 
   const confirmDelete = async () => {
     try {
-      const QuestionsRef = doc(db, "questions", deleteId);
-      await deleteDoc(QuestionsRef);
-      setReload(reload => !reload)
+      const res = await deleteQuestion(deleteId);
+      console.log(res);
+
+      setReload((reload) => !reload);
       setOpenDialog(false);
-      setSnackbarMessage("Xóa câu hỏi thành công.");
-      setSnackbarSeverity("success");
+      setSnackbarMessage('Xóa câu hỏi thành công.');
+      setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (error) {
-      console.error("Lỗi khi xóa câu hỏi:", error);
-      setSnackbarMessage("Không xóa được câu hỏi.");
-      setSnackbarSeverity("error");
+      console.error('Lỗi khi xóa câu hỏi:', error);
+      setSnackbarMessage('Không xóa được câu hỏi.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
     setSnackbarOpen(false);
@@ -132,34 +126,34 @@ function Questions() {
     setPage(newPage);
   };
 
-  const handleApprove = async (id) => {
+  const handleApprove = async (row) => {
     try {
-      const QuestionsRef = doc(db, "questions", id); // Tạo DocumentReference
-      await updateDoc(QuestionsRef, { isApproved: 1 }); // Cập nhật trường isApproved thành 1
-      // Cập nhật lại danh sách bài viết
-      setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
-      setSnackbarMessage("Câu hỏi đã được duyệt thành công.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      const res = await updateQuestion(row.id, { ...row, isApproved: true });
+      console.log(res);
+      if (res.status == 'success') {
+        setReload((reload) => !reload);
+        // Cập nhật lại danh sách bài viết
+        setSnackbarMessage('Câu hỏi đã được duyệt thành công.');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+      }
     } catch (error) {
-      console.error("Lỗi khi duyệt Câu hỏi:", error);
-      setSnackbarMessage("Không thể duyệt các câu hỏi.");
-      setSnackbarSeverity("error");
+      console.error('Lỗi khi duyệt Câu hỏi:', error);
+      setSnackbarMessage('Không thể duyệt các câu hỏi.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
-  }
+  };
 
-
-  //date
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt);
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
+      const diff = now - date;
 
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -200,18 +194,18 @@ function Questions() {
                   height: '100px',
                 }}
               >
-                <ClipLoader size={50} color={"#123abc"} loading={loading} />
+                <ClipLoader size={50} color={'#123abc'} loading={loading} />
               </div>
             ) : (
               <>
                 <VuiBox
                   sx={{
-                    "& th": {
+                    '& th': {
                       borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
                         `${borderWidth[1]} solid ${grey[700]}`,
                     },
-                    "& .MuiTableRow-root:not(:last-child)": {
-                      "& td": {
+                    '& .MuiTableRow-root:not(:last-child)': {
+                      '& td': {
                         borderBottom: ({ borders: { borderWidth }, palette: { grey } }) =>
                           `${borderWidth[1]} solid ${grey[700]}`,
                       },
@@ -221,9 +215,12 @@ function Questions() {
                   <Table
                     columns={columns}
                     rows={rows
-                      .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
-                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
-                        const authorName = users.find(u => u.id === row.user_id)?.name || 'không có';
+                      .sort((a, b) => (a.updatedAt.seconds < b.updatedAt.seconds ? 1 : -1))
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row, index) => {
+                        console.log(row);
+                        const authorName =
+                          users.find((u) => u.id === row.user_id)?.name || 'không có';
                         return {
                           ...row,
                           no: page * rowsPerPage + index + 1,
@@ -239,10 +236,7 @@ function Questions() {
                                 height: '70px', // Fixed height to avoid expanding/collapsing
                               }}
                             >
-
-
                               <div className="image-column" style={{ flex: '0 0 100px' }}>
-
                                 <img
                                   src={row.imageUrls}
                                   alt="Không có hình ảnh"
@@ -261,9 +255,17 @@ function Questions() {
                           author: (
                             <VuiBox>
                               <img
-                                src={users?.find(u => row?.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                                src={
+                                  users?.find((u) => row?.user_id === u.id)?.imageUrl ||
+                                  'default-image-url.jpg'
+                                }
                                 alt="User Avatar"
-                                style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  borderRadius: '50%',
+                                  marginRight: 8,
+                                }}
                               />
                               <VuiTypography variant="button" color="white" fontWeight="medium">
                                 {authorName}
@@ -272,18 +274,25 @@ function Questions() {
                           ),
                           questions: (
                             <VuiBox>
-                              <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                              <VuiTypography
+                                variant="caption"
+                                color="text"
+                                style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
+                              >
                                 {row.questions?.length > 10
                                   ? `${row.questions?.substring(0, 10)}...`
                                   : row.questions}
                               </VuiTypography>
-
                             </VuiBox>
                           ),
                           date: (
                             <VuiBox>
-                              <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                {formatUpdatedAt(row.updated_at)}
+                              <VuiTypography
+                                variant="caption"
+                                color="text"
+                                style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
+                              >
+                                {formatUpdatedAt(row.updatedAt)}
                               </VuiTypography>
                             </VuiBox>
                           ),
@@ -317,7 +326,14 @@ function Questions() {
                                     type="button"
                                     onClick={() => handleEdit(row.id)}
                                   >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-pencil" viewBox="0 0 16 16">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="16"
+                                      height="16"
+                                      fill="currentColor"
+                                      className="bi bi-pencil"
+                                      viewBox="0 0 16 16"
+                                    >
                                       <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
                                     </svg>
                                   </button>
@@ -342,20 +358,29 @@ function Questions() {
                                   </svg>
                                 </button>
                               </Tooltip>
-                              {row.isApproved
-                                == 0 && (
-                                  <>
-                                    <Tooltip title="Duyệt bài viết" placement="top">
-                                      <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
-                                          <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                                          <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
-                                        </svg>
-                                      </button>
-                                    </Tooltip>
-                                  </>
-                                )}
-
+                              {row.isApproved == 0 && (
+                                <>
+                                  <Tooltip title="Duyệt bài viết" placement="top">
+                                    <button
+                                      className="text-light btn btn-outline-success me-2"
+                                      onClick={() => handleApprove(row)}
+                                      type="button"
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        fill="currentColor"
+                                        className="bi bi-check-square"
+                                        viewBox="0 0 16 16"
+                                      >
+                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
+                                        <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
+                                      </svg>
+                                    </button>
+                                  </Tooltip>
+                                </>
+                              )}
                             </div>
                           ),
                         };
@@ -401,10 +426,14 @@ function Questions() {
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
         sx={{ transform: 'translateY(100px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{
-          width: '100%',
-          border: '1px solid #ccc' // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
-        }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{
+            width: '100%',
+            border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+          }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
