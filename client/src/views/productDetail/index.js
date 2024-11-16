@@ -53,7 +53,7 @@ const ProductsDetail = () => {
           const daysLeft = Math.ceil((endDate - currentDate) / (1000 * 60 * 60 * 24));
 
           if (daysLeft <= 3 && daysLeft > 0) {
-            alert('Hạn học của bạn chỉ còn ba ngày, vui lòng đẩy nhanh tiến đội học!');
+            alert('Hạn học của bạn sắp hết, vui lòng đẩy nhanh tiến đội học!');
           } else if (daysLeft <= 0) {
             alert('Bạn đã hết thời gian cho khóa học này');
             await StudyTimeApi.deleteStudyTime(currentStudyTime.id); // Xóa dữ liệu khỏi StudyTime
