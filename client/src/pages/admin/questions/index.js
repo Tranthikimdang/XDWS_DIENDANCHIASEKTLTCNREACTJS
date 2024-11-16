@@ -39,7 +39,7 @@ function Questions() {
   const [reload, setReload] = useState(false);
   // Fetch Questionss from Firestore
   useEffect(() => {
-    const fetchQuestionss = async () => {
+    const fetchQuestions = async () => {
       setLoading(true);
       try {
         const res = await getQuestionsList();
@@ -52,7 +52,7 @@ function Questions() {
         setLoading(false);
       }
     };
-    fetchQuestionss();
+    fetchQuestions();
   }, [reload]);
   // Fetch users from Firebase
   useEffect(() => {

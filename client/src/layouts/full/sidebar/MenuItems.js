@@ -21,12 +21,12 @@ const Menuitems = [
     icon: IconInfoSquareRounded,
     href: '/questions',
   },
-  {
-    id: uniqueId(),
-    title: 'Bài viết',
-    icon: IconBook2,
-    href: '/article',
-  },
+  // {
+  //   id: uniqueId(),
+  //   title: 'Bài viết',
+  //   icon: IconBook2,
+  //   href: '/article',
+  // },
   {
     id: uniqueId(),
     title: 'Khóa học',

@@ -6,24 +6,18 @@ import { Grid, Box, Card, CardContent, Typography, Avatar, Divider, Tabs, Tab, B
 import { Email, LocationOn, Phone, Work, Person } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
+//sql
+import UserAPI from 'src/apis/UserApI';
+import CourseApi from '../../apis/CourseApI';
+import QuestionsApis from '../../apis/QuestionsApis';
+import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
 //
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
 //icon
 import DescriptionIcon from '@mui/icons-material/Description';
-// import { IconBookmark, IconDots } from '@tabler/icons';
-// import FacebookIcon from '@mui/icons-material/Facebook';
-// import TwitterIcon from '@mui/icons-material/Twitter';
-// import EmailIcon from '@mui/icons-material/Email';
-// import LinkIcon from '@mui/icons-material/Link';
-// import FlagIcon from '@mui/icons-material/Flag';
-// import SearchIcon from '@mui/icons-material/Search';
-
-
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -32,113 +26,74 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [articles, setArticles] = useState([]);
+  const [products, setProducts] = useState([]);
   const [questions, setQuestions] = useState([]);
-  const [catesMap, setCatesMap] = useState({});
-  const [cates, setCates] = useState([]);
+  const [reload, setReload] = useState(false);
 
+  // Fetch users
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUsers = async () => {
       try {
-        const userRef = doc(db, 'users', userId);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const userData = userSnap.data();
-          setUser(userData);
-        } else {
-          console.log('Không tìm thấy tài liệu người dùng!');
-          setError('Người dùng không tồn tại');
-        }
+        const response = await UserAPI.getUsersList();  // API call to get users
+        const filteredUsers = response.data.users.filter(
+          (user) => !(user.role === 'admin' && user.id === userId)
+        );
+        setUsers(filteredUsers);
       } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu người dùng:', error);
-        setError('Không thể lấy dữ liệu người dùng');
+        console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    const fetchUserArticlesAndQuestions = async () => {
-      try {
-        // Lấy bài viết của người dùng
-        const articlesQuery = query(collection(db, 'articles'), where('user_id', '==', userId));
-
-        // Execute the query
-        const articlesSnapshot = await getDocs(articlesQuery);
-
-        // Map the documents to an array of objects
-        const fetchedArticles = articlesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Kiểm tra kết quả truy vấn
-        console.log('User Articles:', fetchedArticles);
-
-        // Update state with fetched articles
-        setArticles(fetchedArticles);
-
-        // Lấy câu hỏi của người dùng
-        const questionsQuery = query(collection(db, 'questions'), where('user_id', '==', userId));
-        const questionsSnapshot = await getDocs(questionsQuery);
-
-        // Map the documents to an array of objects
-        const fetchedQuestions = questionsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        // Kiểm tra kết quả truy vấn
-        console.log('User Questions:', fetchedQuestions);
-
-        // Update state with fetched questions
-        setQuestions(fetchedQuestions);
-
-      } catch (error) {
-        console.error('Lỗi khi lấy bài viết và câu hỏi:', error);
-      }
-    };
-
-
-
-    fetchUser();
-    fetchUserArticlesAndQuestions();
+    fetchUsers();
   }, [userId]);
 
-  // Fetch categories from Firestore
+  // Fetch khóa học
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchProducts = async () => {
       setLoading(true);
       try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setCates(categoriesData);
-
-        // Create a mapping of category ID to name
-        const categoriesMap = categoriesData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCatesMap(categoriesMap);
-
+        const response = await CourseApi.getCoursesList();
+        const course = response.data.courses;
+        console.log(course);
+        
+        setProducts(course);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchCategories();
+    fetchProducts();
   }, []);
+
+// Fetch câu hỏi
+useEffect(() => {
+  const fetchQuestions = async () => {
+    setLoading(true);
+    try {
+      const res = await getQuestionsList();
+      if (res.status == 'success') {
+        setQuestions(res?.data?.questions);
+      }
+    } catch (error) {
+      console.error('Lỗi khi tải câu hỏi:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchQuestions();
+}, [reload]);
+
+
+
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
 
-  const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`, { state: { id: articleId } });
+  const handleCardClick = (courseId) => {
+    navigate(`/course/${courseId}`, { state: { id: courseId } });
   };
 
   //date
@@ -239,7 +194,7 @@ const Profile = () => {
                 centered
               >
                 <Tab label="Tổng Quan" />
-                <Tab label="Bài Viết" />
+                <Tab label="Khóa Học" />
                 <Tab label="Câu Hỏi" />
               </Tabs>
             </Card>
@@ -315,15 +270,15 @@ const Profile = () => {
                 )}
                 {activeTab === 1 && (
                   <>
-                    {/* Nội dung tab Bài Viết */}
+                    {/* Nội dung tab khóa học*/}
                     <Typography variant="h4" gutterBottom>
-                      Bài Viết Của Người Dùng
+                      Câu hỏi Của Người Dùng
                     </Typography>
-                    {articles.length > 0 ? (
-                      articles.map((article) =>
-                        article.isApproved === 1 && (
+                    {products.length > 0 ? (
+                      products.map((product) =>
+                        product.isApproved === 1 && (
                           <Card
-                            key={article?.id}
+                            key={product?.id}
                             sx={{
                               display: 'flex',
                               mb: 3,
@@ -333,7 +288,7 @@ const Profile = () => {
                               cursor: 'pointer',
                               overflow: 'hidden',
                             }}
-                            onClick={() => handleCardClick(article.id)} // Điều hướng đến chi tiết
+                            onClick={() => handleCardClick(product.id)} // Điều hướng đến chi tiết
                           >
                             {/* Bên trái: Nội dung */}
                             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
@@ -359,15 +314,15 @@ const Profile = () => {
                                   </Typography>
                                 </Box>
                                 {/*  */}
-                                <Typography variant="h6" component="h2" className="article-title">
-                                  {article.title.length > 100
-                                    ? `${article.title.substring(0, 100)}...`
-                                    : article.title}
+                                <Typography variant="h6" component="h2" className="course-title">
+                                  {product.title.length > 100
+                                    ? `${product.title.substring(0, 100)}...`
+                                    : product.title}
                                 </Typography>
-                                <Typography variant="body2" paragraph color="textSecondary" className="article-description">
-                                  {removeHtmlTags(article.content, 'p').length > 10
-                                    ? `${removeHtmlTags(article.content, 'p').substring(0, 10)}...`
-                                    : removeHtmlTags(article.content, 'p')}
+                                <Typography variant="body2" paragraph color="textSecondary" className="course-description">
+                                  {removeHtmlTags(product.content, 'p').length > 10
+                                    ? `${removeHtmlTags(product.content, 'p').substring(0, 10)}...`
+                                    : removeHtmlTags(product.content, 'p')}
                                 </Typography>
                                 <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                   <Typography
@@ -375,10 +330,10 @@ const Profile = () => {
                                     color="textSecondary"
                                     className="category-badge"
                                   >
-                                    {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
+
                                   </Typography>
                                   <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                                    {formatUpdatedAt(article.updated_at)}
+                                    {formatUpdatedAt(product.updated_at)}
                                   </Typography>
                                 </Box>
                               </CardContent>
@@ -397,8 +352,8 @@ const Profile = () => {
                                   aspectRatio: '16/9',
                                   objectFit: 'cover',
                                 }}
-                                image={article.image}
-                                alt={article.title}
+                                image={product.image}
+                                alt={product.title}
                               />
                               {/* <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
                                 <IconButton
@@ -435,7 +390,7 @@ const Profile = () => {
                         )
                       )
                     ) : (
-                      <Typography variant="body2">Không có bài viết nào.</Typography>
+                      <Typography variant="body2">Không có khóa họcnào.</Typography>
                     )}
 
                   </>
