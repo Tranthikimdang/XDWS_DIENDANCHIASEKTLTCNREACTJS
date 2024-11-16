@@ -1204,11 +1204,16 @@ const Questions = () => {
                                 <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
                                   <img
                                     src={
-                                      currentUserImage || '../../assets/images/profile/user-1.jpg'
-                                    }
-                                    width="30px"
+                                      users?.find((u) => question?.user_id === u.id)?.imageUrl ||
+                                      '../../assets/images/profile/user-1.jpg'
+                                    } // Đường dẫn đến ảnh tác giả hoặc ảnh mặc định
                                     alt="User Avatar"
-                                    style={{ borderRadius: '50%', marginRight: '10px' }}
+                                    style={{
+                                      width: 40,
+                                      height: 40,
+                                      borderRadius: '50%',
+                                      marginRight: 8,
+                                    }}
                                   />
                                   <TextField
                                     placeholder={`Bình luận dưới tên ${users.find((user) => user.id === userData.current.id)?.name ||
