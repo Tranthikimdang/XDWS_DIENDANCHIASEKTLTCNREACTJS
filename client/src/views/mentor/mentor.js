@@ -6,19 +6,19 @@ import {
   CircularProgress,
   Grid,
   Snackbar,
-  Typography
+  Typography,
+  TextField,
+  Container,
+  Paper
 } from '@mui/material';
-import { Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-// components
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { addDoc, collection, getDoc } from 'firebase/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { useState } from 'react';
-import PageContainer from 'src/components/container/PageContainer';
-import { db } from 'src/config/firebaseconfig';
+import { useEffect, useState } from 'react';
 import Logo from 'src/layouts/full/shared/logo/Logo';
-import { useEffect } from 'react';
+import PageContainer from 'src/components/container/PageContainer';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+
+// API
+import api from '../../apis/mentorApi';
 
 const Mentor = () => {
   const [loading, setLoading] = useState(false);
@@ -30,20 +30,24 @@ const Mentor = () => {
   const navigate = useNavigate();
 
   const handleUpload = async (file) => {
-    const storage = getStorage();
-    const storageRef = ref(storage, `uploads/${file.name}`);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post('/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    return response.data.fileUrl;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     const formData = new FormData(e.target);
     const file = formData.get('upfile');
-  
+
     if (!file) {
       setSnackbarMessage('Vui lòng chọn một file CV.');
       setSnackbarSeverity('error');
@@ -51,30 +55,36 @@ const Mentor = () => {
       setLoading(false);
       return;
     }
-  
+
     try {
       const fileUrl = await handleUpload(file);
-  
+
       const dataToSubmit = {
         user_id: userData?.id,
-        upfile: fileUrl,
-        expertise: "WebDevelopment", // tạm thời
-        // expertise: expertiseList,  // Gán danh sách các expertise
+        cv_url: fileUrl,
+        bio: formData.get('bio'),
+        specialization: formData.get('specialization'),
+        hourly_rate: formData.get('hourly_rate'),
+        languages_spoken: formData.get('languages_spoken'),
+        experience_years: formData.get('experience_years'),
+        certification: formData.get('certification'),
+        education: formData.get('education'),
+        contact_info: formData.get('contact_info'),
+        linkedin_profile: formData.get('linkedin_profile'),
+        github_profile: formData.get('github_profile'),
         isApproved: '0',
-        created_at: new Date(),  // Thời gian tạo
-        is_deleted: false,  // Mặc định là false
-        updated_at: new Date(),  // Thời gian cập nhật
+        created_at: new Date(),
+        is_deleted: false,
+        updated_at: new Date(),
       };
-  
-      const mentorsCollection = collection(db, 'mentors');
-      const res = await addDoc(mentorsCollection, dataToSubmit);
-      const docSnapshot = await getDoc(res);
-  
-      if (docSnapshot.exists()) {
+
+      const response = await api.post('/mentors', dataToSubmit);
+
+      if (response.data.success) {
         setSnackbarMessage('CV của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
         setSnackbarSeverity('success');
         setTimeout(() => {
-          navigate('/auth/inter');  // Chuyển hướng về trang home sau khi thông báo
+          navigate('/home');  // Chuyển hướng về trang home sau khi thông báo
         }, 3000);
       } else {
         setSnackbarMessage('Đã xảy ra lỗi khi gửi CV.');
@@ -83,7 +93,7 @@ const Mentor = () => {
       setSnackbarOpen(true);
       e.target.reset();
     } catch (error) {
-      console.error('Lỗi khi gửi dữ liệu lên Firestore:', error);
+      console.error('Lỗi khi gửi dữ liệu lên API:', error);
       setSnackbarMessage('Lỗi khi gửi CV. Vui lòng thử lại.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -91,11 +101,12 @@ const Mentor = () => {
       setLoading(false);
     }
   };
-  
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file ? file.name : null); // Lưu tên file đã chọn
   };
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -104,93 +115,136 @@ const Mentor = () => {
     const storedUserData = JSON.parse(localStorage.getItem('user'));
     if (storedUserData) {
       setUserData(storedUserData);
-    }{
-      navigate('/auth/mentor')
+    } else {
+      navigate('/auth/mentor');
     }
-  }, []);
+  }, [navigate]);
 
   return (
-    <PageContainer title="Login" description="This is the login page">
-      <Box
-        sx={{
-          position: 'relative',
-          height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          '&:before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: '100%',
-            width: '100%',
-            background: 'radial-gradient(#d2f1df, #d3d7fa, #bad8f4)',
-            backgroundSize: '400% 400%',
-            animation: 'gradient 15s ease infinite',
-            opacity: 0.3,
-            zIndex: -1,
-          },
-        }}
-      >
-        <Grid container justifyContent="center">
-          <Grid item xs={12} sm={8} md={6} lg={4}>
-            <Card elevation={9}>
-              <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
-                <div className="text-center mb-4">
-                  <Logo />
-                </div>
-              </Box>
-              <h5 display="flex" justifyContent="center" className="text-center mb-4">
-                Đăng ký mentor
-              </h5>
-              <Box
-                component="form"
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%',
-                }}
-                onSubmit={handleSubmit}
-              >
-                <Box display="flex" alignItems="center" mb={2}>
-                  <img
-                    src={userData?.imageUrl || ''}
-                    width="40px"
-                    alt="User Avatar"
-                    style={{ borderRadius: '50%', marginRight: '10px' }}
+    <PageContainer title="Đăng ký làm người hướng dẫn" description="Đây là trang đăng ký làm người hướng dẫn">
+      <Container maxWidth="md">
+        <Paper elevation={4} sx={{ padding: 4, marginTop: 4, borderRadius: '16px' }}>
+          <Box display="flex" flexDirection="column" alignItems="center">
+            <div className="text-center mb-4">
+              <Logo />
+            </div>
+            <Typography variant="h4" className="text-center mb-4">
+              Đăng ký mentor
+            </Typography>
+            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="bio"
+                    label="Bio"
+                    multiline
+                    rows={4}
+                    variant="outlined"
                   />
-                  <Typography variant="h6">{userData?.name || ''}</Typography>
-                </Box>
-                <Box display="flex" flexDirection={'column'} sx={{ padding: '10px' }}>
-                  <Box display="flex" gap={1}>
-                    <Button
-                      variant="outlined"
-                      startIcon={<AttachFileIcon />}
-                      sx={{
-                        borderRadius: '16px',
-                        textTransform: 'none',
-                        padding: '5px 15px',
-                      }}
-                      component="label"
-                    >
-                      Tải CV lên
-                      <input
-                        name="upfile"
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        hidden
-                        onChange={handleFileChange}
-                      />
-                    </Button>
-                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="specialization"
+                    label="Chuyên môn"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="hourly_rate"
+                    label="Giá mỗi giờ"
+                    type="number"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="languages_spoken"
+                    label="Ngôn ngữ"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="experience_years"
+                    label="Số năm kinh nghiệm"
+                    type="number"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="certification"
+                    label="Chứng chỉ"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="education"
+                    label="Học vấn"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="contact_info"
+                    label="Thông tin liên lạc"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="linkedin_profile"
+                    label="LinkedIn Profile"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="github_profile"
+                    label="GitHub Profile"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<AttachFileIcon />}
+                    fullWidth
+                    sx={{
+                      borderRadius: '16px',
+                      textTransform: 'none',
+                      padding: '5px 15px',
+                    }}
+                    component="label"
+                  >
+                    Tải CV lên
+                    <input
+                      name="upfile"
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      hidden
+                      onChange={handleFileChange}
+                    />
+                  </Button>
                   {selectedFile && (
                     <Typography variant="body2" sx={{ marginTop: '10px' }}>
                       File đã chọn: {selectedFile}
                     </Typography>
                   )}
+                </Grid>
+                <Grid item xs={12} sx={{ textAlign: 'center' }}>
                   <Button
                     type="submit"
                     variant="contained"
@@ -202,16 +256,16 @@ const Mentor = () => {
                       fontWeight: 'bold',
                       mt: 2,
                     }}
-                    disabled={loading} // Vô hiệu hóa khi đang tải lên
+                    disabled={loading}
                   >
                     {loading ? <CircularProgress size={24} /> : 'Gửi'}
                   </Button>
-                </Box>
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
-      </Box>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        </Paper>
+      </Container>
 
       <Snackbar
         open={snackbarOpen}
@@ -235,4 +289,4 @@ const Mentor = () => {
   );
 };
 
-export default Mentor;
+export default Mentor

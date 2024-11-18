@@ -15,7 +15,7 @@ import {
   CircularProgress,
   Link,
 } from '@mui/material';
-import { styled,  } from '@mui/system';
+import { styled, } from '@mui/system';
 
 // Icon
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -163,215 +163,258 @@ const Home = () => {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-
     return updatedAtString;
   };
 
   return (
     <PageContainer title="Dashboard" description="this is Dashboard">
-      <Box>
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            {/* Carousel Banner */}
-            <Grid>
-              <Carousel
-                variant="dark"
-                indicators={false}
-                interval={5000}
-                nextIcon={
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      right: '30px',
-                      transform: 'translateY(-50%)',
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 1,
-                    }}
-                  >
-                    <ArrowForwardIcon sx={{ color: '#333', fontSize: '20px' }} />
-                  </Box>
-                }
-                prevIcon={
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '30px',
-                      transform: 'translateY(-50%)',
-                      width: '40px',
-                      height: '40px',
-                      backgroundColor: '#fff',
-                      borderRadius: '50%',
-                      boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      zIndex: 1,
-                    }}
-                  >
-                    <ArrowBackIcon sx={{ color: '#333', fontSize: '20px' }} />
-                  </Box>
-                }
-              >
-                <Carousel.Item>
-                  <StyledBox
-                    sx={{
-                      background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)',
-                      borderRadius: '20px',
-                      padding: '20px',
-                    }}
-                  >
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} md={8}>
-                        <Typography
-                          variant="h4"
-                          component="h2"
-                          fontWeight="bold"
-                          sx={{ color: '#fff' }}
-                        >
-                          Chào Mừng Đến Với Diễn Đàn Chia Sẻ Code!
-                        </Typography>
-                        <SubText sx={{ color: '#fff' }}>
-                          Kết nối với các lập trình viên khác, chia sẻ code, và học hỏi từ cộng đồng
-                          lập trình đa dạng của chúng tôi.
-                        </SubText>
-                        <ActionButton
-                          variant="contained"
-                          href="/"
-                          sx={{
-                            textTransform: 'none',
-                            backgroundColor: '#0057e6',
-                            color: '#ffffff',
-                            border: '2px solid #0044cc',
-                            '&:hover': {
-                              backgroundColor: '#0044cc',
-                            },
-                            padding: '10px 20px',
-                            borderRadius: '30px',
-                          }}
-                        >
-                          Tham Gia Cộng Đồng
-                        </ActionButton>
-                      </Grid>
-                      <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
-                        <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
-                          <img
-                            src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg"
-                            alt="Diễn đàn chia sẻ code"
-                            style={{ width: '400px', marginLeft: '-237px', borderRadius: '10px' }}
-                          />
-                        </ImageBox>
-                      </Grid>
-                    </Grid>
-                  </StyledBox>
-                </Carousel.Item>
-                <Carousel.Item>
-                  <StyledBox
-                    sx={{
-                      background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)',
-                      borderRadius: '20px',
-                      padding: '20px',
-                    }}
-                  >
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={12} md={8}>
-                        <Typography
-                          variant="h4"
-                          component="h2"
-                          fontWeight="bold"
-                          sx={{ color: '#fff' }}
-                        >
-                           Trở Thành Mentor và Chia Sẻ Kiến Thức!
-                        </Typography>
-                        <SubText sx={{ color: '#fff' }}>
-                        Hướng dẫn và hỗ trợ những lập trình viên mới bắt đầu. 
-                        Tham gia vào đội ngũ mentors của chúng tôi ngay hôm nay.
-                        </SubText>
-                        <ActionButton
-                          variant="contained"
-                          href="/auth/mentor"
-                          sx={{
-                            textTransform: 'none',
-                            backgroundColor: '#0057e6',
-                            color: '#ffffff',
-                            border: '2px solid #0044cc',
-                            '&:hover': {
-                              backgroundColor: '#0044cc',
-                            },
-                            padding: '10px 20px',
-                            borderRadius: '30px',
-                          }}
-                        >
-                          Tham Gia Đội Ngũ Mentors
-                        </ActionButton>
-                      </Grid>
-                      <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
-                        <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
-                          <img
-                            src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg"
-                            alt="Diễn đàn chia sẻ code"
-                            style={{ width: '400px', marginLeft: '-237px', borderRadius: '10px' }}
-                          />
-                        </ImageBox>
-                      </Grid>
-                    </Grid>
-                  </StyledBox>
-                </Carousel.Item>
-              </Carousel>
-            </Grid>
-            {/* Featured Articles */}
-            {/* tạm thời */}
-            
-
-            <Grid container spacing={4} sx={{ marginTop: '40px' }}>
-              <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="h5" component="h2" fontWeight="bold">
-                  Khóa học nổi bật
-                </Typography>
+      <Box sx={{ padding: { xs: '10px' } }}>
+        <Grid container spacing={3}>
+          {/* Carousel Banner */}
+          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+            <Carousel
+              variant="dark"
+              indicators={false}
+              interval={5000}
+              nextIcon={
                 <Box
-                  component="a"
-                  href="/products"
-                  sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: '30px',
+                    transform: 'translateY(-50%)',
+                    width: '40px',
+                    height: '40px',
+                    backgroundColor: '#fff',
+                    borderRadius: '50%',
+                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1,
+                  }}
                 >
-                  Xem tất cả &gt;
+                  <ArrowForwardIcon sx={{ color: '#333', fontSize: '20px' }} />
                 </Box>
+              }
+              prevIcon={
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '30px',
+                    transform: 'translateY(-50%)',
+                    width: '40px',
+                    height: '40px',
+                    backgroundColor: '#fff',
+                    borderRadius: '50%',
+                    boxShadow: '0 2px 5px rgba(0, 0, 0, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1,
+                  }}
+                >
+                  <ArrowBackIcon sx={{ color: '#333', fontSize: '20px' }} />
+                </Box>
+              }
+            >
+              <Carousel.Item>
+                <StyledBox
+                  sx={{
+                    background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)',
+                    borderRadius: '20px',
+                    padding: '20px',
+                  }}
+                >
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} md={8}>
+                      <Typography
+                        variant="h4"
+                        component="h2"
+                        fontWeight="bold"
+                        sx={{ color: '#fff' }}
+                      >
+                        Chào Mừng Đến Với Diễn Đàn Chia Sẻ Code!
+                      </Typography>
+                      <SubText sx={{ color: '#fff' }}>
+                        Kết nối với các lập trình viên khác, chia sẻ code, và học hỏi từ cộng đồng
+                        lập trình đa dạng của chúng tôi.
+                      </SubText>
+                      <ActionButton
+                        variant="contained"
+                        href="/"
+                        sx={{
+                          textTransform: 'none',
+                          backgroundColor: '#0057e6',
+                          color: '#ffffff',
+                          border: '2px solid #0044cc',
+                          '&:hover': {
+                            backgroundColor: '#0044cc',
+                          },
+                          padding: '10px 20px',
+                          borderRadius: '30px',
+                        }}
+                      >
+                        Tham Gia Cộng Đồng
+                      </ActionButton>
+                    </Grid>
+                    <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
+                      <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
+                        <img
+                          src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg"
+                          alt="Diễn đàn chia sẻ code"
+                          style={{ width: '400px', marginLeft: '-237px', borderRadius: '10px' }}
+                        />
+                      </ImageBox>
+                    </Grid>
+                  </Grid>
+                </StyledBox>
+              </Carousel.Item>
+              <Carousel.Item>
+                <StyledBox
+                  sx={{
+                    background: 'linear-gradient(90deg, #0066ff 0%, #0099ff 100%)',
+                    borderRadius: '20px',
+                    padding: '20px',
+                  }}
+                >
+                  <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={12} md={8}>
+                      <Typography
+                        variant="h4"
+                        component="h2"
+                        fontWeight="bold"
+                        sx={{ color: '#fff' }}
+                      >
+                        Trở Thành Mentor và Chia Sẻ Kiến Thức!
+                      </Typography>
+                      <SubText sx={{ color: '#fff' }}>
+                        Hướng dẫn và hỗ trợ những lập trình viên mới bắt đầu.
+                        Tham gia vào đội ngũ mentors của chúng tôi ngay hôm nay.
+                      </SubText>
+                      <ActionButton
+                        variant="contained"
+                        href="/auth/mentor"
+                        sx={{
+                          textTransform: 'none',
+                          backgroundColor: '#0057e6',
+                          color: '#ffffff',
+                          border: '2px solid #0044cc',
+                          '&:hover': {
+                            backgroundColor: '#0044cc',
+                          },
+                          padding: '10px 20px',
+                          borderRadius: '30px',
+                        }}
+                      >
+                        Tham Gia Đội Ngũ Mentors
+                      </ActionButton>
+                    </Grid>
+                    <Grid item xs={12} md={4} sx={{ textAlign: 'center' }}>
+                      <ImageBox sx={{ maxWidth: '90%', margin: '0 auto' }}>
+                        <img
+                          src="https://www.pace.edu.vn/uploads/news/2023/07/1-khai-niem-truyen-thong.jpg"
+                          alt="Diễn đàn chia sẻ code"
+                          style={{ width: '400px', marginLeft: '-237px', borderRadius: '10px' }}
+                        />
+                      </ImageBox>
+                    </Grid>
+                  </Grid>
+                </StyledBox>
+              </Carousel.Item>
+            </Carousel>
+          </Grid>
+          {/* kết thúc Carousel Banner */}
+
+          <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h5" component="h2" fontWeight="bold"
+              sx={{ textDecoration: 'none', fontWeight: 'bold' }}>
+              Khóa học Pro
+            </Typography>
+            <Box
+              component="a"
+              href="/article"
+              sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
+            >
+              Xem tất cả &gt;
+            </Box>
+          </Grid>
+          {products
+            .slice(0, 4)
+            .map((product) => (
+              <Grid item xs={6} sm={4} md={3} key={product.id}>
+                <Card
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={product.image_url}
+                    alt={product.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h6" component="div" fontWeight="bold">
+                      {product.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {formatUpdatedAt(product.updated_at)}
+                    </Typography>
+                  </CardContent>
+                  <Button onClick={() => handleClick(product.id)}>Xem chi tiết</Button>
+                </Card>
               </Grid>
-              {products.slice(0, 3).map((product) => (
-                <Grid item xs={12} sm={6} md={4} key={product.id}>
-                  <Card>
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={product.image_url}
-                      alt={product.name}
-                    />
-                    <CardContent>
-                      <Typography variant="h6" component="div" fontWeight="bold">
-                        {product.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {formatUpdatedAt(product.updated_at)}
-                      </Typography>
-                    </CardContent>
-                    <Button onClick={() => handleClick(product.id)}>Xem chi tiết</Button>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </>
-        )}
+            ))}
+          <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h5" component="h2" fontWeight="bold"
+              sx={{ textDecoration: 'none', fontWeight: 'bold' }}>
+              Khóa học miễn phí
+            </Typography>
+            <Box
+              component="a"
+              href="/article"
+              sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
+            >
+              Xem tất cả &gt;
+            </Box>
+          </Grid>
+          {products
+            .slice(0, 4)
+            .map((product) => (
+              <Grid item xs={6} sm={4} md={3} key={product.id}>
+                <Card
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={product.image_url}
+                    alt={product.name}
+                  />
+                  <CardContent>
+                    <Typography variant="h6" component="div" fontWeight="bold">
+                      {product.name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {formatUpdatedAt(product.updated_at)}
+                    </Typography>
+                  </CardContent>
+                  <Button onClick={() => handleClick(product.id)}>Xem chi tiết</Button>
+                </Card>
+              </Grid>
+            ))}
+        </Grid>
+
       </Box>
     </PageContainer>
   );

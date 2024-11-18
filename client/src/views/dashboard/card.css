@@ -6,7 +6,7 @@
   .carousel .item {
     color: #747d89;
     min-height: 325px;
-    text-align: center;
+    
     overflow: hidden;
   }
   
@@ -14,7 +14,7 @@
     padding: 20px;
     background: #fff;
     border-radius: 10px;
-    text-align: center;
+    
     position: relative;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
