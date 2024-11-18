@@ -2,16 +2,27 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import { Grid, Box, Card, CardContent, Typography, Avatar, Divider, Tabs, Tab, Button, IconButton, CardMedia } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Avatar,
+  Divider,
+  Tabs,
+  Tab,
+  Button,
+  IconButton,
+  CardMedia,
+} from '@mui/material';
 import { Email, LocationOn, Phone, Work, Person } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
 //sql
-import UserAPI from 'src/apis/UserApI';
+import UserAPI from '../../apis/UserApI';
 import CourseApi from '../../apis/CourseApI';
-import QuestionsApis from '../../apis/QuestionsApis';
 import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
 //
 import './profile.css';
@@ -21,33 +32,35 @@ import DescriptionIcon from '@mui/icons-material/Description';
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-  const [user, setUser] = useState({});
-  const [users, setUsers] = useState([]);
+
+  const [user, setUsers] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const [activeTab, setActiveTab] = useState(0);
   const [products, setProducts] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [reload, setReload] = useState(false);
 
-  // Fetch users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await UserAPI.getUsersList();  // API call to get users
-        const filteredUsers = response.data.users.filter(
-          (user) => !(user.role === 'admin' && user.id === userId)
-        );
-        setUsers(filteredUsers);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [userId]);
+// Fetch users
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const response = await UserAPI.getUsersList();  // API call to get users
+      const filteredUsers = response.data.users.filter(
+        (user) => !(user.role === 'admin' && user.id === userId)
+      );
+      setUsers(filteredUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchUsers();
+}, [userId]);
 
+  
   // Fetch khóa học
   useEffect(() => {
     const fetchProducts = async () => {
@@ -56,7 +69,7 @@ const Profile = () => {
         const response = await CourseApi.getCoursesList();
         const course = response.data.courses;
         console.log(course);
-        
+
         setProducts(course);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -67,26 +80,23 @@ const Profile = () => {
     fetchProducts();
   }, []);
 
-// Fetch câu hỏi
-useEffect(() => {
-  const fetchQuestions = async () => {
-    setLoading(true);
-    try {
-      const res = await getQuestionsList();
-      if (res.status == 'success') {
-        setQuestions(res?.data?.questions);
+  // Fetch câu hỏi
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      setLoading(true);
+      try {
+        const res = await getQuestionsList();
+        if (res.status == 'success') {
+          setQuestions(res?.data?.questions);
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải câu hỏi:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Lỗi khi tải câu hỏi:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchQuestions();
-}, [reload]);
-
-
-
+    };
+    fetchQuestions();
+  }, [reload]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -125,8 +135,6 @@ useEffect(() => {
 
     return updatedAtString;
   };
-
-
 
   //xóa các thẻ html
   const removeHtmlTags = (html) => {
@@ -178,7 +186,7 @@ useEffect(() => {
               </Typography>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                <Button variant="contained" color="primary" >
+                <Button variant="contained" color="primary">
                   Theo Dõi
                 </Button>
                 <Button variant="outlined" color="secondary">
@@ -275,124 +283,110 @@ useEffect(() => {
                       Câu hỏi Của Người Dùng
                     </Typography>
                     {products.length > 0 ? (
-                      products.map((product) =>
-                        product.isApproved === 1 && (
-                          <Card
-                            key={product?.id}
-                            sx={{
-                              display: 'flex',
-                              mb: 3,
-                              flexDirection: { xs: 'column', md: 'row' },
-                              border: '1px solid #ddd',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              overflow: 'hidden',
-                            }}
-                            onClick={() => handleCardClick(product.id)} // Điều hướng đến chi tiết
-                          >
-                            {/* Bên trái: Nội dung */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                              <CardContent>
-                                {/*  */}
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                  <img
-                                    src={
-                                      user.imageUrl || '../../assets/images/profile/user-1.jpg'
-                                    }
-                                    alt="User Avatar"
-                                    style={{
-                                      width: 40,
-                                      height: 40,
-                                      borderRadius: '50%',
-                                      marginRight: 8,
-                                    }}
-                                  />
-                                  <Typography variant="body1" component="span" className="author-name">
-                                    <strong>
-                                      {user.name}
-                                    </strong>
+                      products.map(
+                        (product) =>
+                          product.isApproved === 1 && (
+                            <Card
+                              key={product?.id}
+                              sx={{
+                                display: 'flex',
+                                mb: 3,
+                                flexDirection: { xs: 'column', md: 'row' },
+                                border: '1px solid #ddd',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                overflow: 'hidden',
+                              }}
+                              onClick={() => handleCardClick(product.id)} // Điều hướng đến chi tiết
+                            >
+                              {/* Bên trái: Nội dung */}
+                              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                                <CardContent>
+                                  {/*  */}
+                                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                    <img
+                                      src={
+                                        user.imageUrl || '../../assets/images/profile/user-1.jpg'
+                                      }
+                                      alt="User Avatar"
+                                      style={{
+                                        width: 40,
+                                        height: 40,
+                                        borderRadius: '50%',
+                                        marginRight: 8,
+                                      }}
+                                    />
+                                    <Typography
+                                      variant="body1"
+                                      component="span"
+                                      className="author-name"
+                                    >
+                                      <strong>{user.name}</strong>
+                                    </Typography>
+                                  </Box>
+                                  {/*  */}
+                                  <Typography variant="h6" component="h2" className="course-title">
+                                    {product.title.length > 100
+                                      ? `${product.title.substring(0, 100)}...`
+                                      : product.title}
                                   </Typography>
-                                </Box>
-                                {/*  */}
-                                <Typography variant="h6" component="h2" className="course-title">
-                                  {product.title.length > 100
-                                    ? `${product.title.substring(0, 100)}...`
-                                    : product.title}
-                                </Typography>
-                                <Typography variant="body2" paragraph color="textSecondary" className="course-description">
-                                  {removeHtmlTags(product.content, 'p').length > 10
-                                    ? `${removeHtmlTags(product.content, 'p').substring(0, 10)}...`
-                                    : removeHtmlTags(product.content, 'p')}
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                   <Typography
                                     variant="body2"
+                                    paragraph
                                     color="textSecondary"
-                                    className="category-badge"
+                                    className="course-description"
                                   >
-
+                                    {removeHtmlTags(product.content, 'p').length > 10
+                                      ? `${removeHtmlTags(product.content, 'p').substring(
+                                          0,
+                                          10,
+                                        )}...`
+                                      : removeHtmlTags(product.content, 'p')}
                                   </Typography>
-                                  <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                                    {formatUpdatedAt(product.updated_at)}
-                                  </Typography>
-                                </Box>
-                              </CardContent>
-                            </Box>
+                                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                    <Typography
+                                      variant="body2"
+                                      color="textSecondary"
+                                      className="category-badge"
+                                    ></Typography>
+                                    <Typography
+                                      variant="body2"
+                                      color="textSecondary"
+                                      sx={{ ml: 2 }}
+                                    >
+                                      {formatUpdatedAt(product.updated_at)}
+                                    </Typography>
+                                  </Box>
+                                </CardContent>
+                              </Box>
 
-                            {/* Bên phải: Hình ảnh và các nút hành động */}
-                            <Box
-                              sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }}
-                              className="card-media"
-                            >
-                              <CardMedia
-                                component="img"
+                              {/* Bên phải: Hình ảnh và các nút hành động */}
+                              <Box
                                 sx={{
-                                  width: { xs: '100%', md: 200 },
-                                  height: { xs: 'auto', md: '100%' },
-                                  aspectRatio: '16/9',
-                                  objectFit: 'cover',
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  position: 'relative',
                                 }}
-                                image={product.image}
-                                alt={product.title}
-                              />
-                              {/* <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                                <IconButton
-                                  aria-label="bookmark"
-                                  onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
-                                >
-                                  <IconBookmark />
-                                </IconButton>
-                                <IconButton
-                                  aria-label="more"
-                                  onClick={(event) => {
-                                    event.stopPropagation(); // Ngăn sự kiện click thẻ Card
-                                    handleClick(event);
+                                className="card-media"
+                              >
+                                <CardMedia
+                                  component="img"
+                                  sx={{
+                                    width: { xs: '100%', md: 200 },
+                                    height: { xs: 'auto', md: '100%' },
+                                    aspectRatio: '16/9',
+                                    objectFit: 'cover',
                                   }}
-                                >
-                                  <IconDots />
-                                </IconButton>
-                                <Menu
-                                  id="menu"
-                                  anchorEl={anchorEl}
-                                  open={Boolean(anchorEl)}
-                                  onClose={handleClose}
-                                >
-                                  {menuItems.map((item, i) => (
-                                    <MenuItem key={i} onClick={handleClose}>
-                                      {item.icon}
-                                      <span style={{ marginLeft: 10 }}>{item.text}</span>
-                                    </MenuItem>
-                                  ))}
-                                </Menu>
-                              </Box> */}
-                            </Box>
-                          </Card>
-                        )
+                                  image={product.image}
+                                  alt={product.title}
+                                />
+                              </Box>
+                            </Card>
+                          ),
                       )
                     ) : (
                       <Typography variant="body2">Không có khóa họcnào.</Typography>
                     )}
-
                   </>
                 )}
                 {activeTab === 2 && (
@@ -420,10 +414,7 @@ useEffect(() => {
                             <Box display="flex" alignItems="center" justifyContent="space-between">
                               <Box display="flex" alignItems="center">
                                 <img
-                                  src={
-                                    user.imageUrl ||
-                                    '../../assets/images/profile/user-1.jpg'
-                                  }
+                                  src={user.imageUrl || '../../assets/images/profile/user-1.jpg'}
                                   alt="Author"
                                   style={{
                                     width: 40,
@@ -500,49 +491,58 @@ useEffect(() => {
                                   </Box>
                                 ))}
                             </Box>
-                            {question.fileUrls && question.fileUrls.length > 0 && question.fileUrls.some(url => decodeURIComponent(url).split('/').pop().split('?')[0] !== 'uploads') && (
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  padding: '10px',
-                                  border: '1px solid #e0e0e0',
-                                  borderRadius: '8px',
-                                  backgroundColor: '#fff',
-                                  width: 'fit-content',
-                                  height: '30px',
-                                }}
-                              >
-                                <IconButton sx={{ color: '#007bff' }}>
-                                  <DescriptionIcon />
-                                </IconButton>
-                                <Typography variant="subtitle1">
-                                  {question.fileUrls.map((url, index) => {
-                                    const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
-                                    return fileName !== 'uploads' ? (
-                                      <a
-                                        key={index}
-                                        href={url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                          color: 'inherit',
-                                          textDecoration: 'none',
-                                          fontSize: '14px',
-                                          marginRight: '10px',
-                                        }}
-                                      >
-                                        {fileName}
-                                      </a>
-                                    ) : null;
-                                  })}
-                                </Typography>
-                              </Box>
-                            )}
+                            {question.fileUrls &&
+                              question.fileUrls.length > 0 &&
+                              question.fileUrls.some(
+                                (url) =>
+                                  decodeURIComponent(url).split('/').pop().split('?')[0] !==
+                                  'uploads',
+                              ) && (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '10px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#fff',
+                                    width: 'fit-content',
+                                    height: '30px',
+                                  }}
+                                >
+                                  <IconButton sx={{ color: '#007bff' }}>
+                                    <DescriptionIcon />
+                                  </IconButton>
+                                  <Typography variant="subtitle1">
+                                    {question.fileUrls.map((url, index) => {
+                                      const fileName = decodeURIComponent(url)
+                                        .split('/')
+                                        .pop()
+                                        .split('?')[0];
+                                      return fileName !== 'uploads' ? (
+                                        <a
+                                          key={index}
+                                          href={url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          style={{
+                                            color: 'inherit',
+                                            textDecoration: 'none',
+                                            fontSize: '14px',
+                                            marginRight: '10px',
+                                          }}
+                                        >
+                                          {fileName}
+                                        </a>
+                                      ) : null;
+                                    })}
+                                  </Typography>
+                                </Box>
+                              )}
 
                             <Divider sx={{ my: 2 }} />
                             {/* Like and Comment Counts */}
-                            < Typography variant="subtitle1" color="textSecondary" >
+                            <Typography variant="subtitle1" color="textSecondary">
                               345 Likes • 34 Comments
                             </Typography>
                           </Box>
@@ -552,13 +552,12 @@ useEffect(() => {
                     )}
                   </>
                 )}
-
               </CardContent>
             </Card>
           </Grid>
         </Grid>
-      </Box >
-    </PageContainer >
+      </Box>
+    </PageContainer>
   );
 };
 

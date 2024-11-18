@@ -35,37 +35,43 @@ function Mentor() {
   const [rowsPerPage] = useState(5);
 
   useEffect(() => {
-    const fetchMentor = async () => {
-      try {
-        const mentorsData = await api.getMentors();
-        console.log('Fetched mentors data:', mentorsData); // Log the response
-
-        // Check if mentorsData is an array; if not, fallback to an empty array
-        setRows(Array.isArray(mentorsData) ? mentorsData : []);
-      } catch (error) {
-        console.error('Error fetching mentors:', error);
-        setRows([]); // Set rows to empty array in case of error
-      }
-    };
-    fetchMentor();
-  }, []);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await apiUser.getUsersList();
-        console.log('Users data:', response.data); // Kiểm tra dữ liệu
-        // Gán mảng users từ response.data.users
-        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
+        // Fetch both mentors and users data
+        const [mentorsResponse, usersResponse] = await Promise.all([
+          api.getMentors(),
+          apiUser.getUsersList()
+        ]);
+
+        console.log('Mentors data:', mentorsResponse);
+        console.log('Users data:', usersResponse.data);
+
+        // Set mentors data
+        const mentorsData = Array.isArray(mentorsResponse) ? mentorsResponse : [];
+        setRows(mentorsData);
+
+        // Set users data
+        const usersData = Array.isArray(usersResponse.data.users) ? usersResponse.data.users : [];
+        setUsers(usersData);
+
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching data:', error);
+        setRows([]);
+        setUsers([]);
       } finally {
         setLoading(false);
       }
     };
-    fetchUsers();
+
+    fetchData();
   }, []);
+
+  // Helper function to find user by ID
+  const findUserById = (userId) => {
+    return users.find(user => user.id === userId) || {};
+  };
+
 
   const handleView = async (id) => {
     try {
@@ -161,6 +167,8 @@ function Mentor() {
     return updatedAtString;
   };
 
+  
+
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -197,11 +205,7 @@ function Mentor() {
                 paddingBottom: '12px', // Removing the border and maintaining space at the bottom
               }}
             >
-              <VuiBox display="flex" alignItems="center">
-                <VuiTypography variant="body2" color="info.main" sx={{ mr: 1 }}>
-                  Lịch sử xóa mentor
-                </VuiTypography>
-              </VuiBox>
+             
             </VuiBox>
             {loading ? (
               <div
