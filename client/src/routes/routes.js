@@ -54,22 +54,24 @@ const routes = [
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý bài viết",
+    // type: "collapse",
+    // name: "Quản lý bài viết",
     key: "article",
     route: "/admin/article",
-    icon: <BsJournals size="15px" color="inherit" />,
-    component: Article,
-    noCollapse: true,
+    //tamthoi
+    // icon: <BsJournals size="15px" color="inherit" />,
+    // component: Article,
+    // noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
-    name: "Danh mục bài viết",
+    // type: "collapse",
+    // name: "Danh mục bài viết",
     key: "category",
     route: "/admin/category",
-    icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
-    // component: Category,
-    noCollapse: true,
+    // icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
+    // noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
     type: "collapse",

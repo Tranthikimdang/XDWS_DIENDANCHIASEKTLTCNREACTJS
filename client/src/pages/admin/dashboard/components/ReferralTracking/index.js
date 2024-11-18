@@ -9,8 +9,6 @@ import colors from 'src/assets/admin/theme/base/colors';
 import { FaEllipsisH } from 'react-icons/fa';
 import linearGradient from 'src/assets/admin/theme/functions/linearGradient';
 // Import Firestore
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from 'src/config/firebaseconfig';
 import apis from 'src/apis/CourseApI';
 
 const formatDate = () => {
@@ -25,47 +23,14 @@ const formatDate = () => {
 function ReferralTracking() {
   const { info, gradients } = colors;
   const { cardContent } = gradients;
-
-  const [articles, setArticles] = useState([]);
-  const [newArticles, setNewArticles] = useState([]);
   const [products, setProducts] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
 
-  // Fetch articles
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'articles'));
-        const articleList = querySnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            created_at:
-              data.created_at && data.created_at.toDate
-                ? data.created_at.toDate()
-                : data.created_at,
-          };
-        });
-        const newArticles = articleList.filter(
-          (a) => moment(a.created_at).format('DD/MM/YYYY') === formatDate(),
-        );
-        setNewArticles(newArticles);
-        setArticles(articleList);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      }
-    };
-
-    fetchArticles();
-  }, []);
 
   // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log('abcd');
-
         const res = await apis.getCoursesList();
         console.log(res);
         if (res?.status == 'success') {
@@ -83,11 +48,6 @@ function ReferralTracking() {
 
     fetchProducts();
   }, []);
-
-  const articleProgressValue =
-    articles.length > 0 ? (newArticles.length / articles.length) * 100 : 0;
-  const productProgressValue =
-    products.length > 0 ? (newProducts.length / products.length) * 100 : 0;
 
   return (
     <Grid container spacing={2}>

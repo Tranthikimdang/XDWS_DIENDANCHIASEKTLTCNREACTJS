@@ -24,6 +24,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Firebase
 import { db } from '../../config/firebaseconfig';
 import { collection, getDocs } from 'firebase/firestore';
+import CourseApi from '../../apis/CourseApI';
 
 // Styled components
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -125,9 +126,11 @@ const Home = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setProducts(productsData);
+        const response = await CourseApi.getCoursesList();
+        const course = response.data.courses;
+        console.log(course);
+        
+        setProducts(course);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -332,81 +335,21 @@ const Home = () => {
               </Carousel>
             </Grid>
             {/* Featured Articles */}
-            <Grid container spacing={4} sx={{ marginTop: '40px' }}>
-              <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
-                <Typography variant="h5" component="h2" fontWeight="bold">
-                  Bài viết nổi bật
-                </Typography>
-                <Box
-                  component="a"
-                  href="/article"
-                  sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
-                >
-                  Xem tất cả &gt;
-                </Box>
-              </Grid>
-              {articles
-                .filter((article) => article.isApproved === 1) // Lọc bài viết có isApproved = 1
-                .slice(0, 4) // Chỉ lấy 4 bài viết đầu tiên
-                .map((article) => (
-                  <Grid item xs={6} sm={4} md={3} key={article.id}>
-                    <Card
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        height: '100%',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => handleCardClick(article.id)}
-                    >
-                      <CardMedia
-                        component="img"
-                        height="140"
-                        image={article.image}
-                        alt={article.title}
-                      />
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography
-                          gutterBottom
-                          variant="body2"
-                          component="div"
-                          sx={{ fontSize: '0.875rem' }}
-                        >
-                          {article.title}
-                        </Typography>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                          <Typography
-                            variant="body2"
-                            color="textSecondary"
-                            sx={{
-                              backgroundColor: '#f0f0f0',
-                              borderRadius: '5px',
-                              padding: '5px 10px',
-                              color: '#555',
-                              display: 'inline-block',
-                            }}
-                          >
-                            {catesMap[article.categories_id] || 'Chưa rõ danh mục'}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                            {formatUpdatedAt(article.updated_at)} {/* Hiển thị ngày định dạng */}
-                          </Typography>
-                        </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-            </Grid>
+            {/* tạm thời */}
+            
 
             <Grid container spacing={4} sx={{ marginTop: '40px' }}>
               <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h5" component="h2" fontWeight="bold">
                   Khóa học nổi bật
                 </Typography>
-                <Link href="/products" underline="none">
-                  Xem tất cả
-                </Link>
+                <Box
+                  component="a"
+                  href="/products"
+                  sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
+                >
+                  Xem tất cả &gt;
+                </Box>
               </Grid>
               {products.slice(0, 3).map((product) => (
                 <Grid item xs={12} sm={6} md={4} key={product.id}>
@@ -414,7 +357,7 @@ const Home = () => {
                     <CardMedia
                       component="img"
                       height="200"
-                      image={product.image_url}
+                      image={product.image}
                       alt={product.name}
                     />
                     <CardContent>
