@@ -1169,7 +1169,6 @@ const Questions = () => {
                               )}
                             </>
                           )}
-
                           <Divider sx={{ my: 2 }} />
                           {/* Like and Comment Buttons */}
                           <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
@@ -1828,7 +1827,7 @@ const Questions = () => {
                 ))}
               </List>
             </Box>
-           {/* tam thoi */}
+            {/* tam thoi */}
           </Grid>
         </Grid>
         <Snackbar
