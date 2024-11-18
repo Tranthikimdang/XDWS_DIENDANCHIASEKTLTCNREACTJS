@@ -1,8 +1,10 @@
-export const articleColumns = [
+export const courseColumns = [
   { name: "#", align: "left" },
-  { name: "title", align: "left" },
   { name: "image", align: "left" },
-  { name: "content", align: "center" },
+  { name: "video_demo", align: "left" },
+  { name: "name", align: "center" },
+  { name: "price", align: "center" },
+  { name: "discount", align: "center" },
   { name: "date", align: "center" },
   { name: "action", align: "center" },
 ];

@@ -6,14 +6,14 @@ import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Table from "src/examples/Tables/Table";
-import { articleColumns, questionColumns } from './data/authorsTableData';
-import ConfirmDialog from './data/formDeleteComment';
+import { courseColumns, questionColumns } from './data/authorsTableData';
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
 import 'src/pages/admin/comment/index.css';
-import { collection, getDocs } from "firebase/firestore";
-import { db } from 'src/config/firebaseconfig';
+import {  getQuestionsList } from 'src/apis/QuestionsApis';
+import CourseApi from 'src/apis/CourseApI';
+const { getCoursesList } = CourseApi;
 
 function Comment() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -31,11 +31,11 @@ function Comment() {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const articleSnapshot = await getDocs(collection(db, "articles"));
-        const questionSnapshot = await getDocs(collection(db, "questions"));
-        const articleList = articleSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const courseSnapshot = await getCoursesList();
+        const questionSnapshot = await getQuestionsList();
+        const courseList = courseSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         const questionList = questionSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setArticleRows(articleList);
+        setArticleRows(courseList);
         setQuestionRows(questionList);
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -180,7 +180,7 @@ function Comment() {
           </Tabs>
 
           <VuiBox>
-            {tabValue === 0 && renderTable(articleRows, articleColumns)}
+            {tabValue === 0 && renderTable(articleRows, courseColumns)}
             {tabValue === 1 && renderTable(questionRows, questionColumns)}
           </VuiBox>
 
