@@ -18,6 +18,7 @@ import {
 import { styled, } from '@mui/system';
 
 // Icon
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -167,7 +168,7 @@ const Home = () => {
   };
 
   return (
-    <PageContainer title="Dashboard" description="this is Dashboard">
+    <PageContainer title="Share Code | Diễn đàn chia sẻ lập trình code" description="Đây là trang chủ">
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           {/* Carousel Banner */}
@@ -328,16 +329,36 @@ const Home = () => {
           {/* kết thúc Carousel Banner */}
 
           <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h5" component="h2" fontWeight="bold"
-              sx={{ textDecoration: 'none', fontWeight: 'bold' }}>
+            <Typography
+              variant="h5"
+              component="h2"
+              sx={{ textDecoration: 'none', fontWeight: 1000 }}
+            >
               Khóa học Pro
             </Typography>
             <Box
               component="a"
-              href="/article"
-              sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
+              href="/products"
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px', // Khoảng cách giữa chữ và icon
+                color: '#5d86fe', // Màu chính
+                fontWeight: 'bold', // Chữ đậm để tạo sự nổi bật
+                textDecoration: 'none', // Loại bỏ gạch chân mặc định
+                fontSize: '16px', // Kích thước chữ dễ đọc
+                padding: '4px 8px', // Tăng khoảng cách bấm
+                borderRadius: '4px', // Bo góc mềm mại
+                transition: 'all 0.3s ease', // Hiệu ứng chuyển đổi mượt mà
+                '&:hover': {
+                  color: '#3b5db2', // Màu nổi bật khi hover
+                  textDecoration: 'underline', // Gạch chân nhấn mạnh khi hover
+                  backgroundColor: 'rgba(93, 134, 254, 0.1)', // Nền nhẹ khi hover
+                },
+              }}
             >
-              Xem tất cả &gt;
+              Xem tất cả
+              <ArrowForwardIosIcon sx={{ fontSize: '15px' }} /> {/* Thêm icon mũi tên */}
             </Box>
           </Grid>
           {products
@@ -371,17 +392,38 @@ const Home = () => {
               </Grid>
             ))}
           <Grid item xs={12} display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h5" component="h2" fontWeight="bold"
-              sx={{ textDecoration: 'none', fontWeight: 'bold' }}>
+            <Typography
+              variant="h5"
+              component="h2"
+              sx={{ textDecoration: 'none', fontWeight: 1000 }}
+            >
               Khóa học miễn phí
             </Typography>
             <Box
               component="a"
-              href="/article"
-              sx={{ textDecoration: 'none', color: '#5d86fe', fontWeight: 'bold' }}
+              href="/products"
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px', // Khoảng cách giữa chữ và icon
+                color: '#5d86fe', // Màu chính
+                fontWeight: 'bold', // Chữ đậm để tạo sự nổi bật
+                textDecoration: 'none', // Loại bỏ gạch chân mặc định
+                fontSize: '16px', // Kích thước chữ dễ đọc
+                padding: '4px 8px', // Tăng khoảng cách bấm
+                borderRadius: '4px', // Bo góc mềm mại
+                transition: 'all 0.3s ease', // Hiệu ứng chuyển đổi mượt mà
+                '&:hover': {
+                  color: '#3b5db2', // Màu nổi bật khi hover
+                  textDecoration: 'underline', // Gạch chân nhấn mạnh khi hover
+                  backgroundColor: 'rgba(93, 134, 254, 0.1)', // Nền nhẹ khi hover
+                },
+              }}
             >
-              Xem tất cả &gt;
+              Xem lộ trình
+              <ArrowForwardIosIcon sx={{ fontSize: '15px' }} /> {/* Thêm icon mũi tên */}
             </Box>
+
           </Grid>
           {products
             .slice(0, 4)

@@ -48,7 +48,7 @@ const Course = () => {
         const response = await CourseApi.getCoursesList();
         const course = response.data.courses;
         console.log(course);
-        
+
         setProducts(course);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -105,18 +105,18 @@ const Course = () => {
     if (userId) {
       try {
         const existingOrder = await CourseApi.checkOrderExists(userId, product.id);
-        
+
         if (existingOrder.data.exists) {
           setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
           setSnackbarSeverity('warning');
           setSnackbarOpen(true);
         } else {
-          await CourseApi.addToCart({ 
-            user_id: userId, 
-            product_id: product.id, 
-            total: 'total', 
-            note: '', 
-            order_day: new Date() 
+          await CourseApi.addToCart({
+            user_id: userId,
+            product_id: product.id,
+            total: 'total',
+            note: '',
+            order_day: new Date()
           });
 
           setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
@@ -138,7 +138,7 @@ const Course = () => {
   };
 
   return (
-    <PageContainer title="Products" description="This is products">
+    <PageContainer title="Danh sách khóa học | Share Code" description="Đây là trang danh sách khóa học">
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -156,8 +156,8 @@ const Course = () => {
               Các khóa học của chúng tôi
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
-              A collection of products sharing experiences of self-learning programming online and
-              web development techniques.
+              Tổng hợp các khoá học chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật
+              lập trình web.
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>

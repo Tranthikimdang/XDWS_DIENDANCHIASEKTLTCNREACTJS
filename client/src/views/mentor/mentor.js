@@ -121,7 +121,7 @@ const Mentor = () => {
   }, [navigate]);
 
   return (
-    <PageContainer title="Đăng ký làm người hướng dẫn" description="Đây là trang đăng ký làm người hướng dẫn">
+    <PageContainer title="Đăng ký làm người hướng dẫn | Share Code" description="Đây là trang đăng ký làm người hướng dẫn">
       <Container maxWidth="md">
         <Paper elevation={4} sx={{ padding: 4, marginTop: 4, borderRadius: '16px' }}>
           <Box display="flex" flexDirection="column" alignItems="center">

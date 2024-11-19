@@ -1,5 +1,13 @@
 const Mentor = require('../models/mentorModel');
 
+// Thêm mentor
+const addMentor = async (req, res) => {
+  try {
+    const newMentor = new Mentor(req.body);
+    await newMentor.save(); res.status(201).json(newMentor);
+  } catch (error) { res.status(400).json({ message: error.message }); }
+};
+
 // Lấy tất cả danh sách Mentor
 const getMentors = async (req, res) => {
   try {
@@ -109,4 +117,4 @@ const hardDeleteMentor = async (req, res) => {
   }
 };
 
-module.exports = { getMentors, getMentorById, updateMentor, deleteMentor, hardDeleteMentor };
+module.exports = { addMentor, getMentors, getMentorById, updateMentor, deleteMentor, hardDeleteMentor };
