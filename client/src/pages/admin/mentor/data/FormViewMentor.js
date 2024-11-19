@@ -15,9 +15,10 @@ import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 
-// Import Firebase
-import { db } from '../../../../config/firebaseconfig';
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+// sql
+//sql
+import api from '../../../../apis/mentorApi';
+import apiUser from '../../../../apis/UserApI';
 
 function FormViewMentor() {
   const { id } = useParams(); // Lấy ID của mentor từ URL
@@ -28,22 +29,32 @@ function FormViewMentor() {
   const [snackbarMessage, setSnackbarMessage] = useState(""); // Thông điệp của Snackbar
   const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Độ nghiêm trọng của Snackbar
   const [users, setUsers] = useState([]);
-  const [cates, setCates] = useState([]);
 
-  // Lấy danh sách người dùng từ Firestore
+  //lấy chi tiết mentors
+  useEffect(() => {
+    const fetchMentor = async () => {
+      try {
+        const response = await api.detailMentor();
+        // Gán mảng mentors từ response.data.mentors
+        setMentor(Array.isArray(response?.data?.mentors) ? response.data.mentors : []);
+      } catch (error) {
+        console.error('Error fetching mentors:', error);
+        setMentor([]); // Set rows to empty array in case of error
+      }
+    };
+    fetchMentor();
+  }, []);
+
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const userCollectionRef = collection(db, "users");
-        const userSnapshot = await getDocs(userCollectionRef);
-        const userList = userSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(userList);
-        console.log("Lấy người dùng:", userList);
+        const user = await apiUser.getUsersList();
+        console.log('Users data:', user.data); // Kiểm tra dữ liệu
+        // Gán mảng users từ response.data.users
+        setUsers(Array.isArray(user.data.users) ? user.data.users : []);
       } catch (error) {
-        console.error("Lỗi khi lấy người dùng:", error);
+        console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
@@ -51,59 +62,6 @@ function FormViewMentor() {
     fetchUsers();
   }, []);
 
-  // Lấy chi tiết mentor từ Firestore
-  useEffect(() => {
-    const fetchMentorDetails = async () => {
-      try {
-        const mentorDocRef = doc(db, "mentor", id);
-        const mentorSnapshot = await getDoc(mentorDocRef);
-        if (mentorSnapshot.exists()) {
-          setMentor(mentorSnapshot.data());
-        } else {
-          setSnackbarMessage("Không tìm thấy mentor.");
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
-        }
-      } catch (error) {
-        console.error("Lỗi khi lấy chi tiết mentor:", error);
-        setSnackbarMessage("Không thể lấy chi tiết mentor.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (id) {
-      fetchMentorDetails();
-    }
-  }, [id]);
-  // Fetch categories from Firestore
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setCates(categoriesData);
-
-        // Create a mapping of category ID to name
-        const categoriesMap = categoriesData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCates(categoriesMap);
-
-        console.log("Fetched categories:", categoriesData);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
   // Đóng Snackbar
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -172,10 +130,10 @@ function FormViewMentor() {
                 }}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
-                      {mentor.image && (
+                      {mentor.cv_url && (
                         <img
-                          src={mentor.image}
-                          alt={mentor.title}
+                          src={mentor.cv_url} // Assuming cv_url is the image URL
+                          alt={mentor.bio} // Bio can be used as alternative text
                           style={{
                             width: "100%",
                             maxHeight: "300px",
@@ -188,22 +146,25 @@ function FormViewMentor() {
                     </Grid>
                     <Grid item xs={12} md={6}>
                       <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
-                        <strong>Tiêu đề: </strong>{mentor.title}
-                      </VuiTypography>
-                      <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                        <strong>Thể loại mentor: </strong>  {cates[mentor.categories_id] || 'không có danh mục'}
+                        <strong>Bio: </strong>{mentor.bio}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" style={smallFontStyle}>
-                        <strong>Tác giả: </strong>  {users?.filter(u => mentor?.user_id === u.id)?.[0]?.name}
+                        <strong>Skills: </strong>  {mentor.skills}
                       </VuiTypography>
                       <VuiTypography variant="subtitle1" style={smallFontStyle}>
-                        <strong>Thời gian: </strong>   {formatUpdatedAt(mentor.updated_at)}
+                        <strong>Experience: </strong> {mentor.experience_years} years
+                      </VuiTypography>
+                      <VuiTypography variant="subtitle1" style={smallFontStyle}>
+                        <strong>Author: </strong>  {users?.filter(u => mentor?.user_id === u.id)?.[0]?.name}
+                      </VuiTypography>
+                      <VuiTypography variant="subtitle1" style={smallFontStyle}>
+                        <strong>Updated at: </strong> {formatUpdatedAt(mentor.updated_at)}
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: "30px" }}>
                       <VuiTypography variant="h1" paragraph style={smallFontStyle}>
-                        <strong>Nội dung: </strong>
-                        <div dangerouslySetInnerHTML={{ __html: mentor.content }}></div>
+                        <strong>CV URL: </strong>
+                        <div>{mentor.cv_url}</div>
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12}>
@@ -218,7 +179,7 @@ function FormViewMentor() {
                             </svg>
                           }
                         >
-                          Quay Lại
+                          Back
                         </Button>
                       </Box>
                     </Grid>
@@ -226,8 +187,7 @@ function FormViewMentor() {
                 </Paper>
               ) : (
                 <VuiTypography variant="h5" color="text.secondary" align="center">
-                  Đang tải chi tiết mentor...
-
+                  Loading mentor details...
                 </VuiTypography>
               )}
             </VuiTypography>
@@ -247,6 +207,7 @@ function FormViewMentor() {
       </Snackbar>
     </DashboardLayout>
   );
+
 }
 
 export default FormViewMentor;
