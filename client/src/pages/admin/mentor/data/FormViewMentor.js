@@ -7,10 +7,17 @@ import {
   Typography,
   Avatar,
   Alert,
+  Card,
   Box,
 } from "@mui/material";
+import ProfileInfoCard from "src/examples/Cards/InfoCards/ProfileInfoCard";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
+//Icon
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
+//Sql
 import api from "../../../../apis/mentorApi";
 import apiUser from "../../../../apis/UserApI";
 
@@ -72,105 +79,151 @@ function FormViewMentor() {
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <Box
-        sx={{
-          border: '1px solid #e0e0e0',
-          borderRadius: '8px',
-          padding: '20px',
-          background: '#060c28',
-        }}
-      >
+      <Box sx={{ p: 3 }}>
         {loading ? (
           <CircularProgress sx={{ margin: "auto", display: "block" }} />
         ) : mentor ? (
-          <Grid container spacing={4}>
+          <Grid container spacing={3}>
             {/* Avatar and basic information */}
-            <Grid item xs={12} md={4} sx={{ textAlign: "center" }}>
-              <Avatar
-                src={
-                  mentorUser?.imageUrl ||
-                  "https://via.placeholder.com/150" // Default image if not available
-                }
-                alt="User Avatar"
-                sx={{
-                  width: "150px",
-                  height: "150px",
-                  margin: "auto",
-                  border: "3px solid #FFF",
-                }}
-              />
-              <Typography variant="h5" sx={{ mt: 2, color: "#fff" }}>
-                {mentor?.bio || "Mentor không có bio"}
-              </Typography>
-              <Typography variant="body1" sx={{ mt: 1, color: "#fff" }}>
-                {`Tác giả: ${mentorUser?.name || "Không xác định"}`}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1, color: "#fff" }}>
-                {`Email: ${mentorUser?.email || "Không có email"}`}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1, color: "#fff" }}>
-                {`Số điện thoại: ${mentorUser?.phone || "Không có số điện thoại"}`}
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 1, color: "#fff" }}>
-                {`Địa chỉ: ${mentorUser?.location || "Không có địa chỉ"}`}
-              </Typography>
+            <Grid
+              item
+              xs={12}
+              xl={4}
+              xxl={3}
+              sx={({ breakpoints }) => ({
+                [breakpoints.only("xl")]: {
+                  gridArea: "1 / 2 / 2 / 3",
+                },
+              })}
+            >
+              <Card sx={{ textAlign: "center", p: 3 }}>
+                <Avatar
+                  src={
+                    mentorUser?.imageUrl ||
+                    "https://via.placeholder.com/150" // Default image
+                  }
+                  alt="User Avatar"
+                  sx={{
+                    width: "150px",
+                    height: "150px",
+                    margin: "auto",
+                    border: "3px solid #FFF",
+                  }}
+                />
+                <Typography variant="h5" sx={{ mt: 2 }}>
+                  {`Mô tả: ${mentor?.bio || "Mentor không có bio"}`}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: 1 }}>
+                  {`Tác giả: ${mentorUser?.name || "Không xác định"}`}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {`Email: ${mentorUser?.email || "Không có email"}`}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {`Số điện thoại: ${mentorUser?.phone || "Không có số điện thoại"}`}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {`Địa chỉ: ${mentorUser?.location || "Không có địa chỉ"}`}
+                </Typography>
+              </Card>
             </Grid>
 
             {/* Mentor detailed information */}
-            <Grid item xs={12} md={8}>
-              <Box mb={2}>
-                <Typography variant="h4" sx={{ color: "#fff" }} gutterBottom>
-                  Thông tin Mentor
-                </Typography>
-              </Box>
-              <Box mb={2}>
-                <Typography variant="body1" sx={{ color: "#fff" }}>
-                  <strong>Kỹ năng:</strong> {mentor?.skills || "Không có kỹ năng"}
-                </Typography>
-              </Box>
-              <Box mb={2}>
-                <Typography variant="body1" sx={{ color: "#fff" }}>
-                  <strong>Kinh nghiệm:</strong>{" "}
-                  {mentor?.experience_years
-                    ? `${mentor.experience_years} năm`
-                    : "Không có kinh nghiệm"}
-                </Typography>
-              </Box>
-              <Box mb={2}>
-                <Typography variant="body1" sx={{ color: "#fff" }}>
-                  <strong>Đánh giá:</strong> {mentor?.rating || 0}/5
-                </Typography>
-              </Box>
-              <Box mb={2}>
-                <Typography variant="body1" sx={{ color: "#fff" }}>
-                  <strong>Số lượt nhận xét:</strong>{" "}
-                  {mentor?.reviews_count || 0}
-                </Typography>
-              </Box>
-              <Box>
-                <Typography variant="body1" sx={{ color: "#fff" }}>
-                  <strong>Chứng chỉ:</strong>{" "}
-                  {mentor?.certificate_url ? (
-                    <a
-                      href={mentor?.certificate_url}
-                      style={{
-                        color: "#4CAF50",
-                        textDecoration: "underline",
-                      }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Xem chứng chỉ
-                    </a>
-                  ) : (
-                    "Không có chứng chỉ"
-                  )}
-                </Typography>
-              </Box>
+            {/* <Grid item xs={12} md={8}>
+              <Card sx={{ p: 3 }}>
+                <Box mb={2}>
+                  <Typography variant="h4" gutterBottom>
+                    Thông tin Mentor
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Kỹ năng:</strong> {mentor?.skills || "Không có kỹ năng"}
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Kinh nghiệm:</strong>{" "}
+                    {mentor?.experience_years
+                      ? `${mentor.experience_years} năm`
+                      : "Không có kinh nghiệm"}
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Đánh giá:</strong> {mentor?.rating || 0}/5
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Số lượt nhận xét:</strong>{" "}
+                    {mentor?.reviews_count || 0}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body1">
+                    <strong>Chứng chỉ:</strong>{" "}
+                    {mentor?.certificate_url ? (
+                      <a
+                        href={mentor?.certificate_url}
+                        style={{
+                          color: "#4CAF50",
+                          textDecoration: "underline",
+                        }}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Xem chứng chỉ
+                      </a>
+                    ) : (
+                      "Không có chứng chỉ"
+                    )}
+                  </Typography>
+                </Box>
+              </Card>
+            </Grid> */}
+            <Grid
+              item
+              xs={12}
+              xl={4}
+              xxl={3}
+              sx={({ breakpoints }) => ({
+                [breakpoints.only("xl")]: {
+                  gridArea: "1 / 2 / 2 / 3",
+                },
+              })}
+            >
+              <ProfileInfoCard
+                title="Profile Information"
+                description={`Mô tả: ${mentor?.bio || "Mentor không có bio"}`}
+                info={{
+                  fullName: mentorUser?.name || "Không xác định",
+                  mobile: mentorUser?.phone || "Không có số điện thoại",
+                  email: mentorUser?.email || "Không có email",
+                  location: mentorUser?.location || "Không có địa chỉ",
+                }}
+                social={[
+                  {
+                    link: "https://www.facebook.com/CreativeTim/",
+                    icon: <FacebookIcon />,
+                    color: "facebook",
+                  },
+                  {
+                    link: "https://twitter.com/creativetim",
+                    icon: <TwitterIcon />,
+                    color: "twitter",
+                  },
+                  {
+                    link: "https://www.instagram.com/creativetimofficial/",
+                    icon: <InstagramIcon />,
+                    color: "instagram",
+                  },
+                ]}
+              />
             </Grid>
           </Grid>
         ) : (
-          <Typography variant="h6" align="center" sx={{ color: "#fff" }}>
+          <Typography variant="h6" align="center">
             Không tìm thấy chi tiết mentor.
           </Typography>
         )}
