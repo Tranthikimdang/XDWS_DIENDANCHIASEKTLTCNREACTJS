@@ -6,10 +6,6 @@ import { uniqueId } from 'lodash';
 
 const Menuitems = [
   {
-    navlabel: true,
-    subheader: 'Home',
-  },
-  {
     id: uniqueId(),
     title: 'Trang chủ',
     icon: IconHome,
@@ -21,12 +17,12 @@ const Menuitems = [
     icon: IconInfoSquareRounded,
     href: '/questions',
   },
-  {
-    id: uniqueId(),
-    title: 'Bài viết',
-    icon: IconBook2,
-    href: '/article',
-  },
+  // {
+  //   id: uniqueId(),
+  //   title: 'Bài viết',
+  //   icon: IconBook2,
+  //   href: '/article',
+  // },
   {
     id: uniqueId(),
     title: 'Khóa học',

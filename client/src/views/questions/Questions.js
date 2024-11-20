@@ -696,7 +696,7 @@ const Questions = () => {
   };
 
   return (
-    <PageContainer title="Questions">
+    <PageContainer title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code" description="Đây là trang đặt câu hỏi">
       <DashboardCard>
         <Grid container spacing={2}>
           {/* Left Column */}
@@ -728,7 +728,7 @@ const Questions = () => {
 
                 {/* Post Content */}
                 <TextField
-                  label="Hãy đặt câu hỏi?"
+                  label="Hãy đặt câu hỏi hoặc chia sẻ kiến thức ?"
                   variant="outlined"
                   multiline
                   fullWidth
@@ -1169,7 +1169,6 @@ const Questions = () => {
                               )}
                             </>
                           )}
-
                           <Divider sx={{ my: 2 }} />
                           {/* Like and Comment Buttons */}
                           <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
@@ -1204,11 +1203,16 @@ const Questions = () => {
                                 <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
                                   <img
                                     src={
-                                      currentUserImage || '../../assets/images/profile/user-1.jpg'
-                                    }
-                                    width="30px"
+                                      users?.find((u) => question?.user_id === u.id)?.imageUrl ||
+                                      '../../assets/images/profile/user-1.jpg'
+                                    } // Đường dẫn đến ảnh tác giả hoặc ảnh mặc định
                                     alt="User Avatar"
-                                    style={{ borderRadius: '50%', marginRight: '10px' }}
+                                    style={{
+                                      width: 40,
+                                      height: 40,
+                                      borderRadius: '50%',
+                                      marginRight: 8,
+                                    }}
                                   />
                                   <TextField
                                     placeholder={`Bình luận dưới tên ${users.find((user) => user.id === userData.current.id)?.name ||
@@ -1903,7 +1907,7 @@ const Questions = () => {
             >
               <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                 <Typography variant="h6" sx={{ fontSize: '1rem' }}>
-                  Bài viết nổi bật
+                  Khóa học nổi bật
                 </Typography>
                 <Button
                   variant="outlined"

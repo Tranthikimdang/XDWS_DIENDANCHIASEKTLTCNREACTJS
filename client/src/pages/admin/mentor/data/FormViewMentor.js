@@ -14,138 +14,85 @@ import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-
-// Import Firebase
-import { db } from '../../../../config/firebaseconfig';
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import api from "../../../../apis/mentorApi";
+import apiUser from "../../../../apis/UserApI";
 
 function FormViewMentor() {
   const { id } = useParams(); // Lấy ID của mentor từ URL
   const navigate = useNavigate();
-  const [mentor, setMentor] = useState(null); // Trạng thái cho mentor
-  const [loading, setLoading] = useState(true); // Trạng thái cho spinner
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // Trạng thái cho Snackbar
-  const [snackbarMessage, setSnackbarMessage] = useState(""); // Thông điệp của Snackbar
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Độ nghiêm trọng của Snackbar
-  const [users, setUsers] = useState([]);
-  const [cates, setCates] = useState([]);
 
-  // Lấy danh sách người dùng từ Firestore
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const userCollectionRef = collection(db, "users");
-        const userSnapshot = await getDocs(userCollectionRef);
-        const userList = userSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setUsers(userList);
-        console.log("Lấy người dùng:", userList);
-      } catch (error) {
-        console.error("Lỗi khi lấy người dùng:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, []);
+  // Trạng thái
+  const [mentor, setMentor] = useState(null); // Chi tiết mentor
+  const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
+  const [snackbarOpen, setSnackbarOpen] = useState(false); // Hiển thị thông báo
+  const [snackbarMessage, setSnackbarMessage] = useState(""); // Nội dung thông báo
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Mức độ thông báo
+  const [users, setUsers] = useState([]); // Danh sách users
 
-  // Lấy chi tiết mentor từ Firestore
+  // Lấy chi tiết mentor
   useEffect(() => {
-    const fetchMentorDetails = async () => {
+    const fetchMentor = async () => {
+      console.log("Mentor ID:", id); // Kiểm tra giá trị id
       try {
-        const mentorDocRef = doc(db, "mentor", id);
-        const mentorSnapshot = await getDoc(mentorDocRef);
-        if (mentorSnapshot.exists()) {
-          setMentor(mentorSnapshot.data());
-        } else {
-          setSnackbarMessage("Không tìm thấy mentor.");
-          setSnackbarSeverity("error");
-          setSnackbarOpen(true);
-        }
+        const response = await api.detailMentor(id); // Gọi API với ID
+        setMentor(response?.data || null); // Gán dữ liệu mentor
       } catch (error) {
-        console.error("Lỗi khi lấy chi tiết mentor:", error);
-        setSnackbarMessage("Không thể lấy chi tiết mentor.");
+        console.error("Error fetching mentor details:", error);
+        setSnackbarMessage("Không thể tải thông tin mentor.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
-        setLoading(false);
+        setLoading(false); // Dừng trạng thái loading
       }
     };
 
     if (id) {
-      fetchMentorDetails();
+      fetchMentor();
+    } else {
+      setSnackbarMessage("Không tìm thấy ID mentor.");
+      setSnackbarSeverity("warning");
+      setSnackbarOpen(true);
+      setLoading(false);
     }
   }, [id]);
-  // Fetch categories from Firestore
+
+  // Lấy danh sách users
   useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
+    const fetchUsers = async () => {
       try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setCates(categoriesData);
-
-        // Create a mapping of category ID to name
-        const categoriesMap = categoriesData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCates(categoriesMap);
-
-        console.log("Fetched categories:", categoriesData);
+        const user = await apiUser.getUsersList();
+        setUsers(Array.isArray(user?.data?.users) ? user.data.users : []);
       } catch (error) {
-        console.error("Error fetching categories:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error fetching users:", error);
       }
     };
 
-    fetchCategories();
+    fetchUsers();
   }, []);
+
   // Đóng Snackbar
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
+    if (reason === "clickaway") return;
     setSnackbarOpen(false);
   };
 
-
-  const smallFontStyle = {
-    fontSize: '0.9rem',
-    color: '#ffffff'
-  };
-
-  //date
+  // Định dạng thời gian cập nhật
   const formatUpdatedAt = (updatedAt) => {
-    let updatedAtString = '';
+    if (!updatedAt) return "Không rõ thời gian";
 
-    if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
-      const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
+    const date = new Date(updatedAt.seconds * 1000);
+    const now = new Date();
+    const diff = now - date;
 
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
-      const minutes = Math.floor(seconds / 60);
-      const hours = Math.floor(minutes / 60);
-      const days = Math.floor(hours / 24);
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
 
-      if (days > 0) {
-        updatedAtString = `${days} ngày trước`;
-      } else if (hours > 0) {
-        updatedAtString = `${hours} giờ trước`;
-      } else if (minutes > 0) {
-        updatedAtString = `${minutes} phút trước`;
-      } else {
-        updatedAtString = `${seconds} giây trước`;
-      }
-    } else {
-      updatedAtString = 'Không rõ thời gian';
-    }
-
-    return updatedAtString;
+    if (days > 0) return `${days} ngày trước`;
+    if (hours > 0) return `${hours} giờ trước`;
+    if (minutes > 0) return `${minutes} phút trước`;
+    return `${seconds} giây trước`;
   };
 
   return (
@@ -156,26 +103,24 @@ function FormViewMentor() {
           <VuiBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
             <VuiTypography>
               {loading ? (
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  height="300px"
-                >
+                <Box display="flex" justifyContent="center" alignItems="center" height="300px">
                   <CircularProgress color="primary" size={60} />
                 </Box>
               ) : mentor ? (
-                <Paper elevation={3} style={{
-                  padding: "24px",
-                  borderRadius: "12px",
-                  background: "linear-gradient(to bottom right, #19215c, #080d2d)"
-                }}>
+                <Paper
+                  elevation={3}
+                  style={{
+                    padding: "24px",
+                    borderRadius: "12px",
+                    background: "linear-gradient(to bottom right, #19215c, #080d2d)",
+                  }}
+                >
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={6}>
-                      {mentor.image && (
+                      {mentor.cv_url && (
                         <img
-                          src={mentor.image}
-                          alt={mentor.title}
+                          src={mentor.cv_url}
+                          alt={mentor.bio}
                           style={{
                             width: "100%",
                             maxHeight: "300px",
@@ -187,23 +132,27 @@ function FormViewMentor() {
                       )}
                     </Grid>
                     <Grid item xs={12} md={6}>
-                      <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
-                        <strong>Tiêu đề: </strong>{mentor.title}
+                      <VuiTypography variant="h3" gutterBottom>
+                        <strong>Bio:</strong> {mentor.bio}
                       </VuiTypography>
-                      <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                        <strong>Thể loại mentor: </strong>  {cates[mentor.categories_id] || 'không có danh mục'}
+                      <VuiTypography variant="subtitle1">
+                        <strong>Skills:</strong> {mentor.skills}
                       </VuiTypography>
-                      <VuiTypography variant="subtitle1" style={smallFontStyle}>
-                        <strong>Tác giả: </strong>  {users?.filter(u => mentor?.user_id === u.id)?.[0]?.name}
+                      <VuiTypography variant="subtitle1">
+                        <strong>Experience:</strong> {mentor.experience_years} years
                       </VuiTypography>
-                      <VuiTypography variant="subtitle1" style={smallFontStyle}>
-                        <strong>Thời gian: </strong>   {formatUpdatedAt(mentor.updated_at)}
+                      <VuiTypography variant="subtitle1">
+                        <strong>Author:</strong>{" "}
+                        {users.find((user) => user.id === mentor.user_id)?.name || "Không rõ"}
+                      </VuiTypography>
+                      <VuiTypography variant="subtitle1">
+                        <strong>Updated at:</strong> {formatUpdatedAt(mentor.updated_at)}
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12} style={{ marginTop: "30px" }}>
-                      <VuiTypography variant="h1" paragraph style={smallFontStyle}>
-                        <strong>Nội dung: </strong>
-                        <div dangerouslySetInnerHTML={{ __html: mentor.content }}></div>
+                      <VuiTypography variant="h1" paragraph>
+                        <strong>CV URL:</strong>
+                        <div>{mentor.cv_url}</div>
                       </VuiTypography>
                     </Grid>
                     <Grid item xs={12}>
@@ -213,12 +162,22 @@ function FormViewMentor() {
                           color="primary"
                           onClick={() => navigate("/admin/mentor")}
                           startIcon={
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-return-left" viewBox="0 0 16 16">
-                              <path fillRule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="currentColor"
+                              className="bi bi-arrow-return-left"
+                              viewBox="0 0 16 16"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"
+                              />
                             </svg>
                           }
                         >
-                          Quay Lại
+                          Back
                         </Button>
                       </Box>
                     </Grid>
@@ -226,8 +185,7 @@ function FormViewMentor() {
                 </Paper>
               ) : (
                 <VuiTypography variant="h5" color="text.secondary" align="center">
-                  Đang tải chi tiết mentor...
-
+                  Không tìm thấy chi tiết mentor.
                 </VuiTypography>
               )}
             </VuiTypography>
@@ -238,10 +196,14 @@ function FormViewMentor() {
         open={snackbarOpen}
         autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ transform: 'translateY(100px)' }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        sx={{ transform: "translateY(100px)" }}
       >
-        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{ width: "100%" }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

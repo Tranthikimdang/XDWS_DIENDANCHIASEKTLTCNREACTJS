@@ -37,11 +37,9 @@ function Mentor() {
   useEffect(() => {
     const fetchMentor = async () => {
       try {
-        const mentorsData = await api.getMentors();
-        console.log('Fetched mentors data:', mentorsData); // Log the response
-
-        // Check if mentorsData is an array; if not, fallback to an empty array
-        setRows(Array.isArray(mentorsData) ? mentorsData : []);
+        const response = await api.getMentors();
+        // Gán mảng mentors từ response.data.mentors
+        setRows(Array.isArray(response?.data?.mentors) ? response.data.mentors : []);
       } catch (error) {
         console.error('Error fetching mentors:', error);
         setRows([]); // Set rows to empty array in case of error
@@ -54,10 +52,10 @@ function Mentor() {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await apiUser.getUsersList();
-        console.log('Users data:', response.data); // Kiểm tra dữ liệu
+        const user = await apiUser.getUsersList();
+        console.log('Users data:', user.data); // Kiểm tra dữ liệu
         // Gán mảng users từ response.data.users
-        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
+        setUsers(Array.isArray(user.data.users) ? user.data.users : []);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
@@ -187,22 +185,6 @@ function Mentor() {
                 />
               </VuiBox>
             </VuiBox>
-            <VuiBox
-              display="flex"
-              justifyContent="flex-end" // Aligns content to the right
-              alignItems="center"
-              mb="24px"
-              sx={{
-                backgroundColor: 'transparent', // Keeping it clean with a transparent background
-                paddingBottom: '12px', // Removing the border and maintaining space at the bottom
-              }}
-            >
-              <VuiBox display="flex" alignItems="center">
-                <VuiTypography variant="body2" color="info.main" sx={{ mr: 1 }}>
-                  Lịch sử xóa mentor
-                </VuiTypography>
-              </VuiBox>
-            </VuiBox>
             {loading ? (
               <div
                 style={{
@@ -236,43 +218,36 @@ function Mentor() {
                       .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
+                        const user = users.find(u => u.id === row.user_id);
                         return {
                           ...row,
                           no: page * rowsPerPage + index + 1,
                           author: (
                             <VuiBox style={{ display: 'flex', alignItems: 'center' }}>
                               <img
-                                src={users?.find(u => row.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
+                                src={user?.imageUrl || 'default-image-url.jpg'}
                                 alt="User Avatar"
                                 style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
                               />
 
                               <VuiBox style={{ display: 'flex', flexDirection: 'column' }}>
                                 <VuiTypography variant="button" color="white" fontWeight="medium">
-                                  {users?.find(u => u.id === row.user_id)?.name || 'Unknown'}
+                                  {user?.name || 'Unknown'}
                                 </VuiTypography>
                                 <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                  {users?.find(u => u.id === row.user_id)?.email || 'Unknown'}
+                                  {user?.email || 'Unknown'}
                                 </VuiTypography>
                               </VuiBox>
                             </VuiBox>
                           ),
-                          location: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {users?.find(u => u.id === row.user_id)?.location || 'Unknown'}
-                            </VuiTypography>
-                          ),
-                          phone: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {users?.find(u => u.id === row.user_id)?.phone || 'Unknown'}
-                            </VuiTypography>
-                          ),
-                          information: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {row.cv_url.length > 50
-                                ? `${row.cv_url.substring(0, 50)}...`
-                                : row.cv_url}
-                            </VuiTypography>
+                          bio: (
+                            <VuiBox>
+                              <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                {row.bio?.length > 10
+                                  ? `${row.bio?.substring(0, 10)}...`
+                                  : row.bio}
+                              </VuiTypography>
+                            </VuiBox>
                           ),
                           date: (
                             <VuiBox>
@@ -335,7 +310,6 @@ function Mentor() {
                                   </Tooltip>
                                 </>
                               )}
-
                             </div>
                           ),
                         };

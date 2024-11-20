@@ -98,7 +98,7 @@ const Profile = () => {
           </ListItemIcon>
           <ListItemText>Thông báo</ListItemText>
         </MenuItem>
-        <MenuItem>
+        {/* <MenuItem>
           <ListItemIcon>
             <IconListCheck width={20} />
           </ListItemIcon>
@@ -115,7 +115,7 @@ const Profile = () => {
             <IconBook2 width={20} />
           </ListItemIcon>
           <ListItemText>Thêm bài viết</ListItemText>
-        </MenuItem>
+        </MenuItem> */}
         <Box mt={1} py={1} px={2}>
           <Button onClick={handleLogout} variant="outlined" color="primary" fullWidth>
             Đăng xuất
