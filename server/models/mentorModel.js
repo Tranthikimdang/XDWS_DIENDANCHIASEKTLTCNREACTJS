@@ -46,7 +46,7 @@ const Mentor = sequelize.define('Mentor', {
         type: DataTypes.STRING,
         allowNull: true
     },
-    is_approved: {
+    isApproved: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
