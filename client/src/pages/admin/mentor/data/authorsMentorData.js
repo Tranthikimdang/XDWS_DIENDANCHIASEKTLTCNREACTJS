@@ -8,8 +8,7 @@ export default {
     { name: "experience_years", align: "left", label: "Kinh nghiệm (năm)" }, // Số năm kinh nghiệm
     { name: "rating", align: "left", label: "Đánh giá" }, // Đánh giá trung bình của mentor
     { name: "reviews_count", align: "left", label: "Số lượt đánh giá" }, // Tổng số lượt đánh giá
-    { name: "cv_url", align: "left", label: "CV" }, // Đường dẫn tới CV
-    { name: "certificate_url", align: "left", label: "Chứng chỉ nghề" }, // Đường dẫn tới chứng chỉ nghề
+    { name: "date", align: "left" },
     { name: "action", align: "left", label: "Hành động" }, // Các hành động như chỉnh sửa, xóa
   ],
 };

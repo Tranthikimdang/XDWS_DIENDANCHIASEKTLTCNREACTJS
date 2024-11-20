@@ -47,7 +47,7 @@ function Mentor() {
     };
     fetchMentor();
   }, []);
-  
+
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
@@ -159,9 +159,6 @@ function Mentor() {
     return updatedAtString;
   };
 
-
-
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -186,22 +183,6 @@ function Mentor() {
                     backgroundColor: "info.main !important",
                   })}
                 />
-              </VuiBox>
-            </VuiBox>
-            <VuiBox
-              display="flex"
-              justifyContent="flex-end" // Aligns content to the right
-              alignItems="center"
-              mb="24px"
-              sx={{
-                backgroundColor: 'transparent', // Keeping it clean with a transparent background
-                paddingBottom: '12px', // Removing the border and maintaining space at the bottom
-              }}
-            >
-              <VuiBox display="flex" alignItems="center">
-                <VuiTypography variant="body2" color="info.main" sx={{ mr: 1 }}>
-                  Lịch sử xóa mentor
-                </VuiTypography>
               </VuiBox>
             </VuiBox>
             {loading ? (
@@ -268,23 +249,6 @@ function Mentor() {
                               </VuiTypography>
                             </VuiBox>
                           ),
-                          location: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {users?.find(u => u.id === row.user_id)?.location || 'Unknown'}
-                            </VuiTypography>
-                          ),
-                          phone: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {users?.find(u => u.id === row.user_id)?.phone || 'Unknown'}
-                            </VuiTypography>
-                          ),
-                          information: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {row.cv_url.length > 50
-                                ? `${row.cv_url.substring(0, 50)}...`
-                                : row.cv_url}
-                            </VuiTypography>
-                          ),
                           date: (
                             <VuiBox>
                               <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
@@ -346,7 +310,6 @@ function Mentor() {
                                   </Tooltip>
                                 </>
                               )}
-
                             </div>
                           ),
                         };
