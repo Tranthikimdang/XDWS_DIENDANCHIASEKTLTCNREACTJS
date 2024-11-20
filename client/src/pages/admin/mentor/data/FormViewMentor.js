@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Card,
-  Button,
   Snackbar,
   CircularProgress,
   Grid,
@@ -76,10 +74,10 @@ function FormViewMentor() {
       <DashboardNavbar />
       <Box
         sx={{
-          border: "1px solid #e0e0e0",
-          borderRadius: "8px",
-          padding: "20px",
-          backgroundColor: "#1a2027",
+          border: '1px solid #e0e0e0',
+          borderRadius: '8px',
+          padding: '20px',
+          background: '#060c28',
         }}
       >
         {loading ? (
