@@ -7,6 +7,8 @@ const userRouter = require("./routes/userRoutes");
 const orderRouter = require('./routes/orderRoutes');
 const hashtagRouter = require('./routes/hashtagRoutes')
 const mentorRoutes = require('./routes/mentorRoutes');
+const questionRouter = require('./routes/questionRoutes');
+
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
 const multer = require("multer");
@@ -56,7 +58,17 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
   }
 });
 
+app.post('/api/upload-file', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send({
+      message: 'Không có tệp nào được tải lên.'
+    });
+  }
 
+  res.status(200).send({
+    fileUrl: `/uploads/${req.file.filename}`
+  });
+});
 
 
 
@@ -67,6 +79,8 @@ app.use("/api/course-details", courseDetailRoutes);
 app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
+app.use("/api/questions", questionRouter);
+app.use("/api", mentorRoutes);
 app.use(mentorRoutes);       // Sử dụng mentor routes
 // Khởi chạy server
 app.listen(port, async () => {

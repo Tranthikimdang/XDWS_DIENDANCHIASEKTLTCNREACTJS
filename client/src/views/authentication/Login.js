@@ -36,11 +36,10 @@ const Login2 = () => {
             <Card elevation={9} sx={{ p: 4 }}>
               <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
                 <div className="text-center mb-4">
-                <Logo />
-              </div>
-              
+                  <Logo />
+                </div>
               </Box>
-              <h1  display="flex" justifyContent="center" className="text-center mb-4">Đăng nhập</h1>
+              <h1 display="flex" justifyContent="center" className="text-center mb-4">Đăng nhập</h1>
               <AuthLogin
               />
             </Card>

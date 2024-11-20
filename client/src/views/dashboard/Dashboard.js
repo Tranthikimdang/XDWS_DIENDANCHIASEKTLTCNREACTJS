@@ -24,6 +24,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // Firebase
 import { db } from '../../config/firebaseconfig';
 import { collection, getDocs } from 'firebase/firestore';
+import CourseApi from '../../apis/CourseApI';
 
 // Styled components
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -125,9 +126,11 @@ const Home = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setProducts(productsData);
+        const response = await CourseApi.getCoursesList();
+        const course = response.data.courses;
+        console.log(course);
+        
+        setProducts(course);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -362,7 +365,7 @@ const Home = () => {
                     <CardMedia
                       component="img"
                       height="200"
-                      image={product.image_url}
+                      image={product.image}
                       alt={product.name}
                     />
                     <CardContent>

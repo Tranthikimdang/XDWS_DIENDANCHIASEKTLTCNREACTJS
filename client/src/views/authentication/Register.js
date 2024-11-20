@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Box } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import React, { useRef, useState } from 'react';
@@ -10,7 +10,7 @@ import emailjs from 'emailjs-com';
 import { GoogleLogin } from 'react-google-login';
 import ConfirmDialog from 'src/components/ConfirmDialog';
 import axios from "axios";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 import apiUser from '../../apis/UserApI';
 
 const AuthRegister = ({ subtext }) => {
@@ -74,7 +74,7 @@ const AuthRegister = ({ subtext }) => {
         created_at,
         updated_at,
       };
-  
+
       // Gọi API để thêm người dùng vào cơ sở dữ liệu
       const response = await apiUser.addUser(newUser);
       return response.data;
@@ -87,7 +87,7 @@ const AuthRegister = ({ subtext }) => {
   const checkEmailExists = async (email) => {
     try {
       const users = await apiUser.getUsersList(); // Lấy tất cả người dùng
-      
+
       // Kiểm tra xem có email nào trùng với email đã nhập không
       const exists = users.data.users.some(user => user.email === email);
       return exists; // Trả về true nếu email đã tồn tại, false nếu không
@@ -100,7 +100,7 @@ const AuthRegister = ({ subtext }) => {
   const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append("image", file);
-  
+
     try {
       const response = await axios.post("http://localhost:3000/api/upload", formData, {
         headers: {
@@ -113,21 +113,21 @@ const AuthRegister = ({ subtext }) => {
       throw new Error("Failed to upload image. Please try again.");
     }
   };
-  
+
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setErrors({});
     const validationErrors = validateForm();
-  
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-  
+
     try {
       const emailExists = await checkEmailExists(formData.email);
-  
+
       if (emailExists) {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
@@ -135,17 +135,17 @@ const AuthRegister = ({ subtext }) => {
         // Xử lý upload ảnh, kiểm tra và thêm người dùng
         const file = e.target.elements.formImageUrl.files[0];
         let imageUrl = '';
-  
+
         if (file) {
           // Lấy URL của ảnh đã upload
           imageUrl = await uploadImage(file);
         }
-  
+
         const newUser = await addUser({
           ...formData,
           imageUrl,
         });
-  
+
         if (newUser) {
           localStorage.setItem('user', JSON.stringify(newUser));
           setOpenDialog(true);
@@ -156,7 +156,7 @@ const AuthRegister = ({ subtext }) => {
       console.error('Lỗi đăng ký:', error);
     }
   };
-  
+
 
 
   // Xử lý khi thay đổi thông tin trong form
@@ -173,7 +173,7 @@ const AuthRegister = ({ subtext }) => {
       // Giả sử bạn có một API để lấy tất cả người dùng
       const response = await apiUser.getAllUsers(); // Gọi API để lấy danh sách người dùng
       const users = response.data.users; // Dữ liệu trả về từ API
-  
+
       // Kiểm tra xem có người dùng nào có email khớp hay không
       const exists = users.some(user => user.email === email); // Trả về true nếu có ít nhất một người dùng có email khớp
       return exists;
@@ -292,9 +292,11 @@ const AuthRegister = ({ subtext }) => {
         <Row className="justify-content-center">
           <Col xs={12} sm={10} md={8} lg={6} xl={5}>
             <Card className="p-4 border rounded shadow-sm bg-light">
-              <div className="text-center mb-4">
-                <Logo />
-              </div>
+              <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
+                <div className="text-center mb-4">
+                  <Logo />
+                </div>
+              </Box>
               <h3 className="text-center mb-4">Đăng ký</h3>
               {subtext}
               <Form onSubmit={handleRegister}>
