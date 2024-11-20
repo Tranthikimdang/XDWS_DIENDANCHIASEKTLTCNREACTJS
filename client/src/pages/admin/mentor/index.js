@@ -115,7 +115,7 @@ function Mentor() {
   //duyệt
   const handleApprove = async (row) => {
     try {
-      const res = await api(row.id, { ...row, isApproved: true });
+      const res = await api.updateMentor(row.id, { ...row, isApproved: true });
       console.log(res);
       if (res.status == 'success') {
         setReload((reload) => !reload);

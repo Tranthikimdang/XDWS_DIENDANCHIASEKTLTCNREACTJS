@@ -1,4 +1,5 @@
 const Mentor = require('../models/mentorModel');
+const UserModel = require('../models/userModel');
 
 // Lấy danh sách tất cả mentors
 exports.getAllMentors = async (req, res) => {
@@ -85,8 +86,8 @@ exports.createMentor = async (req, res) => {
             reviews_count: reviews_count || 0,
             cv_url,
             certificate_url,
-            isApproved: isApproved || false,
-            is_deleted: is_deleted || false,
+            isApproved,
+            is_deleted
         });
         res.status(201).json({
             status: 'success',
@@ -135,8 +136,8 @@ exports.updateMentor = async (req, res) => {
         mentor.reviews_count = reviews_count ?? mentor.reviews_count;
         mentor.cv_url = cv_url ?? mentor.cv_url;
         mentor.certificate_url = certificate_url ?? mentor.certificate_url;
-        mentor.isApproved = isApproved ?? mentor.isApproved;
-        mentor.is_deleted = is_deleted ?? mentor.is_deleted;
+        mentor.isApproved = isApproved !== undefined ? isApproved : mentor.isApproved;
+        mentor.is_deleted = is_deleted !== undefined ? is_deleted : mentor.is_deleted;
 
         // Lưu lại thông tin
         await mentor.save();

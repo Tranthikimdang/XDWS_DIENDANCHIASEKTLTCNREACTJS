@@ -253,7 +253,7 @@ console.log();
               style={{ borderRadius: '50%', marginRight: '10px' }}
             />
             <Typography variant="h6" sx={{ color: '#fff' }}>
-              {type == 0 ? 'Xem bài viết' : 'Sửa bài viết'}
+              {type == 0 ? 'Xem câu hỏi' : 'Sửa câu hỏi'}
             </Typography>
           </Box>
 
