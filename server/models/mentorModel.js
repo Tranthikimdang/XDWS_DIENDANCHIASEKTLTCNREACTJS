@@ -65,7 +65,7 @@ const Mentor = sequelize.define('Mentor', {
   },
   is_deleted: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    defaultValue: DataTypes.NOW 
   }
 }, {
   tableName: 'mentors',  // Tên bảng trong cơ sở dữ liệu
