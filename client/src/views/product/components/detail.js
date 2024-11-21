@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Grid, Box, Typography, CircularProgress } from '@mui/material';
-import { useParams } from 'react-router-dom'; // Lấy id từ URL
+import {  useNavigate, useParams } from 'react-router-dom'; // Lấy id từ URL
 import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore'; // Sử dụng để lấy dữ liệu cụ thể từ Firestore
 import { db } from '../../../config/firebaseconfig';
 import { formatDistanceToNow } from 'date-fns'; // Format ngày
@@ -8,23 +8,45 @@ import './detail.css';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import CourseApi from '../../../apis/CourseApI';
-import userApis from 'src/apis/UserApI';
-import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import StudyTimeApi from '../../../apis/StudyTimeApI';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id từ URL
+  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true); // Trạng thái loading khi fetch dữ liệu
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [StudyTime, setStudyTime] = useState([]);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
 
   const iframeRef = useRef(null);
 
+  useEffect(() => {
+    const fetchStudyTime = async () => {
+      setLoading(true);
+      try {
+        const response = await StudyTimeApi.getStudyTimesList();
+        const course = response.data.studyTimes;
+        console.log(course);
+
+        setStudyTime(course);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudyTime();
+  }, []);
+
+  const hasStudyAccess = (productId) => {
+    return StudyTime.some((study) => study.user_id == userId && study.course_id == productId);
+  };
+  
   useEffect(() => {
       const handleLoad = () => {
           const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
@@ -217,17 +239,30 @@ const ProductsDetail = () => {
                       </p>
                       <div className="action">
                         <div className="d-flex flex-column mt-4">
-                          <button className="btn btn-primary btn-sm" type="button">
-                            Mua ngay
-                          </button>
-                          <button
-                            className="btn btn-outline-primary btn-sm mt-2"
-                            type="button"
-                            onClick={() => addToCart(product)}
-                          >
-                            Thêm vào giỏ hàng
-                          </button>
-                        </div>
+                                {/* Kiểm tra quyền truy cập để hiển thị nút */}
+                                {hasStudyAccess(product.id) ? (
+                                   <button
+                                   className="btn btn-success btn-sm"
+                                   type="button"
+                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
+                                 >
+                                   Bắt đầu học
+                                 </button>
+                                ) : (
+                                  <>
+                                    <button className="btn btn-primary btn-sm" type="button">
+                                      Mua ngay
+                                    </button>
+                                    <button
+                                      className="btn btn-outline-primary btn-sm mt-2"
+                                      type="button"
+                                      onClick={() => addToCart(product)}
+                                    >
+                                      Thêm vào giỏ hàng
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                       </div>
                       <Typography variant="body2" color="textSecondary" mt={2}>
                         Ngày tạo: {formatDate(product.created_at)}

@@ -29,43 +29,65 @@ const Profile = () => {
   const [products, setProducts] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [reload, setReload] = useState(false);
+  const [userLoading, setUserLoading] = useState(true);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   // Fetch users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await UserAPI.getUsersList();  // API call to get users
-        const filteredUsers = response.data.users.filter(
-          (user) => !(user.role === 'admin' && user.id === userId)
-        );
-        setUsers(filteredUsers);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [userId]);
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const response = await UserAPI.getUsersList();  // API call to get users
+  //       const filteredUsers = response.data.users.filter(
+  //         (user) => !(user.role === 'admin' && user.id === userId)
+  //       );
+        
+  //       setUsers(filteredUsers);
+  //     } catch (error) {
+  //       console.error('Error fetching users:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchUsers();
+  // }, [userId]);
 
-  // Fetch khóa học
+useEffect(() => {
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await UserAPI.getUsersList();
+      const matchingUser = response.data.users.find(user => user.id == userId);
+      if (matchingUser) {
+        setUser([matchingUser]); // Đặt vào mảng chứa user
+      } else {
+        setUser([]); // Nếu không tìm thấy người dùng
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchUsers();
+}, [userId]);
+
+  
   useEffect(() => {
     const fetchProducts = async () => {
-      setLoading(true);
+      setProductsLoading(true);
       try {
         const response = await CourseApi.getCoursesList();
-        const course = response.data.courses;
-        console.log(course);
-        
-        setProducts(course);
+        setProducts(response.data.courses || []);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
-        setLoading(false);
+        setProductsLoading(false);
       }
     };
+  
     fetchProducts();
   }, []);
+  
 
 // Fetch câu hỏi
 useEffect(() => {
@@ -125,7 +147,10 @@ useEffect(() => {
 
     return updatedAtString;
   };
-
+  useEffect(() => {
+    console.log('User data:', user);
+    console.log('Products:', products);
+  }, [user, products]);
 
 
   //xóa các thẻ html

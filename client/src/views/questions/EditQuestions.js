@@ -20,7 +20,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { db } from 'src/config/firebaseconfig';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
-import {getQuestionId, updateQuestion} from 'src/apis/QuestionsApis'
+import { getQuestionId, updateQuestion } from 'src/apis/QuestionsApis'
 import axios from 'axios';
 
 const Questions = () => {
@@ -33,7 +33,7 @@ const Questions = () => {
     question: '',
     hashtag: '',
     up_code: '',
-    imageUrls: [], 
+    imageUrls: [],
     fileUrls: [],
   });
 
@@ -48,21 +48,21 @@ const Questions = () => {
       try {
         const res = await getQuestionId(id)
         console.log(res);
-        if(res.status == 'success'){
+        if (res.status == 'success') {
           setQuestionData({
             ...res?.data?.questions,
             imageUrls: JSON.parse(res?.data?.questions?.imageUrls) || [],
             fileUrls: JSON.parse(res?.data?.questions?.fileUrls) || [],
           });
         }
-        
+
       } catch (error) {
         console.error('Lỗi khi tìm câu hỏi theo ID:', error);
       }
     };
 
     if (id) {
-      fetchQuestionById(id); 
+      fetchQuestionById(id);
     }
   }, [id]);
 
@@ -71,7 +71,7 @@ const Questions = () => {
     const { name, value } = e.target;
     setQuestionData((prevData) => ({
       ...prevData,
-      [name]: value, 
+      [name]: value,
     }));
   };
 
@@ -142,7 +142,7 @@ const Questions = () => {
       const response = await axios.post('http://localhost:3000/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      return response.data; 
+      return response.data;
     } catch (error) {
       console.error('Lỗi khi tải ảnh lên server:', error);
       throw new Error('Lỗi khi tải ảnh lên server');
@@ -190,7 +190,7 @@ const Questions = () => {
 
         delete data.file;
         delete data.image;
-console.log();
+        console.log();
 
         const dataToSubmit = {
           ...data,
@@ -210,7 +210,7 @@ console.log();
           setSnackbarMessage('Câu hỏi đã được cập nhật thành công.');
           setSnackbarSeverity('success');
           setTimeout(() => {
-            navigate(-1); 
+            navigate(-1);
           }, 2000);
           e.target.reset();
         } else {
@@ -241,6 +241,7 @@ console.log();
           border: '1px solid #e0e0e0',
           borderRadius: '8px',
           padding: '20px',
+          background: '#060c28',
         }}
       >
         {/* Create Post Header */}
@@ -253,7 +254,7 @@ console.log();
               style={{ borderRadius: '50%', marginRight: '10px' }}
             />
             <Typography variant="h6" sx={{ color: '#fff' }}>
-              {type == 0 ? 'Xem bài viết' : 'Sửa bài viết'}
+              {type == 0 ? 'Xem câu hỏi' : 'Sửa câu hỏi'}
             </Typography>
           </Box>
 
@@ -350,15 +351,15 @@ console.log();
               </Typography>
               <Box display="flex" flexWrap="wrap" gap={2} justifyContent={'center'} flex={1}>
                 {questionData.imageUrls.map((url, index) => (
-                    <img
-                      key={index}
-                      src={url}
-                      alt="không có hình ảnh nào"
-                      width="100px"
-                      height="100px"
-                      style={{ borderRadius: '8px' }}
-                    />
-                  ))}
+                  <img
+                    key={index}
+                    src={url}
+                    alt="không có hình ảnh nào"
+                    width="100px"
+                    height="100px"
+                    style={{ borderRadius: '8px' }}
+                  />
+                ))}
               </Box>
             </Box>
             <Box display="flex" flexDirection="row" alignItems={'center'} mt={2}>

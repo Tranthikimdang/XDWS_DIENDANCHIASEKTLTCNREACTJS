@@ -97,7 +97,6 @@ function Questions() {
     try {
       const res = await deleteQuestion(deleteId);
       console.log(res);
-
       setReload((reload) => !reload);
       setOpenDialog(false);
       setSnackbarMessage('Xóa câu hỏi thành công.');
@@ -126,6 +125,7 @@ function Questions() {
     setPage(newPage);
   };
 
+  //duyệt
   const handleApprove = async (row) => {
     try {
       const res = await updateQuestion(row.id, { ...row, isApproved: true });
@@ -144,6 +144,7 @@ function Questions() {
       setSnackbarOpen(true);
     }
   };
+
 
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
