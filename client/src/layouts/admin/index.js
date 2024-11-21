@@ -102,14 +102,13 @@ export default function AdminLayout() {  // Should be AdminLayout instead of App
       <CssBaseline />
       <Sidenav
         color={sidenavColor}
+        background= "#060c28"
         brand=""
         brandName="SHARE CODE"
         routes={routes}
         onMouseEnter={handleOnMouseEnter}
         onMouseLeave={handleOnMouseLeave}
       />
-      {configsButton}
-      {/* Uncomment this to enable routing */}
       <Outlet />
     </ThemeProvider>
   );

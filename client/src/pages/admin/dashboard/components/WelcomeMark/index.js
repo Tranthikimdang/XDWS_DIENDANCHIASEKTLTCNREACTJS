@@ -6,6 +6,8 @@ import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 
 import gif from "src/assets/admin/images/cardimgfree.png";
+//icon
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const WelcomeMark = () => {
   const [userName, setUserName] = useState("");
@@ -54,7 +56,7 @@ const WelcomeMark = () => {
             Sẵn sàng quản lý và cải thiện cộng đồng lập trình.<br /> Đừng quên kiểm tra hoạt động người dùng!
           </VuiTypography>
         </VuiBox>
-        {/* <VuiTypography
+        <VuiTypography
           component="a"
           href="#"
           variant="button"
@@ -68,17 +70,18 @@ const WelcomeMark = () => {
 
             "& .material-icons-round": {
               fontSize: "1.125rem",
+              transform: `translate(2px, -0.5px)`,
               transition: "transform 0.2s cubic-bezier(0.34,1.61,0.7,1.3)",
             },
 
-            "&:hover .material-icons-round, &:focus .material-icons-round": {
-              transform: "rotate(90deg)", // Xoay mũi tên khi hover
+            "&:hover .material-icons-round, &:focus  .material-icons-round": {
+              transform: `translate(6px, -0.5px)`,
             },
           }}
         >
           Xem thống kê quản lý
-          <Icon sx={{ fontWeight: "bold", ml: "5px" }}>arrow_forward</Icon>
-        </VuiTypography> */}
+            <ArrowForwardIcon sx={{ fontWeight: "bold", ml: "5px" }} />
+        </VuiTypography>
       </VuiBox>
     </Card>
   );

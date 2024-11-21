@@ -1,203 +1,240 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  Card,
-  Button,
-  Alert,
   Snackbar,
   CircularProgress,
-  Box,
   Grid,
-  Paper,
+  Typography,
+  Avatar,
+  Alert,
+  Card,
+  Box,
 } from "@mui/material";
-import VuiBox from "src/components/admin/VuiBox";
-import VuiTypography from "src/components/admin/VuiTypography";
+import ProfileInfoCard from "src/examples/Cards/InfoCards/ProfileInfoCard";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
+//Icon
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
+//Sql
 import api from "../../../../apis/mentorApi";
 import apiUser from "../../../../apis/UserApI";
 
 function FormViewMentor() {
-  const { id } = useParams(); // Lấy ID của mentor từ URL
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [mentor, setMentor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [users, setUsers] = useState([]);
 
-  // Trạng thái
-  const [mentor, setMentor] = useState(null); // Chi tiết mentor
-  const [loading, setLoading] = useState(true); // Trạng thái tải dữ liệu
-  const [snackbarOpen, setSnackbarOpen] = useState(false); // Hiển thị thông báo
-  const [snackbarMessage, setSnackbarMessage] = useState(""); // Nội dung thông báo
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success"); // Mức độ thông báo
-  const [users, setUsers] = useState([]); // Danh sách users
-
-  // Lấy chi tiết mentor
+  // Fetching mentor details by ID
   useEffect(() => {
     const fetchMentor = async () => {
-      console.log("Mentor ID:", id); // Kiểm tra giá trị id
       try {
-        const response = await api.detailMentor(id); // Gọi API với ID
-        setMentor(response?.data || null); // Gán dữ liệu mentor
+        const response = await api.detailMentor(id);
+        if (response?.data) {
+          setMentor(response.data);
+        } else {
+          setSnackbarMessage("Không tìm thấy thông tin mentor.");
+          setSnackbarSeverity("warning");
+          setSnackbarOpen(true);
+        }
       } catch (error) {
-        console.error("Error fetching mentor details:", error);
         setSnackbarMessage("Không thể tải thông tin mentor.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       } finally {
-        setLoading(false); // Dừng trạng thái loading
+        setLoading(false);
       }
     };
-
-    if (id) {
-      fetchMentor();
-    } else {
-      setSnackbarMessage("Không tìm thấy ID mentor.");
-      setSnackbarSeverity("warning");
-      setSnackbarOpen(true);
-      setLoading(false);
-    }
+    fetchMentor();
   }, [id]);
 
-  // Lấy danh sách users
+  // Fetching users list to get user details for mentor
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const user = await apiUser.getUsersList();
-        setUsers(Array.isArray(user?.data?.users) ? user.data.users : []);
+        const response = await apiUser.getUsersList();
+        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
-
     fetchUsers();
   }, []);
 
-  // Đóng Snackbar
+  // Handle closing the snackbar
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") return;
     setSnackbarOpen(false);
   };
 
-  // Định dạng thời gian cập nhật
-  const formatUpdatedAt = (updatedAt) => {
-    if (!updatedAt) return "Không rõ thời gian";
-
-    const date = new Date(updatedAt.seconds * 1000);
-    const now = new Date();
-    const diff = now - date;
-
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days} ngày trước`;
-    if (hours > 0) return `${hours} giờ trước`;
-    if (minutes > 0) return `${minutes} phút trước`;
-    return `${seconds} giây trước`;
-  };
+  // Get user data for the mentor's user_id
+  const mentorUser = users.find((user) => user.id === mentor?.user_id);
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <Card>
-        <VuiBox>
-          <VuiBox component="ul" display="flex" flexDirection="column" p={0} m={0}>
-            <VuiTypography>
-              {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" height="300px">
-                  <CircularProgress color="primary" size={60} />
-                </Box>
-              ) : mentor ? (
-                <Paper
-                  elevation={3}
-                  style={{
-                    padding: "24px",
-                    borderRadius: "12px",
-                    background: "linear-gradient(to bottom right, #19215c, #080d2d)",
+      <Box sx={{ p: 3 }}>
+        {loading ? (
+          <CircularProgress sx={{ margin: "auto", display: "block" }} />
+        ) : mentor ? (
+          <Grid container spacing={3}>
+            {/* Avatar and basic information */}
+            <Grid
+              item
+              xs={12}
+              xl={4}
+              xxl={3}
+              sx={({ breakpoints }) => ({
+                [breakpoints.only("xl")]: {
+                  gridArea: "1 / 2 / 2 / 3",
+                },
+              })}
+            >
+              <Card sx={{ textAlign: "center", p: 3 }}>
+                <Avatar
+                  src={
+                    mentorUser?.imageUrl ||
+                    "https://via.placeholder.com/150" // Default image
+                  }
+                  alt="User Avatar"
+                  sx={{
+                    width: "150px",
+                    height: "150px",
+                    margin: "auto",
+                    border: "3px solid #FFF",
                   }}
-                >
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                      {mentor.cv_url && (
-                        <img
-                          src={mentor.cv_url}
-                          alt={mentor.bio}
-                          style={{
-                            width: "100%",
-                            maxHeight: "300px",
-                            objectFit: "cover",
-                            borderRadius: "12px",
-                            boxShadow: "0 6px 12px rgba(0, 0, 0, 0.3)",
-                          }}
-                        />
-                      )}
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                      <VuiTypography variant="h3" gutterBottom>
-                        <strong>Bio:</strong> {mentor.bio}
-                      </VuiTypography>
-                      <VuiTypography variant="subtitle1">
-                        <strong>Skills:</strong> {mentor.skills}
-                      </VuiTypography>
-                      <VuiTypography variant="subtitle1">
-                        <strong>Experience:</strong> {mentor.experience_years} years
-                      </VuiTypography>
-                      <VuiTypography variant="subtitle1">
-                        <strong>Author:</strong>{" "}
-                        {users.find((user) => user.id === mentor.user_id)?.name || "Không rõ"}
-                      </VuiTypography>
-                      <VuiTypography variant="subtitle1">
-                        <strong>Updated at:</strong> {formatUpdatedAt(mentor.updated_at)}
-                      </VuiTypography>
-                    </Grid>
-                    <Grid item xs={12} style={{ marginTop: "30px" }}>
-                      <VuiTypography variant="h1" paragraph>
-                        <strong>CV URL:</strong>
-                        <div>{mentor.cv_url}</div>
-                      </VuiTypography>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Box display="flex" justifyContent="flex-end" mt={3}>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => navigate("/admin/mentor")}
-                          startIcon={
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              fill="currentColor"
-                              className="bi bi-arrow-return-left"
-                              viewBox="0 0 16 16"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5"
-                              />
-                            </svg>
-                          }
-                        >
-                          Back
-                        </Button>
-                      </Box>
-                    </Grid>
-                  </Grid>
-                </Paper>
-              ) : (
-                <VuiTypography variant="h5" color="text.secondary" align="center">
-                  Không tìm thấy chi tiết mentor.
-                </VuiTypography>
-              )}
-            </VuiTypography>
-          </VuiBox>
-        </VuiBox>
-      </Card>
+                />
+                <Typography variant="h5" sx={{ mt: 2 }}>
+                  {`Mô tả: ${mentor?.bio || "Mentor không có bio"}`}
+                </Typography>
+                <Typography variant="body1" sx={{ mt: 1 }}>
+                  {`Tác giả: ${mentorUser?.name || "Không xác định"}`}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {`Email: ${mentorUser?.email || "Không có email"}`}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {`Số điện thoại: ${mentorUser?.phone || "Không có số điện thoại"}`}
+                </Typography>
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {`Địa chỉ: ${mentorUser?.location || "Không có địa chỉ"}`}
+                </Typography>
+              </Card>
+            </Grid>
+
+            {/* Mentor detailed information */}
+            {/* <Grid item xs={12} md={8}>
+              <Card sx={{ p: 3 }}>
+                <Box mb={2}>
+                  <Typography variant="h4" gutterBottom>
+                    Thông tin Mentor
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Kỹ năng:</strong> {mentor?.skills || "Không có kỹ năng"}
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Kinh nghiệm:</strong>{" "}
+                    {mentor?.experience_years
+                      ? `${mentor.experience_years} năm`
+                      : "Không có kinh nghiệm"}
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Đánh giá:</strong> {mentor?.rating || 0}/5
+                  </Typography>
+                </Box>
+                <Box mb={2}>
+                  <Typography variant="body1">
+                    <strong>Số lượt nhận xét:</strong>{" "}
+                    {mentor?.reviews_count || 0}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="body1">
+                    <strong>Chứng chỉ:</strong>{" "}
+                    {mentor?.certificate_url ? (
+                      <a
+                        href={mentor?.certificate_url}
+                        style={{
+                          color: "#4CAF50",
+                          textDecoration: "underline",
+                        }}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Xem chứng chỉ
+                      </a>
+                    ) : (
+                      "Không có chứng chỉ"
+                    )}
+                  </Typography>
+                </Box>
+              </Card>
+            </Grid> */}
+            <Grid
+              item
+              xs={12}
+              xl={4}
+              xxl={3}
+              sx={({ breakpoints }) => ({
+                [breakpoints.only("xl")]: {
+                  gridArea: "1 / 2 / 2 / 3",
+                },
+              })}
+            >
+              <ProfileInfoCard
+                title="Profile Information"
+                description={`Mô tả: ${mentor?.bio || "Mentor không có bio"}`}
+                info={{
+                  fullName: mentorUser?.name || "Không xác định",
+                  mobile: mentorUser?.phone || "Không có số điện thoại",
+                  email: mentorUser?.email || "Không có email",
+                  location: mentorUser?.location || "Không có địa chỉ",
+                }}
+                social={[
+                  {
+                    link: "https://www.facebook.com/CreativeTim/",
+                    icon: <FacebookIcon />,
+                    color: "facebook",
+                  },
+                  {
+                    link: "https://twitter.com/creativetim",
+                    icon: <TwitterIcon />,
+                    color: "twitter",
+                  },
+                  {
+                    link: "https://www.instagram.com/creativetimofficial/",
+                    icon: <InstagramIcon />,
+                    color: "instagram",
+                  },
+                ]}
+              />
+            </Grid>
+          </Grid>
+        ) : (
+          <Typography variant="h6" align="center">
+            Không tìm thấy chi tiết mentor.
+          </Typography>
+        )}
+      </Box>
+
+      {/* Snackbar */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        sx={{ transform: "translateY(100px)" }}
       >
         <Alert
           onClose={handleSnackbarClose}

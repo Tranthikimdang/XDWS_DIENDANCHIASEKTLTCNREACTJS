@@ -1,4 +1,5 @@
 const Mentor = require('../models/mentorModel');
+const UserModel = require('../models/userModel');
 
 // Lấy danh sách tất cả mentors
 exports.getAllMentors = async (req, res) => {
@@ -54,12 +55,24 @@ exports.detailMentor = async (req, res) => {
 
 // Tạo mentor mới
 exports.createMentor = async (req, res) => {
-    const { user_id, bio, skills, experience_years, cv_url, certificate_url } = req.body;
+    const {
+        user_id,
+        bio,
+        skills,
+        experience_years,
+        rating,
+        reviews_count,
+        cv_url,
+        certificate_url,
+        isApproved,
+        is_deleted,
+    } = req.body;
 
+    // Kiểm tra các trường bắt buộc
     if (!user_id || !bio || !skills) {
         return res.status(400).json({
             status: 'error',
-            message: 'User ID, bio, and skills are required'
+            message: 'User ID, bio, and skills are required',
         });
     }
 
@@ -69,56 +82,78 @@ exports.createMentor = async (req, res) => {
             bio,
             skills,
             experience_years,
+            rating: rating || 0,
+            reviews_count: reviews_count || 0,
             cv_url,
-            certificate_url
+            certificate_url,
+            isApproved,
+            is_deleted
         });
         res.status(201).json({
             status: 'success',
-            data: {
-                mentor: newMentor
-            }
+            data: { mentor: newMentor },
         });
     } catch (err) {
-        res.status(500).send({
+        res.status(500).json({
             status: 'error',
-            message: err.message || 'Some error occurred while creating the mentor.'
+            message: err.message || 'Some error occurred while creating the mentor.',
         });
     }
 };
+
 
 // Cập nhật thông tin mentor
 exports.updateMentor = async (req, res) => {
     const { id } = req.params;
-    const { bio, skills, experience_years, cv_url, certificate_url } = req.body;
+    const {
+        bio,
+        skills,
+        experience_years,
+        rating,
+        reviews_count,
+        cv_url,
+        certificate_url,
+        isApproved,
+        is_deleted,
+    } = req.body;
 
     try {
+        // Tìm mentor cần cập nhật
         const mentor = await Mentor.findByPk(id);
+
         if (!mentor) {
             return res.status(404).json({
-                status: "error",
-                message: "Mentor not found"
+                status: 'error',
+                message: 'Mentor not found',
             });
         }
-        mentor.bio = bio || mentor.bio;
-        mentor.skills = skills || mentor.skills;
-        mentor.experience_years = experience_years || mentor.experience_years;
-        mentor.cv_url = cv_url || mentor.cv_url;
-        mentor.certificate_url = certificate_url || mentor.certificate_url;
 
+        // Cập nhật các trường
+        mentor.bio = bio ?? mentor.bio;
+        mentor.skills = skills ?? mentor.skills;
+        mentor.experience_years = experience_years ?? mentor.experience_years;
+        mentor.rating = rating ?? mentor.rating;
+        mentor.reviews_count = reviews_count ?? mentor.reviews_count;
+        mentor.cv_url = cv_url ?? mentor.cv_url;
+        mentor.certificate_url = certificate_url ?? mentor.certificate_url;
+        mentor.isApproved = isApproved !== undefined ? isApproved : mentor.isApproved;
+        mentor.is_deleted = is_deleted !== undefined ? is_deleted : mentor.is_deleted;
+
+        // Lưu lại thông tin
         await mentor.save();
+
         res.status(200).json({
             status: 'success',
-            data: {
-                mentor
-            }
+            data: { mentor },
         });
     } catch (err) {
-        res.status(500).send({
+        res.status(500).json({
             status: 'error',
-            message: err.message || 'Some error occurred while updating the mentor.'
+            message: err.message || 'Some error occurred while updating the mentor.',
         });
     }
 };
+
 
 // Xóa mentor
 exports.deleteMentor = async (req, res) => {

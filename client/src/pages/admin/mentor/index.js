@@ -33,7 +33,7 @@ function Mentor() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-
+  const [reload, setReload] = useState(false);
   useEffect(() => {
     const fetchMentor = async () => {
       try {
@@ -46,7 +46,7 @@ function Mentor() {
       }
     };
     fetchMentor();
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -113,18 +113,21 @@ function Mentor() {
   };
 
   //duyệt
-  const handleApprove = async (id) => {
+  const handleApprove = async (row) => {
     try {
-      // Make an API request to update the mentor's approval status in the SQL database
-      await api.updateMentorApproval(id);
-      setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
-      setSnackbarMessage("Duyệt mentor thành công");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      const res = await api.updateMentor(row.id, { ...row, isApproved: true });
+      console.log(res);
+      if (res.status == 'success') {
+        setReload((reload) => !reload);
+        // Cập nhật lại danh sách bài viết
+        setSnackbarMessage('Câu hỏi đã được duyệt thành công.');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+      }
     } catch (error) {
-      console.error("Lỗi khi phê duyệt mentor:", error);
-      setSnackbarMessage("Không thể duyệt mentor.");
-      setSnackbarSeverity("error");
+      console.error('Lỗi khi duyệt người cố vấn:', error);
+      setSnackbarMessage('Không thể duyệt người cố vấn.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
@@ -134,11 +137,11 @@ function Mentor() {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt);
+      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
       const now = new Date();
-      const diff = now - date;
+      const diff = now - date; // Tính toán khoảng cách thời gian
 
-      const seconds = Math.floor(diff / 1000);
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -301,8 +304,18 @@ function Mentor() {
                               {row.isApproved == 0 && (
                                 <>
                                   <Tooltip title="Duyệt mentor" placement="top">
-                                    <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
+                                    <button className="text-light btn btn-outline-success me-2"
+                                      onClick={() => handleApprove(row)}
+                                      type="button"
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        fill="currentColor"
+                                        className="bi bi-check-square"
+                                        viewBox="0 0 16 16"
+                                      >
                                         <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
                                         <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
                                       </svg>

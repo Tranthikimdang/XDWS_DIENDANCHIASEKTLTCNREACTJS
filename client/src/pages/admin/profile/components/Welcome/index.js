@@ -17,10 +17,12 @@
 */
 
 import React from "react";
-import { Card, Icon } from "@mui/material";
+import { Card } from "@mui/material";
 import welcome from "src/assets/admin/images/welcome-profile.png";
 import VuiTypography from "src/components/admin/VuiTypography/index";
 import VuiBox from "src/components/admin/VuiBox/index";
+//icon
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const Welcome = () => {
   return (
@@ -47,7 +49,7 @@ const Welcome = () => {
         <VuiBox justifySelf="flex-end">
           <VuiTypography
             component="a"
-            href="/dashboard"
+            href="/admin/dashboard"
             variant="button"
             color="white"
             fontWeight="regular"
@@ -69,8 +71,8 @@ const Welcome = () => {
               },
             }}
           >
-           Nhấn để ghi lại
-            <Icon sx={{ fontWeight: "bold", ml: "5px" }}>arrow_forward</Icon>
+           Xem thống kê quản lý
+           <ArrowForwardIcon sx={{ fontWeight: "bold", ml: "5px" }} />
           </VuiTypography>
         </VuiBox>
       </VuiBox>

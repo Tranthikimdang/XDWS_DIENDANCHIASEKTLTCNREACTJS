@@ -10,16 +10,16 @@ import PropTypes from "prop-types";
 import List from "@mui/material/List";
 import Divider from "@mui/material/Divider";
 import Link from "@mui/material/Link";
-import Icon from "@mui/material/Icon";
+import CloseIcon from '@mui/icons-material/Close';
 
 // Vision UI Dashboard React components
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
-import VuiButton from "src/components/admin/VuiButton";
+
 
 // Vision UI Dashboard React example components
 import SidenavCollapse from "src/examples/Sidenav/SidenavCollapse";
-import SidenavCard from "src/examples/Sidenav/SidenavCard";
+
 
 // Custom styles for the Sidenav
 import SidenavRoot from "src/examples/Sidenav/SidenavRoot";
@@ -143,7 +143,7 @@ function Sidenav({ color, brandName, routes, ...rest }) {
           sx={{ cursor: "pointer" }}
         >
           <VuiTypography variant="h6" color="text">
-            <Icon sx={{ fontWeight: "bold" }}>close</Icon>
+          <CloseIcon/>
           </VuiTypography>
         </VuiBox>
         <VuiBox component={NavLink} to="/" display="flex" alignItems="center">
