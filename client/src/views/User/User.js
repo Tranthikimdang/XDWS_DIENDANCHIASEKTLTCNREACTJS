@@ -83,7 +83,7 @@ const User = () => {
   const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
 
   return (
-    <PageContainer title="Users" description="This is users">
+    <PageContainer title="Người dùng | Share Code" description="Đây là trang người dùng">
       <DashboardCard>
         <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
           <Grid container spacing={4}>

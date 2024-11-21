@@ -696,7 +696,7 @@ const Questions = () => {
   };
 
   return (
-    <PageContainer title="Questions">
+    <PageContainer title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code" description="Đây là trang đặt câu hỏi">
       <DashboardCard>
         <Grid container spacing={2}>
           {/* Left Column */}
@@ -728,7 +728,7 @@ const Questions = () => {
 
                 {/* Post Content */}
                 <TextField
-                  label="Hãy đặt câu hỏi?"
+                  label="Hãy đặt câu hỏi hoặc chia sẻ kiến thức ?"
                   variant="outlined"
                   multiline
                   fullWidth
@@ -1169,7 +1169,6 @@ const Questions = () => {
                               )}
                             </>
                           )}
-
                           <Divider sx={{ my: 2 }} />
                           {/* Like and Comment Buttons */}
                           <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
@@ -1828,7 +1827,191 @@ const Questions = () => {
                 ))}
               </List>
             </Box>
-           {/* tam thoi */}
+            <Box
+              sx={{
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                padding: '20px',
+                marginTop: '20px', // To add space between sections
+                backgroundColor: '#fff',
+              }}
+            >
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6">Theo dõi người dùng khác</Typography>
+                <IconButton>
+                  <MoreHorizIcon />
+                </IconButton>
+              </Box>
+              <hr
+                style={{
+                  border: 'none',
+                  height: '1px',
+                  backgroundColor: '#007bff',
+                  margin: '1px 0',
+                }}
+              />
+
+              {/* Follow List */}
+              <List>
+                {[
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                  'Katheryn Winnick',
+                ].map((name, index) => (
+                  <ListItem key={index} sx={{ padding: 0 }}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      width="100%"
+                    >
+                      <Box display="flex" alignItems="center">
+                        <img
+                          src="../../assets/images/profile/user-1.jpg" // Replace with the correct image URL path
+                          alt="avatar"
+                          style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
+                        />
+                        <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
+                          {name}
+                        </Typography>
+                      </Box>
+                      <Button
+                        variant="outlined"
+                        sx={{
+                          textTransform: 'none',
+                          padding: '2px 10px',
+                          fontSize: '0.8rem',
+                          borderRadius: '16px',
+                        }}
+                      >
+                        + Theo dõi
+                      </Button>
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+            {/* Popular Articles Section */}
+            <Box
+              sx={{
+                border: '1px solid #e0e0e0',
+                borderRadius: '8px',
+                padding: '20px',
+                backgroundColor: '#fff',
+                marginTop: '20px', // Space between sections
+              }}
+            >
+              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Typography variant="h6" sx={{ fontSize: '1rem' }}>
+                  Khóa học nổi bật
+                </Typography>
+                <Button
+                  variant="outlined"
+                  sx={{
+                    borderRadius: '16px',
+                    padding: '5px 10px',
+                    textTransform: 'none',
+                    fontSize: '0.9rem',
+                  }}
+                >
+                  Mới nhất
+                </Button>
+              </Box>
+              <hr
+                style={{
+                  border: 'none',
+                  height: '1px',
+                  backgroundColor: '#007bff',
+                  margin: '1px 0',
+                }}
+              />
+              {/* Article List */}
+              {articles
+                .filter((article) => article.isApproved === true)
+                .slice(0, 4)
+                .map((article) => (
+                  <ListItem key={article.id} sx={{ padding: '10px 0' }}>
+                    <Box
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      width="100%"
+                    >
+                      <Box
+                        display="flex"
+                        alignItems="center"
+                        onClick={() => handleCardClick(article.id)}
+                      >
+                        <img
+                          src={
+                            users?.find((u) => article?.user_id === u.id)?.imageUrl ||
+                            '../../assets/images/profile/user-1.jpg'
+                          } // Đường dẫn đến ảnh tác giả hoặc ảnh mặc định
+                          alt="avatar"
+                          style={{ borderRadius: '50%', width: '40px', marginRight: '10px' }}
+                        />
+                        <Box>
+                          <Typography variant="h6" sx={{ color: '#007bff', fontSize: '0.8rem' }}>
+                            Tiêu đề: {article.title}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#666' }}>
+                            Số lượt thích: {article.likes} | Số bình luận: {article.comments}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#666' }}>
+                            Tác giả:{' '}
+                            {users?.find((u) => article?.user_id === u.id)?.name || 'Không rõ'}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </ListItem>
+                ))}
+
+              <hr
+                style={{
+                  border: 'none',
+                  height: '1px',
+                  backgroundColor: '#007bff',
+                  margin: '1px 0',
+                }}
+              />
+              <Link href="/article" underline="none" sx={{ color: '#007bff', fontSize: '0.9rem' }}>
+                <Button
+                  variant="text"
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center', // Để căn icon và chữ ở giữa theo chiều dọc
+                    textTransform: 'none',
+                    fontSize: '0.9rem',
+                    margin: '10px auto 0 auto',
+                    color: '#007bff',
+                    position: 'relative',
+                    '&:after': {
+                      content: '""',
+                      position: 'absolute',
+                      width: '100%',
+                      height: '2px',
+                      backgroundColor: '#007bff',
+                      bottom: '-2px',
+                      left: 0,
+                      transition: 'width 0.3s ease',
+                      // eslint-disable-next-line no-dupe-keys
+                      width: 0,
+                    },
+                    '&:hover:after': {
+                      width: '100%',
+                    },
+                  }}
+                >
+                  Xem thêm
+                  <ChevronRightIcon sx={{ marginLeft: '5px' }} /> {/* Icon > phía sau */}
+                </Button>
+              </Link>
+            </Box>
           </Grid>
         </Grid>
         <Snackbar
