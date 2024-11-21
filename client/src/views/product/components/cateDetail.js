@@ -8,7 +8,7 @@ import MuiAlert from '@mui/material/Alert';
 import '../index.css';
 import CourseApi from '../../../apis/CourseApI';
 import CateCourseApi from '../../../apis/Categories_courseApI';
-
+import StudyTimeApi from '../../../apis/StudyTimeApI';
 
 const Products = () => {
   const navigate = useNavigate();
@@ -23,6 +23,7 @@ const Products = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [StudyTime, setStudyTime] = useState([]);
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
@@ -30,6 +31,25 @@ const Products = () => {
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
+
+
+  useEffect(() => {
+    const fetchStudyTime = async () => {
+      setLoading(true);
+      try {
+        const response = await StudyTimeApi.getStudyTimesList();
+        const course = response.data.studyTimes;
+        console.log(course);
+
+        setStudyTime(course);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudyTime();
+  }, []);
 
   // Fetch products based on category ID
   useEffect(() => {
@@ -100,7 +120,10 @@ const Products = () => {
     const matchesSearchTerm = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     return isInCategory && matchesSearchTerm;
   });
-
+  const hasStudyAccess = (productId) => {
+    return StudyTime.some((study) => study.user_id == userId && study.course_id == productId);
+  };
+  
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
@@ -255,17 +278,30 @@ const Products = () => {
                               <h6 className="text-success">
                                 <b>Giảm giá sốc</b>
                               </h6>
-                              <div className="d-flex flex-column mt-4">
-                                <button className="btn btn-primary btn-sm" type="button">
-                                  Mua ngay
-                                </button>
-                                <button
-                                  className="btn btn-outline-primary btn-sm mt-2"
-                                  type="button"
-                                  onClick={() => addToCart(product)}
-                                >
-                                  Thêm vào giỏ hàng
-                                </button>
+                               <div className="d-flex flex-column mt-4">
+                                {/* Kiểm tra quyền truy cập để hiển thị nút */}
+                                {hasStudyAccess(product.id) ? (
+                                   <button
+                                   className="btn btn-success btn-sm"
+                                   type="button"
+                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
+                                 >
+                                   Bắt đầu học
+                                 </button>
+                                ) : (
+                                  <>
+                                    <button className="btn btn-primary btn-sm" type="button">
+                                      Mua ngay
+                                    </button>
+                                    <button
+                                      className="btn btn-outline-primary btn-sm mt-2"
+                                      type="button"
+                                      onClick={() => addToCart(product)}
+                                    >
+                                      Thêm vào giỏ hàng
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>

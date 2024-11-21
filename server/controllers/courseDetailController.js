@@ -95,3 +95,35 @@ exports.deleteCourseDetail = async (req, res) => {
         });
     }
 };
+
+exports.getCourseProgress = async (req, res) => {
+    const { course_id } = req.params;
+    try {
+        const progress = await CourseDetail.findAll({
+            where: { course_id },
+            attributes: ['id', 'name', 'video', 'no', 'watched_time']
+        });
+        res.status(200).json(progress);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi lấy lộ trình học.', error });
+    }
+};
+
+// Cập nhật thời gian xem
+exports.updateWatchedTime = async (req, res) => {
+    const { id } = req.params;
+    const { watched_time } = req.body;
+
+    try {
+        const courseDetail = await CourseDetail.findByPk(id);
+
+        if (!courseDetail) {
+            return res.status(404).json({ message: 'Không tìm thấy video.' });
+        }
+
+        await courseDetail.update({ watched_time });
+        res.status(200).json({ message: 'Cập nhật thời gian xem thành công.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi cập nhật thời gian xem.', error });
+    }
+};
