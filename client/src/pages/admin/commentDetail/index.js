@@ -17,6 +17,8 @@ import { Box, Typography, IconButton } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import axios from 'axios';
+import { getQuestionComments, getCourseComments } from 'src/apis/CommentApi';
 
 function CommentDetail() {
   const { id: question_id } = useParams();
@@ -36,51 +38,40 @@ function CommentDetail() {
 
   // Hook để hiển thị bình luận chi tiết
   useEffect(() => {
-    // Xác định cột dựa trên commentType
-    if (commentType === 'article') {
-      setColumns(commentDetails.articleColumns);
-    } else if (commentType === 'question') {
-      setColumns(commentDetails.questionColumns);
-    }
-
-    const unsubscribeComments = onSnapshot(
-      collection(db, commentType === 'article' ? 'commentDetails' : 'questions'),
-      (snapshot) => {
-        const commentsList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        console.log('useParams ID:', question_id);
-        if (commentType === 'article') {
-          // Lọc bình luận cho bài viết
-          const filteredComments = commentsList.filter(
-            (comment) => comment.article_id === question_id // Kiểm tra với article_id
-          );
-          console.log('Filtered article comments:', filteredComments);
-          setRows(filteredComments);
+    const fetchComments = async () => {
+      setLoading(true);
+      try {
+        let response;
+        if (commentType === 'course') {
+          response = await getCourseComments(question_id);
         } else if (commentType === 'question') {
-          // Xử lý bình luận cho câu hỏi (lấy từ trường comments trong câu hỏi)
-          const questionWithComments = commentsList.find(
-            (question) => question.id === question_id // Kiểm tra với id câu hỏi
-          );
-
-          if (questionWithComments && questionWithComments.comments) {
-            console.log('Firestore question comments:', questionWithComments.comments);
-            setRows(questionWithComments.comments); // Lấy bình luận từ trường comments
-          } else {
-            console.log('No comments found for question');
-            setRows([]);
-          }
+          response = await getQuestionComments(question_id);
         }
 
+        if (response && Array.isArray(response.data)) {
+          console.log('Fetched comments:', response.data);
+          const parsedComments = response.data.map(comment => ({
+            ...comment,
+            imageUrls: comment.imageUrls ? JSON.parse(comment.imageUrls || '[]') : [],
+            fileUrls: comment.fileUrls ? JSON.parse(comment.fileUrls || '[]') : []
+          }));
+          setRows(parsedComments);
+        } else {
+          console.error('Invalid response data:', response.data);
+          setRows([]);
+        }
+
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        setRows([]);
+      } finally {
         setLoading(false);
       }
-    );
+    };
 
-    return () => unsubscribeComments();
-  }, [question_id, commentType]);
-
+    fetchComments();
+    setColumns(commentDetails[`${commentType}Columns`]);
+  }, [commentType, question_id]);
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -89,14 +80,14 @@ function CommentDetail() {
 
   const confirmDelete = async (deleteId) => {
     try {
-      const collectionName = commentType === 'article' ? 'commentDetails' : 'questions';
+      const collectionName = commentType === 'course' ? 'commentDetails' : 'questions';
       const commentDocRef = doc(db, collectionName, deleteId);
-      
+
       await deleteDoc(commentDocRef);
-  
+
       // Cập nhật lại danh sách bình luận mà không gọi lại fetchComments
       setRows((prevRows) => prevRows.filter((comment) => comment.id !== deleteId));
-      
+
       setSnackbarMessage("Xóa bình luận thành công.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
@@ -106,8 +97,8 @@ function CommentDetail() {
       setSnackbarOpen(true);
     }
   };
-  
-  
+
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -165,90 +156,99 @@ function CommentDetail() {
               <VuiBox>
                 <Table
                   columns={columns}
-                  rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => ({
-                    ...row,
-                    '#': page * rowsPerPage + index + 1,
-                    image: row.images && row.images.length > 0 ? (
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        {row.images.map((img, imgIndex) => (
-                          <img key={imgIndex} src={img} alt={`comment-image-${imgIndex}`} style={{ width: '100px', height: '100px', margin: '0 5px', objectFit: 'cover', borderRadius: '5px' }} />
-                        ))}
-                      </div>
-                    ) : (
-                      'Bình luận không có ảnh'
-                    ),
-                    date: (
-                      <VuiTypography variant="caption" color="text">
-                        {formatUpdatedAt(row.updated_at)}
-                      </VuiTypography>
-                    ),
-                    images: row.imageUrls.length > 0 ? (
-                      <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        {row.imageUrls.map((img, imgIndex) => (
-                          <img key={imgIndex} src={img} alt={`comment-image-${imgIndex}`} style={{ width: '200px', height: 'auto', margin: '0 5px', objectFit: 'cover', borderRadius: '5px' }} />
-                        ))}
-                      </div>
-                    ) : 'No images',
-                    code: row.up_code ?(
-                      <Box sx={{ mt: 1 , width: 'auto', height: 'auto' }}>
-                        <SyntaxHighlighter language="javascript" style={dracula}>
-                          {row.up_code}
-                        </SyntaxHighlighter>
-                      </Box>
-                    ) : 'No code',
-                    files: row.fileUrls?.length > 0 ? (
-                      <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {row.fileUrls.map((fileUrl, index) => {
-                          const fileName = decodeURIComponent(fileUrl).split('/').pop().split('?')[0];
-                          return (
-                            <Box
-                              key={index}
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                padding: '8px 16px',
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                backgroundColor: 'unset',
-                                width: 'fit-content',
-                              }}
-                            >
-                              <IconButton sx={{ color: '#007bff', padding: '0' }}>
-                                <DescriptionIcon />
-                              </IconButton>
-                              <Typography
-                                component="a"
-                                href={fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{
-                                  marginLeft: '8px',
-                                  color: 'white',
-                                  textDecoration: 'none',
-                                  fontSize: '14px',
-                                  fontWeight: '500',
-                                  wordBreak: 'break-all',
-                                }}
-                              >
-                                {fileName}
-                              </Typography>
-                            </Box>
-                          );
-                        })}
-                      </Box>
-                    ) : 'No files',
+                  rows={rows
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row, index) => {
+                      // Ensure imageUrls and fileUrls are parsed correctly if not already arrays
+                      const imageUrls = Array.isArray(row.imageUrls)
+                        ? row.imageUrls
+                        : JSON.parse(row.imageUrls || '[]');
+                      const fileUrls = Array.isArray(row.fileUrls)
+                        ? row.fileUrls
+                        : JSON.parse(row.fileUrls || '[]');
 
-                    action: (
-                      <div>
-                        <button className="text-light btn btn-outline-danger" onClick={() => handleDelete(row.id)}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-trash" viewBox="0 0 16 16">
-                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-                          </svg>
-                        </button>
-                      </div>
-                    ),
-                  }))}
+                      return {
+                        ...row,
+                        '#': page * rowsPerPage + index + 1,
+                        date: (
+                          <VuiTypography variant="caption" color="text">
+                            {formatUpdatedAt(row.updated_at)}
+                          </VuiTypography>
+                        ),
+                        code: row.up_code ? (
+                          <Box sx={{ mt: 1, width: 'auto', height: 'auto' }}>
+                            <SyntaxHighlighter language="javascript" style={dracula}>
+                              {row.up_code}
+                            </SyntaxHighlighter>
+                          </Box>
+                        ) : (
+                          'Không có code'
+                        ),
+                        images: imageUrls.length > 0 ? (
+                          <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            {imageUrls.map((img, imgIndex) => (
+                              <img
+                                key={imgIndex}
+                                src={img}
+                                alt={`comment-image-${imgIndex}`}
+                                style={{
+                                  width: '100px',
+                                  height: '100px',
+                                  margin: '0 5px',
+                                  objectFit: 'cover',
+                                  borderRadius: '5px',
+                                }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          'Không có hình ảnh'
+                        ),
+                        files: fileUrls.length > 0 ? (
+                          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {fileUrls.map((fileUrl, fileIndex) => {
+                              const fileName = decodeURIComponent(fileUrl)
+                                .split('/')
+                                .pop()
+                                .split('?')[0];
+                              return (
+                                <Box key={fileIndex} sx={{ display: 'flex', alignItems: 'center' }}>
+                                  <DescriptionIcon />
+                                  <Typography
+                                    component="a"
+                                    href={fileUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    {fileName}
+                                  </Typography>
+                                </Box>
+                              );
+                            })}
+                          </Box>
+                        ) : (
+                          'Không có tập tin'
+                        ),
+                        action: (
+                          <button
+                            className="text-light btn btn-outline-danger"
+                            onClick={() => handleDelete(row.id)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="currentColor"
+                              className="bi bi-trash"
+                              viewBox="0 0 16 16"
+                            >
+                              <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                              <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                            </svg>
+                          </button>
+                        ),
+                      };
+                    })}
                   pagination
                   count={rows.length}
                   rowsPerPage={rowsPerPage}
@@ -256,8 +256,10 @@ function CommentDetail() {
                   onPageChange={handleChangePage}
                   onRowsPerPageChange={handleChangeRowsPerPage}
                 />
+
               </VuiBox>
-            )}
+            )
+            }
           </Card>
         </VuiBox>
       </VuiBox>

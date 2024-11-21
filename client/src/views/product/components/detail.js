@@ -8,6 +8,9 @@ import './detail.css';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import CourseApi from '../../../apis/CourseApI';
+import userApis from 'src/apis/UserApI';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id từ URL

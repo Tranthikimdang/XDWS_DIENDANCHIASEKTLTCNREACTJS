@@ -1,7 +1,6 @@
 export const courseColumns = [
   { name: "#", align: "left" },
   { name: "image", align: "left" },
-  { name: "video_demo", align: "left" },
   { name: "name", align: "center" },
   { name: "price", align: "center" },
   { name: "discount", align: "center" },

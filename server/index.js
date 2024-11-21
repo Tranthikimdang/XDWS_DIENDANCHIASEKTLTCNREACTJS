@@ -10,6 +10,7 @@ const hashtagRouter = require('./routes/hashtagRoutes')
 const mentorRoutes = require('./routes/mentorRoutes');
 const questionRouter = require('./routes/questionRoutes');
 const commentRoutes = require("./routes/commentRoutes");
+const commentCourseRoutes = require("./routes/commentCourseRoutes");
 
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
@@ -74,12 +75,27 @@ app.post('/api/upload-file', upload.single('file'), (req, res) => {
   });
 });
 
+app.post("/api/upload-files", upload.single("file"), (req, res) => {
+  console.log(req.file);
+  if (req.file) {
+    const filePath = `http://localhost:${port}/uploads/${req.file.filename}`;
+    res.status(200).json({
+      status: 200,
+      message: "File uploaded successfully!",
+      filePath: filePath,
+    });
+  } else {
+    res.status(400).json({ message: "No file uploaded" });
+  }
+});
+
 // Sử dụng routes cho các API khác
 app.use("/api/categories_course", categoriesCourseRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/course-details", courseDetailRoutes);
 app.use("/api/users", userRouter);
 app.use("/api/comments", commentRoutes); 
+app.use("/api/commentCourse", commentCourseRoutes); 
 
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
