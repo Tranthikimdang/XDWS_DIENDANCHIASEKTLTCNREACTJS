@@ -47,20 +47,23 @@ function CommentDetail() {
         } else if (commentType === 'question') {
           response = await getQuestionComments(question_id);
         }
-
+  
         if (response && Array.isArray(response.data)) {
           console.log('Fetched comments:', response.data);
           const parsedComments = response.data.map(comment => ({
             ...comment,
-            imageUrls: comment.imageUrls ? JSON.parse(comment.imageUrls || '[]') : [],
-            fileUrls: comment.fileUrls ? JSON.parse(comment.fileUrls || '[]') : []
+            imageUrls: Array.isArray(comment.imageUrls)
+              ? comment.imageUrls
+              : JSON.parse(comment.imageUrls || '[]'),
+            fileUrls: Array.isArray(comment.fileUrls)
+              ? comment.fileUrls
+              : JSON.parse(comment.fileUrls || '[]')
           }));
           setRows(parsedComments);
         } else {
           console.error('Invalid response data:', response.data);
           setRows([]);
         }
-
       } catch (error) {
         console.error('Error fetching comments:', error);
         setRows([]);
@@ -68,10 +71,11 @@ function CommentDetail() {
         setLoading(false);
       }
     };
-
+  
     fetchComments();
     setColumns(commentDetails[`${commentType}Columns`]);
   }, [commentType, question_id]);
+  
 
   const handleDelete = (id) => {
     setDeleteId(id);

@@ -11,7 +11,7 @@ import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
 import 'src/pages/admin/comment/index.css';
-import {  getQuestionsList } from 'src/apis/QuestionsApis';
+import { getQuestionsList } from 'src/apis/QuestionsApis';
 import CourseApi from 'src/apis/CourseApI';
 const { getCoursesList } = CourseApi;
 
@@ -20,7 +20,7 @@ function Comment() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
-  const [page] = useState(0);
+  const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
   const [tabValue, setTabValue] = useState(0);
   const [courseRows, setCourseRows] = useState([]);
@@ -33,34 +33,34 @@ function Comment() {
         // Fetch API
         const courseResponse = await getCoursesList();
         const questionResponse = await getQuestionsList();
-  
+
         // Log full response to debug
         console.log("Courses response:", courseResponse);
         console.log("Questions response:", questionResponse);
-  
+
         // Extract data safely
         const courseList = Array.isArray(courseResponse.data)
           ? courseResponse.data.map(item => ({
-              id: item.id,
-              ...item,
-              updated_at: item.updated_at || null, 
-            }))
+            id: item.id,
+            ...item,
+            updated_at: item.updated_at || null,
+          }))
           : courseResponse.data.courses.map(item => ({
-              id: item.id,
-              ...item,
-              updated_at: item.updated_at || null, 
-            })); // Adjust based on actual structure
-  
+            id: item.id,
+            ...item,
+            updated_at: item.updated_at || null,
+          })); // Adjust based on actual structure
+
         const questionList = Array.isArray(questionResponse.data)
           ? questionResponse.data.map(item => ({
-              id: item.id,
-              ...item,
-            }))
+            id: item.id,
+            ...item,
+          }))
           : questionResponse.data.questions.map(item => ({
-              id: item.id,
-              ...item,
-            })); // Adjust based on actual structure
-  
+            id: item.id,
+            ...item,
+          })); // Adjust based on actual structure
+
         setCourseRows(courseList);
         setQuestionRows(questionList);
       } catch (error) {
@@ -69,10 +69,13 @@ function Comment() {
         setLoading(false);
       }
     };
-  
+
     fetchComments();
   }, []);
-  
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -84,22 +87,22 @@ function Comment() {
 
   const formatUpdatedAt = (updatedAt) => {
     if (!updatedAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
-  
+
     const date = new Date(updatedAt);
     const now = new Date();
     const diff = now - date;
-  
+
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
-  
+
     if (days > 0) return `${days} ngày trước`;
     if (hours > 0) return `${hours} giờ trước`;
     if (minutes > 0) return `${minutes} phút trước`;
     return `${seconds} giây trước`;
   };
-  
+
 
   // Rendering the table with data
   const renderTable = (rows, columns) => (
@@ -133,8 +136,8 @@ function Comment() {
                       row.name && row.name.length > 10
                         ? `${row.name.substring(0, 10).toUpperCase()}...`
                         : row.name
-                        ? row.name.toUpperCase()
-                        : 'Image of the Product'
+                          ? row.name.toUpperCase()
+                          : 'Image of the Product'
                     }
                     style={{
                       width: '100px',
@@ -215,6 +218,7 @@ function Comment() {
                 </button>
               </Link>
             ),
+
           }))}
         />
       ) : (
@@ -222,13 +226,34 @@ function Comment() {
           <p>No comments available.</p>
         </div>
       )}
+      <div className="d-flex justify-content-center p-2 custom-pagination">
+        <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+          <button
+            className="btn btn-light"
+            onClick={() => handleChangePage(null, page - 1)}
+            disabled={page === 0}
+          >
+            &laquo;
+          </button>
+          <span className="btn btn-light disabled">
+            Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+          </span>
+          <button
+            className="btn btn-light"
+            onClick={() => handleChangePage(null, page + 1)}
+            disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+          >
+            &raquo;
+          </button>
+        </div>
+      </div>
     </>
   );
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3} className="tabs-container"  sx={{ padding: 0, margin: 0 }} >
+      <VuiBox py={3} className="tabs-container" sx={{ padding: 0, margin: 0 }} >
         <Card>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="comment management tabs" >
             <Tab label=" Khóa học " />
