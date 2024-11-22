@@ -27,9 +27,9 @@ exports.getCommentsByCourseId = async (req, res) => {
 
 // Thêm bình luận
 exports.createCommentCourse = async (req, res) => {
-    const { course_id, user_id, content, imageUrls , fileUrls, up_code } = req.body;
+    const { course_id, user_id, content, imageUrls} = req.body;
     try {
-        const newCommentCourse = await CommentCourse.create({ course_id, user_id, content, imageUrls, fileUrls, up_code, replies: '[]' });
+        const newCommentCourse = await CommentCourse.create({ course_id, user_id, content, imageUrls, replies: '[]' });
         res.status(201).json({ status: 'success', data: { comment: newCommentCourse } });
     } catch (error) {
         console.error("Error in createCommentCourse:", error);
@@ -40,7 +40,7 @@ exports.createCommentCourse = async (req, res) => {
 // Cập nhật bình luận
 exports.updateCommentCourse = async (req, res) => {
     const { id } = req.params;
-    const { content, imageUrls, fileUrls, up_code } = req.body;
+    const { content, imageUrls} = req.body;
     try {
         const comment = await CommentCourse.findByPk(id);
         if (!comment) return res.status(404).json({ status: 'error', message: 'CommentCourse not found' });
@@ -74,7 +74,7 @@ exports.deleteCommentCourse = async (req, res) => {
 // Tạo phản hồi
 exports.createReply = async (req, res) => {
     const { comment_course_id } = req.params;
-    const { user_id, content, imageUrls, fileUrls, up_code } = req.body;
+    const { user_id, content, imageUrls} = req.body;
   
     try {
       // Find the comment by ID
@@ -90,8 +90,6 @@ exports.createReply = async (req, res) => {
         user_id,
         content,
         imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
-        fileUrls: Array.isArray(fileUrls) ? fileUrls : [],
-        up_code,
         created_at: new Date(),
         updated_at: new Date(),
       };

@@ -101,9 +101,7 @@ app.use("/api/commentCourse", commentCourseRoutes);
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
 app.use("/api/questions", questionRouter);
-app.use("/api/study-times", studyTimeRouter);
-app.use("/api", mentorRoutes);
-app.use(mentorRoutes);       // Sử dụng mentor routes
+app.use("/api/study-times", studyTimeRouter);    
 app.use("/api/mentors", mentorRouter);
 
 // Khởi chạy server

@@ -30,11 +30,6 @@ const CommentCourse = sequelize.define('CommentCourse', {
         allowNull: true,
         defaultValue: []
     },
-    fileUrls: {
-        type: DataTypes.JSON,
-        allowNull: true,
-        defaultValue: []
-    },
     created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
@@ -42,11 +37,6 @@ const CommentCourse = sequelize.define('CommentCourse', {
     updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
-    },
-    up_code: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: []
     },
     replies: {
         type: DataTypes.JSON,  // Lưu các trả lời dưới dạng mảng JSON
