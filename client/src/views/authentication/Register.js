@@ -1,17 +1,19 @@
 /* eslint-disable no-unused-vars */
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import React, { useRef, useState } from 'react';
 import Logo from 'src/layouts/full/shared/logo/Logo';
 import emailjs from 'emailjs-com';
-import { GoogleLogin } from 'react-google-login';
-import axios from "axios";
+import axios from 'axios';
 import { Box } from '@mui/material';
 //sql
+import context from 'src/store/context';
 import apiUser from '../../apis/UserApI';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import { setAccount } from 'src/store/action';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
@@ -22,6 +24,7 @@ const AuthRegister = ({ subtext }) => {
     location: '',
     phone: '',
   });
+  const [state, dispatch] = useContext(context);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -88,7 +91,7 @@ const AuthRegister = ({ subtext }) => {
       const users = await apiUser.getUsersList(); // Lấy tất cả người dùng
 
       // Kiểm tra xem có email nào trùng với email đã nhập không
-      const exists = users.data.users.some(user => user.email === email);
+      const exists = users.data.users.some((user) => user.email === email);
       return exists; // Trả về true nếu email đã tồn tại, false nếu không
     } catch (error) {
       console.error('Lỗi khi kiểm tra email:', error);
@@ -98,21 +101,20 @@ const AuthRegister = ({ subtext }) => {
 
   const uploadImage = async (file) => {
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append('image', file);
 
     try {
-      const response = await axios.post("http://localhost:3000/api/upload", formData, {
+      const response = await axios.post('http://localhost:3000/api/upload', formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
       return response.data.imagePath; // Trả về đường dẫn hình ảnh
     } catch (error) {
-      console.error("Error uploading image:", error);
-      throw new Error("Failed to upload image. Please try again.");
+      console.error('Error uploading image:', error);
+      throw new Error('Failed to upload image. Please try again.');
     }
   };
-
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -146,7 +148,7 @@ const AuthRegister = ({ subtext }) => {
         if (newUser) {
           localStorage.setItem('user', JSON.stringify(newUser));
           alert('Đăng ký thành công!');
-          onCancel();  // Chuyển hướng sau khi đăng ký thành công
+          onCancel(); // Chuyển hướng sau khi đăng ký thành công
         }
       }
     } catch (error) {
@@ -154,7 +156,6 @@ const AuthRegister = ({ subtext }) => {
       console.error('Lỗi đăng ký:', error);
     }
   };
-
 
   // Xử lý khi thay đổi thông tin trong form
   const handleChange = (e) => {
@@ -172,7 +173,7 @@ const AuthRegister = ({ subtext }) => {
       const users = response.data.users; // Dữ liệu trả về từ API
 
       // Kiểm tra xem có người dùng nào có email khớp hay không
-      const exists = users.some(user => user.email === email); // Trả về true nếu có ít nhất một người dùng có email khớp
+      const exists = users.some((user) => user.email === email); // Trả về true nếu có ít nhất một người dùng có email khớp
       return exists;
     } catch (error) {
       console.error('Lỗi khi kiểm tra email:', error);
@@ -180,53 +181,60 @@ const AuthRegister = ({ subtext }) => {
     }
   };
 
-  const responseGoogle = async (response) => {
-    if (response.error) {
-      console.error(response.error);
-      return;
-    }
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: {
+          Authorization: `Bearer ${tokenResponse.access_token}`,
+        },
+      });
 
-    const email = response;
+      const profile = await userInfoResponse.json();
+      const { email, name } = profile;
 
-    // try {
-    //   const emailExists = await checkEmailGoogle(email);
+      try {
+        const userListResponse = await apiUser.getUsersList();
+        const users = userListResponse.data.users;
 
-    //   const generateRandomPassword = () => {
-    //     return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
-    //   };
-    //   const generatedPassword = generateRandomPassword();
+        const existingUser = users.find((user) => user.email === email);
 
-    //   if (emailExists) {
-    //     alert('Tài khoản đã tồn tại với email này.');
-    //     return;
-    //   }
+        if (existingUser) {
+          localStorage.setItem('user', JSON.stringify(existingUser));
+          dispatch(setAccount(existingUser));
+          navigate('/home');
+        } else {
+          const newUser = {
+            name,
+            email,
+            password: Math.random().toString(36).slice(-8),
+            role: 'user',
+          };
 
-    //   // Nếu email không tồn tại, tạo người dùng mới
-    //   const newUser = {
-    //     name: response.wt.Ad,
-    //     email: response.wt.cu,
-    //     password: generatedPassword,
-    //     location: '', // Cung cấp thông tin nếu cần
-    //     phone: '', // Cung cấp thông tin nếu cần
-    //     role: 'user',
-    //   };
+          const createdUser = await apiUser.addUser(newUser);
 
-    //   await addUser(newUser);
-    //   localStorage.setItem('user', JSON.stringify(newUser));
+          if (createdUser) {
+            localStorage.setItem('user', JSON.stringify(createdUser.data));
+            dispatch(setAccount(createdUser.data));
 
-    //   // Gửi email chứa mật khẩu
-    //   sendEmail({
-    //     name: newUser.name,
-    //     email: newUser.email,
-    //     message: `Mật khẩu của bạn là: ${generatedPassword}`,
-    //   });
+            sendEmail({
+              name: newUser.name,
+              email: newUser.email,
+              message: `Mật khẩu của bạn là: ${newUser.password}`,
+            });
 
-    //   alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-    // } catch (error) {
-    //   console.error('Error during Google login:', error);
-    // }
-  };
-
+            alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+            navigate('/home');
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi trong xử lý đăng nhập Google:', error);
+        alert('Đã xảy ra lỗi, vui lòng thử lại.');
+      }
+    },
+    onError: (error) => {
+      console.error('Lỗi Google Login:', error);
+    },
+  });
   const onCancel = () => {
     navigate('/auth/inter');
   };
@@ -424,31 +432,21 @@ const AuthRegister = ({ subtext }) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <div className="google-login-btn m-3 border-0">
-                    <GoogleLogin
-                      clientId="270409308877-6u9dv3fmnf2kdn7gb0d6aqbegrnlmqvo.apps.googleusercontent.com"
-                      buttonText=""
-                      onSuccess={responseGoogle}
-                      onFailure={responseGoogle}
-                      cookiePolicy={'single_host_origin'}
-                      redirectUri={process.env.REACT_APP_REDIRECT_URI}
-                      ux_mode="popup"
-                      render={(renderProps) => (
-                        <button
-                          className="google-login-btn btn border-0 btn-outline-info"
-                          onClick={renderProps.onClick}
-                          disabled={renderProps.disabled}
-                        >
-                          <img
-                            className="google-icon"
-                            src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                            alt="Google"
-                            style={{ width: '24px', height: '24px', marginRight: '8px' }}
-                          />
-                          Đăng nhập với google
-                        </button>
-                      )}
-                    />
+                  <div className="">
+                    <Box mt={4} mb={1} textAlign="center">
+                      <Button
+                        className="google-login-btn btn border-0 btn-outline-info"
+                        onClick={() => googleLogin()}
+                      >
+                        <img
+                          className="google-icon"
+                          src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+                          alt="Google"
+                          style={{ width: '24px', height: '24px', marginRight: '8px' }}
+                        />
+                        Đăng nhập với Google
+                      </Button>
+                    </Box>
                   </div>
                 </div>
               </Form>
@@ -460,7 +458,7 @@ const AuthRegister = ({ subtext }) => {
             </Card>
           </Col>
         </Row>
-      </Container> 
+      </Container>
     </div>
   );
 };

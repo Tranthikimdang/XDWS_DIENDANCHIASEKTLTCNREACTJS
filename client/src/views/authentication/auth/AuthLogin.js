@@ -10,17 +10,14 @@ import {
   Checkbox,
 } from '@mui/material';
 import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
-import { GoogleLogin } from 'react-google-login';
-import { collection, getDocs } from 'firebase/firestore';
-import { db} from '../../../config/firebaseconfig';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import emailjs from 'emailjs-com';
-// import FacebookLogin from '@greatsumini/react-facebook-login';
 import context from 'src/store/context';
 import { setAccount } from 'src/store/action';
-import apiUser from '../../../apis/UserApI'
+import apiUser from '../../../apis/UserApI';
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
-  const [state, dispatch] = useContext(context)
+  const [state, dispatch] = useContext(context);
   const [rememberMe, setRememberMe] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,7 +34,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-        navigate('/home');
+      navigate('/home');
     }
   }, [navigate]);
   const validate = () => {
@@ -63,21 +60,23 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     if (!validate()) return;
-  
+
     try {
       // Gọi API để lấy tất cả người dùng
       const response = await apiUser.getUsersList(); // Bạn cần tạo hàm này trong UserAPI.js
-    
+
       if (!response || !response.data) {
         alert('Không thể lấy danh sách người dùng.');
         return;
       }
-  
+
       // Kiểm tra xem người dùng có tồn tại và thông tin có đúng không
-      const user = response.data.users.find((user) => user.email === email && user.password === password);
-  
+      const user = response.data.users.find(
+        (user) => user.email === email && user.password === password,
+      );
+
       if (user) {
         // Nếu thông tin đăng nhập hợp lệ
         dispatch(setAccount(user));
@@ -91,65 +90,63 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       console.error('Lỗi đăng nhập:', error);
     }
   };
-  
-  
 
-  const responseGoogle = async (response) => {
-    console.log(response);
-    // if (!response || !response.profileObj) {
-    //   console.error('Response không hợp lệ:', response);
-    //   return;
-    // }
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: {
+          Authorization: `Bearer ${tokenResponse.access_token}`,
+        },
+      });
 
-    // const email = response.profileObj.email; // Lấy email từ response
+      const profile = await userInfoResponse.json();
+      const { email, name } = profile;
 
-    // try {
-    //   // Kiểm tra xem người dùng đã tồn tại trong localStorage chưa
-    //   const storedUserData = localStorage.getItem('users'); // Giả sử bạn lưu danh sách người dùng ở đây
-    //   const users = storedUserData ? JSON.parse(storedUserData) : [];
+      try {
+        const userListResponse = await apiUser.getUsersList();
+        const users = userListResponse.data.users;
 
-    //   const existingUser = users.find((user) => user.email === email);
+        const existingUser = users.find((user) => user.email === email);
 
-    //   if (existingUser) {
-    //     // Nếu người dùng đã tồn tại, lưu thông tin vào localStorage và chuyển hướng
-    //     localStorage.setItem('user', JSON.stringify(existingUser));
-    //     navigate('/home'); // Chuyển hướng đến trang dashboard
-    //     return;
-    //   }
+        if (existingUser) {
+          localStorage.setItem('user', JSON.stringify(existingUser));
+          dispatch(setAccount(existingUser));
+          // navigate('/home');
+        } else {
+          const newUser = {
+            name,
+            email,
+            password: Math.random().toString(36).slice(-8),
+            role: 'user',
+          };
+          console.log(newUser);
+          
 
-    //   // Tạo một mật khẩu ngẫu nhiên cho người dùng mới
-    //   const generateRandomPassword = () => {
-    //     return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
-    //   };
-    //   const generatedPassword = generateRandomPassword();
+          const createdUser = await apiUser.addUser(newUser);
 
-    //   const newUser = {
-    //     name: response.profileObj.name,
-    //     email: email,
-    //     password: generatedPassword,
-    //     location: '', // Cung cấp thông tin nếu cần
-    //     phone: '', // Cung cấp thông tin nếu cần
-    //     role: 'user',
-    //   };
+          if (createdUser) {
+            localStorage.setItem('user', JSON.stringify(createdUser.data));
+            dispatch(setAccount(createdUser.data));
 
-    //   // Lưu người dùng mới vào localStorage
-    //   users.push(newUser);
-    //   // localStorage.setItem("users", JSON.stringify(users));
-    //   localStorage.setItem('users', JSON.stringify(newUser));
+            sendEmail({
+              name: newUser.name,
+              email: newUser.email,
+              message: `Mật khẩu của bạn là: ${newUser.password}`,
+            });
 
-    //   // Gửi email thông báo mật khẩu cho người dùng
-    //   sendEmail({
-    //     name: newUser.name,
-    //     email: newUser.email,
-    //     message: `Mật khẩu của bạn là: ${generatedPassword}`,
-    //   });
-
-    //   alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-    //   navigate('/dashboard'); // Chuyển hướng đến trang dashboard
-    // } catch (error) {
-    //   console.error('Lỗi khi đăng nhập Google:', error);
-    // }
-  };
+            alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+            navigate('/home');
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi trong xử lý đăng nhập Google:', error);
+        alert('Đã xảy ra lỗi, vui lòng thử lại.');
+      }
+    },
+    onError: (error) => {
+      console.error('Lỗi Google Login:', error);
+    },
+  });
 
   const sendEmail = (data) => {
     emailjs
@@ -252,13 +249,12 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
         </Box>
         <Box mt={3}>
           <Typography
-
             component={Link}
             to="/auth/forgot-password"
             fontWeight="500"
             sx={{
               textDecoration: 'none',
-              color: 'primary.main'
+              color: 'primary.main',
             }}
           >
             Quên mật khẩu?
@@ -266,33 +262,18 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
         </Box>
 
         <Box mt={4} mb={1} textAlign="center">
-          <div className="google-login-btn m-3 border-0">
-            <GoogleLogin
-
-              clientId="270409308877-hv65523hch5694hsa6atdjpn0qumls70.apps.googleusercontent.com"
-              buttonText=""
-              onSuccess={responseGoogle}
-              onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-              redirectUri={process.env.REACT_APP_REDIRECT_URI}
-              ux_mode="popup"
-              render={(renderProps) => (
-                <button
-                  className="google-login-btn btn border-0 btn-outline-info"
-                  onClick={renderProps.onClick}
-                  disabled={renderProps.disabled}
-                >
-                  <img
-                    className="google-icon"
-                    src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                    alt="Google"
-                    style={{ width: '24px', height: '24px', marginRight: '8px' }}
-                  />
-                  Đăng nhập với Google
-                </button>
-              )}
+          <Button
+            className="google-login-btn btn border-0 btn-outline-info"
+            onClick={() => googleLogin()}
+          >
+            <img
+              className="google-icon"
+              src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+              alt="Google"
+              style={{ width: '24px', height: '24px', marginRight: '8px' }}
             />
-          </div>
+            Đăng nhập với Google
+          </Button>
         </Box>
         {subtitle}
       </form>

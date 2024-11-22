@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
 import PageContainer from 'src/components/container/PageContainer';
-import DashboardCard from '../../components/shared/DashboardCard';
+import DashboardCard from 'src/components/shared/DashboardCard';
 
 import {
   Alert,
@@ -58,7 +58,6 @@ import {
 } from 'firebase/firestore';
 import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import moment from 'moment';
-import { db } from 'src/config/firebaseconfig';
 import { getQuestionComments } from '../../apis/CommentApi'
 
 const Questions = () => {
@@ -210,22 +209,6 @@ const Questions = () => {
     fetchUsers(); // Gọi hàm lấy người dùng khi component mount
   }, []);
 
-  // Fetch articles
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      try {
-        const articlesSnapshot = await getDocs(collection(db, 'articles'));
-        const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setArticles(articlesData);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticles();
-  }, []);
 
   useEffect(() => {
     const fetchQuestions = async () => {
