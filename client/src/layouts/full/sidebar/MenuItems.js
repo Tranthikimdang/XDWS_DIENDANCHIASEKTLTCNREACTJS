@@ -35,6 +35,12 @@ const Menuitems = [
     icon: IconUsers,
     href: '/user', 
   },
+  {
+    id: uniqueId(),
+    title: 'liên hệ',
+    icon: IconUsers,
+    href: '/contact', 
+  },
   // Uncomment and add other items as needed
   // {
   //   navlabel: true,
