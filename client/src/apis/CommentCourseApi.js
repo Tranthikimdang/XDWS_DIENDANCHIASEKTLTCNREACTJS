@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:3000/api/comments';
+const BASE_URL = 'http://localhost:3000/api/commentCourse';
 
 // API cho bình luận khóa học
 export const getCourseComments = async (course_id) => 

@@ -6,36 +6,62 @@ import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Table from "src/examples/Tables/Table";
-import { articleColumns, questionColumns } from './data/authorsTableData';
-import ConfirmDialog from './data/formDeleteComment';
+import { courseColumns, questionColumns } from './data/authorsTableData';
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
 import 'src/pages/admin/comment/index.css';
-import { collection, getDocs } from "firebase/firestore";
-import { db } from 'src/config/firebaseconfig';
+import { getQuestionsList } from 'src/apis/QuestionsApis';
+import CourseApi from 'src/apis/CourseApI';
+const { getCoursesList } = CourseApi;
 
 function Comment() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
-  const [page] = useState(0);
+  const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
   const [tabValue, setTabValue] = useState(0);
-  const [articleRows, setArticleRows] = useState([]);
+  const [courseRows, setCourseRows] = useState([]);
   const [questionRows, setQuestionRows] = useState([]);
 
-  // Fetching data from Firestore
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const articleSnapshot = await getDocs(collection(db, "articles"));
-        const questionSnapshot = await getDocs(collection(db, "questions"));
-        const articleList = articleSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const questionList = questionSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setArticleRows(articleList);
+        // Fetch API
+        const courseResponse = await getCoursesList();
+        const questionResponse = await getQuestionsList();
+
+        // Log full response to debug
+        console.log("Courses response:", courseResponse);
+        console.log("Questions response:", questionResponse);
+
+        // Extract data safely
+        const courseList = Array.isArray(courseResponse.data)
+          ? courseResponse.data.map(item => ({
+            id: item.id,
+            ...item,
+            updated_at: item.updated_at || null,
+          }))
+          : courseResponse.data.courses.map(item => ({
+            id: item.id,
+            ...item,
+            updated_at: item.updated_at || null,
+          })); // Adjust based on actual structure
+
+        const questionList = Array.isArray(questionResponse.data)
+          ? questionResponse.data.map(item => ({
+            id: item.id,
+            ...item,
+          }))
+          : questionResponse.data.questions.map(item => ({
+            id: item.id,
+            ...item,
+          })); // Adjust based on actual structure
+
+        setCourseRows(courseList);
         setQuestionRows(questionList);
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -47,6 +73,10 @@ function Comment() {
     fetchComments();
   }, []);
 
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -56,8 +86,9 @@ function Comment() {
   const defaultImageUrl = "/path/to/default/image.png"; // Replace with your actual default image
 
   const formatUpdatedAt = (updatedAt) => {
-    if (!updatedAt) return 'Unknown time';
-    const date = new Date(updatedAt.seconds * 1000);
+    if (!updatedAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
+
+    const date = new Date(updatedAt);
     const now = new Date();
     const diff = now - date;
 
@@ -71,6 +102,7 @@ function Comment() {
     if (minutes > 0) return `${minutes} phút trước`;
     return `${seconds} giây trước`;
   };
+
 
   // Rendering the table with data
   const renderTable = (rows, columns) => (
@@ -86,11 +118,38 @@ function Comment() {
             ...row,
             '#': page * rowsPerPage + index + 1,
             image: (
-              <ImageLoader
-                src={row.image || defaultImageUrl}
-                alt="Image"
-                defaultImageUrl={defaultImageUrl}
-              />
+              <div
+                className="Product-row"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+                  height: '70px',
+                }}
+              >
+                <div className="image-column" style={{ flex: '0 0 100px' }}>
+                  <img
+                    src={`${row.image}`}
+                    alt={
+                      row.name && row.name.length > 10
+                        ? `${row.name.substring(0, 10).toUpperCase()}...`
+                        : row.name
+                          ? row.name.toUpperCase()
+                          : 'Image of the Product'
+                    }
+                    style={{
+                      width: '100px',
+                      height: '50px',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    }}
+                  />
+                </div>
+              </div>
             ),
             function: (
               <div
@@ -159,6 +218,7 @@ function Comment() {
                 </button>
               </Link>
             ),
+
           }))}
         />
       ) : (
@@ -166,21 +226,42 @@ function Comment() {
           <p>No comments available.</p>
         </div>
       )}
+      <div className="d-flex justify-content-center p-2 custom-pagination">
+        <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+          <button
+            className="btn btn-light"
+            onClick={() => handleChangePage(null, page - 1)}
+            disabled={page === 0}
+          >
+            &laquo;
+          </button>
+          <span className="btn btn-light disabled">
+            Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+          </span>
+          <button
+            className="btn btn-light"
+            onClick={() => handleChangePage(null, page + 1)}
+            disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+          >
+            &raquo;
+          </button>
+        </div>
+      </div>
     </>
   );
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3} className="tabs-container"  sx={{ padding: 0, margin: 0 }} >
+      <VuiBox py={3} className="tabs-container" sx={{ padding: 0, margin: 0 }} >
         <Card>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="comment management tabs" >
-            <Tab label="Bài viết " />
+            <Tab label=" Khóa học " />
             <Tab label="Câu hỏi " />
           </Tabs>
 
           <VuiBox>
-            {tabValue === 0 && renderTable(articleRows, articleColumns)}
+            {tabValue === 0 && renderTable(courseRows, courseColumns)}
             {tabValue === 1 && renderTable(questionRows, questionColumns)}
           </VuiBox>
 
