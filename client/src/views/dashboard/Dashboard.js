@@ -15,13 +15,15 @@ import {
   CircularProgress,
   Link,
 } from '@mui/material';
-import { styled, } from '@mui/system';
+import { styled } from '@mui/system';
 
 // Icon
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
+import CourseApi from '../../apis/CourseApI';
+import CateCourseApi from '../../apis/Categories_courseApI';
+import StudyTimeApi from '../../apis/StudyTimeApI';
 // Firebase
 import { db } from '../../config/firebaseconfig';
 import { collection, getDocs } from 'firebase/firestore';
@@ -80,55 +82,31 @@ const Home = () => {
     navigate(`/productDetail/${productId}`, { state: { id: productId } });
   };
 
-  // Fetch articles
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      try {
-        const articlesSnapshot = await getDocs(collection(db, 'articles'));
-        const articlesData = articlesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setArticles(articlesData);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticles();
-  }, []);
+  // // Fetch products
+  // useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const productsSnapshot = await getDocs(collection(db, 'products'));
+  //       const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  //       setProducts(productsData);
+  //     } catch (error) {
+  //       console.error('Error fetching products:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchProducts();
+  // }, []);
 
-  // Fetch categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setLoading(true);
-      try {
-        const categoriesSnapshot = await getDocs(collection(db, 'categories'));
-        const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        const categoriesMap = categoriesData.reduce((map, category) => {
-          map[category.id] = category.name;
-          return map;
-        }, {});
-        setCatesMap(categoriesMap);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  // Fetch products
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const productsSnapshot = await getDocs(collection(db, 'products'));
-        const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        setProducts(productsData);
+        const response = await CourseApi.getCoursesList();
+        const course = response.data.courses;
+
+        setProducts(course);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -143,7 +121,7 @@ const Home = () => {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
       const now = new Date();
       const diff = now - date; // Tính toán khoảng cách thời gian
 
@@ -164,11 +142,15 @@ const Home = () => {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
+
     return updatedAtString;
   };
 
   return (
-    <PageContainer title="Share Code | Diễn đàn chia sẻ lập trình code" description="Đây là trang chủ">
+    <PageContainer
+      title="Share Code | Diễn đàn chia sẻ lập trình code"
+      description="Đây là trang chủ"
+    >
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           {/* Carousel Banner */}
@@ -291,8 +273,8 @@ const Home = () => {
                         Trở Thành Mentor và Chia Sẻ Kiến Thức!
                       </Typography>
                       <SubText sx={{ color: '#fff' }}>
-                        Hướng dẫn và hỗ trợ những lập trình viên mới bắt đầu.
-                        Tham gia vào đội ngũ mentors của chúng tôi ngay hôm nay.
+                        Hướng dẫn và hỗ trợ những lập trình viên mới bắt đầu. Tham gia vào đội ngũ
+                        mentors của chúng tôi ngay hôm nay.
                       </SubText>
                       <ActionButton
                         variant="contained"
@@ -362,6 +344,7 @@ const Home = () => {
             </Box>
           </Grid>
           {products
+            .filter((product) => product.price > 0)
             .slice(0, 4)
             .map((product) => (
               <Grid item xs={6} sm={4} md={3} key={product.id}>
@@ -376,7 +359,7 @@ const Home = () => {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={product.image_url}
+                    image={product.image}
                     alt={product.name}
                   />
                   <CardContent>
@@ -423,9 +406,9 @@ const Home = () => {
               Xem lộ trình
               <ArrowForwardIosIcon sx={{ fontSize: '15px' }} /> {/* Thêm icon mũi tên */}
             </Box>
-
           </Grid>
           {products
+            .filter((product) => product.price == 0)
             .slice(0, 4)
             .map((product) => (
               <Grid item xs={6} sm={4} md={3} key={product.id}>
@@ -440,7 +423,7 @@ const Home = () => {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={product.image_url}
+                    image={product.image}
                     alt={product.name}
                   />
                   <CardContent>
@@ -456,7 +439,6 @@ const Home = () => {
               </Grid>
             ))}
         </Grid>
-
       </Box>
     </PageContainer>
   );
