@@ -32,24 +32,7 @@ const Profile = () => {
   const [userLoading, setUserLoading] = useState(true);
   const [productsLoading, setProductsLoading] = useState(true);
 
-  // Fetch users
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
-  //     try {
-  //       const response = await UserAPI.getUsersList();  // API call to get users
-  //       const filteredUsers = response.data.users.filter(
-  //         (user) => !(user.role === 'admin' && user.id === userId)
-  //       );
-        
-  //       setUsers(filteredUsers);
-  //     } catch (error) {
-  //       console.error('Error fetching users:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchUsers();
-  // }, [userId]);
+
 
 useEffect(() => {
   const fetchUsers = async () => {
@@ -57,11 +40,9 @@ useEffect(() => {
     try {
       const response = await UserAPI.getUsersList();
       const matchingUser = response.data.users.find(user => user.id == userId);
-      if (matchingUser) {
-        setUser([matchingUser]); // Đặt vào mảng chứa user
-      } else {
-        setUser([]); // Nếu không tìm thấy người dùng
-      }
+      
+
+        setUser(matchingUser); 
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -147,10 +128,6 @@ useEffect(() => {
 
     return updatedAtString;
   };
-  useEffect(() => {
-    console.log('User data:', user);
-    console.log('Products:', products);
-  }, [user, products]);
 
 
   //xóa các thẻ html
