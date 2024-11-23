@@ -13,6 +13,7 @@ const studyTimeRouter = require('./routes/studyRoutes');
 const commentRoutes = require("./routes/commentRoutes");
 const commentCourseRoutes = require("./routes/commentCourseRoutes");
 
+
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
 const multer = require("multer");
@@ -98,11 +99,13 @@ app.use("/api/users", userRouter);
 app.use("/api/comments", commentRoutes); 
 app.use("/api/commentCourse", commentCourseRoutes); 
 
+
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/study-times", studyTimeRouter);   // Sử dụng mentor routes
 app.use("/api/mentors", mentorRouter);
+
 
 // Khởi chạy server
 app.listen(port, async () => {
