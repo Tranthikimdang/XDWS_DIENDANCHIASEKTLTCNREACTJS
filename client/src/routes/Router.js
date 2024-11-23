@@ -14,6 +14,7 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin'))); // Ensure 
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
+const Contact = Loadable(lazy(() => import('../views/contact/Contact')));
 const CateArticleDetail = Loadable(
   lazy(() => import('../views/article/components/CateArticleDetail')),
 );
@@ -110,6 +111,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
@@ -210,6 +212,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
