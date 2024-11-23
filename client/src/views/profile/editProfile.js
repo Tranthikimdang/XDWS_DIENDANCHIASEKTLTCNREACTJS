@@ -177,7 +177,6 @@ const EditUser = () => {
                         helperText={errors.email}
                     />
                     <TextField
-                        label="Ngày sinh"
                         variant="outlined"
                         fullWidth
                         margin="normal"
