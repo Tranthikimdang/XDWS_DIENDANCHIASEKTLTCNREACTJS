@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { Card, CardContent } from "@mui/material";
 import apiUser from '../../apis/UserApI'; // Import API User
+import bcrypt from 'bcryptjs';
 
 const ResetPassword = () => {
     const { userId } = useParams(); // Lấy userId từ URL
@@ -27,8 +28,12 @@ const ResetPassword = () => {
         }
 
         try {
+            // Băm mật khẩu mới trước khi gửi lên API
+            const salt = bcrypt.genSaltSync(10);  // Tạo salt
+            const hashedPassword = bcrypt.hashSync(newPassword, salt);  // Băm mật khẩu
+
             // Gọi API để cập nhật mật khẩu
-            await apiUser.updateUserPassword(userId, newPassword); // Giả định có phương thức updateUserPassword trong apiUser
+            await apiUser.updateUserPassword(userId, hashedPassword); // Giả định có phương thức updateUserPassword trong apiUser
             alert("Đặt lại mật khẩu thành công!"); 
             setTimeout(() => {
                 navigate("/auth/login");

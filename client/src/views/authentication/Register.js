@@ -14,6 +14,7 @@ import context from 'src/store/context';
 import apiUser from '../../apis/UserApI';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import { setAccount } from 'src/store/action';
+import bcrypt from 'bcryptjs';
 
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
@@ -140,8 +141,13 @@ const AuthRegister = ({ subtext }) => {
           imageUrl = await uploadImage(file);
         }
 
+        // **Băm mật khẩu trước khi gửi**
+        const salt = bcrypt.genSaltSync(10); // Sinh Salt
+        const hashedPassword = bcrypt.hashSync(formData.password, salt); // Băm mật khẩu
+
         const newUser = await addUser({
           ...formData,
+          password: hashedPassword, // Sử dụng mật khẩu đã băm
           imageUrl,
         });
 
@@ -223,7 +229,7 @@ const AuthRegister = ({ subtext }) => {
             });
 
             alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-            navigate('/home');
+            navigate('/auth/inter');
           }
         }
       } catch (error) {
@@ -432,14 +438,22 @@ const AuthRegister = ({ subtext }) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <div className="">
+                  <div>
                     <Box mt={4} mb={1} textAlign="center">
                       <Button
+                        variant="outlined"
+                        color="info"
                         className="google-login-btn btn border-0 btn-outline-info"
-                        onClick={() => googleLogin()}
+                        onClick={googleLogin}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '8px 16px',
+                          textTransform: 'none',
+                        }}
                       >
                         <img
-                          className="google-icon"
                           src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
                           alt="Google"
                           style={{ width: '24px', height: '24px', marginRight: '8px' }}

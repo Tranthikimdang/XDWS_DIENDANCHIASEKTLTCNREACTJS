@@ -15,6 +15,7 @@ import emailjs from 'emailjs-com';
 import context from 'src/store/context';
 import { setAccount } from 'src/store/action';
 import apiUser from '../../../apis/UserApI';
+import bcrypt from 'bcryptjs';
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
   const [state, dispatch] = useContext(context);
@@ -64,26 +65,29 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     if (!validate()) return;
 
     try {
-      // Gọi API để lấy tất cả người dùng
-      const response = await apiUser.getUsersList(); // Bạn cần tạo hàm này trong UserAPI.js
+      // Gọi API để lấy danh sách người dùng
+      const response = await apiUser.getUsersList();
 
       if (!response || !response.data) {
         alert('Không thể lấy danh sách người dùng.');
         return;
       }
 
-      // Kiểm tra xem người dùng có tồn tại và thông tin có đúng không
-      const user = response.data.users.find(
-        (user) => user.email === email && user.password === password,
-      );
+      const user = response.data.users.find((user) => user.email === email);
 
       if (user) {
-        // Nếu thông tin đăng nhập hợp lệ
-        dispatch(setAccount(user));
-        localStorage.setItem('user', JSON.stringify(user));
-        navigate('/home'); // Chuyển hướng đến trang chính
+        // So sánh mật khẩu nhập vào với mật khẩu đã băm
+        const isMatch = await bcrypt.compare(password, user.password); 
+        if (isMatch) {
+          // Nếu thông tin đăng nhập hợp lệ
+          dispatch(setAccount(user));
+          localStorage.setItem('user', JSON.stringify(user));
+          navigate('/home');
+        } else {
+          alert('Mật khẩu không đúng.');
+        }
       } else {
-        alert('Email hoặc mật khẩu chưa hợp lệ');
+        alert('Email không tồn tại.');
       }
     } catch (error) {
       alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
@@ -135,7 +139,7 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
             });
 
             alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-            navigate('/home');
+            navigate('/auth/inter');
           }
         }
       } catch (error) {
