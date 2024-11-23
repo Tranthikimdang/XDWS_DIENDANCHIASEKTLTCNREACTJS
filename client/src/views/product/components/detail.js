@@ -203,18 +203,18 @@ const ProductsDetail = () => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/courses/${id}`);
-        console.log('Comments:', response.data); // Kiểm tra dữ liệu trả về
-        setDataTemp(response.data); // Lưu dữ liệu vào state
+        const response = await getCourseComments(id);
+        console.log('Comments:', response.data);
+        setDataTemp(response.data);
       } catch (error) {
         console.error("Error fetching comments:", error);
       }
+      setNewReplies({})
     };
-  
+
     if (id) fetchComments();
   }, [id]);
 
-  
   const handleAddComment = async (course_id) => {
     try {
       let imageUrl = [];
@@ -241,6 +241,10 @@ const ProductsDetail = () => {
       const response = await axios.post('http://localhost:3000/api/commentCourse', newCommentData);
       console.log('newCommentData:', newCommentData);
       if (response.data.status === 'success') {
+        setDataTemp((prevComments) => [
+          ...prevComments,
+          { ...newCommentData, id: response.data.data.comment.id } // Assuming the response contains the new comment ID
+        ]);
         setNewComment('');  // Reset comment input
         setCommentImages([]);  // Reset images
         setImageFile(null);     // Reset image file state
@@ -258,13 +262,14 @@ const ProductsDetail = () => {
     }
   };
 
-  const handleAddReply = async (courseId, commentId) => {
+  const handleAddReply = async (course_id, commentId) => {
+    // Prevent multiple submissions
     if (isSubmittingReply) return;
     setIsSubmittingReply(true);
-
+  
     try {
       let imageUrls = [];
-
+  
       // Upload images if available
       if (replyImageFile && replyImageFile.length > 0) {
         const formDataImage = new FormData();
@@ -276,26 +281,46 @@ const ProductsDetail = () => {
           imageUrls = imageResponse.data.imagePaths;
         }
       }
-
+  
+      // Create new reply object
       const newReply = {
         user_id: userData.current.id,
         content: newReplies[commentId] || '',
         imageUrls: imageUrls,
         created_at: new Date(),
       };
-
+  
+      // Post the reply to the API
       const response = await axios.post(`http://localhost:3000/api/commentCourse/${commentId}/replies`, newReply);
+  
       if (response.data.status === 'success') {
-
+        setDataTemp((prevComments) =>
+          prevComments.map((comment) =>
+            comment.id === commentId
+              ? {
+                  ...comment,
+                  replies: comment.replies
+                    ? [...comment.replies, { ...newReply, id: response.data.data.reply.id }]  // Add new reply if there are existing replies
+                    : [{ ...newReply, id: response.data.data.reply.id }]  // Create an array if no replies yet
+                }
+              : comment
+          )
+        );
+  
+        // Clear the reply input and reset form state
         setNewReplies((prev) => ({ ...prev, [commentId]: '' }));
         setReplyingTo(null);
         setReplyImageFile(null);
+  
+        // Show success notification
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Error adding reply:", error);
+  
+      // Show error notification
       setSnackbarMessage("Đã xảy ra lỗi khi gửi phản hồi.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -303,17 +328,25 @@ const ProductsDetail = () => {
       setIsSubmittingReply(false);
     }
   };
-
-  // Hàm định dạng ngày
+  
+  
   const formatDate = (createdAt) => {
-    if (!createdAt) return 'N/A';
+    if (!createdAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
 
     const date = new Date(createdAt);
-    if (isNaN(date)) return 'Invalid date';
+    const now = new Date();
+    const diff = now - date;
 
-    return formatDistanceToNow(date, { addSuffix: true });
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days} ngày trước`;
+    if (hours > 0) return `${hours} giờ trước`;
+    if (minutes > 0) return `${minutes} phút trước`;
+    return `${seconds} giây trước`;
   };
-
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
@@ -502,28 +535,44 @@ const ProductsDetail = () => {
         <Box mt={3}>
           {loading ? (
             <CircularProgress size={20} />
-          ) : visibleComments[product.id]?.length > 0 ? (
-            visibleComments[product.id].map((comment, index) => (
-              <Box
-                key={comment.id || index}
-                mb={2}
-                p={2}
-                border="1px solid #ddd"
-                borderRadius="4px"
-              >
-                {/* Hiển thị thông tin bình luận */}
+          ) : dataTemp.length > 0 ? (
+            dataTemp.map((comment, index) => (
+              <Box key={comment.id || index} mb={2} p={2} border="1px solid #ddd" borderRadius="4px">
                 <Typography variant="subtitle2" color="primary">
-                  {comment.username || 'Người dùng ẩn danh'}
+                  {users.find((user) => user.id === comment.user_id)?.name}
                 </Typography>
                 <Typography variant="body2" mt={1}>
                   {comment.content}
                 </Typography>
-                <Typography
-                  variant="caption"
-                  color="textSecondary"
-                  mt={1}
-                  display="block"
-                >
+
+                {/* Display images in comment if available */}
+                {Array.isArray(comment.imageUrls) && comment.imageUrls.length > 0 ? (
+                  <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                    {comment.imageUrls.map((imageUrl, index) => (
+                      <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                        <img
+                          src={imageUrl}
+                          alt={`Comment image ${index + 1}`}
+                          style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                        />
+                      </Box>
+                    ))}
+                  </Box>
+                ) : (
+                  comment.imageUrls && typeof comment.imageUrls === 'string' && ( // Ensure it's a string before rendering
+                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                      <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                        <img
+                          src={comment.imageUrls}
+                          alt="Comment image"
+                          style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                        />
+                      </Box>
+                    </Box>
+                  )
+                )}
+
+                <Typography variant="caption" color="textSecondary" mt={1} display="block">
                   {formatDate(comment.created_at)}
                 </Typography>
 
@@ -556,12 +605,7 @@ const ProductsDetail = () => {
                         resize: 'none',
                       }}
                     />
-                    <Box
-                      mt={1}
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                    >
+                    <Box mt={1} display="flex" justifyContent="space-between" alignItems="center">
                       <Button
                         variant="outlined"
                         startIcon={<ImageIcon />}
@@ -578,9 +622,7 @@ const ProductsDetail = () => {
                           accept="image/*"
                           multiple
                           hidden
-                          onChange={(e) =>
-                            setReplyImageFile(Array.from(e.target.files))
-                          }
+                          onChange={(e) => setReplyImageFile(Array.from(e.target.files))}
                         />
                       </Button>
                       <Button
@@ -598,12 +640,58 @@ const ProductsDetail = () => {
                     </Box>
                   </Box>
                 )}
+
+                {/* Render Replies */}
+                {Array.isArray(comment.replies) && comment.replies.length > 0 ? (
+                  <Box mt={2} pl={2}>
+                    {comment.replies.map((reply, index) => {
+                      console.log('Rendering reply:', reply); // Log the reply being rendered
+                      return (
+                        <Box key={reply.id || index} mb={1} p={1} border="1px solid #ddd" borderRadius="4px">
+                          <Typography variant="subtitle2" color="primary">
+                            {users.find((user) => user.id === reply.user_id)?.name}
+                          </Typography>
+                          <Typography variant="body2" mt={1}>
+                            {reply.content}
+                          </Typography>
+                          {/* Display images in reply if available */}
+                          {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 ? (
+                            <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                              {reply.imageUrls.map((imageUrl, index) => (
+                                <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                                  <img
+                                    src={imageUrl}
+                                    alt={`Reply image ${index + 1}`}
+                                    style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                                  />
+                                </Box>
+                              ))}
+                            </Box>
+                          ) : null}
+
+                          <Typography variant="caption" color="textSecondary" mt={1} display="block">
+                            {formatDate(reply.created_at)}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                ) : (
+                  <Box mt={2} pl={2}>
+                    <Typography variant="body2" color="textSecondary">
+                      Chưa có phản hồi nào.
+                    </Typography>
+                  </Box>
+                )}
+
+
               </Box>
             ))
           ) : (
             <Typography variant="body2">Chưa có bình luận nào.</Typography>
           )}
         </Box>
+
 
       </Box>
 

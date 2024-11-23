@@ -14,6 +14,7 @@ exports.getCommentsByCourseId = async (req, res) => {
     const { id } = req.params;
     try {
       const comments = await CommentCourse.findAll({ where: { course_id: id } });
+      console.log('Fetched comments:', comments);
       if (!comments || comments.length === 0) {
         return res.status(200).json([]); // Đảm bảo trả về mảng rỗng thay vì lỗi 404
       }
