@@ -1,6 +1,7 @@
 import {
-  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers, IconBrandYoutube
+  IconHome, IconUsers, IconBrandYoutube
 } from '@tabler/icons';
+import { IconUser } from '@tabler/icons-react';
 import { IconInfoSquareRounded } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
@@ -31,10 +32,16 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Người dùng',
+    title: 'Người cố vấn',
     icon: IconUsers,
-    href: '/user', 
+    href: '/mentor',
   },
+  {
+    id: uniqueId(),
+    title: 'Người dùng',
+    icon: IconUser,
+    href: '/user',
+  }
   // Uncomment and add other items as needed
   // {
   //   navlabel: true,

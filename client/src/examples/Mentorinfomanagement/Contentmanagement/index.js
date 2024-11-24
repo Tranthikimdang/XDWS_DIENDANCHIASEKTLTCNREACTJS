@@ -13,11 +13,12 @@ import VuiTypography from "src/components/admin/VuiTypography";
 import colors from "src/assets/admin/theme/base/colors";
 import typography from "src/assets/admin/theme/base/typography";
 
-function ProfileInfoCard({ title, description, info, social }) {
+function Contentmanagement({ title, description, info }) {
   const labels = [];
   const values = [];
   const { size } = typography;
 
+  
   // Convert this form `objectKey` of the object key in to this `object key`
   Object.keys(info).forEach((el) => {
     if (el.match(/[A-Z\s]+/)) {
@@ -45,23 +46,9 @@ function ProfileInfoCard({ title, description, info, social }) {
     </VuiBox>
   ));
 
-  // Render the card social media icons
-  const renderSocial = social.map(({ link, icon, color }) => (
-    <VuiBox
-      key={color}
-      component="a"
-      href={link}
-      target="_blank"
-      rel="noreferrer"
-      fontSize={size.lg}
-      color="white"
-      pr={1}
-      pl={0.5}
-      lineHeight={1}
-    >
-      {icon}
-    </VuiBox>
-  ));
+  
+
+  
 
   return (
     <Card
@@ -74,44 +61,27 @@ function ProfileInfoCard({ title, description, info, social }) {
           {title}
         </VuiTypography>
       </VuiBox>
-    
+
       <VuiBox>
+        
+        <VuiBox opacity={0.3}>
+          <Divider />
+        </VuiBox>
         <VuiBox mb={2} lineHeight={1}>
           <VuiTypography variant="button" color="text" fontWeight="regular">
             {description}
           </VuiTypography>
-        </VuiBox>
-        <VuiBox opacity={0.3}>
-          <Divider />
-        </VuiBox>
-        <VuiBox opacity={0.3}>
-          <Divider />
-        </VuiBox>
-        <VuiBox>
-          {renderItems}
-          <VuiBox display="flex" py={1} pr={2} color="white">
-            <VuiTypography
-              variant="button"
-              fontWeight="regular"
-              color="text"
-              textTransform="capitalize"
-            >
-              social: &nbsp;
-            </VuiTypography>
-            {renderSocial}
-          </VuiBox>
         </VuiBox>
       </VuiBox>
     </Card>
   );
 }
 
-// Typechecking props for the ProfileInfoCard
-ProfileInfoCard.propTypes = {
+// Typechecking props for the Introduce
+Contentmanagement.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
-  info: PropTypes.objectOf(PropTypes.string).isRequired,
-  social: PropTypes.arrayOf(PropTypes.object).isRequired,
+  skills: PropTypes.string.isRequired,
 };
 
-export default ProfileInfoCard;
+export default Contentmanagement;

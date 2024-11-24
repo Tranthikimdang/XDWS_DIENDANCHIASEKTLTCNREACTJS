@@ -1,292 +1,297 @@
-/* eslint-disable no-lone-blocks */
-import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
-  Grid,
-  Snackbar,
-  Typography,
-  TextField,
-  Container,
-  Paper
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import Logo from 'src/layouts/full/shared/logo/Logo';
+import {
+  Grid,
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CardMedia,
+  TextField,
+  InputAdornment,
+  Pagination,
+  CircularProgress,
+} from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-
+import { useNavigate } from 'react-router-dom';
+import { Search as SearchIcon } from '@mui/icons-material';
+import { IconUser, IconHeart } from '@tabler/icons-react';
+// Image
+import avatar from 'src/assets/images/profile/user-1.jpg';
 // API
-import api from '../../apis/mentorApi';
+import apiUser from 'src/apis/UserApI';
+import api from 'src/apis/mentorApi';
+// Icon
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const Mentor = () => {
-  const [loading, setLoading] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+  const [users, setUsers] = useState([]); // List of users
+  const [mentors, setMentors] = useState([]); // List of mentors
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [itemsPerPage] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const handleUpload = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await api.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    return response.data.fileUrl;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData(e.target);
-    const file = formData.get('upfile');
-
-    if (!file) {
-      setSnackbarMessage('Vui lòng chọn một file CV.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const fileUrl = await handleUpload(file);
-
-      const dataToSubmit = {
-        user_id: userData?.id,
-        cv_url: fileUrl,
-        bio: formData.get('bio'),
-        specialization: formData.get('specialization'),
-        hourly_rate: formData.get('hourly_rate'),
-        languages_spoken: formData.get('languages_spoken'),
-        experience_years: formData.get('experience_years'),
-        certification: formData.get('certification'),
-        education: formData.get('education'),
-        contact_info: formData.get('contact_info'),
-        linkedin_profile: formData.get('linkedin_profile'),
-        github_profile: formData.get('github_profile'),
-        isApproved: '0',
-        created_at: new Date(),
-        is_deleted: false,
-        updated_at: new Date(),
-      };
-
-      const response = await api.post('/mentors', dataToSubmit);
-
-      if (response.data.success) {
-        setSnackbarMessage('CV của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
-        setSnackbarSeverity('success');
-        setTimeout(() => {
-          navigate('/home');  // Chuyển hướng về trang home sau khi thông báo
-        }, 3000);
-      } else {
-        setSnackbarMessage('Đã xảy ra lỗi khi gửi CV.');
-        setSnackbarSeverity('error');
-      }
-      setSnackbarOpen(true);
-      e.target.reset();
-    } catch (error) {
-      console.error('Lỗi khi gửi dữ liệu lên API:', error);
-      setSnackbarMessage('Lỗi khi gửi CV. Vui lòng thử lại.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file ? file.name : null); // Lưu tên file đã chọn
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
+  // Fetch users
   useEffect(() => {
-    const storedUserData = JSON.parse(localStorage.getItem('user'));
-    if (storedUserData) {
-      setUserData(storedUserData);
-    } else {
-      navigate('/auth/mentor');
-    }
-  }, [navigate]);
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const user = await apiUser.getUsersList();
+        setUsers(Array.isArray(user.data.users) ? user.data.users : []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Fetch mentors
+  useEffect(() => {
+    const fetchMentor = async () => {
+      setLoading(true);
+      try {
+        const response = await api.getMentors();
+        setMentors(Array.isArray(response.data.mentors) ? response.data.mentors : []);
+      } catch (error) {
+        console.error('Error fetching mentors:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMentor();
+  }, []);
+
+  // Handle card click
+  const handleCardClick = (userId) => {
+    navigate(`/profile/${userId}`, { state: { id: userId } });
+  };
+
+  // Filter users by search term
+  const filteredMentors = mentors.filter((mentor) => {
+    const user = users.find((u) => u.id === mentor.user_id);
+    return user?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  // Pagination logic
+  const indexOfLastMentor = currentPage * itemsPerPage;
+  const indexOfFirstMentor = indexOfLastMentor - itemsPerPage;
+  const currentMentors = filteredMentors.slice(indexOfFirstMentor, indexOfLastMentor);
 
   return (
-    <PageContainer title="Đăng ký làm người hướng dẫn | Share Code" description="Đây là trang đăng ký làm người hướng dẫn">
-      <Container maxWidth="md">
-        <Paper elevation={4} sx={{ padding: 4, marginTop: 4, borderRadius: '16px' }}>
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <div className="text-center mb-4">
-              <Logo />
-            </div>
-            <Typography variant="h4" className="text-center mb-4">
-              Đăng ký mentor
+    <PageContainer title="Người cố vấn | Share Code" description="Đây là trang người cố vấn">
+      <Box sx={{ padding: { xs: '16px', md: '24px' } }}>
+        <Grid container spacing={3}>
+          {/* Heading */}
+          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+            <Typography variant="h4" component="h1" className="heading" >
+              Cố vấn
             </Typography>
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="bio"
-                    label="Bio"
-                    multiline
-                    rows={4}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="specialization"
-                    label="Chuyên môn"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="hourly_rate"
-                    label="Giá mỗi giờ"
-                    type="number"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="languages_spoken"
-                    label="Ngôn ngữ"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="experience_years"
-                    label="Số năm kinh nghiệm"
-                    type="number"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="certification"
-                    label="Chứng chỉ"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="education"
-                    label="Học vấn"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="contact_info"
-                    label="Thông tin liên lạc"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="linkedin_profile"
-                    label="LinkedIn Profile"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name="github_profile"
-                    label="GitHub Profile"
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    variant="outlined"
-                    startIcon={<AttachFileIcon />}
-                    fullWidth
-                    sx={{
-                      borderRadius: '16px',
-                      textTransform: 'none',
-                      padding: '5px 15px',
-                    }}
-                    component="label"
-                  >
-                    Tải CV lên
-                    <input
-                      name="upfile"
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      hidden
-                      onChange={handleFileChange}
-                    />
-                  </Button>
-                  {selectedFile && (
-                    <Typography variant="body2" sx={{ marginTop: '10px' }}>
-                      File đã chọn: {selectedFile}
-                    </Typography>
-                  )}
-                </Grid>
-                <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      textTransform: 'none',
-                      borderRadius: '16px',
-                      padding: '5px 20px',
-                      fontWeight: 'bold',
-                      mt: 2,
-                    }}
-                    disabled={loading}
-                  >
-                    {loading ? <CircularProgress size={24} /> : 'Gửi'}
-                  </Button>
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
-        </Paper>
-      </Container>
+            <Typography variant="body1" paragraph className="typography-body" >
+              Tìm kiếm và kết nối với những người cố vấn hàng đầu trong lĩnh vực lập trình.
+              <br />
+              Người cố vấn của chúng tôi là các chuyên gia giàu kinh nghiệm, sẵn sàng hỗ trợ bạn
+              trên hành trình học lập trình và phát triển sự nghiệp.
+            </Typography>
+          </Grid>
 
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ transform: 'translateY(50px)' }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{
-            width: '100%',
-            border: '1px solid #ccc',
-          }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+          {/* Search Section */}
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '16px',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {/* Tìm kiếm */}
+            <TextField
+              label="Tìm kiếm người hướng dẫn"
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                flex: '1 1 300px',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Lĩnh vực quan tâm */}
+            <TextField
+              select
+              label="Lĩnh vực quan tâm"
+              variant="outlined"
+              sx={{
+                flex: '1 1 300px',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              SelectProps={{
+                native: true,
+              }}
+              onChange={(e) => console.log('Lĩnh vực chọn:', e.target.value)}
+            >
+              <option value="" disabled>
+                Từ khóa quan tâm
+              </option>
+              <option value="frontend">Frontend</option>
+              <option value="backend">Backend</option>
+              <option value="fullstack">Fullstack</option>
+              <option value="data-science">Data Science</option>
+            </TextField>
+
+            {/* Bộ lọc */}
+            <button
+              style={{
+                padding: '10px 16px',
+                border: '1px solid #ddd',
+                borderRadius: '50px',
+                backgroundColor: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '14px',
+              }}
+              onClick={() => console.log('Kích hoạt bộ lọc!')}
+            >
+              <FilterAltOutlinedIcon style={{ fontSize: '20px' }} />
+              Bộ lọc tìm kiếm
+            </button>
+          </Grid>
+
+          {/* Mentor List */}
+          <Grid container spacing={3} sx={{ marginTop: '16px' }}>
+            {loading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+                <CircularProgress />
+              </Box>
+            ) : currentMentors.length > 0 ? (
+              currentMentors.map((mentor) => {
+                const userInfo = users.find((u) => u.id === mentor.user_id);
+                return (
+                  <Grid item xs={6} sm={4} md={3} key={mentor.id}>
+                    <Card
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        height: '100%',
+                        cursor: 'pointer',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        padding: '16px',
+                        textAlign: 'center',
+                        transition: 'transform 0.3s',
+                        '&:hover': { transform: 'translateY(-5px)' },
+                      }}
+                      onClick={() => handleCardClick(mentor.user_id)}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={userInfo?.imageUrl || avatar}
+                        alt={userInfo?.name || 'Không có hình ảnh'}
+                        sx={{
+                          width: '120px',
+                          height: '120px',
+                          objectFit: 'cover',
+                          borderRadius: '50%',
+                          border: '4px solid #fff',
+                          marginBottom: '16px',
+                        }}
+                      />
+                      <CardContent>
+                        <Typography variant="h6">{userInfo?.name || 'Không rõ tên'}</Typography>
+                        <Typography variant="body2" color="#7f8c8d" sx={{ marginBottom: '8px' }}>
+                          {mentor.skills || 'Chưa có thông tin'}
+                        </Typography>
+
+                         {/* Availability Time */}
+                         <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#ecf2ff',
+                              padding: '8px 16px',
+                              borderRadius: '8px',
+                              marginBottom: '16px',
+                              fontSize: '14px',
+                            }}
+                          >
+                            <Typography variant="body2" color="#5d87ff">
+                              <i className="fas fa-calendar-alt"></i> Lịch rảnh: 16:00, 24/08/2024
+                            </Typography>
+                          </Box>
+
+                          {/* Stats Section */}
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px' }}>
+                            {/* Mentee count */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <IconUser size={18} stroke={1.5} />
+                              <Typography variant="body2" color="#2c3e50">
+                                10 mentee
+                              </Typography>
+                            </Box>
+
+                            {/* Likes count */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <IconHeart size={18} stroke={1.5} />
+                              <Typography variant="body2" color="#2c3e50">
+                                18
+                              </Typography>
+                            </Box>
+                          </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })
+            ) : (
+              <Typography sx={{ textAlign: 'center', width: '100%' }}>
+                Không có người hướng dẫn nào...
+              </Typography>
+            )}
+          </Grid>
+
+          {/* Pagination */}
+          <Box display="flex" justifyContent="center" mt={4}>
+            <Pagination
+              count={Math.ceil(filteredMentors.length / itemsPerPage)}
+              page={currentPage}
+              onChange={(event, value) => setCurrentPage(value)}
+              color="primary"
+            />
+          </Box>
+        </Grid>
+      </Box>
     </PageContainer>
   );
 };
 
-export default Mentor
+export default Mentor;

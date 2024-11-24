@@ -14,6 +14,8 @@ import ConfirmDialog from './data/FormDeleteMentor';
 import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
 //icon
 import SearchIcon from '@mui/icons-material/Search';
 //sql
@@ -42,7 +44,7 @@ function Mentor() {
         setRows(Array.isArray(response?.data?.mentors) ? response.data.mentors : []);
       } catch (error) {
         console.error('Error fetching mentors:', error);
-        setRows([]); // Set rows to empty array in case of error
+        setRows([]); 
       }
     };
     fetchMentor();
@@ -228,9 +230,12 @@ function Mentor() {
                           author: (
                             <VuiBox style={{ display: 'flex', alignItems: 'center' }}>
                               <img
-                                src={user?.imageUrl || 'default-image-url.jpg'}
-                                alt="User Avatar"
+                                src={user?.imageUrl ? user.imageUrl : avatardefault}
+                                alt="Hình ảnh người dùng"
                                 style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                                onError={(e) => {
+                                  e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                }}
                               />
 
                               <VuiBox style={{ display: 'flex', flexDirection: 'column' }}>

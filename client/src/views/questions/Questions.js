@@ -697,7 +697,6 @@ const Questions = () => {
 
   return (
     <PageContainer title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code" description="Đây là trang đặt câu hỏi">
-      <DashboardCard>
         <Grid container spacing={2}>
           {/* Left Column */}
           <Grid item md={8}>
@@ -2032,7 +2031,6 @@ const Questions = () => {
             {snackbarMessage}
           </Alert>
         </Snackbar>
-      </DashboardCard>
     </PageContainer>
   );
 };

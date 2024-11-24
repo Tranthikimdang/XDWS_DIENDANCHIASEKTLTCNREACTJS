@@ -296,7 +296,7 @@ const Home = () => {
                       </SubText>
                       <ActionButton
                         variant="contained"
-                        href="/auth/mentor"
+                        href="/auth/registerMentor"
                         sx={{
                           textTransform: 'none',
                           backgroundColor: '#0057e6',
