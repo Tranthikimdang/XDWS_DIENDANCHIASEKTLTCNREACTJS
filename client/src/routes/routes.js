@@ -18,7 +18,6 @@ import productDetail from "../views/product/components/detail"
 import productDetailAdmin from "../pages/admin/productDetail"
 import AddProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
 import EditProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
-
 // import Article from "src/pages/admin/article";
 import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";

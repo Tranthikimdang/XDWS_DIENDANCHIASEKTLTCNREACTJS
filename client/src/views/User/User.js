@@ -17,7 +17,6 @@ import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import UserAPI from 'src/apis/UserApI';
 import api from 'src/apis/mentorApi';
 
-const storage = getStorage();
 const defaultImageUrl = 'path-to-default-image.jpg';
 
 const User = () => {

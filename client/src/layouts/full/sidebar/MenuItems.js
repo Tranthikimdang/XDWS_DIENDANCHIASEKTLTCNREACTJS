@@ -41,24 +41,13 @@ const Menuitems = [
     title: 'Người dùng',
     icon: IconUser,
     href: '/user',
-  }
-  // Uncomment and add other items as needed
-  // {
-  //   navlabel: true,
-  //   subheader: 'Auth',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'LogOut',
-  //   icon: IconLogin,
-  //   href: '/auth/login',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Register',
-  //   icon: IconUserPlus,
-  //   href: '/auth/register',
-  // },
+  },
+  {
+  id: uniqueId(),
+  title: 'Liên hệ',
+  icon: IconUsers,
+  href: '/contact', 
+  },
 ];
 
 export default Menuitems;

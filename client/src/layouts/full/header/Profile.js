@@ -98,6 +98,12 @@ const Profile = () => {
           </ListItemIcon>
           <ListItemText>Thông báo</ListItemText>
         </MenuItem>
+        <MenuItem component={Link} to={`/editProfile/${user?.id}`}>
+          <ListItemIcon>
+            <IconPencil width={20} />
+          </ListItemIcon>
+          <ListItemText>Sửa tài khoản</ListItemText>
+        </MenuItem>
         {/* <MenuItem>
           <ListItemIcon>
             <IconListCheck width={20} />

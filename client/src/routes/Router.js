@@ -14,6 +14,7 @@ const AdminLayout = Loadable(lazy(() => import('../layouts/admin'))); // Ensure 
 /* ****Pages***** */
 const Dashboard = Loadable(lazy(() => import('../views/dashboard/Dashboard')));
 const Article = Loadable(lazy(() => import('../views/article/Article')));
+const Contact = Loadable(lazy(() => import('../views/contact/Contact')));
 const CateArticleDetail = Loadable(
   lazy(() => import('../views/article/components/CateArticleDetail')),
 );
@@ -38,6 +39,8 @@ const UserList = Loadable(lazy(() => import('../views/User/User')));
 const Inter = Loadable(lazy(() => import('../views/inter')));
 const Mentor = Loadable(lazy(() => import('../views/mentor/mentor')));
 const RegisterMentor = Loadable(lazy(() => import('../views/mentor/registerMentor')));
+const EditProfile = Loadable(lazy(() => import('../views/profile/editProfile')));
+
 
 //admin
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
@@ -111,6 +114,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
@@ -132,7 +136,7 @@ const renderRoutes = (role) => {
         { path: '/cart', exact: true, element: <Cart /> },
         { path: '/orders', exact: true, element: <Orders /> },
         { path: '/payment', exact: true, element: <Payment /> },
-
+        { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
       ],
     });
     routes.push({
@@ -201,7 +205,8 @@ const renderRoutes = (role) => {
         { path: '/productDetail/:id', exact: true, element: <ProductDetail /> },
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
-        { path: '/cart', exact: true, element: <Cart /> },        
+        { path: '/cart', exact: true, element: <Cart /> },  
+        { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },      
         { path: '*', element: <Navigate to="/auth/404" /> },
         
       ],
@@ -214,6 +219,7 @@ const renderRoutes = (role) => {
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
+        { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
         { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
@@ -232,6 +238,7 @@ const renderRoutes = (role) => {
         { path: '/cateDetail/:id', exact: true, element: <CateDetail /> },
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
+        { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

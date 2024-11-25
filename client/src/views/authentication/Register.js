@@ -1,18 +1,21 @@
 /* eslint-disable no-unused-vars */
 import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import React, { useRef, useState } from 'react';
 import Logo from 'src/layouts/full/shared/logo/Logo';
 import emailjs from 'emailjs-com';
-import { GoogleLogin } from 'react-google-login';
-import axios from "axios";
+import axios from 'axios';
 import { Box } from '@mui/material';
 //sql
+import context from 'src/store/context';
 import apiUser from '../../apis/UserApI';
-
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import { setAccount } from 'src/store/action';
+import bcrypt from 'bcryptjs';
+import { TextField } from '@mui/material';
 const AuthRegister = ({ subtext }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -22,9 +25,11 @@ const AuthRegister = ({ subtext }) => {
     location: '',
     phone: '',
   });
+  const [state, dispatch] = useContext(context);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const imageRef = useRef(null);
 
   const navigate = useNavigate();
   const recordCreated = useRef();
@@ -88,7 +93,7 @@ const AuthRegister = ({ subtext }) => {
       const users = await apiUser.getUsersList(); // Lấy tất cả người dùng
 
       // Kiểm tra xem có email nào trùng với email đã nhập không
-      const exists = users.data.users.some(user => user.email === email);
+      const exists = users.data.users.some((user) => user.email === email);
       return exists; // Trả về true nếu email đã tồn tại, false nếu không
     } catch (error) {
       console.error('Lỗi khi kiểm tra email:', error);
@@ -98,21 +103,20 @@ const AuthRegister = ({ subtext }) => {
 
   const uploadImage = async (file) => {
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append('image', file);
 
     try {
-      const response = await axios.post("http://localhost:3000/api/upload", formData, {
+      const response = await axios.post('http://localhost:3000/api/upload', formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
       return response.data.imagePath; // Trả về đường dẫn hình ảnh
     } catch (error) {
-      console.error("Error uploading image:", error);
-      throw new Error("Failed to upload image. Please try again.");
+      console.error('Error uploading image:', error);
+      throw new Error('Failed to upload image. Please try again.');
     }
   };
-
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -131,22 +135,27 @@ const AuthRegister = ({ subtext }) => {
         alert('Đã có tài khoản được tạo bằng email này.');
         return;
       } else {
-        const file = e.target.elements.formImageUrl.files[0];
+        const file = imageRef.current.files[0];
         let imageUrl = '';
-
+  
         if (file) {
           imageUrl = await uploadImage(file);
         }
 
+        // **Băm mật khẩu trước khi gửi**
+        const salt = bcrypt.genSaltSync(10); // Sinh Salt
+        const hashedPassword = bcrypt.hashSync(formData.password, salt); // Băm mật khẩu
+
         const newUser = await addUser({
           ...formData,
+          password: hashedPassword, // Sử dụng mật khẩu đã băm
           imageUrl,
         });
 
         if (newUser) {
-          localStorage.setItem('user', JSON.stringify(newUser));
+          localStorage.setItem('user', JSON.stringify(newUser.user));
           alert('Đăng ký thành công!');
-          onCancel();  // Chuyển hướng sau khi đăng ký thành công
+          onCancel(); // Chuyển hướng sau khi đăng ký thành công
         }
       }
     } catch (error) {
@@ -154,7 +163,6 @@ const AuthRegister = ({ subtext }) => {
       console.error('Lỗi đăng ký:', error);
     }
   };
-
 
   // Xử lý khi thay đổi thông tin trong form
   const handleChange = (e) => {
@@ -165,68 +173,60 @@ const AuthRegister = ({ subtext }) => {
     }));
   };
 
-  const checkEmailGoogle = async (email) => {
-    try {
-      // Giả sử bạn có một API để lấy tất cả người dùng
-      const response = await apiUser.getAllUsers(); // Gọi API để lấy danh sách người dùng
-      const users = response.data.users; // Dữ liệu trả về từ API
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // Lấy thông tin người dùng từ Google
+        const profile = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        }).then((res) => res.json());
 
-      // Kiểm tra xem có người dùng nào có email khớp hay không
-      const exists = users.some(user => user.email === email); // Trả về true nếu có ít nhất một người dùng có email khớp
-      return exists;
-    } catch (error) {
-      console.error('Lỗi khi kiểm tra email:', error);
-      return false; // Trả về false nếu có lỗi xảy ra
-    }
-  };
+        const { email, name } = profile;
 
-  const responseGoogle = async (response) => {
-    if (response.error) {
-      console.error(response.error);
-      return;
-    }
+        // Kiểm tra người dùng có tồn tại trong hệ thống không
+        const {
+          data: { users },
+        } = await apiUser.getUsersList();
+        const existingUser = users.find((user) => user.email === email);
 
-    const email = response;
+        if (existingUser) {
+          // Nếu có, lưu thông tin người dùng vào localStorage và dispatch account
+          localStorage.setItem('user', JSON.stringify(existingUser));
+          dispatch(setAccount(existingUser));
+          navigate('/home');
+        } else {
+          // Nếu không có, tạo người dùng mới
+          const rawPassword = Math.random().toString(36).slice(-8); // Mật khẩu ngẫu nhiên
+          const hashedPassword = bcrypt.hashSync(rawPassword, 10); // Băm mật khẩu trước khi lưu
 
-    // try {
-    //   const emailExists = await checkEmailGoogle(email);
+          const newUser = { name, email, password: hashedPassword, role: 'user' };
 
-    //   const generateRandomPassword = () => {
-    //     return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
-    //   };
-    //   const generatedPassword = generateRandomPassword();
+          const { data: createdUser } = await apiUser.addUser(newUser);
 
-    //   if (emailExists) {
-    //     alert('Tài khoản đã tồn tại với email này.');
-    //     return;
-    //   }
+          if (createdUser) {
+            // Lưu thông tin người dùng mới vào localStorage và dispatch account
+            localStorage.setItem('user', JSON.stringify(createdUser));
+            dispatch(setAccount(createdUser));
+            // Gửi email thông báo mật khẩu
+            sendEmail({
+              name: newUser.name,
+              email: newUser.email,
+              message: `Mật khẩu của bạn là: ${rawPassword}`, // Gửi mật khẩu gốc (chưa băm)
+            });
 
-    //   // Nếu email không tồn tại, tạo người dùng mới
-    //   const newUser = {
-    //     name: response.wt.Ad,
-    //     email: response.wt.cu,
-    //     password: generatedPassword,
-    //     location: '', // Cung cấp thông tin nếu cần
-    //     phone: '', // Cung cấp thông tin nếu cần
-    //     role: 'user',
-    //   };
-
-    //   await addUser(newUser);
-    //   localStorage.setItem('user', JSON.stringify(newUser));
-
-    //   // Gửi email chứa mật khẩu
-    //   sendEmail({
-    //     name: newUser.name,
-    //     email: newUser.email,
-    //     message: `Mật khẩu của bạn là: ${generatedPassword}`,
-    //   });
-
-    //   alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-    // } catch (error) {
-    //   console.error('Error during Google login:', error);
-    // }
-  };
-
+            alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+            navigate('/auth/inter');
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi trong xử lý đăng nhập Google:', error);
+        alert('Đã xảy ra lỗi, vui lòng thử lại.');
+      }
+    },
+    onError: (error) => {
+      console.error('Lỗi Google Login:', error);
+    },
+  });
   const onCancel = () => {
     navigate('/auth/inter');
   };
@@ -292,175 +292,176 @@ const AuthRegister = ({ subtext }) => {
               <h3 className="text-center mb-4">Đăng ký</h3>
               {subtext}
               <Form onSubmit={handleRegister}>
-                <Form.Group controlId="formName">
-                  <Form.Label className="d-flex justify-content-start">Họ tên</Form.Label>
-                  <Form.Control
+                {/* Họ tên */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <TextField
+                    label="Họ tên"
+                    fullWidth
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     placeholder="Tên của bạn"
-                    isInvalid={!!errors.name} // Kiểm tra lỗi cho input này
+                    error={!!errors.name}
+                    helperText={errors.name}
                   />
-                  {errors.name && <Form.Text className="text-danger">{errors.name}</Form.Text>}
-                </Form.Group>
-                <Form.Group controlId="formImageUrl">
-                  <Form.Label className="d-flex justify-content-start">Ảnh đại diện</Form.Label>
-                  <Form.Control
+                </div>
+
+                {/* Ảnh đại diện */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <TextField
+                    fullWidth
                     type="file"
                     name="imageUrl"
-                    // Không cần sử dụng value cho input file
-                    onChange={handleChange}
-                    isInvalid={!!errors.imageUrl}
+                    inputRef={imageRef} // Liên kết với ref
+                    error={!!errors.imageUrl}
+                    helperText={errors.imageUrl}
                   />
-                  {errors.imageUrl && (
-                    <Form.Text className="text-danger">{errors.imageUrl}</Form.Text>
-                  )}
-                </Form.Group>
-                <Form.Group controlId="formEmail">
-                  <Form.Label className="d-flex justify-content-start">Email</Form.Label>
-                  <Form.Control
+                </div>
+
+                {/* Email */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <TextField
+                    label="Email"
+                    fullWidth
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="Nhập mail"
-                    isInvalid={!!errors.email}
+                    error={!!errors.email}
+                    helperText={errors.email}
                   />
-                  {errors.email && <Form.Text className="text-danger">{errors.email}</Form.Text>}
-                </Form.Group>
-                <Form.Group controlId="formPhone">
-                  <Form.Label className="d-flex justify-content-start">Số điện thoại</Form.Label>
-                  <Form.Control
+                </div>
+
+                {/* Số điện thoại */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <TextField
+                    label="Số điện thoại"
+                    fullWidth
                     type="text"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="Nhập số điện thoại"
-                    isInvalid={!!errors.phone}
+                    error={!!errors.phone}
+                    helperText={errors.phone}
                   />
-                  {errors.phone && <Form.Text className="text-danger">{errors.phone}</Form.Text>}
-                </Form.Group>
-                <Form.Group controlId="formLocation">
-                  <Form.Label className="d-flex justify-content-start">Địa chỉ</Form.Label>
-                  <Form.Control
+                </div>
+
+                {/* Địa chỉ */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <TextField
+                    label="Địa chỉ"
+                    fullWidth
                     type="text"
                     name="location"
                     value={formData.location}
                     onChange={handleChange}
                     placeholder="Nhập địa chỉ"
-                    isInvalid={!!errors.location}
+                    error={!!errors.location}
+                    helperText={errors.location}
                   />
-                  {errors.location && (
-                    <Form.Text className="text-danger">{errors.location}</Form.Text>
-                  )}
-                </Form.Group>
-                <Form.Group controlId="formPassword">
-                  <Form.Label className="d-flex justify-content-start">Mật khẩu</Form.Label>
-                  <div className="position-relative">
-                    <Form.Control
-                      type={showPassword ? 'text' : 'password'}
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="Nhập password"
-                      isInvalid={!!errors.password}
-                    />
-                    {errors.password && (
-                      <Form.Text className="text-danger">{errors.password}</Form.Text>
-                    )}
-                    <Button
-                      variant="link"
-                      onClick={handleClickShowPassword}
-                      style={{
-                        position: 'absolute',
-                        right: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                      }}
-                    >
-                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                    </Button>
-                  </div>
-                </Form.Group>
-                <Form.Group controlId="formConfirmPassword">
-                  <Form.Label className="d-flex justify-content-start">
-                    Xác nhận mật khẩu
-                  </Form.Label>
-                  <div className="position-relative">
-                    <Form.Control
-                      type={showConfirmPassword ? 'text' : 'password'}
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      placeholder="Xác nhận"
-                      isInvalid={!!errors.confirmPassword}
-                    />
-                    {errors.confirmPassword && (
-                      <Form.Text className="text-danger">{errors.confirmPassword}</Form.Text>
-                    )}
-                    <Button
-                      variant="link"
-                      onClick={handleClickShowConfirmPassword}
-                      style={{
-                        position: 'absolute',
-                        right: '10px',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                      }}
-                    >
-                      <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
-                    </Button>
-                  </div>
-                </Form.Group>
+                </div>
+
+                {/* Mật khẩu */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <TextField
+                    label="Mật khẩu"
+                    fullWidth
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="Nhập password"
+                    error={!!errors.password}
+                    helperText={errors.password}
+                  />
+                  <Button
+                    variant="link"
+                    onClick={handleClickShowPassword}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                    }}
+                  >
+                    {/* <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} /> */}
+                  </Button>
+                </div>
+
+                {/* Xác nhận mật khẩu */}
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <TextField
+                    label="Xác nhận mật khẩu"
+                    fullWidth
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="Xác nhận"
+                    error={!!errors.confirmPassword}
+                    helperText={errors.confirmPassword}
+                  />
+                  <Button
+                    variant="link"
+                    onClick={handleClickShowConfirmPassword}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                    }}
+                  >
+                    {/* <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} /> */}
+                  </Button>
+                </div>
+
+                {/* Đăng ký Button */}
                 <Button type="submit" variant="primary" className="w-100 mt-3">
                   Đăng ký
                 </Button>
-                <div
-                  style={{
-                    // Chỉnh sửa cú pháp style
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <div className="google-login-btn m-3 border-0">
-                    <GoogleLogin
-                      clientId="270409308877-6u9dv3fmnf2kdn7gb0d6aqbegrnlmqvo.apps.googleusercontent.com"
-                      buttonText=""
-                      onSuccess={responseGoogle}
-                      onFailure={responseGoogle}
-                      cookiePolicy={'single_host_origin'}
-                      redirectUri={process.env.REACT_APP_REDIRECT_URI}
-                      ux_mode="popup"
-                      render={(renderProps) => (
-                        <button
-                          className="google-login-btn btn border-0 btn-outline-info"
-                          onClick={renderProps.onClick}
-                          disabled={renderProps.disabled}
-                        >
-                          <img
-                            className="google-icon"
-                            src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                            alt="Google"
-                            style={{ width: '24px', height: '24px', marginRight: '8px' }}
-                          />
-                          Đăng nhập với google
-                        </button>
-                      )}
-                    />
-                  </div>
+
+                {/* Google Login Button */}
+                <div>
+                  <Box
+                    mt={4}
+                    mb={1}
+                    sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                  >
+                    <Button
+                      variant="outlined"
+                      color="info"
+                      className="google-login-btn btn border-0 btn-outline-info"
+                      onClick={googleLogin}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '8px 16px',
+                        textTransform: 'none',
+                      }}
+                    >
+                      <img
+                        src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+                        alt="Google"
+                        style={{ width: '24px', height: '24px', marginRight: '8px' }}
+                      />
+                      Đăng nhập với Google
+                    </Button>
+                  </Box>
                 </div>
               </Form>
 
               <div className="text-center mt-3">
                 <span>Bạn đã có tài khoản? </span>
-                <Link to="/auth/login">Đăng nhập</Link>
+                <Link to="/home">Đăng nhập</Link>
               </div>
             </Card>
           </Col>
         </Row>
-      </Container> 
+      </Container>
     </div>
   );
 };
