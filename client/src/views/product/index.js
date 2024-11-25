@@ -17,7 +17,6 @@ import MuiAlert from '@mui/material/Alert';
 
 import CourseApi from '../../apis/CourseApI';
 import CateCourseApi from '../../apis/Categories_courseApI';
-import StudyTimeApi from '../../apis/StudyTimeApI';
 import './index.css';
 
 // Tạo Alert để hiển thị snackbar
@@ -30,7 +29,6 @@ const Course = () => {
   const [cates, setCates] = useState([]);
   const [catesMap, setCatesMap] = useState({});
   const [products, setProducts] = useState([]);
-  const [StudyTime, setStudyTime] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -49,6 +47,7 @@ const Course = () => {
       try {
         const response = await CourseApi.getCoursesList();
         const course = response.data.courses;
+        console.log(course);
 
         setProducts(course);
       } catch (error) {
@@ -60,24 +59,6 @@ const Course = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const fetchStudyTime = async () => {
-      setLoading(true);
-      try {
-        const response = await StudyTimeApi.getStudyTimesList();
-        const course = response.data.studyTimes;
-        console.log(course);
-
-        setStudyTime(course);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStudyTime();
-  }, []);
-
   // Fetch categories using API
   useEffect(() => {
     const fetchCategories = async () => {
@@ -85,6 +66,7 @@ const Course = () => {
       try {
         const response = await CateCourseApi.getList();
         const cate = response;
+        console.log(cate);
         setCates(cate);
 
         const categoriesMap = response.data.reduce((map, category) => {
@@ -100,10 +82,6 @@ const Course = () => {
     };
     fetchCategories();
   }, []);
-
-  const hasStudyAccess = (productId) => {
-    return StudyTime.some((study) => study.user_id == userId && study.course_id == productId);
-  };
 
   useEffect(() => {
     if (snackbarOpen) {
@@ -138,7 +116,7 @@ const Course = () => {
             product_id: product.id,
             total: 'total',
             note: '',
-            order_day: new Date(),
+            order_day: new Date()
           });
 
           setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
@@ -160,26 +138,16 @@ const Course = () => {
   };
 
   return (
-    <PageContainer title="Products" description="This is products">
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
+    <PageContainer title="Danh sách khóa học | Share Code" description="Đây là trang danh sách khóa học">
       <Box sx={{ padding: { xs: '10px' } }}>
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
               Các khóa học của chúng tôi
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
-              A collection of products sharing experiences of self-learning programming online and
-              web development techniques.
+              Tổng hợp các khoá học chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật
+              lập trình web.
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -323,29 +291,16 @@ const Course = () => {
                                 <b>Giảm giá sốc</b>
                               </h6>
                               <div className="d-flex flex-column mt-4">
-                                {/* Kiểm tra quyền truy cập để hiển thị nút */}
-                                {hasStudyAccess(product.id) ? (
-                                   <button
-                                   className="btn btn-success btn-sm"
-                                   type="button"
-                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
-                                 >
-                                   Bắt đầu học
-                                 </button>
-                                ) : (
-                                  <>
-                                    <button className="btn btn-primary btn-sm" type="button">
-                                      Mua ngay
-                                    </button>
-                                    <button
-                                      className="btn btn-outline-primary btn-sm mt-2"
-                                      type="button"
-                                      onClick={() => addToCart(product)}
-                                    >
-                                      Thêm vào giỏ hàng
-                                    </button>
-                                  </>
-                                )}
+                                <button className="btn btn-primary btn-sm" type="button">
+                                  Mua ngay
+                                </button>
+                                <button
+                                  className="btn btn-outline-primary btn-sm mt-2"
+                                  type="button"
+                                  onClick={() => addToCart(product)}
+                                >
+                                  Thêm vào giỏ hàng
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -392,6 +347,16 @@ const Course = () => {
           </Grid>
         </Grid>
       </Box>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </PageContainer>
   );
 };

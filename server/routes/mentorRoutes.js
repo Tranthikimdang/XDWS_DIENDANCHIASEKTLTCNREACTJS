@@ -1,17 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const { getMentors, getMentorById, updateMentor, deleteMentor } = require('../controllers/mentorController');
+const {
+    getAllMentors,
+    detailMentor,
+    createMentor,
+    updateMentor,
+    deleteMentor,
+} = require('../controllers/mentorController'); // Đảm bảo đường dẫn này đúng
 
-// Xem danh sách tất cả Mentor
-router.get('/mentors', getMentors);
+// Lấy danh sách tất cả mentors
+router.get('/', getAllMentors);
 
-// Xem chi tiết một Mentor
-router.get('/mentors/:id', getMentorById);
+// Xem chi tiết mentors
+router.get('/:id', detailMentor);
 
-// Cập nhật thông tin Mentor
-router.put('/mentors/:id', updateMentor);
+// Tạo mentor mới
+router.post('/', createMentor);
 
-// Xóa Mentor (đánh dấu xóa)
-router.delete('/mentors/:id', deleteMentor);
+// Cập nhật mentor theo ID
+router.put('/:id', updateMentor);
+
+// Xóa mentor theo ID
+router.delete('/:id', deleteMentor);
 
 module.exports = router;

@@ -35,8 +35,9 @@ const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
 const UserList = Loadable(lazy(() => import('../views/User/User')));
-const Mentor = Loadable(lazy(() => import('../views/mentor/mentor')));
 const Inter = Loadable(lazy(() => import('../views/inter')));
+const Mentor = Loadable(lazy(() => import('../views/mentor/mentor')));
+const RegisterMentor = Loadable(lazy(() => import('../views/mentor/registerMentor')));
 
 //admin
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
@@ -95,7 +96,7 @@ const renderRoutes = (role) => {
         { path: '/auth/forgot-password', element: <ForgotPassword /> },
         { path: '/auth/reset-password/:userId', element: <ResetPassword /> },
         { path: '/auth/inter', exact: true, element: <Inter /> },
-        { path: '/auth/mentor', exact: true, element: <Mentor /> },
+        { path: '/auth/registerMentor', exact: true, element: <RegisterMentor /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     },
@@ -120,6 +121,8 @@ const renderRoutes = (role) => {
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> },
+        { path: '/mentor', exact: true, element: <Mentor /> },
+        { path: '/registerMentor', exact: true, element: <RegisterMentor /> },
         { path: '/profile/:userId', exact: true, element: <Profile /> },
         { path: '/commentDetail/:id', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },
@@ -185,7 +188,8 @@ const renderRoutes = (role) => {
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
         { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
-        // { path: '/mentor', exact: true, element: <Mentor /> },
+        { path: '/mentor', exact: true, element: <Mentor /> },
+        { path: '/registerMentor', exact: true, element: <RegisterMentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
@@ -219,6 +223,8 @@ const renderRoutes = (role) => {
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
         { path: '/ui/shadow', exact: true, element: <Shadow /> },
         { path: '/user', exact: true, element: <UserList /> }, 
+        { path: '/mentor', exact: true, element: <Mentor /> }, 
+        { path: '/RegisterMentor', exact: true, element: <RegisterMentor /> },
         { path: '/profile/:userId', exact: true, element: <Profile /> },
         { path: '/commentDetail', exact: true, element: <CommentDetail /> },
         { path: '/products', exact: true, element: <ProductClient /> },

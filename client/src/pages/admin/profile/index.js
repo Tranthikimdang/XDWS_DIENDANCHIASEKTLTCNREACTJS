@@ -1,6 +1,3 @@
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import TwitterIcon from "@mui/icons-material/Twitter";
 import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
 // Images
@@ -12,7 +9,10 @@ import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 // Overview page components
 import Header from "./components/Header";
 import Welcome from "../profile/components/Welcome/index";
-
+//Icon
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
 
 function Overview() {
   const [userInfo, setUserInfo] = useState({});

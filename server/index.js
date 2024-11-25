@@ -6,9 +6,8 @@ const courseDetailRoutes = require("./routes/courseDetailRoutes");
 const userRouter = require("./routes/userRoutes");
 const orderRouter = require('./routes/orderRoutes');
 const hashtagRouter = require('./routes/hashtagRoutes')
-const mentorRoutes = require('./routes/mentorRoutes');
+const mentorRouter = require('./routes/mentorRoutes');
 const questionRouter = require('./routes/questionRoutes');
-const studyTimeRouter = require('./routes/studyRoutes'); 
 
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
@@ -81,10 +80,7 @@ app.use("/api/users", userRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
 app.use("/api/questions", questionRouter);
-app.use("/api/study-times", studyTimeRouter);
-app.use("/api", mentorRoutes);
-app.use(mentorRoutes);       // Sử dụng mentor routes
-
+app.use("/api/mentors", mentorRouter);
 // Khởi chạy server
 app.listen(port, async () => {
   try {
