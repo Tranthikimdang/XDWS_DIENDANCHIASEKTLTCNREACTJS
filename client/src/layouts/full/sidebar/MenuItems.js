@@ -2,7 +2,7 @@ import {
   IconHome, IconUsers, IconBrandYoutube
 } from '@tabler/icons';
 import { IconUser } from '@tabler/icons-react';
-import { IconInfoSquareRounded } from '@tabler/icons-react';
+import { IconInfoSquareRounded, IconFilePhone, IconUserCircle, IconUserCode  } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
 const Menuitems = [
@@ -33,7 +33,7 @@ const Menuitems = [
   {
     id: uniqueId(),
     title: 'Người cố vấn',
-    icon: IconUsers,
+    icon: IconUserCode,
     href: '/mentor',
   },
   {
@@ -41,24 +41,13 @@ const Menuitems = [
     title: 'Người dùng',
     icon: IconUser,
     href: '/user',
-  }
-  // Uncomment and add other items as needed
-  // {
-  //   navlabel: true,
-  //   subheader: 'Auth',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'LogOut',
-  //   icon: IconLogin,
-  //   href: '/auth/login',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Register',
-  //   icon: IconUserPlus,
-  //   href: '/auth/register',
-  // },
+  },
+  {
+  id: uniqueId(),
+  title: 'Liên hệ',
+  icon: IconFilePhone,
+  href: '/contact', 
+  },
 ];
 
 export default Menuitems;

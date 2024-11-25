@@ -138,7 +138,7 @@ const Mentor = () => {
             {/* Lĩnh vực quan tâm */}
             <TextField
               select
-              label="Lĩnh vực quan tâm"
+              label="Từ khóa quan tâm"
               variant="outlined"
               sx={{
                 flex: '1 1 300px',
@@ -154,7 +154,7 @@ const Mentor = () => {
               SelectProps={{
                 native: true,
               }}
-              onChange={(e) => console.log('Lĩnh vực chọn:', e.target.value)}
+              onChange={(e) => console.log('Từ khóa  chọn:', e.target.value)}
             >
               <option value="" disabled>
                 Từ khóa quan tâm
