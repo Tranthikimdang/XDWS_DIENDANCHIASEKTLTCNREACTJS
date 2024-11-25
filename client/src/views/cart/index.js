@@ -1,11 +1,9 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Grid, Box, Typography, Modal, Button, TextField } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import { collection, onSnapshot, query, where, setDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig';
 import './index.css';
 import DeleteIcon from '@mui/icons-material/Delete';
+import OrderAPI from '../../apis/OrderApI';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -22,38 +20,52 @@ const Cart = () => {
   const userId = user ? user.id : null;
 
   useEffect(() => {
-    if (userId) {
-      const q = query(collection(db, 'orders'), where('user_id', '==', userId));
-
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const cartData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setCartItems(cartData);
-
-        if (cartData.length === 0) {
-          setShowQRCodeDialog(false);
+    const fetchUserInfo = async () => {
+      if (userId) {
+        try {
+          const response = await OrderAPI.getUser(userId);
+          setName(response.data.name);
+          setEmail(response.data.email);
+        } catch (error) {
+          console.error('Error fetching user information:', error);
         }
-      });
+      }
+    };
 
-      return () => unsubscribe();
-    }
+    fetchUserInfo();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      if (userId) {
+        try {
+          const response = await OrderAPI.getCartItems(userId);
+          setCartItems(response.data);
+
+          if (response.data.length === 0) {
+            setShowQRCodeDialog(false);
+          }
+        } catch (error) {
+          console.error('Error fetching cart items:', error);
+        }
+      }
+    };
+
+    fetchCartItems();
   }, [userId]);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const productsQuery = collection(db, 'products');
-      const unsubscribe = onSnapshot(productsQuery, (snapshot) => {
+      try {
+        const response = await OrderAPI.getProducts();
         const productData = {};
-        snapshot.docs.forEach((doc) => {
-          productData[doc.id] = doc.data();
+        response.data.forEach((product) => {
+          productData[product.id] = product;
         });
         setProducts(productData);
-      });
-
-      return () => unsubscribe();
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
     };
 
     fetchProducts();
@@ -61,10 +73,7 @@ const Cart = () => {
 
   const handleRemove = async (id) => {
     try {
-      // Xóa sản phẩm khỏi Firestore
-      await deleteDoc(doc(db, 'orders', id));
-  
-      // Cập nhật UI sau khi xóa thành công
+      await OrderAPI.removeCartItem(id);
       setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
     } catch (error) {
       console.error('Error removing item:', error);
@@ -96,12 +105,9 @@ const Cart = () => {
         return total + discount;
       }, 0);
 
-      const productNames = cartItems
-        .map((item) => products[item.product_id]?.name || '.')
-        // .join(', ');
+      const productNames = cartItems.map((item) => products[item.product_id]?.name || '.').join(', ');
 
-      // Create order in the 'orders' collection
-      await setDoc(doc(collection(db, 'orders')), {
+      const order = {
         user_id: userId,
         user_name: name,
         user_email: email,
@@ -113,22 +119,19 @@ const Cart = () => {
         totalAmount,
         paymentMethod: 'e_wallet',
         createdAt: new Date(),
-      });
+      };
 
-      // Remove items from cart after successful checkout
-      await Promise.all(
-        cartItems.map((item) => deleteDoc(doc(db, 'orders', item.id)))
-      );
+      await OrderAPI.createOrder(order);
+
+      await Promise.all(cartItems.map((item) => OrderAPI.removeCartItem(item.id)));
 
       alert('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
 
-      // Generate QR code URL with total amount and product names as a note
       const qrCodeUrl = `https://qr.sepay.vn/img?bank=Techcombank&acc=19071740706018&amount=${totalAmount}&des='Khoá Học '${encodeURIComponent(
         productNames,
       )}`;
       setQRCodeUrl(qrCodeUrl);
 
-      // Show QR code dialog for e-wallet payment
       setShowQRCodeDialog(true);
     } catch (error) {
       console.error('Error during checkout:', error);
@@ -169,9 +172,7 @@ const Cart = () => {
                                   />
                                 )}
                                 <div className="ms-3">
-                                  <h5>
-                                    {products[item.product_id]?.name || ''}
-                                  </h5>
+                                  <h5>{products[item.product_id]?.name || ''}</h5>
                                   <p className="small mb-0">ID sản phẩm: {item.product_id}</p>
                                 </div>
                               </div>

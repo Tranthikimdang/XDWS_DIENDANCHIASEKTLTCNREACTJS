@@ -38,7 +38,7 @@ const Course = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-
+  const [cartLoading, setCartLoading] = useState({});
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
 
@@ -118,44 +118,55 @@ const Course = () => {
     product.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
+
+  const formatVNPrice = (price) => {
+    if (!price) return 'N/A';
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   const addToCart = async (product) => {
-    if (userId) {
-      try {
-        const existingOrder = await CourseApi.checkOrderExists(userId, product.id);
-
-        if (existingOrder.data.exists) {
-          setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
-          setSnackbarSeverity('warning');
-          setSnackbarOpen(true);
-        } else {
-          await CourseApi.addToCart({
-            user_id: userId,
-            product_id: product.id,
-            total: 'total',
-            note: '',
-            order_day: new Date(),
-          });
-
-          setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
-          setSnackbarSeverity('success');
-          setSnackbarOpen(true);
-        }
-      } catch (error) {
-        console.error('Error adding product to cart:', error);
-        setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
-      }
-    } else {
-      console.error('User is not logged in');
-      setSnackbarMessage('Bạn vẫn chưa đăng nhập');
-      setSnackbarSeverity('error');
+    if (!userId) {
+      setSnackbarMessage('Vui lòng đăng nhập để thêm vào giỏ hàng');
+      setSnackbarSeverity('warning');
       setSnackbarOpen(true);
+      return;
+    }
+  
+    setCartLoading(prev => ({ ...prev, [product.id]: true }));
+  
+    try {
+      // Check if product exists in cart
+      const existingOrder = await CourseApi.checkOrderExists(userId, product.id);
+  
+      if (existingOrder?.data?.exists) {
+        setSnackbarMessage('Khóa học đã có trong giỏ hàng');
+        setSnackbarSeverity('warning');
+      } else {
+        // Add to cart
+        const cartData = {
+          user_id: userId,
+          product_id: product.id,
+          total: product.discount || product.price,
+          note: '',
+          order_day: new Date().toISOString()
+        };
+  
+        await CourseApi.addToCart(cartData);
+        setSnackbarMessage('Đã thêm khóa học vào giỏ hàng');
+        setSnackbarSeverity('success');
+      }
+    } catch (error) {
+      console.error('Lỗi thêm vào giỏ hàng:', error);
+      setSnackbarMessage('Không thể thêm vào giỏ hàng. Vui lòng thử lại');
+      setSnackbarSeverity('error');
+    } finally {
+      setSnackbarOpen(true);
+      setCartLoading(prev => ({ ...prev, [product.id]: false }));
     }
   };
 
@@ -262,17 +273,17 @@ const Course = () => {
                                 <span>Số lượng {product.quality}</span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
-                                <span>
-                                  <span className="text-primary"> • </span>Giá gốc: {product.price}{' '}
-                                  VND
-                                </span>
-                              </div>
-                              <div className="d-flex mt-1 mb-0 text-muted small">
-                                <span>
-                                  <span className="text-primary"> • </span>Giảm giá còn:{' '}
-                                  {product.discount} VND
-                                </span>
-                              </div>
+  <span>
+    <span className="text-primary"> • </span>Giá gốc:{' '}
+    {formatVNPrice(product.price)} VND
+  </span>
+</div>
+<div className="d-flex mt-1 mb-0 text-muted small">
+  <span>
+    <span className="text-primary"> • </span>Giảm giá còn:{' '}
+    {formatVNPrice(product.discount)} VND
+  </span>
+</div>
                               <div className="d-flex mt-1 mb-0 text-muted small d-flex justify-content-start">
                                 <span
                                   className="text-truncate d-inline-block "
@@ -295,48 +306,43 @@ const Course = () => {
 
                             {/* Price and Additional Details */}
                             <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
-                              <div className="align-items-center mb-1">
-                                <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
-                                  {product.discount
-                                    ? product.discount.toLocaleString('vi-VN')
-                                    : 'N/A'}{' '}
-                                  VND
-                                </h6>
-                                <span className="text-danger" style={{ fontSize: '0.7rem' }}>
-                                  <s>
-                                    {product.price ? product.price.toLocaleString('vi-VN') : 'N/A'}{' '}
-                                    VND
-                                  </s>
-                                </span>
-                              </div>
+                            <div className="align-items-center mb-1">
+  <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
+    {formatVNPrice(product.discount)} VND
+  </h6>
+  <span className="text-danger" style={{ fontSize: '0.7rem' }}>
+    <s>{formatVNPrice(product.price)} VND</s>
+  </span>
+</div>
                               <h6 className="text-success">
                                 <b>Giảm giá sốc</b>
                               </h6>
                               <div className="d-flex flex-column mt-4">
-                                {/* Kiểm tra quyền truy cập để hiển thị nút */}
-                                {hasStudyAccess(product.id) ? (
-                                   <button
-                                   className="btn btn-success btn-sm"
-                                   type="button"
-                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
-                                 >
-                                   Bắt đầu học
-                                 </button>
-                                ) : (
-                                  <>
-                                    <button className="btn btn-primary btn-sm" type="button">
-                                      Mua ngay
-                                    </button>
-                                    <button
-                                      className="btn btn-outline-primary btn-sm mt-2"
-                                      type="button"
-                                      onClick={() => addToCart(product)}
-                                    >
-                                      Thêm vào giỏ hàng
-                                    </button>
-                                  </>
-                                )}
-                              </div>
+                              <button
+  className="btn btn-outline-primary btn-sm"
+  type="button"
+  onClick={() => addToCart(product)}
+  disabled={cartLoading[product.id]}
+  style={{
+    width: '100%',
+    padding: '8px 16px',
+    fontSize: '14px',
+    borderRadius: '4px'
+  }}
+>
+  {cartLoading[product.id] ? (
+    <>
+      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+      Đang thêm...
+    </>
+  ) : (
+    <>
+      <i className="fas fa-shopping-cart me-2" />
+      Thêm vào giỏ hàng
+    </>
+  )}
+</button>
+</div>
                             </div>
                           </div>
                         </div>
