@@ -1,8 +1,11 @@
 import {
-  IconHome, IconUsers, IconBrandYoutube
-} from '@tabler/icons';
-import { IconUser } from '@tabler/icons-react';
-import { IconInfoSquareRounded, IconFilePhone, IconUserCircle, IconUserCode  } from '@tabler/icons-react';
+  IconHome,
+  IconInfoSquareRounded,
+  IconBrandYoutube,
+  IconUserCode,
+  IconUser,
+  IconFilePhone,
+} from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
 const Menuitems = [
@@ -43,10 +46,10 @@ const Menuitems = [
     href: '/user',
   },
   {
-  id: uniqueId(),
-  title: 'Liên hệ',
-  icon: IconFilePhone,
-  href: '/contact', 
+    id: uniqueId(),
+    title: 'Liên hệ',
+    icon: IconFilePhone,
+    href: '/contact',
   },
 ];
 

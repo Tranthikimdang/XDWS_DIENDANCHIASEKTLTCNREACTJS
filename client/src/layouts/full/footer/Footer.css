@@ -1,64 +1,141 @@
+/* Footer Styles */
 .footer {
-    background-color: #1a1a1a;
-    color: white;
-    padding: 40px 0;
-    font-size: 14px;
-  }
-  
-  .footer-container {
-    display: flex;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .footer-section {
-    flex: 1;
-    margin: 0 20px;
-  }
-  
-  .footer-section h2,
-  .footer-section h3 {
-    color: orange;
-    font-size: 16px;
-    margin-bottom: 15px;
-  }
-  
-  .footer-section ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .footer-section ul li {
-    margin-bottom: 10px;
-  }
-  
-  .dmca-logo {
-    margin-top: 10px;
-  }
-  
-  .social-icons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .icon {
-    background-color: white;
-    color: black;
-    padding: 5px;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    line-height: 30px;
-    cursor: pointer;
-  }
-  
-  .footer-bottom {
-    background-color: #101010;
-    padding: 20px 0;
-    text-align: center;
-    font-size: 12px;
-  }
-  
+  background-color: #f0f0f0; /* Màu nền xám nhạt */
+  color: #000000; /* Màu chữ đen */
+  padding: 40px 0;
+  font-size: 14px;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap; /* Đảm bảo responsive trên các thiết bị nhỏ */
+}
+
+.footer-section {
+  flex: 1;
+  margin: 20px;
+}
+
+.footer-section h2,
+.footer-section h3 {
+  color: #000000; /* Màu chữ đen thay cho màu cam */
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.footer-section ul li:hover {
+  color: #1e90ff; /* Màu xanh khi hover */
+}
+
+.dmca-logo {
+  margin-top: 10px;
+  width: 150px; /* Tăng kích thước logo */
+  height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
+}
+
+/* Lớp thêm để tùy chỉnh thêm kích thước logo nếu cần */
+.large-logo {
+  width: 250px; /* Kích thước tùy chỉnh thêm */
+}
+
+
+.social-icons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.icon {
+  background-color: #ffffff; /* Màu nền trắng */
+  color: #000000; /* Màu chữ đen */
+  padding: 5px;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.icon:hover {
+  background-color: #1e90ff; /* Màu xanh khi hover */
+  color: #ffffff; /* Màu chữ trắng khi hover */
+}
+
+.footer-bottom {
+  background-color: #dcdcdc; /* Màu nền xám đậm hơn cho phần dưới cùng */
+  padding: 20px 0;
+  text-align: center;
+  font-size: 12px;
+  color: #000000; /* Màu chữ đen */
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: #f0f0f0; /* Màu nền xám nhạt */
+  color: #000000; /* Màu chữ đen */
+  /* Các thuộc tính khác */
+}
+
+.sidebar a {
+  color: #000000;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.sidebar a:hover {
+  color: #1e90ff; /* Màu xanh khi hover */
+}
+
+
+:root {
+  --primary-bg-color: #f0f0f0;
+  --primary-text-color: #000000;
+  --hover-color: #1e90ff;
+}
+
+.footer {
+  background-color: var(--primary-bg-color);
+  color: var(--primary-text-color);
+  /* Các thuộc tính khác */
+}
+
+.footer-section h2,
+.footer-section h3 {
+  color: var(--primary-text-color);
+  /* Các thuộc tính khác */
+}
+
+.footer-section ul li:hover {
+  color: var(--hover-color);
+}
+
+.icon:hover {
+  background-color: var(--hover-color);
+  color: #ffffff;
+}
+
+.sidebar {
+  background-color: var(--primary-bg-color);
+  color: var(--primary-text-color);
+  /* Các thuộc tính khác */
+}
+
+.sidebar a:hover {
+  color: var(--hover-color);
+}
