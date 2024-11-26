@@ -36,7 +36,7 @@ const ProductsDetail = () => {
   const [replyImageFile, setReplyImageFile] = useState('');
   const [replyFile, setReplyFile] = useState('');
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
-  const [dataTemp, setDataTemp] = useState(null);
+  const [dataTemp, setDataTemp] = useState([]);
   const [users, setUsers] = useState([]);
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -266,10 +266,10 @@ const ProductsDetail = () => {
     // Prevent multiple submissions
     if (isSubmittingReply) return;
     setIsSubmittingReply(true);
-  
+
     try {
       let imageUrls = [];
-  
+
       // Upload images if available
       if (replyImageFile && replyImageFile.length > 0) {
         const formDataImage = new FormData();
@@ -281,7 +281,7 @@ const ProductsDetail = () => {
           imageUrls = imageResponse.data.imagePaths;
         }
       }
-  
+
       // Create new reply object
       const newReply = {
         user_id: userData.current.id,
@@ -289,29 +289,29 @@ const ProductsDetail = () => {
         imageUrls: imageUrls,
         created_at: new Date(),
       };
-  
+
       // Post the reply to the API
       const response = await axios.post(`http://localhost:3000/api/commentCourse/${commentId}/replies`, newReply);
-  
+
       if (response.data.status === 'success') {
         setDataTemp((prevComments) =>
           prevComments.map((comment) =>
             comment.id === commentId
               ? {
-                  ...comment,
-                  replies: comment.replies
-                    ? [...comment.replies, { ...newReply, id: response.data.data.reply.id }]  // Add new reply if there are existing replies
-                    : [{ ...newReply, id: response.data.data.reply.id }]  // Create an array if no replies yet
-                }
+                ...comment,
+                replies: comment.replies
+                  ? [...comment.replies, { ...newReply, id: response.data.data.reply.id }]  // Add new reply if there are existing replies
+                  : [{ ...newReply, id: response.data.data.reply.id }]  // Create an array if no replies yet
+              }
               : comment
           )
         );
-  
+
         // Clear the reply input and reset form state
         setNewReplies((prev) => ({ ...prev, [commentId]: '' }));
         setReplyingTo(null);
         setReplyImageFile(null);
-  
+
         // Show success notification
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
@@ -319,7 +319,7 @@ const ProductsDetail = () => {
       }
     } catch (error) {
       console.error("Error adding reply:", error);
-  
+
       // Show error notification
       setSnackbarMessage("Đã xảy ra lỗi khi gửi phản hồi.");
       setSnackbarSeverity("error");
@@ -328,8 +328,8 @@ const ProductsDetail = () => {
       setIsSubmittingReply(false);
     }
   };
-  
-  
+
+
   const formatDate = (createdAt) => {
     if (!createdAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
 
@@ -605,7 +605,7 @@ const ProductsDetail = () => {
                         resize: 'none',
                       }}
                     />
-                    <Box mt={1} display="flex" justifyContent="space-between" alignItems="center">
+                    <Box mt={1} display="flex" justifyContent="flex-start" alignItems="center" gap={1}>
                       <Button
                         variant="outlined"
                         startIcon={<ImageIcon />}
@@ -638,6 +638,7 @@ const ProductsDetail = () => {
                         Gửi trả lời
                       </Button>
                     </Box>
+
                   </Box>
                 )}
 
@@ -645,7 +646,6 @@ const ProductsDetail = () => {
                 {Array.isArray(comment.replies) && comment.replies.length > 0 ? (
                   <Box mt={2} pl={2}>
                     {comment.replies.map((reply, index) => {
-                      console.log('Rendering reply:', reply); // Log the reply being rendered
                       return (
                         <Box key={reply.id || index} mb={1} p={1} border="1px solid #ddd" borderRadius="4px">
                           <Typography variant="subtitle2" color="primary">
@@ -677,11 +677,7 @@ const ProductsDetail = () => {
                     })}
                   </Box>
                 ) : (
-                  <Box mt={2} pl={2}>
-                    <Typography variant="body2" color="textSecondary">
-                      Chưa có phản hồi nào.
-                    </Typography>
-                  </Box>
+                  null
                 )}
 
 

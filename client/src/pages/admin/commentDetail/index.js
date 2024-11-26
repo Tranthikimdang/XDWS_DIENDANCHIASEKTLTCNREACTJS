@@ -20,7 +20,8 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import axios from 'axios';
 import { getQuestionComments } from 'src/apis/CommentApi';
 import { getCourseComments } from 'src/apis/CommentCourseApi';
-
+import { deleteComment as deleteCourseComment } from 'src/apis/CommentCourseApi'; 
+import { deleteComment as deleteQuestionComment } from 'src/apis/CommentApi';
 function CommentDetail() {
   const { id, type } = useParams();
   const [openDialog, setOpenDialog] = useState(false);
@@ -122,19 +123,28 @@ function CommentDetail() {
 
   const confirmDelete = async (deleteId) => {
     try {
-      const collectionName = commentType === 'course' ? 'commentDetails' : 'question';
-      const commentDocRef = doc(db, collectionName, deleteId);
-
-      await deleteDoc(commentDocRef);
-      setRows(prevRows => prevRows.filter(comment => comment.id !== deleteId));
-
-      setSnackbarMessage("Comment deleted successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      const deleteApi = commentType === 'course' ? deleteCourseComment : deleteQuestionComment;
+  
+      // Gọi API xóa bình luận từ backend
+      const response = await deleteApi(deleteId);
+  
+      if (response.status === 204) {
+        // Cập nhật lại giao diện nếu xóa thành công
+        setRows(prevRows => prevRows.filter(comment => comment.id !== deleteId));
+  
+        setSnackbarMessage("Comment deleted successfully.");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      } else {
+        setSnackbarMessage("Failed to delete comment.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      }
     } catch (error) {
       setSnackbarMessage("Failed to delete comment.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
+      console.error("Error deleting comment:", error);
     }
   };
 
@@ -269,6 +279,7 @@ function CommentDetail() {
                         ) : (
                           'Không có tập tin'
                         ),
+                        content: row.content || 'Không có nội dung',
                         action: (
                           <button
                             className="text-light btn btn-outline-danger"
