@@ -18,10 +18,11 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import axios from 'axios';
-import { getQuestionComments, getCourseComments } from 'src/apis/CommentApi';
+import { getQuestionComments } from 'src/apis/CommentApi';
+import { getCourseComments } from 'src/apis/CommentCourseApi';
 
 function CommentDetail() {
-  const { id: question_id } = useParams();
+  const { id, type } = useParams();
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
@@ -34,48 +35,85 @@ function CommentDetail() {
   const location = useLocation()
   const [columns, setColumns] = useState([]);
   const queryParams = new URLSearchParams(location.search);
-  const commentType = queryParams.get('type') || 'question';
+  const commentType = queryParams.get('type');
 
   // Hook để hiển thị bình luận chi tiết
-  useEffect(() => {
-    const fetchComments = async () => {
-      setLoading(true);
-      try {
-        let response;
-        if (commentType === 'course') {
-          response = await getCourseComments(question_id);
-        } else if (commentType === 'question') {
-          response = await getQuestionComments(question_id);
-        }
-  
-        if (response && Array.isArray(response.data)) {
-          console.log('Fetched comments:', response.data);
-          const parsedComments = response.data.map(comment => ({
-            ...comment,
-            imageUrls: Array.isArray(comment.imageUrls)
-              ? comment.imageUrls
-              : JSON.parse(comment.imageUrls || '[]'),
-            fileUrls: Array.isArray(comment.fileUrls)
-              ? comment.fileUrls
-              : JSON.parse(comment.fileUrls || '[]')
-          }));
-          setRows(parsedComments);
-        } else {
-          console.error('Invalid response data:', response.data);
-          setRows([]);
-        }
-      } catch (error) {
-        console.error('Error fetching comments:', error);
+  const fetchQuestionComments = async (question_id) => {
+    setLoading(true);
+    try {
+      const response = await getQuestionComments(question_id);
+      if (response && Array.isArray(response.data)) {
+        const parsedComments = response.data.map(comment => ({
+          ...comment,
+          imageUrls: Array.isArray(comment.imageUrls)
+            ? comment.imageUrls
+            : comment.imageUrls?.startsWith('[')
+            ? JSON.parse(comment.imageUrls)
+            : [comment.imageUrls], // Wrap single URL in an array
+          fileUrls: Array.isArray(comment.fileUrls)
+            ? comment.fileUrls
+            : comment.fileUrls?.startsWith('[')
+            ? JSON.parse(comment.fileUrls)
+            : [comment.fileUrls], // Wrap single URL in an array
+        }));
+        setRows(parsedComments);
+      } else {
         setRows([]);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching question comments:", error);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   
-    fetchComments();
+
+  // Fetch course comments
+  const fetchCourseComments = async (course_id) => {
+    console.log('fetchCourseComments called with course_id:', course_id);
+    setLoading(true);
+    try {
+      const response = await getCourseComments(course_id);
+      console.log('Response from API:', response);
+  
+      // Kiểm tra xem response có hợp lệ không
+      if (response && response.data && Array.isArray(response.data)) {
+        const parsedComments = response.data.map(comment => ({
+          ...comment,
+          imageUrls: Array.isArray(comment.imageUrls)
+            ? comment.imageUrls
+            : comment.imageUrls?.startsWith('[')
+            ? JSON.parse(comment.imageUrls)
+            : [comment.imageUrls] // Đảm bảo rằng imageUrls luôn là một mảng
+        }));
+        setRows(parsedComments);
+      } else {
+        console.warn('No comments found or response data is not an array.');
+        setRows([]);
+      }
+    } catch (error) {
+      console.error("Error fetching course comments:", error);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load data based on comment type
+  useEffect(() => {
+    console.log('useEffect triggered with commentType:', commentType);
     setColumns(commentDetails[`${commentType}Columns`]);
-  }, [commentType, question_id]);
-  
+    
+    // Thay đổi điều kiện để gọi đúng hàm
+    if (id && commentType === 'course') {
+      console.log('Calling fetchCourseComments with id:', id);
+      fetchCourseComments(id);
+    } else if (id) {
+      console.log('Calling fetchQuestionComments with id:', id);
+      fetchQuestionComments(id);
+    }
+  }, [type, id]);
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -84,15 +122,13 @@ function CommentDetail() {
 
   const confirmDelete = async (deleteId) => {
     try {
-      const collectionName = commentType === 'course' ? 'commentDetails' : 'questions';
+      const collectionName = commentType === 'course' ? 'commentDetails' : 'question';
       const commentDocRef = doc(db, collectionName, deleteId);
 
       await deleteDoc(commentDocRef);
+      setRows(prevRows => prevRows.filter(comment => comment.id !== deleteId));
 
-      // Cập nhật lại danh sách bình luận mà không gọi lại fetchComments
-      setRows((prevRows) => prevRows.filter((comment) => comment.id !== deleteId));
-
-      setSnackbarMessage("Xóa bình luận thành công.");
+      setSnackbarMessage("Comment deleted successfully.");
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
     } catch (error) {

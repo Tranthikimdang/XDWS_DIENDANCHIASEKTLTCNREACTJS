@@ -13,12 +13,12 @@ exports.getAllCommentCourses = async (req, res) => {
 exports.getCommentsByCourseId = async (req, res) => {
     const { id } = req.params;
     try {
-      const comments = await CommentCourse.findAll({ where: { course_id: id } });
-      console.log('Fetched comments:', comments);
-      if (!comments || comments.length === 0) {
+      const commentCourses = await CommentCourse.findAll({ where: { course_id: id } });
+      console.log('Fetched comments:', commentCourses);
+      if (!commentCourses || commentCourses.length === 0) {
         return res.status(200).json([]); // Đảm bảo trả về mảng rỗng thay vì lỗi 404
       }
-      res.status(200).json(comments);
+      res.status(200).json(commentCourses);
     } catch (error) {
       console.error('Error fetching comments for question:', error.message);
       res.status(500).json({ error: 'Lỗi khi lấy bình luận.' });
