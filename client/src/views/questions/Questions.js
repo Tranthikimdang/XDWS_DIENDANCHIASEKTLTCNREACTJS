@@ -296,7 +296,7 @@ const Questions = () => {
     setLoading(true);
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-  
+
     // Kiểm tra nếu hashtag trống
     const hashtag = data.hashtag; // Lấy hashtag từ form
     if (!hashtag || hashtag.trim() === '') {
@@ -306,11 +306,11 @@ const Questions = () => {
       setSnackbarSeverity('error');
       return;
     }
-  
+
     // Tiếp tục xử lý các tệp ảnh và tệp khác
     const imageFiles = formData.getAll('image');
     const otherFiles = formData.getAll('file');
-  
+
     if (!imageError && !fileError) {
       try {
         // Nếu có ảnh, upload ảnh lên server
@@ -321,10 +321,10 @@ const Questions = () => {
             .map((imageFile) => handleUploadImage(imageFile));
           const allImageUrls = await Promise.all(uploadImagePromises);
           imageUrls = allImageUrls?.map((imgUrl) =>
-            imgUrl.status === 201 ? imgUrl.imagePath : ''
+            imgUrl.status === 201 ? imgUrl.imagePath : '',
           );
         }
-  
+
         let fileUrls = [];
         if (otherFiles.length > 0) {
           const uploadFilePromises = otherFiles
@@ -332,10 +332,10 @@ const Questions = () => {
             .map((file) => handleUploadFile(file));
           fileUrls = await Promise.all(uploadFilePromises);
         }
-  
+
         delete data.file;
         delete data.image;
-  
+
         const dataToSubmit = {
           ...data,
           user_id: userData.current.id,
@@ -347,15 +347,15 @@ const Questions = () => {
           comments: [],
           replies: [],
         };
-  
+
         // Gọi API để tạo câu hỏi mới
         const res = await addQuestion(dataToSubmit);
-  
+
         console.log(res);
-  
+
         if (res?.status === 'success' && res?.data?.question?.id) {
           const questionId = res.data.question.id;
-  
+
           // Kiểm tra nếu hashtag không bắt đầu bằng dấu #
           if (!hashtag.startsWith('#')) {
             setLoading(false);
@@ -364,13 +364,11 @@ const Questions = () => {
             setSnackbarSeverity('error');
             return;
           }
-  
+
           // Tiếp tục xử lý hashtag
           const existingHashtag = await HashtagApi.getHashtags();
-          const existingHashtagData = existingHashtag.data.hashtags.find(
-            (h) => h.name === hashtag
-          );
-  
+          const existingHashtagData = existingHashtag.data.hashtags.find((h) => h.name === hashtag);
+
           let hashtagId;
           if (existingHashtagData) {
             hashtagId = existingHashtagData.id;
@@ -378,14 +376,14 @@ const Questions = () => {
             const newHashtag = await HashtagApi.addHashtag({ name: hashtag });
             hashtagId = newHashtag?.data?.hashtag?.id;
           }
-  
+
           if (hashtagId) {
             await QuestionHashtags.addQuestionHashtag({
               question_id: questionId,
               hashtag_id: hashtagId,
             });
           }
-  
+
           setLoading(false);
           setSnackbarOpen(true);
           setSnackbarMessage('Câu hỏi của bạn đã được đặt thành công');
@@ -396,7 +394,7 @@ const Questions = () => {
           setLoading(false);
           setSnackbarOpen(true);
           setSnackbarMessage(
-            res?.data?.message || 'Có lỗi khi gửi câu hỏi. Vui lòng kiểm tra lại.'
+            res?.data?.message || 'Có lỗi khi gửi câu hỏi. Vui lòng kiểm tra lại.',
           );
           setSnackbarSeverity('error');
         }
@@ -404,9 +402,7 @@ const Questions = () => {
         setLoading(false);
         console.error('Error:', error.message);
         setSnackbarOpen(true);
-        setSnackbarMessage(
-          error.message || 'Có lỗi xảy ra khi gửi câu hỏi. Vui lòng thử lại sau.'
-        );
+        setSnackbarMessage(error.message || 'Có lỗi xảy ra khi gửi câu hỏi. Vui lòng thử lại sau.');
         setSnackbarSeverity('error');
       }
     } else {
@@ -416,8 +412,6 @@ const Questions = () => {
       setSnackbarSeverity('error');
     }
   };
-  
-  
 
   const handleUploadImage = async (imageFile) => {
     const formData = new FormData();
@@ -791,6 +785,42 @@ const Questions = () => {
     return updatedAtString;
   };
 
+  const getFilteredQuestions = () => {
+    // Lấy danh sách hashtag được lưu từ localStorage
+    const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
+    const hashtagNames = savedHashtags.map((hashtag) => hashtag.name.toLowerCase());
+    const strippedHashtagNames = hashtagNames.map((name) =>
+      name.startsWith('#') ? name.slice(1) : name,
+    );
+  
+    // Lọc các câu hỏi liên quan đến hashtag
+    const relevantQuestions = listQuestion.filter((question) => {
+      // Kiểm tra hashtag liên quan
+      const isHashtagRelevant = question.hashtag?.split(',').some(
+        (tag) =>
+          hashtagNames.includes(tag.toLowerCase()) ||
+          strippedHashtagNames.includes(tag.toLowerCase()),
+      );
+  
+      // Kiểm tra nội dung câu hỏi có chứa từ khóa từ hashtag không
+      const isQuestionRelevant = hashtagNames.some((tag) =>
+        question.questions?.toLowerCase().includes(tag),
+      );
+  
+      return isHashtagRelevant || isQuestionRelevant;
+    });
+  
+    // Lọc các câu hỏi không liên quan
+    const irrelevantQuestions = listQuestion.filter(
+      (question) => !relevantQuestions.includes(question),
+    );
+  
+    // Kết hợp các câu hỏi liên quan và không liên quan
+    return [...relevantQuestions, ...irrelevantQuestions];
+  };
+  
+
+  const filteredQuestions = getFilteredQuestions();
   return (
     <PageContainer
       title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code"
@@ -955,116 +985,400 @@ const Questions = () => {
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
                   <CircularProgress />
                 </Box>
-              ) : listQuestion?.length > 0 ? (
-                listQuestion
-                  .sort((a, b) =>
-                    moment(a.updatedAt).unix() < moment(b.updatedAt).unix() ? 1 : -1,
-                  )
-                  .map((question) => {
-                    const listImgUrl = question.imageUrls;
-                    const listFileUrl = question.fileUrls;
-                    return (
-                      question.isApproved === true && (
+              ) : filteredQuestions?.length > 0 ? ( // Sử dụng danh sách đã lọc
+                filteredQuestions.map((question) => {
+                  const listImgUrl = question.imageUrls;
+                  const listFileUrl = question.fileUrls;
+
+                  return (
+                    question.isApproved === true && (
+                      <Box
+                        key={question?.id}
+                        sx={{
+                          border: '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          padding: '20px',
+                          marginTop: '20px',
+                          backgroundColor: '#fff',
+                        }}
+                      >
+                        {/* Post Header */}
                         <Box
-                          key={question?.id}
-                          sx={{
-                            border: '1px solid #e0e0e0',
-                            borderRadius: '8px',
-                            padding: '20px',
-                            marginTop: '20px',
-                            backgroundColor: '#fff',
-                          }}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="space-between"
+                          width="100%"
                         >
-                          {/* Post Header */}
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent="space-between"
-                            width="100%"
-                          >
-                            <Box display="flex" alignItems="center">
-                              <img
-                                src={
-                                  users?.find((u) => question?.user_id === u.id)?.imageUrl ||
-                                  '../../assets/images/profile/user-1.jpg'
-                                }
-                                alt="Author"
-                                style={{
-                                  width: 40,
-                                  height: 40,
-                                  borderRadius: '50%',
-                                  marginRight: 8,
-                                }}
-                              />
-                              <Box>
-                                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                  <strong>
-                                    {users?.find((u) => question?.user_id === u.id)?.name}
-                                  </strong>
-                                </Typography>
-                                <Typography variant="body2">
-                                  {formatUpdatedAt(question.updatedAt)}
-                                </Typography>
+                          <Box display="flex" alignItems="center">
+                            <img
+                              src={
+                                users?.find((u) => question?.user_id === u.id)?.imageUrl ||
+                                '../../assets/images/profile/user-1.jpg'
+                              }
+                              alt="Author"
+                              style={{
+                                width: 40,
+                                height: 40,
+                                borderRadius: '50%',
+                                marginRight: 8,
+                              }}
+                            />
+                            <Box>
+                              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                <strong>
+                                  {users?.find((u) => question?.user_id === u.id)?.name}
+                                </strong>
+                              </Typography>
+                              <Typography variant="body2">
+                                {formatUpdatedAt(question.updatedAt)}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          {question?.user_id === userData.current?.id && (
+                            <>
+                              <Tooltip title="Options">
+                                <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
+                                  <MoreHorizIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={() => setAnchorEl(null)}
+                              >
+                                <MenuItem onClick={() => onEdit(question)}>Sửa</MenuItem>
+                              </Menu>
+                            </>
+                          )}
+                        </Box>
+
+                        {/* Content Section */}
+                        {edit ? (
+                          <Box component="form" mt={2} onSubmit={handleEdit}>
+                            <TextField
+                              label="Hãy chia sẻ kiến thức hoặc đặt câu hỏi?"
+                              variant="outlined"
+                              multiline
+                              fullWidth
+                              rows={4}
+                              name="questions"
+                              value={dataTemp.questions}
+                              onChange={handleInputChange}
+                              sx={{ marginBottom: 2 }}
+                            />
+
+                            {/* Add Hashtag Section */}
+                            <Box display="flex" alignItems="center" mb={2}>
+                              <Typography variant="body2" sx={{ mr: 2 }}>
+                                <strong>+ Thêm Hashtag</strong>
+                              </Typography>
+                              <Box sx={{ flexGrow: 1 }}>
+                                <TextField
+                                  fullWidth
+                                  placeholder="Nhập hashtag"
+                                  variant="standard"
+                                  name="hashtag"
+                                  value={dataTemp.hashtag}
+                                  InputProps={{
+                                    disableUnderline: true,
+                                  }}
+                                  onChange={handleInputChange}
+                                />
                               </Box>
                             </Box>
-                            {question?.user_id === userData.current?.id && (
-                              <>
-                                <Tooltip title="Options">
-                                  <IconButton onClick={(event) => setAnchorEl(event.currentTarget)}>
-                                    <MoreHorizIcon />
-                                  </IconButton>
-                                </Tooltip>
-                                <Menu
-                                  anchorEl={anchorEl}
-                                  open={Boolean(anchorEl)}
-                                  onClose={() => setAnchorEl(null)}
-                                >
-                                  <MenuItem onClick={() => onEdit(question)}>Sửa</MenuItem>
-                                </Menu>
-                              </>
-                            )}
-                          </Box>
 
-                          {/* Content Section */}
-                          {edit ? (
-                            <Box component="form" mt={2} onSubmit={handleEdit}>
-                              <TextField
-                                label="Hãy chia sẻ kiến thức hoặc đặt câu hỏi?"
-                                variant="outlined"
-                                multiline
-                                fullWidth
-                                rows={4}
-                                name="questions"
-                                value={dataTemp.questions}
-                                onChange={handleInputChange}
-                                sx={{ marginBottom: 2 }}
-                              />
-
-                              {/* Add Hashtag Section */}
-                              <Box display="flex" alignItems="center" mb={2}>
-                                <Typography variant="body2" sx={{ mr: 2 }}>
-                                  <strong>+ Thêm Hashtag</strong>
-                                </Typography>
-                                <Box sx={{ flexGrow: 1 }}>
-                                  <TextField
-                                    fullWidth
-                                    placeholder="Nhập hashtag"
-                                    variant="standard"
-                                    name="hashtag"
-                                    value={dataTemp.hashtag}
-                                    InputProps={{
-                                      disableUnderline: true,
+                            {/* Options for Image, File, Code */}
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                              <Box display="flex" gap={1}>
+                                {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                                  <Button
+                                    key={index}
+                                    variant="outlined"
+                                    startIcon={
+                                      index === 0 ? (
+                                        <ImageIcon />
+                                      ) : index === 1 ? (
+                                        <AttachFileIcon />
+                                      ) : (
+                                        <CodeIcon />
+                                      )
+                                    }
+                                    sx={{
+                                      borderRadius: '16px',
+                                      textTransform: 'none',
+                                      padding: '5px 15px',
                                     }}
-                                    onChange={handleInputChange}
-                                  />
-                                </Box>
+                                    component="label"
+                                    onClick={index === 2 ? handleCodeButtonClick : undefined}
+                                  >
+                                    {label}
+                                    {index === 0 && (
+                                      <input
+                                        name="image"
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        hidden
+                                        onChange={handleImageChange}
+                                      />
+                                    )}
+                                    {index === 1 && (
+                                      <input
+                                        type="file"
+                                        name="file"
+                                        multiple
+                                        hidden
+                                        onChange={handleFileChange}
+                                      />
+                                    )}
+                                  </Button>
+                                ))}
+                              </Box>
+                              {showCodeField && (
+                                <Dialog
+                                  open={showCodeDialog}
+                                  onClose={handleCloseDialog}
+                                  maxWidth="sm"
+                                  fullWidth
+                                >
+                                  <DialogTitle>Nhập code của bạn</DialogTitle>
+                                  <DialogContent>
+                                    {showCodeField && (
+                                      <FormControl fullWidth>
+                                        <TextField
+                                          id="code-input"
+                                          multiline
+                                          rows={4}
+                                          name="up_code"
+                                          variant="outlined"
+                                          value={dataTemp?.up_code || ''}
+                                          onChange={handleCodeChange}
+                                          error={!!error}
+                                        />
+                                        {error && <FormHelperText error>{error}</FormHelperText>}
+                                      </FormControl>
+                                    )}
+                                  </DialogContent>
+                                  <DialogActions>
+                                    <Button onClick={handleCloseDialog} color="secondary">
+                                      Hủy
+                                    </Button>
+                                    <Button onClick={handleSubmitCode} color="primary">
+                                      Lưu
+                                    </Button>
+                                  </DialogActions>
+                                </Dialog>
+                              )}
+
+                              <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                sx={{
+                                  textTransform: 'none',
+                                  borderRadius: '16px',
+                                  padding: '5px 20px',
+                                  fontWeight: 'bold',
+                                  mt: 2,
+                                }}
+                              >
+                                Sửa
+                              </Button>
+                            </Box>
+                          </Box>
+                        ) : (
+                          <>
+                            {/* Display Question Content */}
+                            <Box sx={{ mt: 3, mb: 3 }}>
+                              <Typography variant="subtitle1">
+                                {question?.questions || ''}
+                              </Typography>
+                              <Divider sx={{ mb: 2 }} />
+                              {question?.hashtag && (
+                                <Typography
+                                  variant="h6"
+                                  sx={{ color: '#007bff', fontSize: '0.8rem' }}
+                                >
+                                  {question.hashtag}
+                                </Typography>
+                              )}
+                            </Box>
+                            <Box sx={{ mt: 3, mb: 3 }}>
+                              {question?.up_code ? (
+                                <>
+                                  <SyntaxHighlighter language="javascript" style={dracula}>
+                                    {question.up_code}
+                                  </SyntaxHighlighter>
+                                  <Divider sx={{ mb: 2 }} />
+                                </>
+                              ) : null}
+                            </Box>
+
+                            {/* Display Images */}
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                justifyContent: 'center',
+                                gap: '5px',
+                              }}
+                            >
+                              {listImgUrl.length > 0 &&
+                                listImgUrl.map((image, index) => (
+                                  <Box
+                                    key={index}
+                                    sx={{
+                                      flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
+                                      flexGrow: 1,
+                                      maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
+                                      mb: 2,
+                                    }}
+                                  >
+                                    <img
+                                      src={image || '../../assets/images/profile/user-1.jpg'}
+                                      alt=""
+                                      style={{
+                                        width: '100%',
+                                        height: 'auto',
+                                        borderRadius: '8px',
+                                      }}
+                                    />
+                                  </Box>
+                                ))}
+                            </Box>
+                            {listFileUrl && listFileUrl.length > 0 && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '10px',
+                                  border: '1px solid #e0e0e0',
+                                  borderRadius: '8px',
+                                  backgroundColor: '#fff',
+                                  width: 'fit-content',
+                                  height: '30px',
+                                }}
+                              >
+                                <IconButton sx={{ color: '#007bff' }}>
+                                  <DescriptionIcon />
+                                </IconButton>
+                                <Typography variant="subtitle1">
+                                  {listFileUrl.map((url, index) => {
+                                    const fileName = decodeURIComponent(url)
+                                      .split('/')
+                                      .pop()
+                                      .split('?')[0];
+                                    return fileName !== 'uploads' ? (
+                                      <a
+                                        key={index}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          color: 'inherit',
+                                          textDecoration: 'none',
+                                          fontSize: '14px',
+                                          marginRight: '10px',
+                                        }}
+                                      >
+                                        {fileName}
+                                      </a>
+                                    ) : null;
+                                  })}
+                                </Typography>
+                              </Box>
+                            )}
+                          </>
+                        )}
+
+                        <Divider sx={{ my: 2 }} />
+                        {/* Like and Comment Buttons */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                          <IconButton>
+                            <FavoriteBorderIcon />
+                          </IconButton>
+                          <Typography variant="body2">Thích</Typography>
+                          <IconButton
+                            sx={{ ml: 2 }}
+                            onClick={() => handleToggleComments(question.id)}
+                          >
+                            <IconMessageCircle />
+                          </IconButton>
+                          <Typography variant="body2">
+                            Bình luận ({question.comments?.length || 0})
+                          </Typography>
+                        </Box>
+                        {/* Comment Section */}
+                        {visibleComments[question.id] && (
+                          <Box sx={{ mt: 3, mb: 3 }}>
+                            {/* Comment Input */}
+                            <Box
+                              sx={{
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: 2,
+                              }}
+                            >
+                              {/* Avatar và Text Input */}
+                              <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
+                                <img
+                                  src={currentUserImage || 'default-image-url.jpg'}
+                                  width="30px"
+                                  alt="User Avatar"
+                                  style={{ borderRadius: '50%', marginRight: '10px' }}
+                                />
+                                <TextField
+                                  placeholder={`Bình luận dưới tên ${
+                                    users.find((user) => user.id === userData.current.id)?.name ||
+                                    'Người dùng'
+                                  } `}
+                                  variant="outlined"
+                                  size="small"
+                                  fullWidth
+                                  sx={{
+                                    backgroundColor: '#f0f0f0',
+                                  }}
+                                  value={newComment}
+                                  onChange={(e) => setNewComment(e.target.value)}
+                                />
                               </Box>
 
-                              {/* Options for Image, File, Code */}
+                              {/* Hàng biểu tượng cho Emojis, GIFs, Hình ảnh */}
+                              <Box
+                                display="flex"
+                                justifyContent="center"
+                                sx={{
+                                  width: '100%',
+                                  gap: 1,
+                                  marginRight: '345px',
+                                  marginTop: '-18px',
+                                }}
+                              >
+                                <IconButton>
+                                  <InsertEmoticonIcon fontSize="medium" />
+                                </IconButton>
+                                <IconButton>
+                                  <SentimentSatisfiedAltIcon fontSize="medium" />
+                                </IconButton>
+                                <IconButton>
+                                  <InsertPhotoIcon fontSize="medium" />
+                                </IconButton>
+                                <IconButton>
+                                  <CameraAltIcon fontSize="medium" />
+                                </IconButton>
+                                <IconButton>
+                                  <GifBoxIcon fontSize="medium" />
+                                </IconButton>
+                              </Box>
+
+                              {/* File input cho hình ảnh */}
                               <Box
                                 display="flex"
                                 justifyContent="space-between"
                                 alignItems="center"
+                                sx={{ width: '100%', marginLeft: ' 80px', marginTop: '-10px' }}
                               >
                                 <Box display="flex" gap={1}>
                                   {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
@@ -1096,7 +1410,7 @@ const Questions = () => {
                                           accept="image/*"
                                           multiple
                                           hidden
-                                          onChange={handleImageChange}
+                                          onChange={(e) => setImageFile(e.target.files[0])}
                                         />
                                       )}
                                       {index === 1 && (
@@ -1105,48 +1419,14 @@ const Questions = () => {
                                           name="file"
                                           multiple
                                           hidden
-                                          onChange={handleFileChange}
+                                          onChange={(e) => setFile(e.target.files[0])}
                                         />
                                       )}
                                     </Button>
                                   ))}
                                 </Box>
-                                {showCodeField && (
-                                  <Dialog
-                                    open={showCodeDialog}
-                                    onClose={handleCloseDialog}
-                                    maxWidth="sm"
-                                    fullWidth
-                                  >
-                                    <DialogTitle>Nhập code của bạn</DialogTitle>
-                                    <DialogContent>
-                                      {showCodeField && (
-                                        <FormControl fullWidth>
-                                          <TextField
-                                            id="code-input"
-                                            multiline
-                                            rows={4}
-                                            name="up_code"
-                                            variant="outlined"
-                                            value={dataTemp?.up_code || ''}
-                                            onChange={handleCodeChange}
-                                            error={!!error}
-                                          />
-                                          {error && <FormHelperText error>{error}</FormHelperText>}
-                                        </FormControl>
-                                      )}
-                                    </DialogContent>
-                                    <DialogActions>
-                                      <Button onClick={handleCloseDialog} color="secondary">
-                                        Hủy
-                                      </Button>
-                                      <Button onClick={handleSubmitCode} color="primary">
-                                        Lưu
-                                      </Button>
-                                    </DialogActions>
-                                  </Dialog>
-                                )}
 
+                                {/* Post Button */}
                                 <Button
                                   type="submit"
                                   variant="contained"
@@ -1156,759 +1436,497 @@ const Questions = () => {
                                     borderRadius: '16px',
                                     padding: '5px 20px',
                                     fontWeight: 'bold',
-                                    mt: 2,
+                                    marginRight: '45px',
                                   }}
+                                  onClick={() => handleAddComment(question.id)}
                                 >
-                                  Sửa
+                                  Gửi
                                 </Button>
                               </Box>
+
+                              {/* Code Dialog */}
+                              <Dialog
+                                open={showCodeDialog}
+                                onClose={handleCloseDialog}
+                                maxWidth="sm"
+                                fullWidth
+                              >
+                                <DialogTitle>Nhập code của bạn</DialogTitle>
+                                <DialogContent>
+                                  <FormControl fullWidth>
+                                    <TextField
+                                      id="code-input"
+                                      multiline
+                                      rows={4}
+                                      name="up_code"
+                                      variant="outlined"
+                                      value={codeSnippet}
+                                      onChange={handleCodeChange}
+                                      error={!!error}
+                                    />
+                                    <FormHelperText>{error}</FormHelperText>
+                                  </FormControl>
+                                </DialogContent>
+                                <DialogActions>
+                                  <Button onClick={handleCloseDialog} color="secondary">
+                                    Hủy
+                                  </Button>
+                                  <Button onClick={handleSubmitCode} color="primary">
+                                    Lưu
+                                  </Button>
+                                </DialogActions>
+                              </Dialog>
                             </Box>
-                          ) : (
-                            <>
-                              {/* Display Question Content */}
-                              <Box sx={{ mt: 3, mb: 3 }}>
-                                <Typography variant="subtitle1">
-                                  {question?.questions || ''}
-                                </Typography>
-                                <Divider sx={{ mb: 2 }} />
-                                {question?.hashtag && (
-                                  <Typography
-                                    variant="h6"
-                                    sx={{ color: '#007bff', fontSize: '0.8rem' }}
-                                  >
-                                    {question.hashtag}
-                                  </Typography>
-                                )}
-                              </Box>
-                              <Box sx={{ mt: 3, mb: 3 }}>
-                                {question?.up_code ? (
-                                  <>
-                                    <SyntaxHighlighter language="javascript" style={dracula}>
-                                      {question.up_code}
-                                    </SyntaxHighlighter>
-                                    <Divider sx={{ mb: 2 }} />
-                                  </>
-                                ) : null}
-                              </Box>
-
-                              {/* Display Images */}
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flexWrap: 'wrap',
-                                  justifyContent: 'center',
-                                  gap: '5px',
-                                }}
-                              >
-                                {listImgUrl.length > 0 &&
-                                  listImgUrl.map((image, index) => (
-                                    <Box
-                                      key={index}
-                                      sx={{
-                                        flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
-                                        flexGrow: 1,
-                                        maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
-                                        mb: 2,
-                                      }}
-                                    >
-                                      <img
-                                        src={image || '../../assets/images/profile/user-1.jpg'}
-                                        alt=""
-                                        style={{
-                                          width: '100%',
-                                          height: 'auto',
-                                          borderRadius: '8px',
-                                        }}
-                                      />
-                                    </Box>
-                                  ))}
-                              </Box>
-                              {listFileUrl && listFileUrl.length > 0 && (
-                                <Box
-                                  sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    padding: '10px',
-                                    border: '1px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    backgroundColor: '#fff',
-                                    width: 'fit-content',
-                                    height: '30px',
-                                  }}
-                                >
-                                  <IconButton sx={{ color: '#007bff' }}>
-                                    <DescriptionIcon />
-                                  </IconButton>
-                                  <Typography variant="subtitle1">
-                                    {listFileUrl.map((url, index) => {
-                                      const fileName = decodeURIComponent(url)
-                                        .split('/')
-                                        .pop()
-                                        .split('?')[0];
-                                      return fileName !== 'uploads' ? (
-                                        <a
-                                          key={index}
-                                          href={url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          style={{
-                                            color: 'inherit',
-                                            textDecoration: 'none',
-                                            fontSize: '14px',
-                                            marginRight: '10px',
-                                          }}
-                                        >
-                                          {fileName}
-                                        </a>
-                                      ) : null;
-                                    })}
-                                  </Typography>
-                                </Box>
-                              )}
-                            </>
-                          )}
-
-                          <Divider sx={{ my: 2 }} />
-                          {/* Like and Comment Buttons */}
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                            <IconButton>
-                              <FavoriteBorderIcon />
-                            </IconButton>
-                            <Typography variant="body2">Thích</Typography>
-                            <IconButton
-                              sx={{ ml: 2 }}
-                              onClick={() => handleToggleComments(question.id)}
-                            >
-                              <IconMessageCircle />
-                            </IconButton>
-                            <Typography variant="body2">
-                              Bình luận ({question.comments?.length || 0})
-                            </Typography>
-                          </Box>
-                          {/* Comment Section */}
-                          {visibleComments[question.id] && (
-                            <Box sx={{ mt: 3, mb: 3 }}>
-                              {/* Comment Input */}
-                              <Box
-                                sx={{
-                                  flex: 1,
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  alignItems: 'center',
-                                  gap: 2,
-                                }}
-                              >
-                                {/* Avatar và Text Input */}
-                                <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
+                            <hr></hr>
+                            {/* Displaying Comments */}
+                            {question.comments?.map((comment) => (
+                              <Box key={comment.id} sx={{ mt: 2 }}>
+                                <Box display="flex" alignItems="center">
                                   <img
                                     src={currentUserImage || 'default-image-url.jpg'}
-                                    width="30px"
-                                    alt="User Avatar"
+                                    alt="Commenter Avatar"
                                     style={{ borderRadius: '50%', marginRight: '10px' }}
+                                    width="30px"
                                   />
-                                  <TextField
-                                    placeholder={`Bình luận dưới tên ${
-                                      users.find((user) => user.id === userData.current.id)?.name ||
-                                      'Người dùng'
-                                    } `}
-                                    variant="outlined"
-                                    size="small"
-                                    fullWidth
-                                    sx={{
-                                      backgroundColor: '#f0f0f0',
-                                    }}
-                                    value={newComment}
-                                    onChange={(e) => setNewComment(e.target.value)}
-                                  />
+                                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                    {users.find((user) => user.id === comment.user_id)?.name}
+                                  </Typography>
                                 </Box>
-
-                                {/* Hàng biểu tượng cho Emojis, GIFs, Hình ảnh */}
-                                <Box
-                                  display="flex"
-                                  justifyContent="center"
+                                <Typography
+                                  variant="body2"
                                   sx={{
-                                    width: '100%',
-                                    gap: 1,
-                                    marginRight: '345px',
-                                    marginTop: '-18px',
+                                    mt: 1,
+                                    fontSize: '1.2rem',
+                                    fontWeight: '400',
+                                    lineHeight: '1.5',
                                   }}
                                 >
-                                  <IconButton>
-                                    <InsertEmoticonIcon fontSize="medium" />
-                                  </IconButton>
-                                  <IconButton>
-                                    <SentimentSatisfiedAltIcon fontSize="medium" />
-                                  </IconButton>
-                                  <IconButton>
-                                    <InsertPhotoIcon fontSize="medium" />
-                                  </IconButton>
-                                  <IconButton>
-                                    <CameraAltIcon fontSize="medium" />
-                                  </IconButton>
-                                  <IconButton>
-                                    <GifBoxIcon fontSize="medium" />
-                                  </IconButton>
-                                </Box>
+                                  {comment.content}
+                                </Typography>
 
-                                {/* File input cho hình ảnh */}
-                                <Box
-                                  display="flex"
-                                  justifyContent="space-between"
-                                  alignItems="center"
-                                  sx={{ width: '100%', marginLeft: ' 80px', marginTop: '-10px' }}
-                                >
-                                  <Box display="flex" gap={1}>
-                                    {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
-                                      <Button
+                                {comment.up_code && (
+                                  <Box sx={{ mt: 1 }}>
+                                    <SyntaxHighlighter language="javascript" style={dracula}>
+                                      {comment.up_code}
+                                    </SyntaxHighlighter>
+                                  </Box>
+                                )}
+                                {/* Render Images if available */}
+                                {Array.isArray(comment.imageUrls) &&
+                                comment.imageUrls.length > 0 ? (
+                                  <Box
+                                    sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}
+                                  >
+                                    {comment.imageUrls.map((imageUrl, index) => (
+                                      <Box
                                         key={index}
-                                        variant="outlined"
-                                        startIcon={
-                                          index === 0 ? (
-                                            <ImageIcon />
-                                          ) : index === 1 ? (
-                                            <AttachFileIcon />
-                                          ) : (
-                                            <CodeIcon />
-                                          )
-                                        }
-                                        sx={{
-                                          borderRadius: '16px',
-                                          textTransform: 'none',
-                                          padding: '5px 15px',
-                                        }}
-                                        component="label"
-                                        onClick={index === 2 ? handleCodeButtonClick : undefined}
+                                        sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}
                                       >
-                                        {label}
-                                        {index === 0 && (
-                                          <input
-                                            name="image"
-                                            type="file"
-                                            accept="image/*"
-                                            multiple
-                                            hidden
-                                            onChange={(e) => setImageFile(e.target.files[0])}
-                                          />
-                                        )}
-                                        {index === 1 && (
-                                          <input
-                                            type="file"
-                                            name="file"
-                                            multiple
-                                            hidden
-                                            onChange={(e) => setFile(e.target.files[0])}
-                                          />
-                                        )}
-                                      </Button>
+                                        <img
+                                          src={imageUrl}
+                                          alt={`Comment image ${index + 1}`}
+                                          style={{
+                                            width: '35%',
+                                            height: 'auto',
+                                            borderRadius: '8px',
+                                            objectFit: 'contain',
+                                          }}
+                                        />
+                                      </Box>
                                     ))}
                                   </Box>
-
-                                  {/* Post Button */}
-                                  <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    sx={{
-                                      textTransform: 'none',
-                                      borderRadius: '16px',
-                                      padding: '5px 20px',
-                                      fontWeight: 'bold',
-                                      marginRight: '45px',
-                                    }}
-                                    onClick={() => handleAddComment(question.id)}
-                                  >
-                                    Gửi
-                                  </Button>
-                                </Box>
-
-                                {/* Code Dialog */}
-                                <Dialog
-                                  open={showCodeDialog}
-                                  onClose={handleCloseDialog}
-                                  maxWidth="sm"
-                                  fullWidth
-                                >
-                                  <DialogTitle>Nhập code của bạn</DialogTitle>
-                                  <DialogContent>
-                                    <FormControl fullWidth>
-                                      <TextField
-                                        id="code-input"
-                                        multiline
-                                        rows={4}
-                                        name="up_code"
-                                        variant="outlined"
-                                        value={codeSnippet}
-                                        onChange={handleCodeChange}
-                                        error={!!error}
-                                      />
-                                      <FormHelperText>{error}</FormHelperText>
-                                    </FormControl>
-                                  </DialogContent>
-                                  <DialogActions>
-                                    <Button onClick={handleCloseDialog} color="secondary">
-                                      Hủy
-                                    </Button>
-                                    <Button onClick={handleSubmitCode} color="primary">
-                                      Lưu
-                                    </Button>
-                                  </DialogActions>
-                                </Dialog>
-                              </Box>
-                              <hr></hr>
-                              {/* Displaying Comments */}
-                              {question.comments?.map((comment) => (
-                                <Box key={comment.id} sx={{ mt: 2 }}>
-                                  <Box display="flex" alignItems="center">
-                                    <img
-                                      src={currentUserImage || 'default-image-url.jpg'}
-                                      alt="Commenter Avatar"
-                                      style={{ borderRadius: '50%', marginRight: '10px' }}
-                                      width="30px"
-                                    />
-                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                      {users.find((user) => user.id === comment.user_id)?.name}
-                                    </Typography>
-                                  </Box>
-                                  <Typography
-                                    variant="body2"
-                                    sx={{
-                                      mt: 1,
-                                      fontSize: '1.2rem',
-                                      fontWeight: '400',
-                                      lineHeight: '1.5',
-                                    }}
-                                  >
-                                    {comment.content}
-                                  </Typography>
-
-                                  {comment.up_code && (
-                                    <Box sx={{ mt: 1 }}>
-                                      <SyntaxHighlighter language="javascript" style={dracula}>
-                                        {comment.up_code}
-                                      </SyntaxHighlighter>
-                                    </Box>
-                                  )}
-                                  {/* Render Images if available */}
-                                  {Array.isArray(comment.imageUrls) &&
-                                  comment.imageUrls.length > 0 ? (
-                                    <Box
-                                      sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}
-                                    >
-                                      {comment.imageUrls.map((imageUrl, index) => (
-                                        <Box
-                                          key={index}
-                                          sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}
-                                        >
-                                          <img
-                                            src={imageUrl}
-                                            alt={`Comment image ${index + 1}`}
-                                            style={{
-                                              width: '35%',
-                                              height: 'auto',
-                                              borderRadius: '8px',
-                                              objectFit: 'contain',
-                                            }}
-                                          />
-                                        </Box>
-                                      ))}
-                                    </Box>
-                                  ) : (
-                                    comment.imageUrls &&
-                                    typeof comment.imageUrls === 'string' && ( // Ensure it's a string before rendering
-                                      <Box
-                                        sx={{
-                                          mt: 1,
-                                          display: 'flex',
-                                          flexWrap: 'wrap',
-                                          gap: '5px',
-                                        }}
-                                      >
-                                        <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
-                                          <img
-                                            src={comment.imageUrls}
-                                            alt="Comment image"
-                                            style={{
-                                              width: '35%',
-                                              height: 'auto',
-                                              borderRadius: '8px',
-                                              objectFit: 'contain',
-                                            }}
-                                          />
-                                        </Box>
-                                      </Box>
-                                    )
-                                  )}
-
-                                  {Array.isArray(comment.fileUrls) &&
-                                  comment.fileUrls.length > 0 ? (
+                                ) : (
+                                  comment.imageUrls &&
+                                  typeof comment.imageUrls === 'string' && ( // Ensure it's a string before rendering
                                     <Box
                                       sx={{
                                         mt: 1,
                                         display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: '10px',
+                                        flexWrap: 'wrap',
+                                        gap: '5px',
                                       }}
                                     >
-                                      {comment.fileUrls.map((fileUrl, index) => {
-                                        const fileName = decodeURIComponent(fileUrl)
-                                          .split('/')
-                                          .pop()
-                                          .split('?')[0];
-                                        return (
-                                          <Box
-                                            key={index}
-                                            sx={{
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                              padding: '8px 16px',
-                                              border: '1px solid #e0e0e0',
-                                              borderRadius: '8px',
-                                              backgroundColor: '#fff',
-                                              width: 'fit-content',
-                                            }}
-                                          >
-                                            <IconButton sx={{ color: '#007bff', padding: '0' }}>
-                                              <DescriptionIcon />
-                                            </IconButton>
-                                            <Typography
-                                              component="a"
-                                              href={fileUrl}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              sx={{
-                                                marginLeft: '8px',
-                                                color: '#333',
-                                                textDecoration: 'none',
-                                                fontSize: '14px',
-                                                fontWeight: '500',
-                                                wordBreak: 'break-all',
-                                              }}
-                                            >
-                                              {fileName}
-                                            </Typography>
-                                          </Box>
-                                        );
-                                      })}
-                                    </Box>
-                                  ) : null}
-
-                                  {/* Reply Button */}
-                                  <Button
-                                    variant="text"
-                                    sx={{
-                                      textTransform: 'none',
-                                      padding: '2px 10px',
-                                      fontSize: '0.8rem',
-                                      borderRadius: '16px',
-                                      marginRight: '10px',
-                                    }}
-                                    onClick={() => handleReplyButtonClick(comment)} // Toggle reply form
-                                  >
-                                    {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
-                                  </Button>
-                                  {/* Reply Section */}
-                                  {replyingTo === comment.id && (
-                                    <Box sx={{ mt: 2 }}>
-                                      <Box display="flex" alignItems="center">
+                                      <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                                         <img
-                                          src={currentUserImage || 'default-image-url.jpg'}
-                                          width="30px"
-                                          alt="User  Avatar"
-                                          style={{ borderRadius: '50%', marginRight: '10px' }}
-                                        />
-                                        <TextField
-                                          placeholder={`Trả lời dưới tên ${
-                                            users.find((user) => user.id === userData.current.id)
-                                              ?.name || 'Người dùng'
-                                          }`}
-                                          variant="outlined"
-                                          size="small"
-                                          fullWidth
-                                          value={newReplies[comment.id] || ''} // Lấy nội dung trả lời cho bình luận cụ thể
-                                          onChange={(e) =>
-                                            setNewReplies((prev) => ({
-                                              ...prev,
-                                              [comment.id]: e.target.value,
-                                            }))
-                                          } // Cập nhật nội dung trả lời cho bình luận cụ thể
+                                          src={comment.imageUrls}
+                                          alt="Comment image"
+                                          style={{
+                                            width: '35%',
+                                            height: 'auto',
+                                            borderRadius: '8px',
+                                            objectFit: 'contain',
+                                          }}
                                         />
                                       </Box>
-
-                                      <Box
-                                        display="flex"
-                                        justifyContent="center"
-                                        sx={{
-                                          width: '100%',
-                                          gap: 1,
-                                          marginLeft: '-174px',
-                                          marginTop: '-2px',
-                                        }}
-                                      >
-                                        <IconButton>
-                                          <InsertEmoticonIcon fontSize="medium" />
-                                        </IconButton>
-                                        <IconButton>
-                                          <SentimentSatisfiedAltIcon fontSize="medium" />
-                                        </IconButton>
-                                        <IconButton>
-                                          <InsertPhotoIcon fontSize="medium" />
-                                        </IconButton>
-                                        <IconButton>
-                                          <CameraAltIcon fontSize="medium" />
-                                        </IconButton>
-                                        <IconButton>
-                                          <GifBoxIcon fontSize="medium" />
-                                        </IconButton>
-                                      </Box>
-
-                                      {/* Options for Image, File, Code */}
-                                      <Box
-                                        display="flex"
-                                        justifyContent="space-between"
-                                        alignItems="center"
-                                        sx={{
-                                          width: '100%',
-                                          marginLeft: ' 40px',
-                                          marginTop: '2px',
-                                        }}
-                                      >
-                                        <Box display="flex" gap={1}>
-                                          {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
-                                            <Button
-                                              key={index}
-                                              variant="outlined"
-                                              startIcon={
-                                                index === 0 ? (
-                                                  <ImageIcon />
-                                                ) : index === 1 ? (
-                                                  <AttachFileIcon />
-                                                ) : (
-                                                  <CodeIcon />
-                                                )
-                                              }
-                                              sx={{
-                                                borderRadius: '16px',
-                                                textTransform: 'none',
-                                                padding: '5px 15px',
-                                              }}
-                                              component="label"
-                                              onClick={
-                                                index === 2 ? handleCodeButtonClick : undefined
-                                              }
-                                            >
-                                              {label}
-                                              {index === 0 && (
-                                                <input
-                                                  name="image"
-                                                  type="file"
-                                                  accept="image/*"
-                                                  multiple
-                                                  hidden
-                                                  onChange={(e) =>
-                                                    handleAddReplyImage(e, comment.id)
-                                                  } // Xử lý hình ảnh đính kèm cho phản hồi
-                                                />
-                                              )}
-                                              {index === 1 && (
-                                                <input
-                                                  type="file"
-                                                  name="file"
-                                                  multiple
-                                                  hidden
-                                                  onChange={(e) =>
-                                                    handleAddReplyFile(e, comment.id)
-                                                  } // Xử lý tệp đính kèm cho phản hồi
-                                                />
-                                              )}
-                                            </Button>
-                                          ))}
-                                        </Box>
-
-                                        <Button
-                                          variant="contained"
-                                          color="primary"
-                                          onClick={() => handleAddReply(question.id, comment.id)} // Gửi phản hồi
-                                          sx={{ marginRight: '40px' }}
-                                        >
-                                          Gửi
-                                        </Button>
-                                      </Box>
-                                      <Dialog
-                                        open={showCodeDialog}
-                                        onClose={handleCloseDialog}
-                                        maxWidth="sm"
-                                        fullWidth
-                                      >
-                                        <DialogTitle>Nhập code của bạn</DialogTitle>
-                                        <DialogContent>
-                                          <FormControl fullWidth>
-                                            <TextField
-                                              id="code-input"
-                                              multiline
-                                              rows={4}
-                                              name="up_code"
-                                              variant="outlined"
-                                              value={codeSnippet}
-                                              onChange={handleCodeChange}
-                                              error={!!error}
-                                            />
-                                            <FormHelperText>{error}</FormHelperText>
-                                          </FormControl>
-                                        </DialogContent>
-                                        <DialogActions>
-                                          <Button onClick={handleCloseDialog} color="secondary">
-                                            Hủy
-                                          </Button>
-                                          <Button onClick={handleSubmitCode} color="primary">
-                                            Lưu
-                                          </Button>
-                                        </DialogActions>
-                                      </Dialog>
                                     </Box>
-                                  )}
-                                  {/* Displaying Replies */}
-                                  {Array.isArray(comment.replies) &&
-                                    comment.replies.map((reply, index) => {
-                                      return (
-                                        <Box key={reply.id || index} sx={{ pl: 4, mt: 2 }}>
-                                          <Box display="flex" alignItems="center">
-                                            <img
-                                              src={currentUserImage || 'default-image-url.jpg'}
-                                              alt="Commenter Avatar"
-                                              style={{ borderRadius: '50%', marginRight: '10px' }}
-                                              width="20px"
-                                            />
-                                            <Typography
-                                              variant="subtitle2"
-                                              sx={{ fontWeight: 'bold' }}
-                                            >
-                                              {users.find((user) => user.id === reply.user_id)
-                                                ?.name || 'Unknown User'}
-                                            </Typography>
-                                          </Box>
+                                  )
+                                )}
 
+                                {Array.isArray(comment.fileUrls) && comment.fileUrls.length > 0 ? (
+                                  <Box
+                                    sx={{
+                                      mt: 1,
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: '10px',
+                                    }}
+                                  >
+                                    {comment.fileUrls.map((fileUrl, index) => {
+                                      const fileName = decodeURIComponent(fileUrl)
+                                        .split('/')
+                                        .pop()
+                                        .split('?')[0];
+                                      return (
+                                        <Box
+                                          key={index}
+                                          sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '8px 16px',
+                                            border: '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            backgroundColor: '#fff',
+                                            width: 'fit-content',
+                                          }}
+                                        >
+                                          <IconButton sx={{ color: '#007bff', padding: '0' }}>
+                                            <DescriptionIcon />
+                                          </IconButton>
                                           <Typography
-                                            variant="body2"
+                                            component="a"
+                                            href={fileUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             sx={{
-                                              mt: 1,
-                                              fontSize: '1.2rem',
-                                              fontWeight: '400',
-                                              lineHeight: '1.5',
+                                              marginLeft: '8px',
+                                              color: '#333',
+                                              textDecoration: 'none',
+                                              fontSize: '14px',
+                                              fontWeight: '500',
+                                              wordBreak: 'break-all',
                                             }}
                                           >
-                                            {reply.content}
+                                            {fileName}
                                           </Typography>
-
-                                          {reply.up_code && (
-                                            <Box sx={{ mt: 1 }}>
-                                              <SyntaxHighlighter
-                                                language="javascript"
-                                                style={dracula}
-                                              >
-                                                {reply.up_code}
-                                              </SyntaxHighlighter>
-                                            </Box>
-                                          )}
-
-                                          {/* Display images */}
-                                          {Array.isArray(reply.imageUrls) &&
-                                            reply.imageUrls.length > 0 && (
-                                              <Box
-                                                sx={{
-                                                  mt: 1,
-                                                  display: 'flex',
-                                                  flexWrap: 'wrap',
-                                                  gap: '5px',
-                                                }}
-                                              >
-                                                {reply.imageUrls.map((imageUrl, index) => (
-                                                  <Box
-                                                    key={index}
-                                                    sx={{
-                                                      flexBasis: 'calc(50% - 5px)',
-                                                      flexGrow: 1,
-                                                    }}
-                                                  >
-                                                    <img
-                                                      src={imageUrl}
-                                                      alt={`Comment image ${index + 1}`}
-                                                      style={{
-                                                        width: '35%',
-                                                        height: 'auto',
-                                                        borderRadius: '8px',
-                                                        objectFit: 'contain',
-                                                      }}
-                                                    />
-                                                  </Box>
-                                                ))}
-                                              </Box>
-                                            )}
-
-                                          {Array.isArray(reply.fileUrls) &&
-                                            reply.fileUrls.length > 0 && (
-                                              <Box
-                                                sx={{
-                                                  mt: 1,
-                                                  display: 'flex',
-                                                  flexDirection: 'column',
-                                                  gap: '10px',
-                                                }}
-                                              >
-                                                {reply.fileUrls.map((fileUrl, index) => {
-                                                  const fileName = decodeURIComponent(fileUrl)
-                                                    .split('/')
-                                                    .pop()
-                                                    .split('?')[0];
-                                                  return (
-                                                    <Box
-                                                      key={index}
-                                                      sx={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        padding: '8px 16px',
-                                                        border: '1px solid #e0e0e0',
-                                                        borderRadius: '8px',
-                                                        backgroundColor: '#fff',
-                                                        width: 'fit-content',
-                                                      }}
-                                                    >
-                                                      <IconButton
-                                                        sx={{ color: '#007bff', padding: '0' }}
-                                                      >
-                                                        <DescriptionIcon />
-                                                      </IconButton>
-                                                      <Typography
-                                                        component="a"
-                                                        href={fileUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        sx={{
-                                                          marginLeft: '8px',
-                                                          color: '#333',
-                                                          textDecoration: 'none',
-                                                          fontSize: '14px',
-                                                          fontWeight: '500',
-                                                          wordBreak: 'break-all',
-                                                        }}
-                                                      >
-                                                        {fileName}
-                                                      </Typography>
-                                                    </Box>
-                                                  );
-                                                })}
-                                              </Box>
-                                            )}
                                         </Box>
                                       );
                                     })}
-                                </Box>
-                              ))}
-                            </Box>
-                          )}
-                        </Box>
-                      )
-                    );
-                  })
+                                  </Box>
+                                ) : null}
+
+                                {/* Reply Button */}
+                                <Button
+                                  variant="text"
+                                  sx={{
+                                    textTransform: 'none',
+                                    padding: '2px 10px',
+                                    fontSize: '0.8rem',
+                                    borderRadius: '16px',
+                                    marginRight: '10px',
+                                  }}
+                                  onClick={() => handleReplyButtonClick(comment)} // Toggle reply form
+                                >
+                                  {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
+                                </Button>
+                                {/* Reply Section */}
+                                {replyingTo === comment.id && (
+                                  <Box sx={{ mt: 2 }}>
+                                    <Box display="flex" alignItems="center">
+                                      <img
+                                        src={currentUserImage || 'default-image-url.jpg'}
+                                        width="30px"
+                                        alt="User  Avatar"
+                                        style={{ borderRadius: '50%', marginRight: '10px' }}
+                                      />
+                                      <TextField
+                                        placeholder={`Trả lời dưới tên ${
+                                          users.find((user) => user.id === userData.current.id)
+                                            ?.name || 'Người dùng'
+                                        }`}
+                                        variant="outlined"
+                                        size="small"
+                                        fullWidth
+                                        value={newReplies[comment.id] || ''} // Lấy nội dung trả lời cho bình luận cụ thể
+                                        onChange={(e) =>
+                                          setNewReplies((prev) => ({
+                                            ...prev,
+                                            [comment.id]: e.target.value,
+                                          }))
+                                        } // Cập nhật nội dung trả lời cho bình luận cụ thể
+                                      />
+                                    </Box>
+
+                                    <Box
+                                      display="flex"
+                                      justifyContent="center"
+                                      sx={{
+                                        width: '100%',
+                                        gap: 1,
+                                        marginLeft: '-174px',
+                                        marginTop: '-2px',
+                                      }}
+                                    >
+                                      <IconButton>
+                                        <InsertEmoticonIcon fontSize="medium" />
+                                      </IconButton>
+                                      <IconButton>
+                                        <SentimentSatisfiedAltIcon fontSize="medium" />
+                                      </IconButton>
+                                      <IconButton>
+                                        <InsertPhotoIcon fontSize="medium" />
+                                      </IconButton>
+                                      <IconButton>
+                                        <CameraAltIcon fontSize="medium" />
+                                      </IconButton>
+                                      <IconButton>
+                                        <GifBoxIcon fontSize="medium" />
+                                      </IconButton>
+                                    </Box>
+
+                                    {/* Options for Image, File, Code */}
+                                    <Box
+                                      display="flex"
+                                      justifyContent="space-between"
+                                      alignItems="center"
+                                      sx={{
+                                        width: '100%',
+                                        marginLeft: ' 40px',
+                                        marginTop: '2px',
+                                      }}
+                                    >
+                                      <Box display="flex" gap={1}>
+                                        {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                                          <Button
+                                            key={index}
+                                            variant="outlined"
+                                            startIcon={
+                                              index === 0 ? (
+                                                <ImageIcon />
+                                              ) : index === 1 ? (
+                                                <AttachFileIcon />
+                                              ) : (
+                                                <CodeIcon />
+                                              )
+                                            }
+                                            sx={{
+                                              borderRadius: '16px',
+                                              textTransform: 'none',
+                                              padding: '5px 15px',
+                                            }}
+                                            component="label"
+                                            onClick={
+                                              index === 2 ? handleCodeButtonClick : undefined
+                                            }
+                                          >
+                                            {label}
+                                            {index === 0 && (
+                                              <input
+                                                name="image"
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                hidden
+                                                onChange={(e) => handleAddReplyImage(e, comment.id)} // Xử lý hình ảnh đính kèm cho phản hồi
+                                              />
+                                            )}
+                                            {index === 1 && (
+                                              <input
+                                                type="file"
+                                                name="file"
+                                                multiple
+                                                hidden
+                                                onChange={(e) => handleAddReplyFile(e, comment.id)} // Xử lý tệp đính kèm cho phản hồi
+                                              />
+                                            )}
+                                          </Button>
+                                        ))}
+                                      </Box>
+
+                                      <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => handleAddReply(question.id, comment.id)} // Gửi phản hồi
+                                        sx={{ marginRight: '40px' }}
+                                      >
+                                        Gửi
+                                      </Button>
+                                    </Box>
+                                    <Dialog
+                                      open={showCodeDialog}
+                                      onClose={handleCloseDialog}
+                                      maxWidth="sm"
+                                      fullWidth
+                                    >
+                                      <DialogTitle>Nhập code của bạn</DialogTitle>
+                                      <DialogContent>
+                                        <FormControl fullWidth>
+                                          <TextField
+                                            id="code-input"
+                                            multiline
+                                            rows={4}
+                                            name="up_code"
+                                            variant="outlined"
+                                            value={codeSnippet}
+                                            onChange={handleCodeChange}
+                                            error={!!error}
+                                          />
+                                          <FormHelperText>{error}</FormHelperText>
+                                        </FormControl>
+                                      </DialogContent>
+                                      <DialogActions>
+                                        <Button onClick={handleCloseDialog} color="secondary">
+                                          Hủy
+                                        </Button>
+                                        <Button onClick={handleSubmitCode} color="primary">
+                                          Lưu
+                                        </Button>
+                                      </DialogActions>
+                                    </Dialog>
+                                  </Box>
+                                )}
+                                {/* Displaying Replies */}
+                                {Array.isArray(comment.replies) &&
+                                  comment.replies.map((reply, index) => {
+                                    return (
+                                      <Box key={reply.id || index} sx={{ pl: 4, mt: 2 }}>
+                                        <Box display="flex" alignItems="center">
+                                          <img
+                                            src={currentUserImage || 'default-image-url.jpg'}
+                                            alt="Commenter Avatar"
+                                            style={{ borderRadius: '50%', marginRight: '10px' }}
+                                            width="20px"
+                                          />
+                                          <Typography
+                                            variant="subtitle2"
+                                            sx={{ fontWeight: 'bold' }}
+                                          >
+                                            {users.find((user) => user.id === reply.user_id)
+                                              ?.name || 'Unknown User'}
+                                          </Typography>
+                                        </Box>
+
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            mt: 1,
+                                            fontSize: '1.2rem',
+                                            fontWeight: '400',
+                                            lineHeight: '1.5',
+                                          }}
+                                        >
+                                          {reply.content}
+                                        </Typography>
+
+                                        {reply.up_code && (
+                                          <Box sx={{ mt: 1 }}>
+                                            <SyntaxHighlighter
+                                              language="javascript"
+                                              style={dracula}
+                                            >
+                                              {reply.up_code}
+                                            </SyntaxHighlighter>
+                                          </Box>
+                                        )}
+
+                                        {/* Display images */}
+                                        {Array.isArray(reply.imageUrls) &&
+                                          reply.imageUrls.length > 0 && (
+                                            <Box
+                                              sx={{
+                                                mt: 1,
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                gap: '5px',
+                                              }}
+                                            >
+                                              {reply.imageUrls.map((imageUrl, index) => (
+                                                <Box
+                                                  key={index}
+                                                  sx={{
+                                                    flexBasis: 'calc(50% - 5px)',
+                                                    flexGrow: 1,
+                                                  }}
+                                                >
+                                                  <img
+                                                    src={imageUrl}
+                                                    alt={`Comment image ${index + 1}`}
+                                                    style={{
+                                                      width: '35%',
+                                                      height: 'auto',
+                                                      borderRadius: '8px',
+                                                      objectFit: 'contain',
+                                                    }}
+                                                  />
+                                                </Box>
+                                              ))}
+                                            </Box>
+                                          )}
+
+                                        {Array.isArray(reply.fileUrls) &&
+                                          reply.fileUrls.length > 0 && (
+                                            <Box
+                                              sx={{
+                                                mt: 1,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '10px',
+                                              }}
+                                            >
+                                              {reply.fileUrls.map((fileUrl, index) => {
+                                                const fileName = decodeURIComponent(fileUrl)
+                                                  .split('/')
+                                                  .pop()
+                                                  .split('?')[0];
+                                                return (
+                                                  <Box
+                                                    key={index}
+                                                    sx={{
+                                                      display: 'flex',
+                                                      alignItems: 'center',
+                                                      padding: '8px 16px',
+                                                      border: '1px solid #e0e0e0',
+                                                      borderRadius: '8px',
+                                                      backgroundColor: '#fff',
+                                                      width: 'fit-content',
+                                                    }}
+                                                  >
+                                                    <IconButton
+                                                      sx={{ color: '#007bff', padding: '0' }}
+                                                    >
+                                                      <DescriptionIcon />
+                                                    </IconButton>
+                                                    <Typography
+                                                      component="a"
+                                                      href={fileUrl}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                      sx={{
+                                                        marginLeft: '8px',
+                                                        color: '#333',
+                                                        textDecoration: 'none',
+                                                        fontSize: '14px',
+                                                        fontWeight: '500',
+                                                        wordBreak: 'break-all',
+                                                      }}
+                                                    >
+                                                      {fileName}
+                                                    </Typography>
+                                                  </Box>
+                                                );
+                                              })}
+                                            </Box>
+                                          )}
+                                      </Box>
+                                    );
+                                  })}
+                              </Box>
+                            ))}
+                          </Box>
+                        )}
+                      </Box>
+                    )
+                  );
+                })
               ) : (
                 <Typography variant="h6" align="center" sx={{ mt: 3 }}>
                   Không có câu hỏi nào.

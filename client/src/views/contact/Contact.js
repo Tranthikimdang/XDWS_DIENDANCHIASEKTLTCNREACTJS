@@ -98,10 +98,6 @@ const ContactPage = () => {
                     alt="FIIS"
                     style={{ width: "100%", borderRadius: "8px" }}
                   />
-                  <Typography variant="body1" mt={2}>
-                    Chương trình fMentoring - kết hợp với Trung tâm Sáng tạo và
-                    Ươm tạo FIIS - Đại học Ngoại thương
-                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -113,10 +109,6 @@ const ContactPage = () => {
                     alt="DynaGen"
                     style={{ width: "100%", borderRadius: "8px" }}
                   />
-                  <Typography variant="body1" mt={2}>
-                    Vinh dự nhận giải thưởng của quốc tế về wedsite diễn đàn đạt
-                    chuẩn thế giới
-                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
@@ -128,10 +120,6 @@ const ContactPage = () => {
                     alt="VNU-IS"
                     style={{ width: "100%", borderRadius: "8px" }}
                   />
-                  <Typography variant="body1" mt={2}>
-                    Kí hết hợp tác với công ty GOLDEN BEE INFORMATION
-                    TECHONOLOGY SOLUTION LIMITED LIABILITY COMPANY tại Việt Nam
-                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
