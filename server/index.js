@@ -104,7 +104,7 @@ app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/study-times", studyTimeRouter);   // Sử dụng mentor routes
-
+app.use("/api/study-times", studyTimeRouter);    
 app.use("/api/mentors", mentorRouter);
 
 
