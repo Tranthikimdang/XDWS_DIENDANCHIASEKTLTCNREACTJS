@@ -213,6 +213,8 @@ const ProductsDetail = () => {
     if (index > studyItem.current.lesson_current) {
       await updateLesson();
     }
+    console.log(lesson.video);
+    
     setCurrentVideo(lesson.video);
     setCurrentName(lesson.name);
     setShowNextButton(false);
