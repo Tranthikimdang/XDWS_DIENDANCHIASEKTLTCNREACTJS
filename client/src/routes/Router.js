@@ -26,10 +26,10 @@ const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
 const Shadow = Loadable(lazy(() => import('../')));
-const ProductClient = Loadable(lazy(() => import('../views/product/index')));
-const ProductDetail = Loadable(lazy(() => import('../views/product/components/detail')));
-const CateDetail = Loadable(lazy(() => import('../views/product/components/cateDetail')));
-const ProductDetailUser = Loadable(lazy(() => import('../views/productDetail/index')));
+const ProductClient = Loadable(lazy(() => import('../views/course/index')));
+const ProductDetail = Loadable(lazy(() => import('../views/course/components/detail')));
+const CateDetail = Loadable(lazy(() => import('../views/course/components/cateDetail')));
+const ProductDetailUser = Loadable(lazy(() => import('../views/courseDetail/index')));
 const Cart = Loadable(lazy(() => import('../views/cart/index')));
 const Payment = Loadable(lazy(() => import('../views/cart/data/payment')));
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
@@ -40,7 +40,7 @@ const Inter = Loadable(lazy(() => import('../views/inter')));
 const Mentor = Loadable(lazy(() => import('../views/mentor/mentor')));
 const RegisterMentor = Loadable(lazy(() => import('../views/mentor/registerMentor')));
 const EditProfile = Loadable(lazy(() => import('../views/profile/editProfile')));
-
+const Notification = Loadable(lazy(() => import('../views/notification')));
 
 //admin
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
@@ -60,14 +60,14 @@ const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
 const AddCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormAddCate')));
 const EditCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormEditCate')));
 
-const Product = Loadable(lazy(() => import('../pages/admin/product')));
-const AddProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormAddProduct')));
-const EditProduct = Loadable(lazy(() => import('../pages/admin/product/data/FormEditProduct')));
+const Product = Loadable(lazy(() => import('../pages/admin/course')));
+const AddProduct = Loadable(lazy(() => import('../pages/admin/course/data/FormAdd')));
+const EditProduct = Loadable(lazy(() => import('../pages/admin/course/data/FormEdit')));
 const AddProDetaill = Loadable(
-  lazy(() => import('../pages/admin/productDetail/data/FormAddProduct')),
+  lazy(() => import('../pages/admin/courseDetail/data/FormAdd')),
 );
-const ProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail')));
-const EditProDetaill = Loadable(lazy(() => import('../pages/admin/productDetail/data/FormEditProduct')));
+const ProDetaill = Loadable(lazy(() => import('../pages/admin/courseDetail')));
+const EditProDetaill = Loadable(lazy(() => import('../pages/admin/courseDetail/data/FormEdit')));
 
 
 const AddCate = Loadable(lazy(() => import('../pages/admin/category/data/FormAddCate')));
@@ -137,6 +137,8 @@ const renderRoutes = (role) => {
         { path: '/orders', exact: true, element: <Orders /> },
         { path: '/payment', exact: true, element: <Payment /> },
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
+        { path: '/notification/:userId', exact: true, element: <Notification /> },
+        
       ],
     });
     routes.push({
@@ -208,7 +210,7 @@ const renderRoutes = (role) => {
         { path: '/cart', exact: true, element: <Cart /> },  
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },      
         { path: '*', element: <Navigate to="/auth/404" /> },
-        
+        { path: '/notification/:userId', exact: true, element: <Notification /> },
       ],
     });
   } else {
@@ -239,6 +241,7 @@ const renderRoutes = (role) => {
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
+        { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

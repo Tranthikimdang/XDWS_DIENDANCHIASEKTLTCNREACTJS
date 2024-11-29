@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
   Grid,
   Box,
@@ -14,19 +13,21 @@ import {
   Tab,
   Button,
   IconButton,
-  CardMedia,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { Email, LocationOn, Phone, Work, Person, Cake } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
-import { Link } from 'react-router-dom';
 //sql
 import UserAPI from 'src/apis/UserApI';
 import CourseApi from '../../apis/CourseApI';
 import StudytimeApi from '../../apis/StudyTimeApI';
 import QuestionsApis from '../../apis/QuestionsApis';
 import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
+import FollowApi from '../../apis/FollowApI';
+import NotificationApi from '../../apis/NotificationsApI';
 //
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -46,6 +47,10 @@ const Profile = () => {
   const [userLoading, setUserLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [StudyTime, setStudyTime] = useState([]);
+  const [followStatus, setFollowStatus] = useState('not_followed'); // Trạng thái ban đầu
+  const [followId, setFollowId] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const userLocal = JSON.parse(localStorage.getItem('user'));
   const userLocalId = userLocal ? userLocal.id : null;
@@ -76,7 +81,7 @@ const Profile = () => {
         const studyTimes = studyTimeResponse?.data?.studyTimes || [];
 
         // 2. Lọc dữ liệu studyTime theo userId
-        const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userId));
+const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userId));
 
         // 3. Lấy danh sách course_id từ studyTime của user
         const courseIds = userStudyTimes.map((item) => item.course_id);
@@ -151,7 +156,7 @@ const Profile = () => {
 
     return updatedAtString;
   };
-  
+
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -170,17 +175,76 @@ const Profile = () => {
     fetchStudyTime();
   }, []);
 
-
-
   const hasStudyAccess = (productId) => {
     return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
   };
 
   //xóa các thẻ html
   const removeHtmlTags = (html) => {
-    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
+return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
+  };
+  const addNotification = (message, followId = null) => { 
+    const notification = {
+      userId: followId ? userLocalId : userId, // Nếu followId tồn tại, lấy từ localStorage (người hủy yêu cầu), ngược lại lấy từ params (người gửi yêu cầu)
+      message,
+      type: followId ? 'not_followed' : 'pending', // 'not_followed' khi hủy yêu cầu, 'pending' khi gửi yêu cầu
+      relatedId: followId || null, // Thêm followId vào relatedId nếu có
+    };
+  
+    // Gọi API để tạo thông báo
+    NotificationApi.createNotification(notification)
+      .then(() => {
+        console.log('Thông báo đã được thêm vào database');
+      })
+      .catch((error) => {
+        console.error('Error adding notification:', error);
+      });
   };
 
+  useEffect(() => {
+    if (userId !== userLocalId) {
+      FollowApi.checkFollowStatus(userLocalId, userId)
+        .then((response) => {
+          setFollowStatus(response.status); // Trạng thái: pending, friend, or not_followed
+          console.log('Follow status:', response); // Kiểm tra trạng thái trong console
+          setFollowId(response.followId); // ID bản ghi follow (nếu có)
+        })
+        .catch((error) => console.error('Error checking follow status:', error));
+    }
+  }, [userId, userLocalId]);
+
+  const handleFollowClick = () => {
+    if (followStatus === 'not_followed') {
+      // Gửi yêu cầu theo dõi
+      FollowApi.createFollow(userLocalId, userId)
+        .then((response) => {
+          setFollowStatus('pending'); // Chuyển sang trạng thái chờ duyệt
+          setFollowId(response.data.id); // Lưu ID follow mới
+          setSnackbarMessage('Đã gửi yêu cầu theo dõi');
+          setOpenSnackbar(true);
+  
+          // Thêm thông báo vào bảng thông báo
+          addNotification(`${user.name} Đã gửi lời mời kết bạn`);
+        })
+        .catch((error) => console.error('Error creating follow request:', error));
+    } else if (followStatus === 'pending') {
+      // Hủy yêu cầu theo dõi
+      if (followId) {
+        FollowApi.deleteFollow(followId)
+          .then(() => {
+            setFollowStatus('not_followed'); // Quay lại trạng thái chưa theo dõi
+            setFollowId(null); // Xóa ID follow
+            setSnackbarMessage('Đã hủy yêu cầu theo dõi');
+            setOpenSnackbar(true);
+  
+            // Thêm thông báo vào bảng thông báo
+            addNotification(`${user.name} Đã hủy yêu cầu kết bạn`, followId); // Truyền theo followId khi hủy yêu cầu
+          })
+          .catch((error) => console.error('Error cancelling follow request:', error));
+      }
+    }
+  };
+  
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -191,7 +255,7 @@ const Profile = () => {
           padding: '20px',
           maxWidth: '1200px',
           margin: '0 auto',
-          backgroundColor: '#f4f6f8',
+backgroundColor: '#f4f6f8',
           borderRadius: '15px',
         }}
       >
@@ -224,16 +288,34 @@ const Profile = () => {
               <Typography variant="body2" color="textSecondary" gutterBottom>
                 {user?.role === 'mentors' ? 'Mentors' : 'Người hướng dẫn'}
               </Typography>
-              <Divider sx={{ width: '100%', margin: '20px 0' }} />
-              <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                <Button variant="contained" color="primary">
-                  Theo Dõi
-                </Button>
-                <Button variant="outlined" color="secondary">
-                  Yêu Cầu Làm Mentor
-                </Button>
+              <Divider sx={{ width: '100%', margin: '10px 0' }} />
+              {/* Kiểm tra nếu userId trong URL trùng với userLocalId */}
+              <Box sx={{ display: 'flex', gap: '10px', marginBottom: '0px' }}>
+                {userId == userLocalId ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component={Link}
+                    to={`/editProfile/${userId}`}
+                  >
+                    Chỉnh sửa trang cá nhân
+                  </Button>
+                ) : followStatus === 'friend' ? (
+                  <Button variant="contained" color="success" disabled>
+                    Hủy kết bạn
+                  </Button>
+                ) : followStatus === 'pending' ? (
+                  <Button variant="contained" color="warning" onClick={handleFollowClick}>
+                    Hủy yêu cầu
+                  </Button>
+                ) : (
+                  <Button variant="contained" color="primary" onClick={handleFollowClick}>
+                    Theo dõi
+                  </Button>
+                )}
               </Box>
-              <Divider sx={{ width: '100%', margin: '20px 0' }} />
+
+              <Divider sx={{ width: '100%', margin: '10px 0' }} />
               <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
@@ -254,7 +336,7 @@ const Profile = () => {
               sx={{
                 borderRadius: '10px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-                backgroundColor: '#ffffff',
+backgroundColor: '#ffffff',
               }}
             >
               <CardContent>
@@ -315,7 +397,7 @@ const Profile = () => {
                         <Typography variant="body1" color="textSecondary">
                           <Work fontSize="small" sx={{ marginRight: '8px' }} />
                           Nghề Nghiệp:
-                        </Typography>
+</Typography>
                       </Grid>
                       <Grid item xs={6}>
                         <Typography variant="body1">
@@ -374,7 +456,7 @@ const Profile = () => {
                                           borderRadius: '8px',
                                           transition: 'all 0.3s ease',
                                           cursor: 'pointer',
-                                        }}
+}}
                                       />
                                     </div>
                                   </Link>
@@ -419,7 +501,7 @@ const Profile = () => {
                                       border: '1px solid #ddd',
                                       borderRadius: '8px',
                                       backgroundColor: '#f9f9f9',
-                                      minWidth: '200px', 
+                                      minWidth: '200px',
                                     }}
                                   >
                                     {/* Giá giảm */}
@@ -430,7 +512,7 @@ const Profile = () => {
                                         fontWeight: 'bold',
                                       }}
                                     >
-                                      {product.discount?.toLocaleString('vi-VN')} VND
+{product.discount?.toLocaleString('vi-VN')} VND
                                     </h6>
                                     {/* Giá gốc */}
                                     <span
@@ -486,7 +568,7 @@ const Profile = () => {
                       <Typography variant="body2">Không có khóa học nào.</Typography>
                     )}
                   </>
-                )}
+)}
                 {activeTab === 2 && (
                   <>
                     {/* Nội dung tab Câu Hỏi */}
@@ -545,7 +627,7 @@ const Profile = () => {
                                   #{question.hashtag}
                                 </Typography>
                               )}
-                            </Box>
+</Box>
                             <Box sx={{ mt: 3, mb: 3 }}>
                               {question?.up_code ? (
                                 <>
@@ -605,7 +687,7 @@ const Profile = () => {
                                     borderRadius: '8px',
                                     backgroundColor: '#fff',
                                     width: 'fit-content',
-                                    height: '30px',
+height: '30px',
                                   }}
                                 >
                                   <IconButton sx={{ color: '#007bff' }}>
@@ -652,6 +734,16 @@ const Profile = () => {
                 )}
               </CardContent>
             </Card>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Vị trí thông báo
+            >
+              <Alert onClose={() => setOpenSnackbar(false)} sx={{ width: '100%' }}>
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
           </Grid>
         </Grid>
       </Box>

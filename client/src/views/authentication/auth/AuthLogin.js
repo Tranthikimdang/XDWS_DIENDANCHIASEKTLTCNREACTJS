@@ -16,6 +16,7 @@ import { setAccount } from 'src/store/action';
 import apiUser from '../../../apis/UserApI';
 import bcrypt from 'bcryptjs';
 import { TextField } from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
   const [state, dispatch] = useContext(context);
@@ -25,6 +26,9 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
   const [errors, setErrors] = useState({ email: '', password: '' });
   const form = useRef();
   const navigate = useNavigate();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
@@ -59,6 +63,13 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     return valid;
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -69,7 +80,9 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       const response = await apiUser.getUsersList();
 
       if (!response || !response.data) {
-        alert('Không thể lấy danh sách người dùng.');
+        setSnackbarMessage('Không thể lấy danh sách người dùng..');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
         return;
       }
 
@@ -84,13 +97,19 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
           localStorage.setItem('user', JSON.stringify(user));
           navigate('/home');
         } else {
-          alert('Mật khẩu không đúng.');
+          setSnackbarMessage('Mật khẩu không đúng.');
+          setSnackbarSeverity('warning');
+          setSnackbarOpen(true);
         }
       } else {
-        alert('Email không tồn tại.');
+        setSnackbarMessage('Email không tồn tại.');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
       }
     } catch (error) {
-      alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
+      setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       console.error('Lỗi đăng nhập:', error);
     }
   };
@@ -137,13 +156,19 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
               message: `Mật khẩu của bạn là: ${rawPassword}`, // Gửi mật khẩu gốc (chưa băm)
             });
 
-            alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-            navigate('/auth/inter');
+            setSnackbarMessage('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+            setTimeout(() => {
+              navigate('/auth/inter');
+          }, 2000);
           }
         }
       } catch (error) {
         console.error('Lỗi trong xử lý đăng nhập Google:', error);
-        alert('Đã xảy ra lỗi, vui lòng thử lại.');
+        setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
     },
     onError: (error) => {
@@ -165,10 +190,14 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       )
       .then(
         (result) => {
-          alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+          setSnackbarMessage('Tin nhắn đã được gửi thành công...');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
         },
         (error) => {
-          alert('Đã xảy ra lỗi, vui lòng thử lại.');
+          setSnackbarMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
         },
       );
   };
@@ -290,6 +319,20 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
                 Đăng nhập với Google
               </Button>
             </Box>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={3000}
+              onClose={handleSnackbarClose}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+              <Alert
+                onClose={handleSnackbarClose}
+                severity={snackbarSeverity}
+                sx={{ width: '100%' }}
+              >
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
           </div>
 
           {/* Subtitle */}
