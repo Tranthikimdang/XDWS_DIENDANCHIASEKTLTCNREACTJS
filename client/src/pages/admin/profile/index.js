@@ -2,6 +2,7 @@ import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
 // Images
 // Vision UI Dashboard React components
+import Footer from "src/examples/Footer";
 import VuiBox from "src/components/admin/VuiBox";
 import ProfileInfoCard from "src/examples/Cards/InfoCards/ProfileInfoCard";
 // Vision UI Dashboard React example src/components
@@ -94,7 +95,7 @@ function Overview() {
           
         </Grid>
       </VuiBox>
-   
+      <Footer />
     </DashboardLayout>
   );
 }
