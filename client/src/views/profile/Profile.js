@@ -32,10 +32,6 @@ import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 //icon
 import DescriptionIcon from '@mui/icons-material/Description';
-
-// Add to imports
-import ChatBox from '../chat/chatbox';
-
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -50,10 +46,9 @@ const Profile = () => {
   const [userLoading, setUserLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [StudyTime, setStudyTime] = useState([]);
-  const [showChat, setShowChat] = useState(false);
+
   const userLocal = JSON.parse(localStorage.getItem('user'));
   const userLocalId = userLocal ? userLocal.id : null;
-  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -156,7 +151,7 @@ const Profile = () => {
 
     return updatedAtString;
   };
-
+  
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -174,6 +169,8 @@ const Profile = () => {
     };
     fetchStudyTime();
   }, []);
+
+
 
   const hasStudyAccess = (productId) => {
     return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
@@ -229,30 +226,13 @@ const Profile = () => {
               </Typography>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-  {currentUser?.id !== userId && ( // Only show for other users
-    <>
-      <Button variant="contained" color="primary">
-        Theo Dõi
-      </Button>
-      <Button 
-        variant="outlined" 
-        color="secondary" 
-        onClick={() => setShowChat(true)}
-        disabled={!currentUser}
-      >
-        Nhắn tin
-      </Button>
-    </>
-  )}
-
-  {showChat && currentUser && user && (
-    <ChatBox
-      currentUser={currentUser}
-      recipientUser={user}
-      onClose={() => setShowChat(false)}
-    />
-  )}
-</Box>
+                <Button variant="contained" color="primary">
+                  Theo Dõi
+                </Button>
+                <Button variant="outlined" color="secondary">
+                  Yêu Cầu Làm Mentor
+                </Button>
+              </Box>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Tabs
                 value={activeTab}
@@ -439,7 +419,7 @@ const Profile = () => {
                                       border: '1px solid #ddd',
                                       borderRadius: '8px',
                                       backgroundColor: '#f9f9f9',
-                                      minWidth: '200px',
+                                      minWidth: '200px', 
                                     }}
                                   >
                                     {/* Giá giảm */}

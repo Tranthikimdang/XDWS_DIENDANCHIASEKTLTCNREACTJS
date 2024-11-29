@@ -1,14 +1,22 @@
 .carousel {
-    margin: 50px auto;
-    padding: 0 70px;
-  }
+  margin: 50px auto;
+  padding: 0 70px;
+  background-image: url('../../layouts/img/bg-1.jpg'); /* Đường dẫn tuyệt đối từ public */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
   
-  .carousel .item {
-    color: #747d89;
-    min-height: 325px;
-    
-    overflow: hidden;
-  }
+.carousel .item {
+  color: #ffffff;
+  min-height: 325px;
+  overflow: hidden;
+  background-image: url('../../layouts/img/bg-1.jpg'); /* Đường dẫn tuyệt đối từ public */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
   
   .carousel .thumb-wrapper {
     padding: 20px;

@@ -14,8 +14,6 @@ function FormAddUser() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [imagePreview, setImagePreview] = useState('');
-  // Add imageFile state
-  const [imageFile, setImageFile] = useState(null);
 
   const {
     register,
@@ -90,14 +88,12 @@ function FormAddUser() {
     }
   };
 
- // Update handleImageChange
-const handleImageChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  }
-};
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -249,14 +245,11 @@ const handleImageChange = (e) => {
           {/* Trường dữ liệu Hình ảnh */}
           <div className="col-12 mb-3">
             <label className="text-light form-label">Hình ảnh</label>
-
-<input
-  className="form-control bg-dark text-light"
-  type="file"
-  {...register('image')}
-  onChange={handleImageChange}
-  accept="image/*"
-/>
+            <input
+              className="form-control bg-dark text-light"
+              type="file"
+              onChange={handleImageChange}
+            />
             {errors.image && <div className="text-danger form-label">{errors.image.message}</div>}
             {imagePreview && (
               <img

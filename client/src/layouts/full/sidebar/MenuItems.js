@@ -1,10 +1,14 @@
+// src/components/menuItems/MenuItems.js
+
 import {
   IconHome,
-  IconInfoSquareRounded,
+  IconUsers,
   IconBrandYoutube,
-  IconUserCode,
   IconUser,
+  IconInfoSquareRounded,
   IconFilePhone,
+  IconUserCircle,
+  IconUserCode
 } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
@@ -24,7 +28,7 @@ const Menuitems = [
   // {
   //   id: uniqueId(),
   //   title: 'Bài viết',
-  //   icon: IconBook2,
+  //   icon: IconBook2, // Đảm bảo rằng IconBook2 tồn tại trong @tabler/icons-react
   //   href: '/article',
   // },
   {
