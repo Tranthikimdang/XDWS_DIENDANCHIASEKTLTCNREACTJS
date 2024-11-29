@@ -248,7 +248,7 @@ const Questions = () => {
           );
   
           // Store questions and comments in localStorage to persist
-          localStorage.setItem('questions', JSON.stringify(updatedQuestions));
+          localStorage.setItem('comment_question', JSON.stringify(updatedQuestions));
           setListQuestion(updatedQuestions);
         }
       } catch (error) {
@@ -505,7 +505,7 @@ const Questions = () => {
           });
   
           // Persist updated list in localStorage
-          localStorage.setItem('questions', JSON.stringify(newList));
+          localStorage.setItem('comment_question', JSON.stringify(newList));
           return newList;
         });
 
@@ -609,7 +609,7 @@ const Questions = () => {
           });
   
           // Lưu danh sách mới vào localStorage
-          localStorage.setItem('questions', JSON.stringify(updatedList));
+          localStorage.setItem('comment_question', JSON.stringify(updatedList));
           return updatedList;
         });
   

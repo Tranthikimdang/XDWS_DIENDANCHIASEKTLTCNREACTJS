@@ -130,7 +130,18 @@ function CommentDetail() {
   
       if (response.status === 204) {
         // Cập nhật lại giao diện nếu xóa thành công
-        setRows(prevRows => prevRows.filter(comment => comment.id !== deleteId));
+        setRows(prevRows => {
+          const updatedRows = prevRows.filter(comment => comment.id !== deleteId);
+  
+          // Update local storage with the correct structure, including image URLs
+          if (commentType === 'course') {
+            localStorage.setItem('comment_course', JSON.stringify(updatedRows));
+          } else {
+            localStorage.setItem('comment_question', JSON.stringify(updatedRows));
+          }
+  
+          return updatedRows;
+        });
   
         setSnackbarMessage("Comment deleted successfully.");
         setSnackbarSeverity("success");
@@ -147,6 +158,7 @@ function CommentDetail() {
       console.error("Error deleting comment:", error);
     }
   };
+    
 
 
   const handleSnackbarClose = () => {
