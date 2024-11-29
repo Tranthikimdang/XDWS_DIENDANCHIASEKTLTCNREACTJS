@@ -259,7 +259,7 @@ const Questions = () => {
     };
   
     // Load questions from localStorage if available
-    const savedQuestions = JSON.parse(localStorage.getItem('questions'));
+    const savedQuestions = JSON.parse(localStorage.getItem('comment_question'));
     if (savedQuestions) {
       setListQuestion(savedQuestions); // Load questions and comments from localStorage
     } else {
@@ -268,7 +268,6 @@ const Questions = () => {
   }, [reload]); 
   
   
-
   const handleSnackbarClose = (event, reason) => {
     setSnackbarOpen(false);
   };
