@@ -133,11 +133,21 @@ function CommentDetail() {
         setRows(prevRows => {
           const updatedRows = prevRows.filter(comment => comment.id !== deleteId);
   
-          // Update local storage with the correct structure, including image URLs
+          // Update local storage with the correct structure, ensuring image URLs are kept
           if (commentType === 'course') {
-            localStorage.setItem('comment_course', JSON.stringify(updatedRows));
+            const updatedRowsWithImages = updatedRows.map(comment => {
+              const storedData = JSON.parse(localStorage.getItem('comment_course')) || [];
+              const originalComment = storedData.find(c => c.id === comment.id);
+              return originalComment ? { ...comment, imageUrls: originalComment.imageUrls } : comment;
+            });
+            localStorage.setItem('comment_course', JSON.stringify(updatedRowsWithImages));
           } else {
-            localStorage.setItem('comment_question', JSON.stringify(updatedRows));
+            const updatedRowsWithImages = updatedRows.map(comment => {
+              const storedData = JSON.parse(localStorage.getItem('comment_question')) || [];
+              const originalComment = storedData.find(c => c.id === comment.id);
+              return originalComment ? { ...comment, imageUrls: originalComment.imageUrls } : comment;
+            });
+            localStorage.setItem('comment_question', JSON.stringify(updatedRowsWithImages));
           }
   
           return updatedRows;
@@ -158,7 +168,7 @@ function CommentDetail() {
       console.error("Error deleting comment:", error);
     }
   };
-    
+  
 
 
   const handleSnackbarClose = () => {
