@@ -16,13 +16,16 @@ import {
   IconButton,
   CardMedia,
 } from '@mui/material';
-import { Email, LocationOn, Phone, Work, Person } from '@mui/icons-material';
+import { Email, LocationOn, Phone, Work, Person, Cake } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
+import { Link } from 'react-router-dom';
 //sql
-import UserAPI from '../../apis/UserApI';
+import UserAPI from 'src/apis/UserApI';
 import CourseApi from '../../apis/CourseApI';
+import StudytimeApi from '../../apis/StudyTimeApI';
+import QuestionsApis from '../../apis/QuestionsApis';
 import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
 //
 import './profile.css';
@@ -32,79 +35,70 @@ import DescriptionIcon from '@mui/icons-material/Description';
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
-
-  const [user, setUsers] = useState({});
+  const [user, setUser] = useState({});
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   const [activeTab, setActiveTab] = useState(0);
   const [products, setProducts] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [reload, setReload] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
-  const [productsLoading, setProductsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [StudyTime, setStudyTime] = useState([]);
 
+  const userLocal = JSON.parse(localStorage.getItem('user'));
+  const userLocalId = userLocal ? userLocal.id : null;
 
-
-useEffect(() => {
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await UserAPI.getUsersList();
-      const matchingUser = response.data.users.find(user => user.id == userId);
-      
-
-        setUser(matchingUser); 
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchUsers();
-}, [userId]);
-
-
-// Fetch users
-useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const response = await UserAPI.getUsersList();  // API call to get users
-      const filteredUsers = response.data.users.filter(
-        (user) => !(user.role === 'admin' && user.id === userId)
-      );
-      setUsers(filteredUsers);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchUsers();
-}, [userId]);
-
-  
-  // Fetch khóa học
   useEffect(() => {
-    const fetchProducts = async () => {
-      setProductsLoading(true);
+    const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const response = await CourseApi.getCoursesList();
-        setProducts(response.data.courses || []);
-        const course = response.data.courses;
-        console.log(course);
+        const response = await UserAPI.getUsersList();
+        const matchingUser = response.data.users.find((user) => user.id == userId);
 
-        setProducts(course);
+        setUser(matchingUser);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching users:', error);
       } finally {
-        setProductsLoading(false);
+        setLoading(false);
       }
     };
-  
-    fetchProducts();
-  }, []);
-  
+    fetchUsers();
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // 1. Lấy toàn bộ dữ liệu studyTime
+        const studyTimeResponse = await StudytimeApi.getStudyTimesList();
+        const studyTimes = studyTimeResponse?.data?.studyTimes || [];
+
+        // 2. Lọc dữ liệu studyTime theo userId
+        const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userId));
+
+        // 3. Lấy danh sách course_id từ studyTime của user
+        const courseIds = userStudyTimes.map((item) => item.course_id);
+
+        // 4. Lấy toàn bộ danh sách courses
+        const coursesResponse = await CourseApi.getCoursesList();
+        const allCourses = coursesResponse?.data?.courses || [];
+
+        // 5. Lọc courses có id trùng với course_id
+        const filteredCourses = allCourses.filter((course) => courseIds.includes(course.id));
+
+        // 6. Cập nhật state
+        setProducts(filteredCourses);
+      } catch (error) {
+        console.error('Error fetching data:', error); // Log lỗi nếu có
+      } finally {
+        setIsLoading(false); // Tắt trạng thái loading
+      }
+    };
+
+    fetchData();
+  }, [userId]);
 
   // Fetch câu hỏi
   useEffect(() => {
@@ -126,10 +120,6 @@ useEffect(() => {
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-  };
-
-  const handleCardClick = (courseId) => {
-    navigate(`/course/${courseId}`, { state: { id: courseId } });
   };
 
   //date
@@ -160,6 +150,30 @@ useEffect(() => {
     }
 
     return updatedAtString;
+  };
+  
+  useEffect(() => {
+    const fetchStudyTime = async () => {
+      setLoading(true);
+      try {
+        const response = await StudytimeApi.getStudyTimesList();
+        const course = response.data.studyTimes;
+        console.log(course);
+
+        setStudyTime(course);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudyTime();
+  }, []);
+
+
+
+  const hasStudyAccess = (productId) => {
+    return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
   };
 
   //xóa các thẻ html
@@ -281,6 +295,15 @@ useEffect(() => {
                       </Grid>
                       <Grid item xs={6}>
                         <Typography variant="body1" color="textSecondary">
+                          <Cake fontSize="small" sx={{ marginRight: '8px' }} />
+                          Ngày sinh:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body1">{user.birthday}</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body1" color="textSecondary">
                           <LocationOn fontSize="small" sx={{ marginRight: '8px' }} />
                           Địa Chỉ:
                         </Typography>
@@ -306,112 +329,161 @@ useEffect(() => {
                   <>
                     {/* Nội dung tab khóa học*/}
                     <Typography variant="h4" gutterBottom>
-                      Câu hỏi Của Người Dùng
+                      Khóa học của người dùng đăng ký
                     </Typography>
-                    {products.length > 0 ? (
-                      products.map(
-                        (product) =>
-                          product.isApproved === 1 && (
-                            <Card
-                              key={product?.id}
-                              sx={{
-                                display: 'flex',
-                                mb: 3,
-                                flexDirection: { xs: 'column', md: 'row' },
-                                border: '1px solid #ddd',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                overflow: 'hidden',
-                              }}
-                              onClick={() => handleCardClick(product.id)} // Điều hướng đến chi tiết
-                            >
-                              {/* Bên trái: Nội dung */}
-                              <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                                <CardContent>
-                                  {/*  */}
-                                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                    <img
-                                      src={
-                                        user.imageUrl || '../../assets/images/profile/user-1.jpg'
-                                      }
-                                      alt="User Avatar"
-                                      style={{
-                                        width: 40,
-                                        height: 40,
-                                        borderRadius: '50%',
-                                        marginRight: 8,
-                                      }}
-                                    />
-                                    <Typography
-                                      variant="body1"
-                                      component="span"
-                                      className="author-name"
-                                    >
-                                      <strong>{user.name}</strong>
-                                    </Typography>
-                                  </Box>
-                                  {/*  */}
-                                  <Typography variant="h6" component="h2" className="course-title">
-                                    {product.title.length > 100
-                                      ? `${product.title.substring(0, 100)}...`
-                                      : product.title}
-                                  </Typography>
-                                  <Typography
-                                    variant="body2"
-                                    paragraph
-                                    color="textSecondary"
-                                    className="course-description"
+                    {Array.isArray(products) && products.length > 0 ? (
+                      products.map((product) => (
+                        <Card
+                          key={product?.id}
+                          sx={{
+                            display: 'flex',
+                            mb: 3,
+                            flexDirection: { xs: 'column', md: 'row' },
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <div className="card-body border p-3 rounded col-md-12 col-xl-12">
+                            <div className="shadow-sm rounded-3">
+                              <div className="row g-2">
+                                {/* Product Image */}
+                                <div className="col-12 col-md-4 mb-3 mb-md-0">
+                                  <Link
+                                    to={`/productDetail/${product.id}`}
+                                    style={{ textDecoration: 'none' }}
                                   >
-                                    {removeHtmlTags(product.content, 'p').length > 10
-                                      ? `${removeHtmlTags(product.content, 'p').substring(
-                                          0,
-                                          10,
-                                        )}...`
-                                      : removeHtmlTags(product.content, 'p')}
-                                  </Typography>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                                    <Typography
-                                      variant="body2"
-                                      color="textSecondary"
-                                      className="category-badge"
-                                    ></Typography>
-                                    <Typography
-                                      variant="body2"
-                                      color="textSecondary"
-                                      sx={{ ml: 2 }}
+                                    <div
+                                      className="bg-image hover-zoom ripple rounded ripple-surface"
+                                      style={{
+                                        display: 'flex',
+                                        border: '1px solid #ddd',
+                                        padding: '4px',
+                                        height: '120px',
+                                        borderRadius: '8px',
+                                      }}
                                     >
-                                      {formatUpdatedAt(product.updated_at)}
-                                    </Typography>
-                                  </Box>
-                                </CardContent>
-                              </Box>
+                                      <img
+                                        src={product.image}
+                                        className="w-100"
+                                        alt={product.name}
+                                        style={{
+                                          objectFit: 'cover',
+                                          height: '100%',
+                                          borderRadius: '8px',
+                                          transition: 'all 0.3s ease',
+                                          cursor: 'pointer',
+                                        }}
+                                      />
+                                    </div>
+                                  </Link>
+                                </div>
 
-                              {/* Bên phải: Hình ảnh và các nút hành động */}
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  position: 'relative',
-                                }}
-                                className="card-media"
-                              >
-                                <CardMedia
-                                  component="img"
-                                  sx={{
-                                    width: { xs: '100%', md: 200 },
-                                    height: { xs: 'auto', md: '100%' },
-                                    aspectRatio: '16/9',
-                                    objectFit: 'cover',
-                                  }}
-                                  image={product.image}
-                                  alt={product.title}
-                                />
-                              </Box>
-                            </Card>
-                          ),
-                      )
+                                {/* Product Details */}
+                                <div className="col-12 col-md-4">
+                                  <h6
+                                    style={{
+                                      fontSize: '1rem',
+                                      fontWeight: 'bold',
+                                      marginBottom: '8px',
+                                      textAlign: 'left', // Căn lề trái cho tên sản phẩm
+                                    }}
+                                  >
+                                    {product.name}
+                                  </h6>
+                                  <div
+                                    className="text-muted small mt-1"
+                                    style={{
+                                      width: '100%', // Chiếm toàn bộ chiều rộng của phần tử cha
+                                      whiteSpace: 'normal', // Cho phép nội dung xuống dòng
+                                      overflow: 'visible', // Không ẩn nội dung thừa
+                                      textOverflow: 'clip', // Không cắt phần thừa
+                                      textAlign: 'left', // Căn lề trái cho mô tả
+                                    }}
+                                  >
+                                    Mô tả:{' '}
+                                    {product.description?.replace(/(<([^>]+)>)/gi, '') ||
+                                      'Không có mô tả'}
+                                  </div>
+                                </div>
+
+                                {/* Price and Actions */}
+                                <div className="col-12 col-md-4 d-flex flex-column align-items-start align-items-md-end">
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      alignItems: 'center',
+                                      padding: '10px',
+                                      border: '1px solid #ddd',
+                                      borderRadius: '8px',
+                                      backgroundColor: '#f9f9f9',
+                                      minWidth: '200px', 
+                                    }}
+                                  >
+                                    {/* Giá giảm */}
+                                    <h6
+                                      className="text-success mb-1"
+                                      style={{
+                                        fontSize: '1.1rem',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      {product.discount?.toLocaleString('vi-VN')} VND
+                                    </h6>
+                                    {/* Giá gốc */}
+                                    <span
+                                      className="text-danger small mb-3"
+                                      style={{ fontSize: '0.9rem', textDecoration: 'line-through' }}
+                                    >
+                                      {product.price?.toLocaleString('vi-VN')} VND
+                                    </span>
+
+                                    {/* Nút hành động */}
+                                    <div className="mt-2 w-100 d-flex flex-column align-items-center">
+                                      {hasStudyAccess(product.id) ? (
+                                        <button
+                                          className="btn btn-success btn-sm w-100"
+                                          type="button"
+                                          style={{ marginBottom: '8px' }}
+                                          onClick={() =>
+                                            navigate(`/productDetailUser/${product.id}`)
+                                          }
+                                        >
+                                          Bắt đầu học
+                                        </button>
+                                      ) : (
+                                        <>
+                                          <button
+                                            className="btn btn-primary btn-sm w-100"
+                                            type="button"
+                                            style={{ marginBottom: '8px' }}
+                                          >
+                                            Mua ngay
+                                          </button>
+                                          <button
+                                            className="btn btn-outline-primary btn-sm w-100"
+                                            type="button"
+                                            style={{
+                                              borderColor: '#007bff',
+                                              color: '#007bff',
+                                            }}
+                                          >
+                                            Thêm vào giỏ hàng
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))
                     ) : (
-                      <Typography variant="body2">Không có khóa họcnào.</Typography>
+                      <Typography variant="body2">Không có khóa học nào.</Typography>
                     )}
                   </>
                 )}

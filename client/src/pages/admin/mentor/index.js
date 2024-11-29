@@ -58,42 +58,14 @@ function Mentor() {
         console.log('Users data:', user.data); // Kiểm tra dữ liệu
         // Gán mảng users từ response.data.users
         setUsers(Array.isArray(user.data.users) ? user.data.users : []);
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Fetch both mentors and users data
-        const [mentorsResponse, usersResponse] = await Promise.all([
-          api.getMentors(),
-          apiUser.getUsersList()
-        ]);
-
-        console.log('Mentors data:', mentorsResponse);
-        console.log('Users data:', usersResponse.data);
-
-        // Set mentors data
-        const mentorsData = Array.isArray(mentorsResponse) ? mentorsResponse : [];
-        setRows(mentorsData);
-
-        // Set users data
-        const usersData = Array.isArray(usersResponse.data.users) ? usersResponse.data.users : [];
-        setUsers(usersData);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setRows([]);
-        setUsers([]);
+        console.error('Error fetching users:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchData();
+    fetchUsers();
   }, []);
-
-  // Helper function to find user by ID
-  const findUserById = (userId) => {
-    return users.find(user => user.id === userId) || {};
-  };
-
 
   const handleView = async (id) => {
     try {
@@ -192,8 +164,6 @@ function Mentor() {
     return updatedAtString;
   };
 
-  
-
   return (
     <DashboardLayout>
       <DashboardNavbar />
@@ -219,18 +189,6 @@ function Mentor() {
                   })}
                 />
               </VuiBox>
-            </VuiBox>
-            <VuiBox
-              display="flex"
-              justifyContent="flex-end" // Aligns content to the right
-              alignItems="center"
-              mb="24px"
-              sx={{
-                backgroundColor: 'transparent', // Keeping it clean with a transparent background
-                paddingBottom: '12px', // Removing the border and maintaining space at the bottom
-              }}
-            >
-             
             </VuiBox>
             {loading ? (
               <div
