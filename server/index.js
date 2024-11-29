@@ -14,6 +14,8 @@ const exerciseRouter = require("./routes/exerciseRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const commentCourseRoutes = require("./routes/commentCourseRoutes");
 const questionHashtagsRouter = require("./routes/QuestionHashtagsRoutes");
+const followRouter = require('./routes/followRoutes'); 
+const notificationRouter = require('./routes/notificationRoutes');
 
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
@@ -111,9 +113,9 @@ app.use("/api/hashtags", hashtagRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/study-times", studyTimeRouter);
 app.use("/api/exercise", exerciseRouter);
-
+app.use("/api/follows", followRouter);
 app.use("/api/mentors", mentorRouter);
-
+app.use("/api/notifications", notificationRouter);
 // Khởi chạy server
 app.listen(port, async () => {
   try {

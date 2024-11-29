@@ -13,15 +13,13 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';  // Firebase
-import { db } from '../../../config/firebaseconfig';  // Kết nối Firebase Firestore
 // components
 import Profile from './Profile';
 import { IconBellRinging, IconMenu } from '@tabler/icons';
 import SearchIcon from '@mui/icons-material/Search';
 import HelpIcon from '@mui/icons-material/Help';
 import CartIcon from '@mui/icons-material/ShoppingCartCheckout';
-
+import { Link} from 'react-router-dom';
 // Styled components
 const AppBarStyled = styled(AppBar)(({ theme }) => ({
   boxShadow: 'none',
@@ -96,24 +94,25 @@ const Header = (props) => {
 
   const [cartCount, setCartCount] = useState(0);
 
-  // Lắng nghe sự thay đổi từ giỏ hàng trên Firebase
-  useEffect(() => {
-    if (userId) {
-      const q = query(collection(db, 'orders'), where('user_id', '==', userId));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        setCartCount(snapshot.size);  // Cập nhật số lượng sản phẩm trong giỏ hàng
-      });
-
-      return () => unsubscribe();  // Cleanup khi component unmount
-    }
-  }, [userId]);
-
   const handleLogin = () => {
     navigate('/auth/login'); // Điều hướng tới trang login
   };
 
   const handleCart = () => {
     navigate('/cart'); // Điều hướng tới trang giỏ hàng
+  };
+
+  const handleNotification = () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+  
+    if (!user) {
+      // Nếu không có thông tin user trong localStorage, không cho chuyển trang
+      alert("User không có thông tin. Vui lòng đăng nhập.");
+      return; // Dừng hàm nếu không có thông tin user
+    }
+  
+    // Nếu có thông tin user, thực hiện chuyển trang
+    navigate(`/notification/${user.id}`);
   };
 
   return (
@@ -138,7 +137,7 @@ const Header = (props) => {
         <Box flexGrow={1} />
 
         <Stack spacing={1} direction="row" alignItems="center">
-          <IconButton size="large" aria-label="show new notifications" color="inherit">
+          <IconButton size="large" aria-label="show new notifications" color="inherit" onClick={handleNotification}> 
             <Badge variant="dot" color="primary">
               <IconBellRinging size="21" stroke="1.5" />
             </Badge>

@@ -40,7 +40,7 @@ const Inter = Loadable(lazy(() => import('../views/inter')));
 const Mentor = Loadable(lazy(() => import('../views/mentor/mentor')));
 const RegisterMentor = Loadable(lazy(() => import('../views/mentor/registerMentor')));
 const EditProfile = Loadable(lazy(() => import('../views/profile/editProfile')));
-
+const Notification = Loadable(lazy(() => import('../views/notification')));
 
 //admin
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
@@ -137,6 +137,8 @@ const renderRoutes = (role) => {
         { path: '/orders', exact: true, element: <Orders /> },
         { path: '/payment', exact: true, element: <Payment /> },
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
+        { path: '/notification/:userId', exact: true, element: <Notification /> },
+        
       ],
     });
     routes.push({
@@ -208,7 +210,7 @@ const renderRoutes = (role) => {
         { path: '/cart', exact: true, element: <Cart /> },  
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },      
         { path: '*', element: <Navigate to="/auth/404" /> },
-        
+        { path: '/notification/:userId', exact: true, element: <Notification /> },
       ],
     });
   } else {
@@ -239,6 +241,7 @@ const renderRoutes = (role) => {
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
+        { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
