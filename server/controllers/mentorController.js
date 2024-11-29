@@ -5,6 +5,12 @@ const UserModel = require('../models/userModel');
 exports.getAllMentors = async (req, res) => {
     try {
         const mentors = await Mentor.findAll();
+        if (mentors.length === 0) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'No mentors found.',
+            });
+        }
         res.status(200).json({
             status: 'success',
             results: mentors.length,
@@ -13,7 +19,7 @@ exports.getAllMentors = async (req, res) => {
             }
         });
     } catch (err) {
-        res.status(500).send({
+        res.status(500).json({
             status: 'error',
             message: err.message || 'Some error occurred while retrieving mentors.'
         });
@@ -25,10 +31,8 @@ exports.detailMentor = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // Sử dụng findByPk để tìm mentor theo ID
         const mentor = await Mentor.findByPk(id);
 
-        // Nếu không tìm thấy mentor, trả về mã lỗi 404
         if (!mentor) {
             return res.status(404).json({
                 status: 'error',
@@ -36,71 +40,44 @@ exports.detailMentor = async (req, res) => {
             });
         }
 
-        // Trả về mentor trực tiếp trong response
         res.status(200).json({
             status: 'success',
-            data: mentor, // Trả về mentor mà không cần bọc thêm một lớp object { mentor }
+            data: mentor,
         });
     } catch (err) {
-        console.error("Error retrieving mentor details:", err);
-        // Nếu có lỗi, trả về lỗi server 500
-        res.status(500).send({
+        res.status(500).json({
             status: 'error',
             message: err.message || 'Error retrieving mentor details.',
         });
     }
 };
 
-
-
 // Tạo mentor mới
 exports.createMentor = async (req, res) => {
-    const {
-        user_id,
-        bio,
-        skills,
-        experience_years,
-        rating,
-        reviews_count,
-        cv_url,
-        certificate_url,
-        isApproved,
-        is_deleted,
-    } = req.body;
-
-    // Kiểm tra các trường bắt buộc
-    if (!user_id || !bio || !skills) {
-        return res.status(400).json({
-            status: 'error',
-            message: 'User ID, bio, and skills are required',
-        });
-    }
+    const { user_id, cv_url, certification_url, bio, experience_years, skills } = req.body;
 
     try {
-        const newMentor = await Mentor.create({
+        const newMentor = new Mentor({
             user_id,
-            bio,
-            skills,
-            experience_years,
-            rating: rating || 0,
-            reviews_count: reviews_count || 0,
             cv_url,
-            certificate_url,
-            isApproved,
-            is_deleted
+            certification_url,
+            bio,
+            experience_years,
+            skills,
+            rating: 0,
+            reviews_count: 0,
+            isApproved: '0', // Chờ phê duyệt
+            created_at: new Date(),
+            is_deleted: false,
+            updated_at: new Date(),
         });
-        res.status(201).json({
-            status: 'success',
-            data: { mentor: newMentor },
-        });
-    } catch (err) {
-        res.status(500).json({
-            status: 'error',
-            message: err.message || 'Some error occurred while creating the mentor.',
-        });
+
+        await newMentor.save();
+        res.status(201).json({ success: true, message: 'Mentor đăng ký thành công' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Đã xảy ra lỗi trong quá trình đăng ký' });
     }
 };
-
 
 // Cập nhật thông tin mentor
 exports.updateMentor = async (req, res) => {
@@ -118,7 +95,6 @@ exports.updateMentor = async (req, res) => {
     } = req.body;
 
     try {
-        // Tìm mentor cần cập nhật
         const mentor = await Mentor.findByPk(id);
 
         if (!mentor) {
@@ -154,26 +130,28 @@ exports.updateMentor = async (req, res) => {
     }
 };
 
-
 // Xóa mentor
 exports.deleteMentor = async (req, res) => {
     const { id } = req.params;
 
     try {
         const mentor = await Mentor.findByPk(id);
+
         if (!mentor) {
             return res.status(404).json({
                 status: "error",
                 message: "Mentor not found"
             });
         }
+
+        // Nếu mentor tồn tại, xóa mentor
         await mentor.destroy();
         res.status(204).json({
             status: 'success',
             data: null
         });
     } catch (err) {
-        res.status(500).send({
+        res.status(500).json({
             status: 'error',
             message: err.message || 'Some error occurred while deleting the mentor.'
         });
