@@ -1,14 +1,13 @@
-// detail.js
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Grid, Box, Typography, CircularProgress } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom'; // Lấy id từ URL
 import { formatDistanceToNow } from 'date-fns'; // Format ngày
-import './detail.css';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import CourseApi from '../../../apis/CourseApI';
 import StudyTimeApi from '../../../apis/StudyTimeApI';
+import cartsApi from '../../../apis/cartsApi'; // Import cartsApi
+import './detail.css';
 
 const ProductsDetail = () => {
   const { id } = useParams(); // Lấy id từ URL
@@ -35,7 +34,7 @@ const ProductsDetail = () => {
 
         setStudyTime(course);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching study times:', error);
       } finally {
         setLoading(false);
       }
@@ -44,12 +43,16 @@ const ProductsDetail = () => {
   }, []);
 
   const hasStudyAccess = (productId) => {
-    return StudyTime.some((study) => study.user_id == userId && study.course_id == productId);
+    return StudyTime.some(
+      (study) => study.user_id === userId && study.course_id === productId
+    );
   };
 
   useEffect(() => {
     const handleLoad = () => {
-      const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
+      const iframeDoc =
+        iframeRef.current.contentDocument ||
+        iframeRef.current.contentWindow.document;
 
       // Tìm và ẩn các nút cụ thể trong iframe
       const header = iframeDoc.querySelector('.drive-viewer-header');
@@ -73,7 +76,7 @@ const ProductsDetail = () => {
     };
   }, []);
 
-  // Lấy dữ liệu sản phẩm theo ID
+  // Lấy dữ liệu sản phẩm theo ID từ API
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
@@ -82,7 +85,9 @@ const ProductsDetail = () => {
         const allCourses = response.data.courses;
 
         // Tìm khóa học có id phù hợp sau khi chuyển đổi id từ useParams sang số
-        const foundCourse = allCourses.find((course) => course.id === Number(id));
+        const foundCourse = allCourses.find(
+          (course) => course.id === Number(id)
+        );
 
         if (foundCourse) {
           setProduct(foundCourse);
@@ -104,13 +109,36 @@ const ProductsDetail = () => {
   const addToCart = async (product) => {
     if (userId) {
       try {
-        console.log(product);
-        // Gọi API thêm vào giỏ hàng ở đây
-        setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
+        // Fetch current user's cart items
+        const response = await cartsApi.getCartsList();
+        const userCarts = response.data.carts.filter(
+          (cart) => cart.user_id === userId && cart.course_id === product.id
+        );
+
+        if (userCarts.length > 0) {
+          setSnackbarMessage('Sản phẩm đã có trong giỏ hàng');
+          setSnackbarSeverity('warning');
+          setSnackbarOpen(true);
+        } else {
+          // Prepare cart data
+          const cartData = {
+            user_id: userId,
+            course_id: product.id,
+            quantity: 1, // You can modify quantity as needed
+            price: product.price,
+            discount: product.discount || 0,
+            // Add other necessary fields if required
+          };
+
+          // Add product to cart
+          await cartsApi.addCart(cartData);
+
+          setSnackbarMessage('Đã thêm sản phẩm vào giỏ hàng');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+        }
       } catch (error) {
-        console.error('Error adding product to cart: ', error);
+        console.error('Error adding product to cart:', error);
         setSnackbarMessage('Lỗi khi thêm sản phẩm vào giỏ hàng');
         setSnackbarSeverity('error');
         setSnackbarOpen(true);
@@ -148,10 +176,10 @@ const ProductsDetail = () => {
       const videoId = videoDemo.includes('youtube.com')
         ? videoDemo.split('v=')[1] // Lấy ID từ link YouTube dài
         : videoDemo.split('youtu.be/')[1]; // Lấy ID từ link YouTube ngắn
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1`;
+      return `https://www.youtube.com/embed/${videoId}`;
     }
 
-    return `${videoDemo}?autoplay=1&mute=1`; // Thêm autoplay và mute cho các link khác
+    return videoDemo; // Trả về videoDemo nếu không có thay đổi
   };
 
   return (
@@ -162,7 +190,10 @@ const ProductsDetail = () => {
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
       >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>
@@ -174,58 +205,54 @@ const ProductsDetail = () => {
           <Grid item md={12}>
             <div className="container">
               <div className="card">
-                <div className="container-fluid">
+                <div className="container-fliud">
                   <div className="wrapper row">
-                    {/* Cột hiển thị video sản phẩm */}
-                    <div className="preview col-md-8">
-                      <div
-                        className="ratio ratio-16x9"
-                        style={{ width: '100%', height: 'auto' }}
-                        dangerouslySetInnerHTML={{
-                          __html: `<iframe src="${getEmbedLink(
-                            product.video_demo
-                          )}" width="100%" height="500px" allow="autoplay" allowfullscreen muted></iframe>`,
-                        }}
-                      ></div>
+                    {/* Cột hiển thị video demo */}
+                    <div className="preview col-md-6">
+                      <div className="ratio ratio-16x9">
+                        <iframe
+                          ref={iframeRef}
+                          src={getEmbedLink(product.video_demo)}
+                          width="640"
+                          height="480"
+                          allow="autoplay"
+                          allowFullScreen
+                          title="Video Demo"
+                        ></iframe>
+                      </div>
                       <div className="overlay" id="overlay"></div>
                     </div>
 
                     {/* Cột hiển thị chi tiết sản phẩm */}
-                    <div className="details col-md-4" style={{ textAlign: 'left' }}>
-                      <h3 className="product-title">{product.name}</h3>
+                    <div className="details col-md-6">
+                      <h3 className="product-title d-flex flex-row">
+                        {product.name}
+                      </h3>
                       <div className="rating">
-                        <div className="stars">
+                        <div className="stars d-flex flex-row">
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star checked"></span>
                           <span className="fa fa-star"></span>
                           <span className="fa fa-star"></span>
                         </div>
-                        <span className="review-no">41 người xem khóa học này</span>
+                        <span className="review-no d-flex flex-row">
+                          41 người xem khóa học này
+                        </span>
                       </div>
-                      <p className="product-description">
+                      <p className="product-description d-flex flex-row">
                         Mô tả:{' '}
                         {product.description
                           ? product.description.replace(/(<([^>]+)>)/gi, '')
                           : 'No description available'}
                       </p>
-                      <h5 className="price">
- 
-  {product.discount ? (
-    <>
-      <div className="original-price">
-        {product.price.toLocaleString('vi-VN')} VND
-      </div>
-      <div className="discounted-price">
-      Giảm giá còn: {product.discount.toLocaleString('vi-VN')} VND
-      </div>
-    </>
-  ) : (
-    <span> {product.price.toLocaleString('vi-VN')} VND</span>
-  )}
-</h5>
-                      <p className="vote">
-                        <strong>91%</strong> người mua rất thích sản phẩm này!{' '}
+                      <h5 className="price d-flex flex-row ">
+                        Giá khóa học:{' '}
+                        <span> {product.price} VND</span>
+                      </h5>
+                      <p className="vote d-flex flex-row">
+                        <strong>91%</strong>
+                        người mua rất thích sản phẩm này!{' '}
                         <strong>(87 votes)</strong>
                       </p>
                       <div className="action">
@@ -235,7 +262,9 @@ const ProductsDetail = () => {
                             <button
                               className="btn btn-success btn-sm"
                               type="button"
-                              onClick={() => navigate(`/productDetailUser/${product.id}`)}
+                              onClick={() =>
+                                navigate(`/productDetailUser/${product.id}`)
+                              }
                             >
                               Bắt đầu học
                             </button>

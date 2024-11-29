@@ -1,78 +1,127 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Modal, Button, TextField } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Typography,
+  Modal,
+  Button,
+  TextField,
+  Card,
+  CardContent,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  InputAdornment,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PageContainer from 'src/components/container/PageContainer';
-import { collection, onSnapshot, query, where, setDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../config/firebaseconfig';
-import './index.css';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { FaCcMastercard, FaCcVisa, FaCcPaypal } from 'react-icons/fa';
-import { QrReader } from 'react-qr-reader';
+import cartApi from '../../apis/cartsApi'; // Adjust the path as needed
+import courseApi from '../../apis/CourseApI'; // Import courseApi
+import orderApi from '../../apis/OrderApI'; // Import orderApi
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [products, setProducts] = useState({});
   const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [loadingBuy, setLoadingBuy] = useState(false);
   const [showQRCodeDialog, setShowQRCodeDialog] = useState(false);
   const [qrCodeUrl, setQRCodeUrl] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiration, setExpiration] = useState('');
-  const [cvv, setCvv] = useState('');
   const [nameError, setNameError] = useState(false);
   const [emailError, setEmailError] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('Thẻ tín dụng');
-  const [qrScanResult, setQrScanResult] = useState('');
+
+  // State for card details
+  const [cardNumber, setCardNumber] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [cardError, setCardError] = useState({
+    cardNumber: false,
+    expiryDate: false,
+    cvv: false,
+    cardName: false,
+  });
+
+  // Snackbar state for success messages
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
 
+  // Calculate totalAmount and courseNames
+  const totalAmount = cartItems.reduce((total, item) => {
+    const price = products[item.course_id]?.price || 0;
+    const discount = products[item.course_id]?.discount || 0;
+    return total + (price - discount);
+  }, 0);
+
+  const courseNames = cartItems.map(item => products[item.course_id]?.name).join(', ');
+
+  // Update qrCodeUrl whenever cartItems or products change
   useEffect(() => {
-    if (userId) {
-      const q = query(collection(db, 'orders'), where('user_id', '==', userId));
-
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const cartData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-
-        setCartItems(cartData);
-
-        if (cartData.length === 0) {
-          setShowQRCodeDialog(false);
-        }
-      });
-
-      return () => unsubscribe();
+    if (cartItems.length === 0) {
+      setQRCodeUrl('');
+      return;
     }
+
+    const qrCodeContent = `Số tài khoản: 1907 1740 7060 18\nSố tiền: ${formatNumber(
+      totalAmount
+    )} VND\nNội dung: ${courseNames}`;
+    setQRCodeUrl(qrCodeContent);
+  }, [cartItems, products, totalAmount, courseNames]);
+
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      if (userId) {
+        try {
+          const data = await cartApi.getCartsList();
+          const userCarts = data.data.carts.filter(cart => cart.user_id === userId);
+          setCartItems(userCarts);
+        } catch (error) {
+          console.error('Error fetching carts:', error);
+          alert('Đã xảy ra lỗi khi lấy dữ liệu giỏ hàng.');
+        }
+      }
+    };
+
+    fetchCartItems();
   }, [userId]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const productsQuery = collection(db, 'products');
-      const unsubscribe = onSnapshot(productsQuery, (snapshot) => {
-        const productData = {};
-        snapshot.docs.forEach((doc) => {
-          productData[doc.id] = doc.data();
+    const fetchCourses = async () => {
+      try {
+        const data = await courseApi.getCoursesList();
+        const courseData = {};
+        data.data.courses.forEach(course => {
+          courseData[course.id] = course;
         });
-        setProducts(productData);
-      });
+        setProducts(courseData);
 
-      return () => unsubscribe();
+        // Log the course data to verify the image field
+        console.log('Fetched Courses:', courseData);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+        alert('Đã xảy ra lỗi khi lấy dữ liệu khóa học.');
+      }
     };
 
-    fetchProducts();
+    fetchCourses();
   }, []);
 
   const handleRemove = async (id) => {
     try {
-      await deleteDoc(doc(db, 'orders', id));
+      await cartApi.deleteCart(id);
       setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
     } catch (error) {
-      console.error('Lỗi khi xóa sản phẩm:', error);
+      console.error('Error removing item:', error);
       alert('Đã xảy ra lỗi khi xóa sản phẩm khỏi giỏ hàng. Vui lòng thử lại.');
     }
   };
@@ -81,7 +130,18 @@ const Cart = () => {
     return new Intl.NumberFormat('vi-VN').format(number);
   };
 
-  const handleCheckout = async () => {
+  const validateCardDetails = () => {
+    const errors = {
+      cardNumber: cardNumber.length !== 16,
+      expiryDate: !/^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(expiryDate),
+      cvv: cvv.length !== 3,
+      cardName: cardName.trim() === '',
+    };
+    setCardError(errors);
+    return !Object.values(errors).some(error => error);
+  };
+
+  const handleCheckout = async (paymentMethod) => {
     if (cartItems.length === 0) {
       alert('Giỏ hàng của bạn trống.');
       return;
@@ -93,321 +153,481 @@ const Cart = () => {
       return;
     }
 
+    if (paymentMethod === 'card' && !validateCardDetails()) {
+      alert('Vui lòng nhập đầy đủ thông tin thẻ tín dụng.');
+      return;
+    }
+
     try {
       setLoadingCheckout(true);
 
-      const totalAmount = cartItems.reduce((total, item) => {
-        const discount = products[item.product_id]?.discount || 0;
-        return total + discount;
-      }, 0);
+      const cartId = cartItems[0]?.id; // Updated to use 'id' instead of 'cart_id'
 
-      const productNames = cartItems
-        .map((item) => products[item.product_id]?.name || '.')
-        .join(', ');
-
-      await setDoc(doc(collection(db, 'orders')), {
+      const orderData = {
         user_id: userId,
-        user_name: name,
+        username: name,
         user_email: email,
-        items: cartItems.map((item) => ({
-          product_id: item.product_id,
+        item: cartItems.map((item) => ({
+          course_id: item.course_id,
           quantity: item.quantity || 1,
-          price: products[item.product_id]?.discount || 0,
+          price: products[item.course_id]?.price || 0,
+          discount: products[item.course_id]?.discount || 0,
         })),
         totalAmount,
-        paymentMethod: 'ví điện tử',
-        createdAt: new Date(),
-      });
+        payment: paymentMethod,
+        // Include card details if payment method is card
+        ...(paymentMethod === 'card' && {
+          card_details: {
+            card_number: cardNumber,
+            expiry_date: expiryDate,
+            cvv: cvv,
+            cardholder_name: cardName,
+          },
+        }),
+        cart_id: cartId, // Updated to use 'id'
+      };
 
-      await Promise.all(
-        cartItems.map((item) => deleteDoc(doc(db, 'orders', item.id)))
-      );
+      const response = await orderApi.createOrder(orderData); // Use createOrder as per controller
+      if (response.status === 'success') {
+        setCartItems([]);
+        setSnackbarMessage('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
+        setOpenSnackbar(true);
 
-      alert('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
-
-      const qrCodeUrl = `https://qr.sepay.vn/img?bank=Techcombank&acc=19071740706018&amount=${totalAmount}&des=${encodeURIComponent(
-        `Khoá Học ${productNames}`
-      )}`;
-      setQRCodeUrl(qrCodeUrl);
-
-      setShowQRCodeDialog(true);
+        if (paymentMethod === 'e_wallet') {
+          setShowQRCodeDialog(true);
+        }
+      }
     } catch (error) {
-      console.error('Lỗi khi thanh toán:', error);
+      console.error('Error during checkout:', error);
       alert('Đã xảy ra lỗi khi thanh toán. Vui lòng thử lại.');
     } finally {
       setLoadingCheckout(false);
     }
   };
 
-  const handleQuantityChange = (id, quantity) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: quantity < 1 ? 1 : quantity } : item
-      )
-    );
-  };
+  // Updated handleBuy function
+  const handleBuy = async () => {
+    if (cartItems.length === 0) {
+      alert('Giỏ hàng của bạn trống.');
+      return;
+    }
 
-  const handleScan = (data) => {
-    if (data) {
-      setQrScanResult(data);
+    if (!name || !email) {
+      setNameError(!name);
+      setEmailError(!email);
+      return;
+    }
+
+    const cartId = cartItems[0]?.id; // Updated to use 'id' instead of 'cart_id'
+    if (!cartId) {
+      alert('Không tìm thấy ID giỏ hàng.');
+      return;
+    }
+
+    try {
+      setLoadingBuy(true);
+
+      const orderData = {
+        user_id: userId,
+        username: name,
+        user_email: email,
+        item: cartItems.map((item) => ({
+          course_id: item.course_id,
+          quantity: item.quantity || 1,
+          price: products[item.course_id]?.price || 0,
+          discount: products[item.course_id]?.discount || 0,
+        })),
+        totalAmount,
+        payment: 'addOrder', // Define the appropriate payment method
+        cart_id: cartId, // Updated to use 'id'
+      };
+
+      const response = await orderApi.createOrder(orderData); // Use createOrder as per controller
+      if (response.status === 'success') {
+        setCartItems([]);
+        setSnackbarMessage('Đơn hàng đã được gửi đi thành công!');
+        setOpenSnackbar(true);
+      }
+    } catch (error) {
+      console.error('Error during buying:', error);
+      alert('Đã xảy ra lỗi khi gửi đơn hàng. Vui lòng thử lại.');
+    } finally {
+      setLoadingBuy(false);
     }
   };
 
-  const handleError = (err) => {
-    console.error(err);
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+    setSnackbarMessage('');
   };
 
   return (
     <PageContainer title="Giỏ hàng" description="Danh sách sản phẩm trong giỏ hàng của bạn">
       <Box sx={{ padding: { xs: '10px' } }}>
-        <section className="h-100 h-custom">
-          <div className="container h-100 py-5">
-            <div className="row d-flex justify-content-center align-items-center h-100">
-              <div className="col">
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th scope="col" className="h5">Giỏ hàng</th>
-                        <th scope="col">Định dạng</th>
-                        <th scope="col">Số lượng</th>
-                        <th scope="col">Giá</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+        <Grid container spacing={3}>
+          <Grid item md={8}>
+            <div className="course-content">
+              <div className="container py-5 h-100">
+                <div className="row d-flex justify-content-center align-items-center h-100">
+                  <div className="col">
+                    <div className="p-4">
+                      <Typography variant="h4" component="h1" className="heading">
+                        Giỏ hàng của bạn
+                      </Typography>
+                      <Typography variant="body1" paragraph className="typography-body">
+                        Bạn có {cartItems.length} sản phẩm trong giỏ hàng
+                      </Typography>
+
                       {cartItems.map((item) => (
-                        <tr key={item.id}>
-                          <th scope="row">
-                            <div className="d-flex align-items-center">
-                              <img
-                                src={products[item.product_id]?.image_url || 'https://i.imgur.com/2DsA49b.webp'}
-                                className="img-fluid rounded-3"
-                                style={{ width: '120px' }}
-                                alt={products[item.product_id]?.name || 'Sản phẩm'}
-                              />
-                              <div className="flex-column ms-4">
-                                <p className="mb-2">{products[item.product_id]?.name || 'Tên sản phẩm'}</p>
-                                <p className="mb-0">ID sản phẩm: {item.product_id}</p>
+                        <div className="card mb-3" key={item.id}>
+                          <div className="card-body">
+                            <div className="d-flex justify-content-between">
+                              <div className="d-flex flex-row align-items-center">
+                                {products[item.course_id]?.image && (
+                                  <img
+                                    src={products[item.course_id].image} // Ensure this field is correct
+                                    className="img-fluid rounded-3"
+                                    alt={products[item.course_id]?.name || 'Course Image'}
+                                    style={{ width: '65px' }}
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = '/uploads/placeholder.png'; // Path to your placeholder image
+                                    }}
+                                  />
+                                )}
+                                <div className="ms-3">
+                                  <h5>{products[item.course_id]?.name || ''}</h5>
+                                  <p className="small mb-0">ID sản phẩm: {item.course_id}</p>
+                                </div>
+                              </div>
+                              <div className="d-flex flex-row align-items-center">
+                                <h6 className="mb-0">
+                                  <span style={{ textDecoration: 'line-through', marginRight: '5px', color: 'red' }}>
+                                    {formatNumber(products[item.course_id]?.price || 0)} VND
+                                  </span>
+                                  <span style={{ color: 'green', fontWeight: 'bold' }}>
+                                    {formatNumber(
+                                      (products[item.course_id]?.price - (products[item.course_id]?.discount || 0))
+                                    )} VND
+                                  </span>
+                                </h6>
+                                <DeleteIcon
+                                  onClick={() => handleRemove(item.id)}
+                                  style={{ color: '#cecece', cursor: 'pointer' }}
+                                />
                               </div>
                             </div>
-                          </th>
-                          <td className="align-middle">
-                            <p className="mb-0" style={{ fontWeight: 500 }}>Kỹ thuật số</p>
-                          </td>
-                          <td className="align-middle">
-                            <div className="d-flex flex-row">
-                              <button
-                                className="btn btn-link px-2"
-                                onClick={() => handleQuantityChange(item.id, (item.quantity || 1) - 1)}
-                              >
-                                <RemoveIcon />
-                              </button>
-                              <input
-                                min="1"
-                                name="quantity"
-                                value={item.quantity || 1}
-                                type="number"
-                                className="form-control form-control-sm"
-                                style={{ width: '50px' }}
-                                onChange={(e) => handleQuantityChange(item.id, Number(e.target.value))}
-                              />
-                              <button
-                                className="btn btn-link px-2"
-                                onClick={() => handleQuantityChange(item.id, (item.quantity || 1) + 1)}
-                              >
-                                <AddIcon />
-                              </button>
-                            </div>
-                          </td>
-                          <td className="align-middle">
-                            <p className="mb-0" style={{ fontWeight: 500 }}>
-                              {formatNumber(products[item.product_id]?.discount || 0)} VND
-                            </p>
-                          </td>
-                          <td className="align-middle">
-                            <DeleteForeverIcon
-                              onClick={() => handleRemove(item.id)}
-                              style={{ color: '#cecece', cursor: 'pointer' }}
-                            />
-                          </td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="card shadow-2-strong mb-5 mb-lg-0" style={{ borderRadius: '16px' }}>
-                  <div className="card-body p-4">
-                    <div className="row">
-                      <div className="col-md-6 col-lg-4 col-xl-3 mb-4 mb-md-0">
-                        <form>
-                          <div className="d-flex flex-row pb-3">
-                            <div className="d-flex align-items-center pe-2">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="paymentMethod"
-                                id="creditCard"
-                                value="Thẻ tín dụng"
-                                defaultChecked
-                                onChange={() => setPaymentMethod('Thẻ tín dụng')}
-                              />
-                            </div>
-                            <div className="rounded border w-100 p-3">
-                              <p className="d-flex align-items-center mb-0">
-                                <FaCcMastercard size={32} className="text-body pe-2" />Thẻ tín dụng
-                              </p>
-                            </div>
-                          </div>
-                          <div className="d-flex flex-row pb-3">
-                            <div className="d-flex align-items-center pe-2">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="paymentMethod"
-                                id="debitCard"
-                                value="Thẻ ghi nợ"
-                                onChange={() => setPaymentMethod('Thẻ ghi nợ')}
-                              />
-                            </div>
-                            <div className="rounded border w-100 p-3">
-                              <p className="d-flex align-items-center mb-0">
-                                <FaCcVisa size={32} className="text-body pe-2" />Thẻ ghi nợ
-                              </p>
-                            </div>
-                          </div>
-                          <div className="d-flex flex-row">
-                            <div className="d-flex align-items-center pe-2">
-                              <input
-                                className="form-check-input"
-                                type="radio"
-                                name="paymentMethod"
-                                id="paypal"
-                                value="PayPal"
-                                onChange={() => setPaymentMethod('PayPal')}
-                              />
-                            </div>
-                            <div className="rounded border w-100 p-3">
-                              <p className="d-flex align-items-center mb-0">
-                                <FaCcPaypal size={32} className="text-body pe-2" />PayPal
-                              </p>
-                            </div>
-                          </div>
-                        </form>
-                      </div>
-                      <div className="col-md-6 col-lg-4 col-xl-6">
-                        <div className="row">
-                          <div className="col-12 col-xl-6">
-                            <div className="form-outline mb-4 mb-xl-5">
-                              <TextField
-                                label="Tên trên thẻ"
-                                variant="outlined"
-                                fullWidth
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                error={nameError}
-                                helperText={nameError ? 'Vui lòng nhập tên của bạn' : ''}
-                              />
-                            </div>
-
-                            <div className="form-outline mb-4 mb-xl-5">
-                              <TextField
-                                label="Ngày hết hạn"
-                                variant="outlined"
-                                fullWidth
-                                value={expiration}
-                                onChange={(e) => setExpiration(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                          <div className="col-12 col-xl-6">
-                            <div className="form-outline mb-4 mb-xl-5">
-                              <TextField
-                                label="Số thẻ"
-                                variant="outlined"
-                                fullWidth
-                                value={cardNumber}
-                                onChange={(e) => setCardNumber(e.target.value)}
-                              />
-                            </div>
-
-                            <div className="form-outline mb-4 mb-xl-5">
-                              <TextField
-                                label="Cvv"
-                                variant="outlined"
-                                fullWidth
-                                type="password"
-                                value={cvv}
-                                onChange={(e) => setCvv(e.target.value)}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="col-lg-4 col-xl-3">
-                        <div className="d-flex justify-content-between" style={{ fontWeight: 500 }}>
-                          <p className="mb-2">Tổng phụ</p>
-                          <p className="mb-2">
-                            {formatNumber(
-                              cartItems.reduce((total, item) => {
-                                const discount = products[item.product_id]?.discount || 0;
-                                return total + discount;
-                              }, 0)
-                            )} VND
-                          </p>
-                        </div>
-
-                        <div className="d-flex justify-content-between" style={{ fontWeight: 500 }}>
-                          <p className="mb-0">Vận chuyển</p>
-                          <p className="mb-0">$2.99</p>
-                        </div>
-
-                        <hr className="my-4" />
-
-                        <div className="d-flex justify-content-between mb-4" style={{ fontWeight: 500 }}>
-                          <p className="mb-2">Tổng cộng (đã bao gồm thuế)</p>
-                          <p className="mb-2">
-                            {formatNumber(
-                              cartItems.reduce((total, item) => {
-                                const discount = products[item.product_id]?.discount || 0;
-                                return total + discount;
-                              }, 0)
-                            )} VND
-                          </p>
-                        </div>
-
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          fullWidth
-                          size="large"
-                          onClick={handleCheckout}
-                          disabled={loadingCheckout}
-                        >
-                          <div className="d-flex justify-content-between" style={{ width: '100%' }}>
-                            <span>Thanh toán</span>
-                            <span>
-                              {formatNumber(
-                                cartItems.reduce((total, item) => {
-                                  const discount = products[item.product_id]?.discount || 0;
-                                  return total + discount;
-                                }, 0)
-                              )} VND
-                            </span>
-                          </div>
-                        </Button>
-                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </Box>
+          </Grid>
+          <Grid item md={4}>
+            <div className="course-content pt-5 mt-5">
+              <Card sx={{ backgroundColor: '#f5f5f5', color: '#333', borderRadius: '10px' }}>
+                <CardContent>
+                  <Typography variant="h5" className="mb-4" align="center">
+                    Phương thức thanh toán
+                  </Typography>
+                  <Divider sx={{ mb: 3 }} />
 
-      
-      
+                  {/* Credit/Debit Card Payment */}
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="card-payment-content"
+                      id="card-payment-header"
+                    >
+                      <CreditCardIcon sx={{ mr: 1 }} />
+                      <Typography variant="h6">Thẻ tín dụng / Thẻ ghi nợ</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/visa.png" alt="visa"/>
+                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/mastercard.png" alt="mastercard"/>
+                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/amex.png" alt="amex"/>
+                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/credit-card-front.png" alt="credit-card-front"/>
+                        {/* Add more card logos as needed */}
+                      </Box>
+                      {/* Card Information Inputs */}
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <TextField
+                          label="Tên chủ thẻ"
+                          variant="outlined"
+                          fullWidth
+                          value={cardName}
+                          onChange={(e) => {
+                            setCardName(e.target.value);
+                            setCardError(prev => ({ ...prev, cardName: false }));
+                          }}
+                          error={cardError.cardName}
+                          helperText={cardError.cardName ? 'Vui lòng nhập tên chủ thẻ' : ''}
+                          InputLabelProps={{
+                            style: { color: '#333' }, // Label color
+                          }}
+                          InputProps={{
+                            style: { color: '#333' }, // Input text color
+                          }}
+                          FormHelperTextProps={{
+                            style: { color: '#f44336' }, // Helper text color
+                          }}
+                        />
+                        <TextField
+                          label="Số thẻ"
+                          variant="outlined"
+                          fullWidth
+                          value={cardNumber}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            if (value.length <= 16) {
+                              setCardNumber(value);
+                              setCardError(prev => ({ ...prev, cardNumber: false }));
+                            }
+                          }}
+                          error={cardError.cardNumber}
+                          helperText={cardError.cardNumber ? 'Số thẻ không hợp lệ' : ''}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <CreditCardIcon />
+                              </InputAdornment>
+                            ),
+                            style: { color: '#333' },
+                          }}
+                          InputLabelProps={{
+                            style: { color: '#333' },
+                          }}
+                          FormHelperTextProps={{
+                            style: { color: '#f44336' },
+                          }}
+                        />
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                          <TextField
+                            label="Ngày hết hạn (MM/YY)"
+                            variant="outlined"
+                            fullWidth
+                            value={expiryDate}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (value.length <= 5) {
+                                setExpiryDate(value);
+                                setCardError(prev => ({ ...prev, expiryDate: false }));
+                              }
+                            }}
+                            error={cardError.expiryDate}
+                            helperText={cardError.expiryDate ? 'Ngày hết hạn không hợp lệ' : ''}
+                            InputProps={{
+                              style: { color: '#333' },
+                            }}
+                            InputLabelProps={{
+                              style: { color: '#333' },
+                            }}
+                            FormHelperTextProps={{
+                              style: { color: '#f44336' },
+                            }}
+                          />
+                          <TextField
+                            label="CVV"
+                            variant="outlined"
+                            fullWidth
+                            value={cvv}
+                            onChange={(e) => {
+                              const value = e.target.value.replace(/\D/g, '');
+                              if (value.length <= 3) {
+                                setCvv(value);
+                                setCardError(prev => ({ ...prev, cvv: false }));
+                              }
+                            }}
+                            error={cardError.cvv}
+                            helperText={cardError.cvv ? 'CVV không hợp lệ' : ''}
+                            InputProps={{
+                              style: { color: '#333' },
+                            }}
+                            InputLabelProps={{
+                              style: { color: '#333' },
+                            }}
+                            FormHelperTextProps={{
+                              style: { color: '#f44336' },
+                            }}
+                          />
+                        </Box>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          fullWidth
+                          onClick={() => handleCheckout('card')}
+                          disabled={loadingCheckout}
+                        >
+                          {loadingCheckout ? 'Đang xử lý...' : 'Thanh toán bằng thẻ'}
+                        </Button>
+                      </Box>
+                    </AccordionDetails>
+                  </Accordion>
+
+                  <Divider sx={{ my: 3 }} />
+
+                  {/* QR Code Banking */}
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="qr-code-payment-content"
+                      id="qr-code-payment-header"
+                    >
+                      <AccountBalanceWalletIcon sx={{ mr: 1 }} />
+                      <Typography variant="h6">Thanh toán qua ngân hàng</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Box sx={{ textAlign: 'center' }}>
+                        <Typography variant="body1" gutterBottom>
+                          Số tài khoản: 1907 1740 7060 18
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          Số tiền: {formatNumber(totalAmount)} VND
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          Nội dung: {courseNames}
+                        </Typography>
+                        <Box sx={{ mt: 2 }}>
+                          <img
+                            src={`https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(qrCodeUrl)}`}
+                            alt="QR Code"
+                            style={{ width: '200px', height: '200px' }}
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/uploads/qr-code.jpg'; // Ensure fallback image exists
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                    </AccordionDetails>
+                  </Accordion>
+
+                  {/* MUA Button */}
+                  <Box sx={{ mt: 3 }}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      fullWidth
+                      onClick={handleBuy}
+                      disabled={loadingBuy}
+                    >
+                      {loadingBuy ? 'Đang xử lý...' : 'MUA'}
+                    </Button>
+                  </Box>
+
+                  {/* Name and Email Fields */}
+                  <Box sx={{ mt: 3 }}>
+                    <TextField
+                      label="Tên người mua"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        setNameError(false);
+                      }}
+                      error={nameError}
+                      helperText={nameError ? 'Vui lòng nhập tên của bạn' : ''}
+                      InputLabelProps={{
+                        style: { color: '#333' }, // Label color
+                      }}
+                      InputProps={{
+                        style: { color: '#333' }, // Input text color
+                      }}
+                      FormHelperTextProps={{
+                        style: { color: '#f44336' }, // Helper text color
+                      }}
+                    />
+
+                    <TextField
+                      label="Email"
+                      variant="outlined"
+                      fullWidth
+                      margin="normal"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setEmailError(false);
+                      }}
+                      error={emailError}
+                      helperText={emailError ? 'Vui lòng nhập email của bạn' : ''}
+                      InputLabelProps={{
+                        style: { color: '#333' }, // Label color
+                      }}
+                      InputProps={{
+                        style: { color: '#333' }, // Input text color
+                      }}
+                      FormHelperTextProps={{
+                        style: { color: '#f44336' }, // Helper text color
+                      }}
+                    />
+                  </Box>
+
+                </CardContent>
+              </Card>
+            </div>
+          </Grid>
+        </Grid>
+
+        {/* QR Code Modal */}
+        <Modal open={showQRCodeDialog} onClose={() => setShowQRCodeDialog(false)}>
+          <Box
+            sx={{
+              padding: '20px',
+              backgroundColor: 'white',
+              borderRadius: '10px',
+              width: '350px',
+              margin: 'auto',
+              mt: '15%',
+              textAlign: 'center',
+            }}
+          >
+            <Typography variant="h6" className="mb-4">
+              Thanh toán bằng Ví điện tử
+            </Typography>
+            <img
+              src={`https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(qrCodeUrl)}`}
+              alt="QR Code"
+              style={{ width: '200px', height: '200px' }}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/uploads/qr-code.jpg'; // Ensure fallback image exists
+              }}
+            />
+            <Typography variant="body1" className="mt-3">
+              Số tiền: {formatNumber(totalAmount)} VND
+            </Typography>
+            <Typography variant="body1" className="mt-1">
+              Nội dung: {courseNames}
+            </Typography>
+            <Button
+              variant="contained"
+              color="secondary"
+              sx={{ mt: 3 }}
+              onClick={() => setShowQRCodeDialog(false)}
+            >
+              Đóng
+            </Button>
+          </Box>
+        </Modal>
+
+        {/* Success Snackbar */}
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </Box>
     </PageContainer>
   );
 };

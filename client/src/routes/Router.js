@@ -31,7 +31,6 @@ const ProductDetail = Loadable(lazy(() => import('../views/course/components/det
 const CateDetail = Loadable(lazy(() => import('../views/course/components/cateDetail')));
 const ProductDetailUser = Loadable(lazy(() => import('../views/courseDetail/index')));
 const Cart = Loadable(lazy(() => import('../views/cart/index')));
-const Payment = Loadable(lazy(() => import('../views/cart/data/payment')));
 const Error = Loadable(lazy(() => import('../views/authentication/Error')));
 const Register = Loadable(lazy(() => import('../views/authentication/Register')));
 const Login = Loadable(lazy(() => import('../views/authentication/Login')));
@@ -135,7 +134,6 @@ const renderRoutes = (role) => {
         { path: '/productDetailUser/:id', exact: true, element: <ProductDetailUser /> },
         { path: '/cart', exact: true, element: <Cart /> },
         { path: '/orders', exact: true, element: <Orders /> },
-        { path: '/payment', exact: true, element: <Payment /> },
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
       ],
     });

@@ -302,28 +302,3 @@
   }
 }
 @media (max-width: 767.98px) { .border-sm-start-none { border-left: none !important; } }
-
-
-/* index.css */
-
-/* Ví dụ điều chỉnh nút "Mua" */
-.btn-primary {
-  background-color: #28a745;
-  border-color: #28a745;
-}
-
-.btn-primary:hover {
-  background-color: #218838;
-  border-color: #1e7e34;
-}
-
-/* Ví dụ điều chỉnh nút "Xem chi tiết" */
-.btn-outline-primary {
-  color: #007bff;
-  border-color: #007bff;
-}
-
-.btn-outline-primary:hover {
-  background-color: #007bff;
-  color: #fff;
-}

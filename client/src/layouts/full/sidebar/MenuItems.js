@@ -1,15 +1,8 @@
-// src/components/menuItems/MenuItems.js
-
 import {
-  IconHome,
-  IconUsers,
-  IconBrandYoutube,
-  IconUser,
-  IconInfoSquareRounded,
-  IconFilePhone,
-  IconUserCircle,
-  IconUserCode
-} from '@tabler/icons-react';
+  IconHome, IconUsers, IconBrandYoutube
+} from '@tabler/icons';
+import { IconUser } from '@tabler/icons-react';
+import { IconInfoSquareRounded, IconFilePhone, IconUserCircle, IconUserCode  } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
 const Menuitems = [
@@ -28,7 +21,7 @@ const Menuitems = [
   // {
   //   id: uniqueId(),
   //   title: 'Bài viết',
-  //   icon: IconBook2, // Đảm bảo rằng IconBook2 tồn tại trong @tabler/icons-react
+  //   icon: IconBook2,
   //   href: '/article',
   // },
   {
@@ -50,10 +43,10 @@ const Menuitems = [
     href: '/user',
   },
   {
-    id: uniqueId(),
-    title: 'Liên hệ',
-    icon: IconFilePhone,
-    href: '/contact',
+  id: uniqueId(),
+  title: 'Liên hệ',
+  icon: IconFilePhone,
+  href: '/contact', 
   },
 ];
 

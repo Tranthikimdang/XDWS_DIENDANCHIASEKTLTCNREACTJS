@@ -1,72 +1,73 @@
 import React from 'react';
-import './Footer.css';
+import './Footer.css'; // Assuming you will write the CSS separately.
 
 const Footer = () => {
   return (
     <footer className="footer">
       <div className="footer-container">
-        {/* Phần Bên Trái */}
+        {/* Left Section */}
         <div className="footer-section company-info">
-          <h2>ShareCode</h2>
-          <p>Điện thoại: +84 123 456 789</p>
-          <p>Email: contact@sharecode.dev</p>
-          <p>Địa chỉ: 123 Coding Street, Khu Công Nghệ, TP. HCM</p>
+          <h2>F8 Học Lập Trình Để Đi Làm</h2>
+          <p>Điện thoại: 08 1919 8989</p>
+          <p>Email: contact@fullstack.edu.vn</p>
+          <p>Địa chỉ: Số 1, ngõ 41, Trần Duy Hưng, Cầu Giấy, Hà Nội</p>
+          <img src="dmca.png" alt="DMCA Protected" className="dmca-logo" />
         </div>
 
-        {/* Các Phần Trung Tâm */}
+        {/* Center Sections */}
         <div className="footer-section links">
-          <h3>Giới Thiệu</h3>
+          <h3>Về F8</h3>
           <ul>
-            <li>Về Chúng Tôi</li>
-            <li>Liên Hệ</li>
-            <li>Điều Khoản Dịch Vụ</li>
-            <li>Chính Sách Bảo Mật</li>
-            <li>Cơ Hội Việc Làm</li>
+            <li>Giới thiệu</li>
+            <li>Liên hệ</li>
+            <li>Điều khoản</li>
+            <li>Bảo mật</li>
+            <li>Cơ hội việc làm</li>
           </ul>
         </div>
         
         <div className="footer-section links">
-          <h3>Tài Nguyên</h3>
+          <h3>Sản Phẩm</h3>
           <ul>
-            <li>Code Mẫu</li>
-            <li>Mã Nguồn Mở</li>
-            <li>Tài Liệu</li>
-            <li>Hướng Dẫn</li>
-            <li>Thực Hành Tốt Nhất</li>
-            <li>Cộng Đồng</li>
+            <li>Game Nester</li>
+            <li>Game CSS Diner</li>
+            <li>Game CSS Selectors</li>
+            <li>Game Froggy</li>
+            <li>Game Froggy Pro</li>
+            <li>Game Scoops</li>
           </ul>
         </div>
 
         <div className="footer-section links">
-          <h3>Danh Mục</h3>
+          <h3>Công Cụ</h3>
           <ul>
-            <li>Lập Trình Web</li>
-            <li>Lập Trình Di Động</li>
-            <li>DevOps</li>
-            <li>Khoa Học Dữ Liệu</li>
-            <li>Học Máy</li>
-            <li>Thiết Kế Hệ Thống</li>
+            <li>Tạo CV xin việc</li>
+            <li>Rút gọn liên kết</li>
+            <li>Clip-path maker</li>
+            <li>Snippet generator</li>
+            <li>CSS Grid generator</li>
+            <li>Cảnh báo sờ tay lên mặt</li>
           </ul>
         </div>
 
-        {/* Phần Bên Phải */}
+        {/* Right Section */}
         <div className="footer-section company-details">
-          <h3>Nền Tảng ShareCode</h3>
-          
-          <p>Thành lập: 2024</p>
-          <p>Lĩnh vực: Chia sẻ kiến thức lập trình & xây dựng cộng đồng</p>
-          <p>Sứ mệnh của chúng tôi là tạo ra một nền tảng hợp tác nơi các lập trình viên có thể chia sẻ và học hỏi từ code và kinh nghiệm của nhau.</p>
+          <h3>Công Ty Cổ Phần Công Nghệ Giáo Dục F8</h3>
+          <p>Mã số thuế: 0109922901</p>
+          <p>Ngày thành lập: 04/03/2022</p>
+          <p>Lĩnh vực hoạt động: Giáo dục, công nghệ - lập trình.</p>
+          <p>Chúng tôi tập trung xây dựng và phát triển các sản phẩm mang lại giá trị cho cộng đồng lập trình viên Việt Nam.</p>
           <div className="social-icons">
-            <span className="icon">GitHub</span>
-            <span className="icon">Discord</span>
-            <span className="icon">LinkedIn</span>
+            <span className="icon">YouTube</span>
+            <span className="icon">Facebook</span>
+            <span className="icon">TikTok</span>
           </div>
         </div>
       </div>
 
-      {/* Phần Chân Trang */}
+      {/* Footer Bottom */}
       <div className="footer-bottom">
-        <p>&copy; 2024 ShareCode. Xây dựng tương lai chia sẻ kiến thức lập trình cùng nhau.</p>
+        <p>&copy; 2018 - 2024 F8. Nền tảng học lập trình hàng đầu Việt Nam</p>
       </div>
     </footer>
   );
