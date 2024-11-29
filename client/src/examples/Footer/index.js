@@ -1,56 +1,41 @@
-// Vision UI Dashboard React components
+// Footer.js
+import React from "react";
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
-
-function App() {
-  return (
-    <VuiBox
-      display="flex"
-      flexDirection="column"
-      minHeight="10vh"
-    >
-      {/* Your main content here */}
-      <VuiBox flex="1">
-        {/* Other components */}
-      </VuiBox>
-      <Footer />
-    </VuiBox>
-  );
-}
 
 function Footer() {
   return (
     <VuiBox
       display="flex"
-      flexDirection={{ xs: "column", lg: "row" }}
-      justifyContent="space-between"
+      justifyContent="center"
+      alignItems="center"
       component="footer"
       py={2}
-      pb={0}
-      sx={{ mt: "auto" }}
+      sx={{
+        mt: "auto", // Đảm bảo footer tự đẩy xuống khi nội dung ít
+        
+        width: "100%", // Đảm bảo footer bao phủ toàn bộ chiều rộng
+      }}
     >
-      <VuiBox item xs={12} sx={{ textAlign: "center" }}>
+      <VuiTypography
+        variant="button"
+        sx={{ fontWeight: "400 !important", fontSize: "14px" }}
+      >
+        © 2024, Website diễn đàn chia sẻ kiến thức lập trình - Code by{" "}
         <VuiTypography
+          component="a"
           variant="button"
-          sx={{ textAlign: "center", fontWeight: "400 !important" }}
-          color="white"
+          href="/"
+          sx={{
+            fontWeight: "500 !important",
+            textDecoration: "none",
+          }}
         >
-          @ 2024, Website diễn đàn chia sẻ kiến thức lập trình - code by {""}
-          <VuiTypography
-            component="a"
-            variant="button"
-            href="/"
-            sx={{ textAlign: "center", fontWeight: "500 !important" }}
-            color="white"
-            mr="2px"
-          >
-            SHARE CODE
-          </VuiTypography>
+          SHARE CODE
         </VuiTypography>
-      </VuiBox>
-      
+      </VuiTypography>
     </VuiBox>
   );
 }
 
-export default App;
+export default Footer;
