@@ -1,13 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const User = require('./userModel'); // Giả sử có bảng user
-// const Question = require('./questionModel'); // Giả sử có bảng question
+const Question = require('./questionModel'); // Giả sử có bảng question
 
 const Comment = sequelize.define('Comment', {
     question_id: {
         type: DataTypes.STRING,
         references: {
-            // model: Question,
+            model: Question,
             key: 'id'
         },
         onUpdate: 'CASCADE',

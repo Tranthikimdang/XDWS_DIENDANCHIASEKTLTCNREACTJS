@@ -36,7 +36,7 @@ const ProductsDetail = () => {
   const [replyImageFile, setReplyImageFile] = useState('');
   const [replyFile, setReplyFile] = useState('');
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
-  const [dataTemp, setDataTemp] = useState(null);
+  const [dataTemp, setDataTemp] = useState([]);
   const [users, setUsers] = useState([]);
 
   const user = JSON.parse(localStorage.getItem('user'));
@@ -200,26 +200,38 @@ const ProductsDetail = () => {
     fetchUsers(); // Gọi hàm lấy người dùng khi component mount
   }, []);
 
+  // Load comments from localStorage on initial load
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const response = await getCourseComments(id);
-        console.log('Comments:', response.data);
-        setDataTemp(response.data);
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-      }
-      setNewReplies({})
-    };
+    const storedComments = localStorage.getItem('comment_course');
+    if (storedComments) {
+      setDataTemp(JSON.parse(storedComments));
+    } else {
+      const fetchComments = async () => {
+        try {
+          const response = await getCourseComments(id);
+          console.log('Comments:', response.data);
+          setDataTemp(response.data); // Assuming this includes replies
+          localStorage.setItem('comments', JSON.stringify(response.data)); // Store to localStorage
+        } catch (error) {
+          console.error("Error fetching comments:", error);
+        }
+      };
 
-    if (id) fetchComments();
+      if (id) fetchComments();
+    }
   }, [id]);
 
+  // Save comments to localStorage after adding a new comment or reply
   const handleAddComment = async (course_id) => {
     try {
-      let imageUrl = [];
+      if (!newComment || newComment.trim() === '') {
+        setSnackbarMessage("Nội dung bình luận không được để trống.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return; // Ngừng thực hiện hàm nếu bình luận rỗng
+      }
 
-      // Upload image if available
+      let imageUrl = [];
       if (imageFile) {
         const formDataImage = new FormData();
         formDataImage.append("image", imageFile);
@@ -232,22 +244,24 @@ const ProductsDetail = () => {
       const newCommentData = {
         course_id,
         user_id: userData.current.id,
-        content: newComment || '',  // Optional content
-        imageUrls: imageUrl,        // Optional image
+        content: newComment || '',
+        imageUrls: imageUrl,
         created_at: new Date(),
         updated_at: new Date(),
         replies: []
       };
+
       const response = await axios.post('http://localhost:3000/api/commentCourse', newCommentData);
-      console.log('newCommentData:', newCommentData);
+
       if (response.data.status === 'success') {
-        setDataTemp((prevComments) => [
-          ...prevComments,
-          { ...newCommentData, id: response.data.data.comment.id } // Assuming the response contains the new comment ID
-        ]);
-        setNewComment('');  // Reset comment input
-        setCommentImages([]);  // Reset images
-        setImageFile(null);     // Reset image file state
+        setDataTemp((prevComments) => {
+          const updatedComments = [...prevComments, { ...newCommentData, id: response.data.data.comment.id }];
+          localStorage.setItem('comment_course', JSON.stringify(updatedComments)); // Save updated comments
+          return updatedComments;
+        });
+        setNewComment('');
+        setCommentImages([]);
+        setImageFile(null);
         setSnackbarMessage("Bình luận của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -262,65 +276,69 @@ const ProductsDetail = () => {
     }
   };
 
-  const handleAddReply = async (course_id, commentId) => {
-    // Prevent multiple submissions
+  const handleAddReply = async (course_id, commentId, parentId = null) => {
     if (isSubmittingReply) return;
     setIsSubmittingReply(true);
-  
+
+    if (!newReplies[parentId || commentId] || newReplies[parentId || commentId].trim() === '') {
+      setSnackbarMessage("Nội dung phản hồi không được để trống.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      setIsSubmittingReply(false);
+      return;
+    }
+
     try {
       let imageUrls = [];
-  
-      // Upload images if available
       if (replyImageFile && replyImageFile.length > 0) {
         const formDataImage = new FormData();
-        replyImageFile.forEach((image, index) => {
-          formDataImage.append(`image_${index}`, image);
+        replyImageFile.forEach((image) => {
+          formDataImage.append("image", image);
         });
-        const imageResponse = await axios.post("http://localhost:3000/api/upload", formDataImage);
+        const imageResponse = await axios.post("http://localhost:3000/api/upload", formDataImage, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
         if (imageResponse.data && Array.isArray(imageResponse.data.imagePaths)) {
           imageUrls = imageResponse.data.imagePaths;
         }
       }
-  
-      // Create new reply object
+
       const newReply = {
         user_id: userData.current.id,
-        content: newReplies[commentId] || '',
-        imageUrls: imageUrls,
+        content: newReplies[parentId || commentId] || '',
+        imageUrls: imageUrls,  // No need to stringify
         created_at: new Date(),
       };
-  
-      // Post the reply to the API
+
       const response = await axios.post(`http://localhost:3000/api/commentCourse/${commentId}/replies`, newReply);
-  
+
       if (response.data.status === 'success') {
-        setDataTemp((prevComments) =>
-          prevComments.map((comment) =>
-            comment.id === commentId
-              ? {
-                  ...comment,
-                  replies: comment.replies
-                    ? [...comment.replies, { ...newReply, id: response.data.data.reply.id }]  // Add new reply if there are existing replies
-                    : [{ ...newReply, id: response.data.data.reply.id }]  // Create an array if no replies yet
-                }
-              : comment
-          )
-        );
-  
-        // Clear the reply input and reset form state
-        setNewReplies((prev) => ({ ...prev, [commentId]: '' }));
+        setDataTemp((prevComments) => {
+          const updatedComments = prevComments.map((item) => {
+            if (item.id === commentId) {
+              const repliesArray = Array.isArray(item.replies) ? item.replies : [];
+              return {
+                ...item,
+                replies: [...repliesArray, { ...newReply, id: response.data.data.reply.id }],
+              };
+            }
+            return item;
+          });
+          localStorage.setItem('comment_course', JSON.stringify(updatedComments)); // Save updated comments
+          return updatedComments;
+        });
+
+        setNewReplies((prev) => ({ ...prev, [parentId || commentId]: '' }));
         setReplyingTo(null);
         setReplyImageFile(null);
-  
-        // Show success notification
         setSnackbarMessage("Trả lời của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Error adding reply:", error);
-  
-      // Show error notification
       setSnackbarMessage("Đã xảy ra lỗi khi gửi phản hồi.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -328,8 +346,9 @@ const ProductsDetail = () => {
       setIsSubmittingReply(false);
     }
   };
-  
-  
+
+
+
   const formatDate = (createdAt) => {
     if (!createdAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
 
@@ -538,22 +557,30 @@ const ProductsDetail = () => {
           ) : dataTemp.length > 0 ? (
             dataTemp.map((comment, index) => (
               <Box key={comment.id || index} mb={2} p={2} border="1px solid #ddd" borderRadius="4px">
-                <Typography variant="subtitle2" color="primary">
-                  {users.find((user) => user.id === comment.user_id)?.name}
-                </Typography>
+                <Box display="flex" alignItems="center">
+                  <img
+                    src={'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                    alt="Commenter Avatar"
+                    style={{ borderRadius: '50%', marginRight: '10px' }}
+                    width="30px"
+                  />
+                  <Typography variant="subtitle2" color="black">
+                    {users.find((user) => user.id === comment.user_id)?.name}
+                  </Typography>
+                </Box>
+
                 <Typography variant="body2" mt={1}>
                   {comment.content}
                 </Typography>
 
-                {/* Display images in comment if available */}
                 {Array.isArray(comment.imageUrls) && comment.imageUrls.length > 0 ? (
                   <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                     {comment.imageUrls.map((imageUrl, index) => (
                       <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                         <img
-                          src={imageUrl}
+                          src={`http://localhost:3000${imageUrl}`}  // Ensure correct URL path
                           alt={`Comment image ${index + 1}`}
-                          style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                          style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
                         />
                       </Box>
                     ))}
@@ -565,30 +592,34 @@ const ProductsDetail = () => {
                         <img
                           src={comment.imageUrls}
                           alt="Comment image"
-                          style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                          style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
                         />
                       </Box>
                     </Box>
                   )
                 )}
 
-                <Typography variant="caption" color="textSecondary" mt={1} display="block">
-                  {formatDate(comment.created_at)}
+                <Typography
+                  variant="caption"
+                  color="textSecondary"
+                  mt={1}
+                  display="flex"
+                  sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <span>{formatDate(comment.created_at)}</span>
+
+                  <Button
+                    variant="text"
+                    size="small"
+                    color="primary"
+                    sx={{ textTransform: 'none', marginRight: '950px' }}
+                    onClick={() => setReplyingTo(replyingTo?.id === comment.id && replyingTo?.type === 'comment' ? null : { id: comment.id, type: 'comment'})}
+                  >
+                    Trả lời
+                  </Button>
                 </Typography>
 
-                {/* Nút trả lời */}
-                <Button
-                  variant="text"
-                  size="small"
-                  color="primary"
-                  sx={{ textTransform: 'none', marginTop: '8px' }}
-                  onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-                >
-                  Trả lời
-                </Button>
-
-                {/* Hiển thị form trả lời nếu đang trả lời bình luận này */}
-                {replyingTo === comment.id && (
+                {replyingTo?.id === comment.id && replyingTo?.type === 'comment' && (
                   <Box mt={2}>
                     <textarea
                       rows={2}
@@ -605,7 +636,7 @@ const ProductsDetail = () => {
                         resize: 'none',
                       }}
                     />
-                    <Box mt={1} display="flex" justifyContent="space-between" alignItems="center">
+                    <Box mt={1} display="flex" justifyContent="flex-start" alignItems="center" gap={1}>
                       <Button
                         variant="outlined"
                         startIcon={<ImageIcon />}
@@ -641,50 +672,127 @@ const ProductsDetail = () => {
                   </Box>
                 )}
 
-                {/* Render Replies */}
-                {Array.isArray(comment.replies) && comment.replies.length > 0 ? (
+                {Array.isArray(comment.replies) && comment.replies.length > 0 && (
                   <Box mt={2} pl={2}>
-                    {comment.replies.map((reply, index) => {
-                      console.log('Rendering reply:', reply); // Log the reply being rendered
-                      return (
-                        <Box key={reply.id || index} mb={1} p={1} border="1px solid #ddd" borderRadius="4px">
-                          <Typography variant="subtitle2" color="primary">
+                    {comment.replies.map((reply, index) => (
+                      <Box key={reply.id || index} mb={1} p={1} borderRadius="4px">
+                        <Box display="flex" alignItems="center">
+                          <img
+                            src={'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                            alt="Commenter Avatar"
+                            style={{ borderRadius: '50%', marginRight: '10px' }}
+                            width="30px"
+                          />
+                          <Typography variant="subtitle2" color="secondary">
                             {users.find((user) => user.id === reply.user_id)?.name}
                           </Typography>
-                          <Typography variant="body2" mt={1}>
-                            {reply.content}
-                          </Typography>
-                          {/* Display images in reply if available */}
-                          {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 ? (
-                            <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                              {reply.imageUrls.map((imageUrl, index) => (
-                                <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
-                                  <img
-                                    src={imageUrl}
-                                    alt={`Reply image ${index + 1}`}
-                                    style={{ width: '35%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
-                                  />
-                                </Box>
-                              ))}
-                            </Box>
-                          ) : null}
-
-                          <Typography variant="caption" color="textSecondary" mt={1} display="block">
-                            {formatDate(reply.created_at)}
-                          </Typography>
                         </Box>
-                      );
-                    })}
-                  </Box>
-                ) : (
-                  <Box mt={2} pl={2}>
-                    <Typography variant="body2" color="textSecondary">
-                      Chưa có phản hồi nào.
-                    </Typography>
+
+                        <Typography variant="body2" mt={1}>
+                          {reply.content}
+                        </Typography>
+
+                        {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 ? (
+                          <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                            {reply.imageUrls.map((imageUrl, index) => (
+                              <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                                <img
+                                  src={`http://localhost:3000${imageUrl}`}  // Ensure correct URL path
+                                  alt={`Comment image ${index + 1}`}
+                                  style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                                />
+                              </Box>
+                            ))}
+                          </Box>
+                        ) : (
+                          reply.imageUrls && typeof reply.imageUrls === 'string' && ( // Ensure it's a string before rendering
+                            <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                              <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                                <img
+                                  src={reply.imageUrls}
+                                  alt="Comment image"
+                                  style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                                />
+                              </Box>
+                            </Box>
+                          )
+                        )}
+                        <Typography
+                          variant="caption"
+                          color="textSecondary"
+                          mt={1}
+                          display="flex"
+                          sx={{ justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                          <span>{formatDate(reply.created_at)}</span>
+
+                          <Button
+                            variant="text"
+                            size="small"
+                            color="primary"
+                            sx={{ textTransform: 'none', marginRight: '910px' }}
+                            onClick={() => setReplyingTo(replyingTo?.id === reply.id && replyingTo?.type === 'reply' ? null : { id: reply.id, type: 'reply' })}
+                          >
+                            Trả lời
+                          </Button>
+                        </Typography>
+
+                        {replyingTo?.id === reply.id && replyingTo?.type === 'reply' && (
+                          <Box mt={2}>
+                            <textarea
+                              rows={2}
+                              value={newReplies[reply.id] || ''}
+                              onChange={(e) =>
+                                setNewReplies((prev) => ({ ...prev, [reply.id]: e.target.value }))
+                              }
+                              placeholder="Nhập phản hồi của bạn..."
+                              style={{
+                                width: '100%',
+                                padding: '8px',
+                                borderRadius: '4px',
+                                border: '1px solid #ccc',
+                                resize: 'none',
+                              }}
+                            />
+                            <Box mt={1} display="flex" justifyContent="flex-start" alignItems="center" gap={1}>
+                              <Button
+                                variant="outlined"
+                                startIcon={<ImageIcon />}
+                                sx={{
+                                  borderRadius: '16px',
+                                  textTransform: 'none',
+                                }}
+                                component="label"
+                              >
+                                Hình ảnh
+                                <input
+                                  name="image"
+                                  type="file"
+                                  accept="image/*"
+                                  multiple
+                                  hidden
+                                  onChange={(e) => setReplyImageFile(Array.from(e.target.files))}
+                                />
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                sx={{
+                                  textTransform: 'none',
+                                  borderRadius: '16px',
+                                  fontWeight: 'bold',
+                                }}
+                                onClick={() => handleAddReply(product.id, comment.id, reply.id)}
+                              >
+                                Gửi trả lời
+                              </Button>
+                            </Box>
+                          </Box>
+                        )}
+                      </Box>
+                    ))}
                   </Box>
                 )}
-
-
               </Box>
             ))
           ) : (
