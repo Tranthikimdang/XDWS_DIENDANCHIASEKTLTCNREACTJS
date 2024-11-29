@@ -35,16 +35,16 @@ function Footer() {
           sx={{ textAlign: "center", fontWeight: "400 !important" }}
           color="white"
         >
-          @ 2024, FPT Polytechnic Can Tho - code by {""}
+          @ 2024, Website diễn đàn chia sẻ kiến thức lập trình - code by {""}
           <VuiTypography
             component="a"
             variant="button"
-            href="https://react.dev/"
+            href="/"
             sx={{ textAlign: "center", fontWeight: "500 !important" }}
             color="white"
             mr="2px"
           >
-            React JS
+            SHARE CODE
           </VuiTypography>
         </VuiTypography>
       </VuiBox>
