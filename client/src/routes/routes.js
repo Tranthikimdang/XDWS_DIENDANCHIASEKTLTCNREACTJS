@@ -137,7 +137,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý người hướng dẫn",
+    name: "Quản lý người cố vấn",
     key: "mentor",
     route: "/admin/mentor",
     icon: <BsJournals size="15px" color="inherit" />,

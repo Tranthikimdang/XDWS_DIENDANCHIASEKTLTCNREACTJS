@@ -31,83 +31,106 @@ exports.getAllCourseDetails = async (req, res) => {
 
 // Tạo chi tiết khóa học và tải video lên Vimeo
 exports.createCourseDetail = async (req, res) => {
-  const { course_id, name, no } = req.body;
+    const { course_id, name, no } = req.body;
     const videoFile = req.file;
-
-  if (!course_id || !videoFile) {
-    return res.status(400).json({
-      status: "error",
-      message: "course_id and video file are required.",
-    });
-  }
-
-  try {
-    const filePath = videoFile.path;
-    // Tải video lên Vimeo
-    vimeoClient.upload(
-      filePath,
-      {
-        name: name || "Untitled Video",
-        description: `Video for course ID: ${course_id}`,
-      },
-      async (uri) => {
-        console.log(`Video uploaded successfully: ${uri}`);
-        const videoId = uri.split("/").pop();
-        const embedUrl = `https://player.vimeo.com/video/${videoId}`;
-        // Lấy thông tin chi tiết video
-        vimeoClient.request(
-          {
-            method: "GET",
-            path: uri,
-          },
-          async (error, body) => {
-            if (error) {
-              console.error("Error fetching video details:", error);
-              return res.status(500).json({
-                status: "error",
-                message: "Error fetching video details.",
-              });
-            }
-
-            // Lưu thông tin video vào cơ sở dữ liệu
-            const newCourseDetail = await CourseDetail.create({
-              course_id,
-              name,
-              no,
-              video: embedUrl, // URL phát video từ Vimeo
-            });
-
-            // Xóa file tạm sau khi upload
-            fs.unlinkSync(filePath);
-
-            res.status(201).json({
-              status: "success",
-              data: { courseDetail: newCourseDetail },
+  
+    if (!course_id || !videoFile) {
+      return res.status(400).json({
+        status: "error",
+        message: "course_id and video file are required.",
+      });
+    }
+  
+    try {
+      const filePath = videoFile.path;
+      // Tải video lên Vimeo
+      vimeoClient.upload(
+        filePath,
+        {
+          name: name || "Untitled Video",
+          description: `Video for course ID: ${course_id}`,
+        },
+        async (uri) => {
+          console.log(`Video uploaded successfully: ${uri}`);
+          const videoId = uri.split("/").pop();
+          const embedUrl = `https://player.vimeo.com/video/${videoId}`;
+  
+          // Cập nhật quyền riêng tư của video thành public
+          try {
+            await vimeoClient.request(
+              {
+                method: "PATCH",
+                path: `/videos/${videoId}`,
+                body: {
+                  privacy: {
+                    view: "anybody", // Cho phép tất cả mọi người xem video
+                  }
+                }
+              }
+            );
+            console.log("Video privacy updated to public.");
+  
+            // Lấy thông tin chi tiết video
+            vimeoClient.request(
+              {
+                method: "GET",
+                path: uri,
+              },
+              async (error, body) => {
+                if (error) {
+                  console.error("Error fetching video details:", error);
+                  return res.status(500).json({
+                    status: "error",
+                    message: "Error fetching video details.",
+                  });
+                }
+  
+                // Lưu thông tin video vào cơ sở dữ liệu
+                const newCourseDetail = await CourseDetail.create({
+                  course_id,
+                  name,
+                  no,
+                  video: embedUrl, // URL phát video từ Vimeo
+                });
+  
+                // Xóa file tạm sau khi upload
+                fs.unlinkSync(filePath);
+  
+                res.status(201).json({
+                  status: "success",
+                  data: { courseDetail: newCourseDetail },
+                });
+              }
+            );
+          } catch (privacyError) {
+            console.error("Error updating video privacy:", privacyError);
+            res.status(500).json({
+              status: "error",
+              message: "Error updating video privacy.",
             });
           }
-        );
-      },
-      (bytesUploaded, bytesTotal) => {
-        const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-        console.log(`Upload progress: ${percentage}%`);
-      },
-      (error) => {
-        console.error("Error uploading video:", error);
-        res.status(500).json({
-          status: "error",
-          message: "Error uploading video to Vimeo.",
-        });
-      }
-    );
-  } catch (err) {
-    res.status(500).send({
-      status: "error",
-      message:
-        err.message ||
-        "Some error occurred while uploading the video and creating the course detail.",
-    });
-  }
-};
+        },
+        (bytesUploaded, bytesTotal) => {
+          const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+          console.log(`Upload progress: ${percentage}%`);
+        },
+        (error) => {
+          console.error("Error uploading video:", error);
+          res.status(500).json({
+            status: "error",
+            message: "Error uploading video to Vimeo.",
+          });
+        }
+      );
+    } catch (err) {
+      res.status(500).send({
+        status: "error",
+        message:
+          err.message ||
+          "Some error occurred while uploading the video and creating the course detail.",
+      });
+    }
+  };
 
 // Cập nhật thông tin chi tiết khóa học
 exports.updateCourseDetail = async (req, res) => {
