@@ -1,7 +1,8 @@
+// PROFILE.JS CONTEXT
+
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Grid,
   Box,
@@ -14,24 +15,26 @@ import {
   Tab,
   Button,
   IconButton,
-  CardMedia,
 } from '@mui/material';
 import { Email, LocationOn, Phone, Work, Person, Cake } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
 import { Link } from 'react-router-dom';
-//sql
+// APIs
 import UserAPI from 'src/apis/UserApI';
 import CourseApi from '../../apis/CourseApI';
 import StudytimeApi from '../../apis/StudyTimeApI';
 import QuestionsApis from '../../apis/QuestionsApis';
+import MentorAPI from 'src/apis/mentorApi'; // Import MentorAPI
 import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
+import Chat from '../chat/chatbox';
 //
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-//icon
+// Icons
 import DescriptionIcon from '@mui/icons-material/Description';
+
 const Profile = () => {
   const navigate = useNavigate();
   const { userId } = useParams();
@@ -46,6 +49,12 @@ const Profile = () => {
   const [userLoading, setUserLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [StudyTime, setStudyTime] = useState([]);
+  const [showChat, setShowChat] = useState(false); 
+
+  // New states for Mentor details
+  const [mentorDetails, setMentorDetails] = useState({});
+  const [mentorLoading, setMentorLoading] = useState(true);
+  const [mentorError, setMentorError] = useState(null);
 
   const userLocal = JSON.parse(localStorage.getItem('user'));
   const userLocalId = userLocal ? userLocal.id : null;
@@ -60,6 +69,7 @@ const Profile = () => {
         setUser(matchingUser);
       } catch (error) {
         console.error('Error fetching users:', error);
+        setError('Failed to load user data.');
       } finally {
         setLoading(false);
       }
@@ -71,36 +81,36 @@ const Profile = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // 1. Lấy toàn bộ dữ liệu studyTime
+        // 1. Get all studyTime data
         const studyTimeResponse = await StudytimeApi.getStudyTimesList();
         const studyTimes = studyTimeResponse?.data?.studyTimes || [];
 
-        // 2. Lọc dữ liệu studyTime theo userId
+        // 2. Filter studyTime by userId
         const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userId));
 
-        // 3. Lấy danh sách course_id từ studyTime của user
+        // 3. Get course_ids from user's studyTime
         const courseIds = userStudyTimes.map((item) => item.course_id);
 
-        // 4. Lấy toàn bộ danh sách courses
+        // 4. Get all courses
         const coursesResponse = await CourseApi.getCoursesList();
         const allCourses = coursesResponse?.data?.courses || [];
 
-        // 5. Lọc courses có id trùng với course_id
+        // 5. Filter courses matching course_ids
         const filteredCourses = allCourses.filter((course) => courseIds.includes(course.id));
 
-        // 6. Cập nhật state
+        // 6. Update state
         setProducts(filteredCourses);
       } catch (error) {
-        console.error('Error fetching data:', error); // Log lỗi nếu có
+        console.error('Error fetching data:', error); // Log error if any
       } finally {
-        setIsLoading(false); // Tắt trạng thái loading
+        setIsLoading(false); // Turn off loading state
       }
     };
 
     fetchData();
   }, [userId]);
 
-  // Fetch câu hỏi
+  // Fetch questions
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
@@ -110,7 +120,7 @@ const Profile = () => {
           setQuestions(res?.data?.questions);
         }
       } catch (error) {
-        console.error('Lỗi khi tải câu hỏi:', error);
+        console.error('Error loading questions:', error);
       } finally {
         setLoading(false);
       }
@@ -118,20 +128,40 @@ const Profile = () => {
     fetchQuestions();
   }, [reload]);
 
+  // Fetch Mentor details if user is a mentor
+  useEffect(() => {
+    const fetchMentorDetails = async () => {
+      setMentorLoading(true);
+      try {
+        const response = await MentorAPI.detailMentor(userId);
+        setMentorDetails(response.data);
+      } catch (error) {
+        console.error('Error fetching mentor details:', error);
+        setMentorError('Failed to load mentor details.');
+      } finally {
+        setMentorLoading(false);
+      }
+    };
+
+    if (user.role === 'mentor') {
+      fetchMentorDetails();
+    }
+  }, [userId, user.role]);
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
 
-  //date
+  // Date formatting
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt.seconds * 1000); // Convert seconds to milliseconds
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
+      const diff = now - date; // Calculate time difference
 
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const seconds = Math.floor(diff / 1000); // Convert ms to seconds
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -151,7 +181,7 @@ const Profile = () => {
 
     return updatedAtString;
   };
-  
+
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -170,15 +200,13 @@ const Profile = () => {
     fetchStudyTime();
   }, []);
 
-
-
   const hasStudyAccess = (productId) => {
     return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
   };
 
-  //xóa các thẻ html
+  // Remove HTML tags
   const removeHtmlTags = (html) => {
-    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
+    return html?.replace(/<[^>]+>/g, ''); // Remove all HTML tags
   };
 
   if (loading) return <div>Đang tải...</div>;
@@ -196,7 +224,7 @@ const Profile = () => {
         }}
       >
         <Grid container spacing={2}>
-          {/* Phần thông tin hồ sơ bên trái */}
+          {/* Left Profile Information */}
           <Grid item xs={12} md={4}>
             <Card
               sx={{
@@ -211,7 +239,7 @@ const Profile = () => {
             >
               <Avatar
                 src={user?.imageUrl || '../../assets/images/profile/user-1.jpg'}
-                alt="Hồ Sơ"
+                alt="Profile"
                 sx={{
                   width: '120px',
                   height: '120px',
@@ -222,15 +250,19 @@ const Profile = () => {
                 {user?.name}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                {user?.role === 'mentors' ? 'Mentors' : 'Người hướng dẫn'}
+                {user?.role === 'mentor' ? 'Người Hướng Dẫn' : 'Người Dùng'}
               </Typography>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary">
                   Theo Dõi
                 </Button>
-                <Button variant="outlined" color="secondary">
-                  Yêu Cầu Làm Mentor
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => setShowChat(true)}
+                >
+                  Nhắn Tin
                 </Button>
               </Box>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
@@ -248,7 +280,7 @@ const Profile = () => {
             </Card>
           </Grid>
 
-          {/* Phần chi tiết hồ sơ bên phải */}
+          {/* Right Profile Details */}
           <Grid item xs={12} md={8}>
             <Card
               sx={{
@@ -260,11 +292,12 @@ const Profile = () => {
               <CardContent>
                 {activeTab === 0 && (
                   <>
-                    {/* Nội dung Tổng Quan */}
+                    {/* General Overview */}
                     <Typography variant="h4" gutterBottom>
                       Chi Tiết Hồ Sơ
                     </Typography>
                     <Grid container spacing={2} sx={{ marginTop: '20px' }}>
+                      {/* User Details */}
                       <Grid item xs={6}>
                         <Typography variant="body1" color="textSecondary">
                           <Person fontSize="small" sx={{ marginRight: '8px' }} />
@@ -274,7 +307,7 @@ const Profile = () => {
                       <Grid item xs={6}>
                         <Typography variant="body1">{user.name}</Typography>
                       </Grid>
-                      {/* Thông tin chi tiết khác */}
+                      {/* Other Details */}
                       <Grid item xs={6}>
                         <Typography variant="body1" color="textSecondary">
                           <Email fontSize="small" sx={{ marginRight: '8px' }} />
@@ -323,11 +356,62 @@ const Profile = () => {
                         </Typography>
                       </Grid>
                     </Grid>
+
+                    {/* Mentor Specific Details */}
+                    {user.role === 'mentor' && (
+                      <Box sx={{ marginTop: '20px' }}>
+                        <Typography variant="h5" gutterBottom>
+                          Thông Tin Mentor
+                        </Typography>
+                        {mentorLoading ? (
+                          <div>Đang tải thông tin mentor...</div>
+                        ) : mentorError ? (
+                          <div>{mentorError}</div>
+                        ) : (
+                          <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                              <Typography variant="body1" color="textSecondary">
+                                Kỹ Năng:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">{mentorDetails.skills}</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1" color="textSecondary">
+                                Số Năm Kinh Nghiệm:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">{mentorDetails.experience_years}</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1" color="textSecondary">
+                                Đánh Giá:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1">{mentorDetails.reviews_count} đánh giá</Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Typography variant="body1" color="textSecondary">
+                                Chứng Chỉ:
+                              </Typography>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <a href={mentorDetails.certificate_url} target="_blank" rel="noopener noreferrer">
+                                Xem chứng chỉ
+                              </a>
+                            </Grid>
+                          </Grid>
+                        )}
+                      </Box>
+                    )}
                   </>
                 )}
                 {activeTab === 1 && (
                   <>
-                    {/* Nội dung tab khóa học*/}
+                    {/* Courses Tab Content */}
                     <Typography variant="h4" gutterBottom>
                       Khóa học của người dùng đăng ký
                     </Typography>
@@ -350,10 +434,7 @@ const Profile = () => {
                               <div className="row g-2">
                                 {/* Product Image */}
                                 <div className="col-12 col-md-4 mb-3 mb-md-0">
-                                  <Link
-                                    to={`/productDetail/${product.id}`}
-                                    style={{ textDecoration: 'none' }}
-                                  >
+                                  <Link to={`/productDetail/${product.id}`} style={{ textDecoration: 'none' }}>
                                     <div
                                       className="bg-image hover-zoom ripple rounded ripple-surface"
                                       style={{
@@ -387,7 +468,7 @@ const Profile = () => {
                                       fontSize: '1rem',
                                       fontWeight: 'bold',
                                       marginBottom: '8px',
-                                      textAlign: 'left', // Căn lề trái cho tên sản phẩm
+                                      textAlign: 'left',
                                     }}
                                   >
                                     {product.name}
@@ -395,16 +476,15 @@ const Profile = () => {
                                   <div
                                     className="text-muted small mt-1"
                                     style={{
-                                      width: '100%', // Chiếm toàn bộ chiều rộng của phần tử cha
-                                      whiteSpace: 'normal', // Cho phép nội dung xuống dòng
-                                      overflow: 'visible', // Không ẩn nội dung thừa
-                                      textOverflow: 'clip', // Không cắt phần thừa
-                                      textAlign: 'left', // Căn lề trái cho mô tả
+                                      width: '100%',
+                                      whiteSpace: 'normal',
+                                      overflow: 'visible',
+                                      textOverflow: 'clip',
+                                      textAlign: 'left',
                                     }}
                                   >
                                     Mô tả:{' '}
-                                    {product.description?.replace(/(<([^>]+)>)/gi, '') ||
-                                      'Không có mô tả'}
+                                    {removeHtmlTags(product.description) || 'Không có mô tả'}
                                   </div>
                                 </div>
 
@@ -419,10 +499,10 @@ const Profile = () => {
                                       border: '1px solid #ddd',
                                       borderRadius: '8px',
                                       backgroundColor: '#f9f9f9',
-                                      minWidth: '200px', 
+                                      minWidth: '200px',
                                     }}
                                   >
-                                    {/* Giá giảm */}
+                                    {/* Discounted Price */}
                                     <h6
                                       className="text-success mb-1"
                                       style={{
@@ -432,7 +512,7 @@ const Profile = () => {
                                     >
                                       {product.discount?.toLocaleString('vi-VN')} VND
                                     </h6>
-                                    {/* Giá gốc */}
+                                    {/* Original Price */}
                                     <span
                                       className="text-danger small mb-3"
                                       style={{ fontSize: '0.9rem', textDecoration: 'line-through' }}
@@ -440,38 +520,38 @@ const Profile = () => {
                                       {product.price?.toLocaleString('vi-VN')} VND
                                     </span>
 
-                                    {/* Nút hành động */}
+                                    {/* Action Buttons */}
                                     <div className="mt-2 w-100 d-flex flex-column align-items-center">
                                       {hasStudyAccess(product.id) ? (
-                                        <button
-                                          className="btn btn-success btn-sm w-100"
-                                          type="button"
-                                          style={{ marginBottom: '8px' }}
-                                          onClick={() =>
-                                            navigate(`/productDetailUser/${product.id}`)
-                                          }
+                                        <Button
+                                          variant="contained"
+                                          color="success"
+                                          size="small"
+                                          fullWidth
+                                          sx={{ mb: 1 }}
+                                          onClick={() => navigate(`/productDetailUser/${product.id}`)}
                                         >
                                           Bắt đầu học
-                                        </button>
+                                        </Button>
                                       ) : (
                                         <>
-                                          <button
-                                            className="btn btn-primary btn-sm w-100"
-                                            type="button"
-                                            style={{ marginBottom: '8px' }}
+                                          <Button
+                                            variant="contained"
+                                            color="primary"
+                                            size="small"
+                                            fullWidth
+                                            sx={{ mb: 1 }}
                                           >
                                             Mua ngay
-                                          </button>
-                                          <button
-                                            className="btn btn-outline-primary btn-sm w-100"
-                                            type="button"
-                                            style={{
-                                              borderColor: '#007bff',
-                                              color: '#007bff',
-                                            }}
+                                          </Button>
+                                          <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            size="small"
+                                            fullWidth
                                           >
                                             Thêm vào giỏ hàng
-                                          </button>
+                                          </Button>
                                         </>
                                       )}
                                     </div>
@@ -489,7 +569,7 @@ const Profile = () => {
                 )}
                 {activeTab === 2 && (
                   <>
-                    {/* Nội dung tab Câu Hỏi */}
+                    {/* Questions Tab Content */}
                     <Typography variant="h4" gutterBottom>
                       Câu Hỏi Của Người Dùng
                     </Typography>
@@ -655,6 +735,45 @@ const Profile = () => {
           </Grid>
         </Grid>
       </Box>
+      {/* Conditional Rendering of Chat */}
+      {showChat && (
+        <Box
+          sx={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            width: '400px',
+            height: '500px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            borderRadius: '10px',
+            backgroundColor: '#fff',
+            zIndex: 1000,
+          }}
+        >
+          <Chat
+            participants={[
+              {
+                id: userLocal.id,
+                name: userLocal.name,
+                avatar: userLocal.avatar || '/path/to/default-avatar.png',
+              },
+              {
+                id: user.id,
+                name: user.name,
+                avatar: user.avatar || '/path/to/default-avatar.png',
+              },
+            ]}
+          />
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setShowChat(false)}
+            sx={{ position: 'absolute', top: '10px', right: '10px' }}
+          >
+            Đóng
+          </Button>
+        </Box>
+      )}
     </PageContainer>
   );
 };
