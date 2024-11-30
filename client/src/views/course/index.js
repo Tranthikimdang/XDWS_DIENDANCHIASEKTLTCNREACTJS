@@ -313,30 +313,41 @@ const Course = () => {
                                 <b>Giảm giá sốc</b>
                               </h6>
                               <div className="d-flex flex-column mt-4">
-                                {/* Kiểm tra quyền truy cập để hiển thị nút */}
-                                {hasStudyAccess(product.id) ? (
-                                   <button
-                                   className="btn btn-success btn-sm"
-                                   type="button"
-                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
-                                 >
-                                   Bắt đầu học
-                                 </button>
-                                ) : (
-                                  <>
-                                    <button className="btn btn-primary btn-sm" type="button">
-                                      Mua ngay
-                                    </button>
-                                    <button
-                                      className="btn btn-outline-primary btn-sm mt-2"
-                                      type="button"
-                                      onClick={() => addToCart(product)}
-                                    >
-                                      Thêm vào giỏ hàng
-                                    </button>
-                                  </>
-                                )}
-                              </div>
+  {/* Kiểm tra quyền truy cập để hiển thị nút */}
+  {hasStudyAccess(product.id) ? (
+    <button
+      className="btn btn-success btn-sm"
+      type="button"
+      onClick={() => navigate(`/productDetailUser/${product.id}`)}
+    >
+      Bắt đầu học
+    </button>
+  ) : (
+    <>
+      <button 
+        className="btn btn-primary btn-sm" 
+        type="button"
+        onClick={() => navigate('/cart')}
+      >
+        Mua ngay
+      </button>
+      <button
+        className="btn btn-outline-primary btn-sm mt-2"
+        type="button" 
+        onClick={() => navigate(`/productDetail/${product.id}`)}
+      >
+        Xem thêm
+      </button>
+      {/* <button
+        className="btn btn-outline-primary btn-sm mt-2"
+        type="button"
+        onClick={() => addToCart(product)}
+      >
+        Thêm vào giỏ hàng
+      </button> */}
+    </>
+  )}
+</div>
                             </div>
                           </div>
                         </div>

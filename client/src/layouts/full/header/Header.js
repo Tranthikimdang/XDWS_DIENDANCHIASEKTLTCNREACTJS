@@ -20,6 +20,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import HelpIcon from '@mui/icons-material/Help';
 import CartIcon from '@mui/icons-material/ShoppingCartCheckout';
 import { Link} from 'react-router-dom';
+import cartApi from '../../../apis/cartsApi';
+
 // Styled components
 const AppBarStyled = styled(AppBar)(({ theme }) => ({
   boxShadow: 'none',
@@ -101,6 +103,21 @@ const Header = (props) => {
   const handleCart = () => {
     navigate('/cart'); // Điều hướng tới trang giỏ hàng
   };
+  useEffect(() => {
+    const fetchCartCount = async () => {
+      if (userId) {
+        try {
+          const response = await cartApi.getCartsList();
+          const userCarts = response.data.carts.filter(cart => cart.user_id === userId);
+          setCartCount(userCarts.length);
+        } catch (error) {
+          console.error('Error fetching cart count:', error);
+        }
+      }
+    };
+  
+    fetchCartCount();
+  }, [userId]);
 
   const handleNotification = () => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -145,10 +162,10 @@ const Header = (props) => {
 
           {/* Icon giỏ hàng với thông báo */}
           <IconButton size="large" aria-label="cart" color="inherit" onClick={handleCart}>
-            <Badge badgeContent={cartCount} color="secondary">
-              <CartIcon />
-            </Badge>
-          </IconButton>
+  <Badge badgeContent={cartCount} color="error">
+    <CartIcon />
+  </Badge>
+</IconButton>
 
           {/* Hiển thị tên người dùng */}
           {localStorage.getItem('user') ? (

@@ -160,46 +160,59 @@ function FormEditUser() {
                 </div>
               )}
             </div>
-
             <div className="col-md-6 mb-3">
-  <div style={{ textAlign: 'left' }}>
-    <label className="text-light form-label">Ngày sinh</label>
-  </div>
-  <input
-    type="date"
-    className="form-control bg-dark text-light"
-    {...register('birthday', { 
-      required: true,
-      onChange: (e) => {
-        // Format the date when it changes
-        const date = new Date(e.target.value);
-        const formattedDate = date.toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
-        // Update the display value while keeping the native date format for form data
-        e.target.setAttribute('data-display', formattedDate);
-      }
-    })}
-    onFocus={(e) => e.target.type = 'date'}
-    onBlur={(e) => {
-      if (!e.target.value) {
-        e.target.type = 'text';
-      }
-    }}
-    placeholder="dd/mm/yyyy"
-  />
-  {errors.birthday && (
-    <div style={{ textAlign: 'left' }}>
-      <span className="text-danger form-label">
-        Vui lòng nhập ngày sinh (dd/mm/yyyy)
-      </span>
-    </div>
-  )}
-</div>
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Email</label>
+              </div>
+              <input
+                className="form-control bg-dark text-light"
+                {...register('email', {
+                  required: true,
+                  pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                })}
+              />
+              {errors.email && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Valid email is required</span>
+                </div>
+              )}
+            </div>
           </div>
-  
+          <div className="row">
+            {/* Các trường nhập dữ liệu khác... */}
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Ngày sinh</label>
+              </div>
+              <input
+                type="date"
+                className="form-control bg-dark text-light"
+                {...register('birthday', { required: true })}
+              />
+              {errors.birthday && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Bạn phải điền này sinh</span>
+                </div>
+              )}
+            </div>
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Phân quyền</label>
+              </div>
+              <select
+                className="form-control bg-dark text-light"
+                {...register('role', { required: true })}
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+              {errors.role && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Bạn phải phân quyền</span>
+                </div>
+              )}
+            </div>
+          </div>
           <div className="row">
             <div className="col-md-6 mb-3">
               <div style={{ textAlign: 'left' }}>
@@ -230,7 +243,41 @@ function FormEditUser() {
               )}
             </div>
           </div>
-          
+          <div className="row">
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Mật khẩu</label>
+              </div>
+              <input
+                type="text"
+                className="form-control bg-dark text-light"
+                {...register('password', { required: true, minLength: 6 })}
+              />
+              {errors.password && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">Mật khẩu phải trên 6 kí tự</span>
+                </div>
+              )}
+            </div>
+            <div className="col-md-6 mb-3">
+              <div style={{ textAlign: 'left' }}>
+                <label className="text-light form-label">Xác nhận mật khẩu</label>
+              </div>
+              <input
+                type="text"
+                className="form-control bg-dark text-light"
+                {...register('confirmPassword', {
+                  required: false,
+                  validate: (value) => value === watchPassword || 'Mật khẩu xác nhận không giống',
+                })}
+              />
+              {errors.confirmPassword && (
+                <div style={{ textAlign: 'left' }}>
+                  <span className="text-danger form-label">{errors.confirmPassword.message}</span>
+                </div>
+              )}
+            </div>
+          </div>
           {/* Trường dữ liệu Hình ảnh */}
           <div className="col-12 mb-3">
             <label className="text-light form-label">Hình ảnh</label>

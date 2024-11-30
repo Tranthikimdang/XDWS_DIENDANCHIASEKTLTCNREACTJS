@@ -175,6 +175,7 @@ const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userI
     fetchStudyTime();
   }, []);
 
+
   const hasStudyAccess = (productId) => {
     return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
   };

@@ -26,9 +26,6 @@ const checkEmail = async (email) => apiRequest('post', `${USERS_URL}/checkEmail`
 const updateUserPassword = async (userId, newPassword) => {
   return apiRequest('put', `${USERS_URL}/${userId}`, { password: newPassword });
 };
-// gọi dữ liệu user
-const getUserId = async (id) => apiRequest('get', `${USERS_URL}/${id}` );
-
 
 // Upload hình ảnh lên server (nếu cần)
 const uploadImage = async (file) => {
@@ -44,7 +41,6 @@ const uploadImage = async (file) => {
   }
 };
 
-
 // Xuất các hàm API
 export default {
   addUser,
@@ -53,6 +49,5 @@ export default {
   deleteUser,
   uploadImage,
   checkEmail,
-  updateUserPassword,
-  getUserId
+  updateUserPassword
 };

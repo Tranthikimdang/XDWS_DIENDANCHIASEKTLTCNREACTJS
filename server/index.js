@@ -17,6 +17,7 @@ const questionHashtagsRouter = require("./routes/QuestionHashtagsRoutes");
 const followRouter = require('./routes/followRoutes'); 
 const notificationRouter = require('./routes/notificationRoutes');
 
+const cartsRoutes = require('./routes/cartsRoutes');
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
 const multer = require("multer");
@@ -107,7 +108,7 @@ app.use("/api/users", userRouter);
 app.use("/api/comments", commentRoutes);
 app.use("/api/commentCourse", commentCourseRoutes);
 app.use("/api/questionHashtags", questionHashtagsRouter);
-
+app.use('/api/carts', cartsRoutes);
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
 app.use("/api/questions", questionRouter);
