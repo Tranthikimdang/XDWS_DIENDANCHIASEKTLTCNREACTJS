@@ -420,7 +420,6 @@ function Article() {
                                   </Tooltip>
                                 </>
                               )}
-
                             </div>
                           ),
                         };

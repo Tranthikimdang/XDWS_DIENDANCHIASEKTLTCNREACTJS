@@ -9,24 +9,26 @@ import {
   Stack,
   Checkbox,
 } from '@mui/material';
-import CustomTextField from '../../../components/forms/theme-elements/CustomTextField';
-import { GoogleLogin } from 'react-google-login';
-import { collection, getDocs } from 'firebase/firestore';
-import { db} from '../../../config/firebaseconfig';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import emailjs from 'emailjs-com';
-// import FacebookLogin from '@greatsumini/react-facebook-login';
 import context from 'src/store/context';
 import { setAccount } from 'src/store/action';
-import apiUser from '../../../apis/UserApi'
+import apiUser from '../../../apis/UserApI';
+import bcrypt from 'bcryptjs';
+import { TextField } from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
-  const [state, dispatch] = useContext(context)
+  const [state, dispatch] = useContext(context);
   const [rememberMe, setRememberMe] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ email: '', password: '' });
   const form = useRef();
   const navigate = useNavigate();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
@@ -34,12 +36,14 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+  
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-        navigate('/home');
+      navigate('/home');
     }
   }, [navigate]);
+  
   const validate = () => {
     let valid = true;
     let errors = {};
@@ -61,95 +65,123 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     return valid;
   };
 
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     if (!validate()) return;
-  
+
     try {
-      // Gọi API để lấy tất cả người dùng
-      const response = await apiUser.getUsersList(); // Bạn cần tạo hàm này trong UserAPI.js
-    
+      // Gọi API để lấy danh sách người dùng
+      const response = await apiUser.getUsersList();
+
       if (!response || !response.data) {
-        alert('Không thể lấy danh sách người dùng.');
+        setSnackbarMessage('Không thể lấy danh sách người dùng..');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
         return;
       }
-  
-      // Kiểm tra xem người dùng có tồn tại và thông tin có đúng không
-      const user = response.data.users.find((user) => user.email === email && user.password === password);
-  
+
+      const user = response.data.users.find((user) => user.email === email);
+
       if (user) {
-        // Nếu thông tin đăng nhập hợp lệ
-        dispatch(setAccount(user));
-        localStorage.setItem('user', JSON.stringify(user));
-        navigate('/home'); // Chuyển hướng đến trang chính
+        console.log('Hashed Password from DB:', user.password);
+        console.log('Plain Password Entered:', password);
+        
+        // So sánh mật khẩu nhập vào với mật khẩu đã băm
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Password Match:', isMatch);
+        
+        if (isMatch) {
+          // Nếu thông tin đăng nhập hợp lệ
+          dispatch(setAccount(user));
+          localStorage.setItem('user', JSON.stringify(user));
+          navigate('/home');
+        } else {
+          setSnackbarMessage('Mật khẩu không đúng.');
+          setSnackbarSeverity('warning');
+          setSnackbarOpen(true);
+        }
       } else {
-        alert('Email hoặc mật khẩu chưa hợp lệ');
+        setSnackbarMessage('Email không tồn tại.');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
       }
     } catch (error) {
-      alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
+      setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       console.error('Lỗi đăng nhập:', error);
     }
   };
-  
-  
 
-  const responseGoogle = async (response) => {
-    console.log(response);
-    // if (!response || !response.profileObj) {
-    //   console.error('Response không hợp lệ:', response);
-    //   return;
-    // }
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        // Lấy thông tin người dùng từ Google
+        const profile = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        }).then((res) => res.json());
 
-    // const email = response.profileObj.email; // Lấy email từ response
+        const { email, name } = profile;
 
-    // try {
-    //   // Kiểm tra xem người dùng đã tồn tại trong localStorage chưa
-    //   const storedUserData = localStorage.getItem('users'); // Giả sử bạn lưu danh sách người dùng ở đây
-    //   const users = storedUserData ? JSON.parse(storedUserData) : [];
+        // Kiểm tra người dùng có tồn tại trong hệ thống không
+        const {
+          data: { users },
+        } = await apiUser.getUsersList();
+        const existingUser = users.find((user) => user.email === email);
 
-    //   const existingUser = users.find((user) => user.email === email);
+        if (existingUser) {
+          // Nếu có, lưu thông tin người dùng vào localStorage và dispatch account
+          localStorage.setItem('user', JSON.stringify(existingUser));
+          dispatch(setAccount(existingUser));
+          navigate('/home');
+        } else {
+          // Nếu không có, tạo người dùng mới
+          const rawPassword = Math.random().toString(36).slice(-8); // Mật khẩu ngẫu nhiên
+          const hashedPassword = bcrypt.hashSync(rawPassword, 10); // Băm mật khẩu trước khi lưu
 
-    //   if (existingUser) {
-    //     // Nếu người dùng đã tồn tại, lưu thông tin vào localStorage và chuyển hướng
-    //     localStorage.setItem('user', JSON.stringify(existingUser));
-    //     navigate('/home'); // Chuyển hướng đến trang dashboard
-    //     return;
-    //   }
+          const newUser = { name, email, password: hashedPassword, role: 'user' };
 
-    //   // Tạo một mật khẩu ngẫu nhiên cho người dùng mới
-    //   const generateRandomPassword = () => {
-    //     return Math.random().toString(36).slice(-8); // Tạo chuỗi ngẫu nhiên 8 ký tự
-    //   };
-    //   const generatedPassword = generateRandomPassword();
+          const { data: createdUser } = await apiUser.addUser(newUser);
 
-    //   const newUser = {
-    //     name: response.profileObj.name,
-    //     email: email,
-    //     password: generatedPassword,
-    //     location: '', // Cung cấp thông tin nếu cần
-    //     phone: '', // Cung cấp thông tin nếu cần
-    //     role: 'user',
-    //   };
+          if (createdUser) {
+            // Lưu thông tin người dùng mới vào localStorage và dispatch account
+            localStorage.setItem('user', JSON.stringify(createdUser));
+            dispatch(setAccount(createdUser));
 
-    //   // Lưu người dùng mới vào localStorage
-    //   users.push(newUser);
-    //   // localStorage.setItem("users", JSON.stringify(users));
-    //   localStorage.setItem('users', JSON.stringify(newUser));
+            // Gửi email thông báo mật khẩu
+            sendEmail({
+              name: newUser.name,
+              email: newUser.email,
+              message: `Mật khẩu của bạn là: ${rawPassword}`, // Gửi mật khẩu gốc (chưa băm)
+            });
 
-    //   // Gửi email thông báo mật khẩu cho người dùng
-    //   sendEmail({
-    //     name: newUser.name,
-    //     email: newUser.email,
-    //     message: `Mật khẩu của bạn là: ${generatedPassword}`,
-    //   });
-
-    //   alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-    //   navigate('/dashboard'); // Chuyển hướng đến trang dashboard
-    // } catch (error) {
-    //   console.error('Lỗi khi đăng nhập Google:', error);
-    // }
-  };
+            setSnackbarMessage('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+            setTimeout(() => {
+              navigate('/auth/inter');
+            }, 2000);
+          }
+        }
+      } catch (error) {
+        console.error('Lỗi trong xử lý đăng nhập Google:', error);
+        setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+      }
+    },
+    onError: (error) => {
+      console.error('Lỗi Google Login:', error);
+    },
+  });
 
   const sendEmail = (data) => {
     emailjs
@@ -165,10 +197,14 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       )
       .then(
         (result) => {
-          alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+          setSnackbarMessage('Tin nhắn đã được gửi thành công...');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
         },
         (error) => {
-          alert('Đã xảy ra lỗi, vui lòng thử lại.');
+          setSnackbarMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
         },
       );
   };
@@ -182,56 +218,51 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       )}
       {subtext}
 
-      <form onSubmit={handleLogin} ref={form}>
+      <form onSubmit={handleLogin}>
         <Stack spacing={3}>
+          {/* Email */}
           <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight={600}
-              component="label"
-              htmlFor="username"
-              mb="5px"
-            >
-              Email
-            </Typography>
-            <CustomTextField
-              id="username"
+            <TextField
+              label="Email"
               variant="outlined"
               fullWidth
+              margin="normal"
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               error={Boolean(errors.email)}
               helperText={errors.email}
             />
           </Box>
+
+          {/* Password */}
           <Box>
-            <Typography
-              variant="subtitle1"
-              fontWeight={600}
-              component="label"
-              htmlFor="password"
-              mb="5px"
-            >
-              Mật khẩu
-            </Typography>
-            <CustomTextField
-              id="password"
+            <TextField
+              label="Mật khẩu"
               type="password"
               variant="outlined"
               fullWidth
+              margin="normal"
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={Boolean(errors.password)}
               helperText={errors.password}
             />
           </Box>
-          <Stack justifyContent="space-between" direction="row" alignItems="center">
+
+          {/* Remember me Checkbox */}
+          <Box>
             <FormGroup>
               <FormControlLabel
                 control={<Checkbox checked={rememberMe} onChange={handleSetRememberMe} />}
                 label="Ghi nhớ tôi?"
               />
             </FormGroup>
+          </Box>
+
+          {/* Register Link */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Typography
               component={Link}
               to="/auth/register"
@@ -243,58 +274,77 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
             >
               Đăng ký tài khoản?
             </Typography>
-          </Stack>
-        </Stack>
-        <Box mt={3}>
-          <Button color="primary" variant="contained" size="large" fullWidth type="submit">
-            Đăng nhập
-          </Button>
-        </Box>
-        <Box mt={3}>
-          <Typography
+          </Box>
 
-            component={Link}
-            to="/auth/forgot-password"
-            fontWeight="500"
-            sx={{
-              textDecoration: 'none',
-              color: 'primary.main'
-            }}
-          >
-            Quên mật khẩu?
-          </Typography>
-        </Box>
+          {/* Submit Button */}
+          <Box mt={3}>
+            <Button color="primary" variant="contained" size="large" fullWidth type="submit">
+              Đăng nhập
+            </Button>
+          </Box>
 
-        <Box mt={4} mb={1} textAlign="center">
-          <div className="google-login-btn m-3 border-0">
-            <GoogleLogin
+          {/* Forgot Password Link */}
+          <Box mt={3}>
+            <Typography
+              component={Link}
+              to="/auth/forgot-password"
+              fontWeight="500"
+              sx={{
+                textDecoration: 'none',
+                color: 'primary.main',
+              }}
+            >
+              Quên mật khẩu?
+            </Typography>
+          </Box>
 
-              clientId="270409308877-hv65523hch5694hsa6atdjpn0qumls70.apps.googleusercontent.com"
-              buttonText=""
-              onSuccess={responseGoogle}
-              onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-              redirectUri={process.env.REACT_APP_REDIRECT_URI}
-              ux_mode="popup"
-              render={(renderProps) => (
-                <button
-                  className="google-login-btn btn border-0 btn-outline-info"
-                  onClick={renderProps.onClick}
-                  disabled={renderProps.disabled}
-                >
-                  <img
-                    className="google-icon"
-                    src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
-                    alt="Google"
-                    style={{ width: '24px', height: '24px', marginRight: '8px' }}
-                  />
-                  Đăng nhập với Google
-                </button>
-              )}
-            />
+          {/* Google Login Button */}
+          <div>
+            <Box
+              mt={4}
+              mb={1}
+              sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            >
+              <Button
+                variant="outlined"
+                color="info"
+                className="google-login-btn btn border-0 btn-outline-info"
+                onClick={googleLogin}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '8px 16px',
+                  textTransform: 'none',
+                }}
+              >
+                <img
+                  src="https://th.bing.com/th/id/R.0fa3fe04edf6c0202970f2088edea9e7?rik=joOK76LOMJlBPw&riu=http%3a%2f%2fpluspng.com%2fimg-png%2fgoogle-logo-png-open-2000.png&ehk=0PJJlqaIxYmJ9eOIp9mYVPA4KwkGo5Zob552JPltDMw%3d&risl=&pid=ImgRaw&r=0"
+                  alt="Google"
+                  style={{ width: '24px', height: '24px', marginRight: '8px' }}
+                />
+                Đăng nhập với Google
+              </Button>
+            </Box>
+            <Snackbar
+              open={snackbarOpen}
+              autoHideDuration={3000}
+              onClose={handleSnackbarClose}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+              <Alert
+                onClose={handleSnackbarClose}
+                severity={snackbarSeverity}
+                sx={{ width: '100%' }}
+              >
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
           </div>
-        </Box>
-        {subtitle}
+
+          {/* Subtitle */}
+          {subtitle}
+        </Stack>
       </form>
     </>
   );

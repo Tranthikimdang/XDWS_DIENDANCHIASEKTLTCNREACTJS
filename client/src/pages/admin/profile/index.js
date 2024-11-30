@@ -1,10 +1,8 @@
-import FacebookIcon from "@mui/icons-material/Facebook";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import TwitterIcon from "@mui/icons-material/Twitter";
 import Grid from "@mui/material/Grid";
 import { useEffect, useState } from "react";
 // Images
 // Vision UI Dashboard React components
+import Footer from "src/examples/Footer";
 import VuiBox from "src/components/admin/VuiBox";
 import ProfileInfoCard from "src/examples/Cards/InfoCards/ProfileInfoCard";
 // Vision UI Dashboard React example src/components
@@ -12,7 +10,10 @@ import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 // Overview page components
 import Header from "./components/Header";
 import Welcome from "../profile/components/Welcome/index";
-
+//Icon
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
 
 function Overview() {
   const [userInfo, setUserInfo] = useState({});
@@ -94,7 +95,7 @@ function Overview() {
           
         </Grid>
       </VuiBox>
-   
+      <Footer />
     </DashboardLayout>
   );
 }

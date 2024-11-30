@@ -1,14 +1,11 @@
 import {
-  IconHome, IconLogin, IconUserPlus, IconBook2, IconUsers, IconBrandYoutube
+  IconHome, IconUsers, IconBrandYoutube
 } from '@tabler/icons';
-import { IconInfoSquareRounded } from '@tabler/icons-react';
+import { IconUser } from '@tabler/icons-react';
+import { IconInfoSquareRounded, IconFilePhone, IconUserCircle, IconUserCode  } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
 const Menuitems = [
-  {
-    navlabel: true,
-    subheader: 'Home',
-  },
   {
     id: uniqueId(),
     title: 'Trang chủ',
@@ -21,12 +18,12 @@ const Menuitems = [
     icon: IconInfoSquareRounded,
     href: '/questions',
   },
-  {
-    id: uniqueId(),
-    title: 'Bài viết',
-    icon: IconBook2,
-    href: '/article',
-  },
+  // {
+  //   id: uniqueId(),
+  //   title: 'Bài viết',
+  //   icon: IconBook2,
+  //   href: '/article',
+  // },
   {
     id: uniqueId(),
     title: 'Khóa học',
@@ -35,27 +32,22 @@ const Menuitems = [
   },
   {
     id: uniqueId(),
-    title: 'Người dùng',
-    icon: IconUsers,
-    href: '/user', 
+    title: 'Người cố vấn',
+    icon: IconUserCode,
+    href: '/mentor',
   },
-  // Uncomment and add other items as needed
-  // {
-  //   navlabel: true,
-  //   subheader: 'Auth',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'LogOut',
-  //   icon: IconLogin,
-  //   href: '/auth/login',
-  // },
-  // {
-  //   id: uniqueId(),
-  //   title: 'Register',
-  //   icon: IconUserPlus,
-  //   href: '/auth/register',
-  // },
+  {
+    id: uniqueId(),
+    title: 'Người dùng',
+    icon: IconUser,
+    href: '/user',
+  },
+  {
+  id: uniqueId(),
+  title: 'Liên hệ',
+  icon: IconFilePhone,
+  href: '/contact', 
+  },
 ];
 
 export default Menuitems;

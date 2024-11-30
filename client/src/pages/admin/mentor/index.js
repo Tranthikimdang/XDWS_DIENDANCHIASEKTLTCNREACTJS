@@ -14,6 +14,8 @@ import ConfirmDialog from './data/FormDeleteMentor';
 import { Snackbar, Alert } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import './index.css';
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
 //icon
 import SearchIcon from '@mui/icons-material/Search';
 //sql
@@ -33,31 +35,29 @@ function Mentor() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
-
+  const [reload, setReload] = useState(false);
   useEffect(() => {
     const fetchMentor = async () => {
       try {
-        const mentorsData = await api.getMentors();
-        console.log('Fetched mentors data:', mentorsData); // Log the response
-
-        // Check if mentorsData is an array; if not, fallback to an empty array
-        setRows(Array.isArray(mentorsData) ? mentorsData : []);
+        const response = await api.getMentors();
+        // Gán mảng mentors từ response.data.mentors
+        setRows(Array.isArray(response?.data?.mentors) ? response.data.mentors : []);
       } catch (error) {
         console.error('Error fetching mentors:', error);
-        setRows([]); // Set rows to empty array in case of error
+        setRows([]); 
       }
     };
     fetchMentor();
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await apiUser.getUsersList();
-        console.log('Users data:', response.data); // Kiểm tra dữ liệu
+        const user = await apiUser.getUsersList();
+        console.log('Users data:', user.data); // Kiểm tra dữ liệu
         // Gán mảng users từ response.data.users
-        setUsers(Array.isArray(response.data.users) ? response.data.users : []);
+        setUsers(Array.isArray(user.data.users) ? user.data.users : []);
       } catch (error) {
         console.error('Error fetching users:', error);
       } finally {
@@ -115,18 +115,21 @@ function Mentor() {
   };
 
   //duyệt
-  const handleApprove = async (id) => {
+  const handleApprove = async (row) => {
     try {
-      // Make an API request to update the mentor's approval status in the SQL database
-      await api.updateMentorApproval(id);
-      setRows(rows.map(row => (row.id === id ? { ...row, isApproved: 1 } : row)));
-      setSnackbarMessage("Duyệt mentor thành công");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
+      const res = await api.updateMentor(row.id, { ...row, isApproved: true });
+      console.log(res);
+      if (res.status == 'success') {
+        setReload((reload) => !reload);
+        // Cập nhật lại danh sách bài viết
+        setSnackbarMessage('Câu hỏi đã được duyệt thành công.');
+        setSnackbarSeverity('success');
+        setSnackbarOpen(true);
+      }
     } catch (error) {
-      console.error("Lỗi khi phê duyệt mentor:", error);
-      setSnackbarMessage("Không thể duyệt mentor.");
-      setSnackbarSeverity("error");
+      console.error('Lỗi khi duyệt người cố vấn:', error);
+      setSnackbarMessage('Không thể duyệt người cố vấn.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
@@ -136,11 +139,11 @@ function Mentor() {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt);
+      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
       const now = new Date();
-      const diff = now - date;
+      const diff = now - date; // Tính toán khoảng cách thời gian
 
-      const seconds = Math.floor(diff / 1000);
+      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -187,22 +190,6 @@ function Mentor() {
                 />
               </VuiBox>
             </VuiBox>
-            <VuiBox
-              display="flex"
-              justifyContent="flex-end" // Aligns content to the right
-              alignItems="center"
-              mb="24px"
-              sx={{
-                backgroundColor: 'transparent', // Keeping it clean with a transparent background
-                paddingBottom: '12px', // Removing the border and maintaining space at the bottom
-              }}
-            >
-              <VuiBox display="flex" alignItems="center">
-                <VuiTypography variant="body2" color="info.main" sx={{ mr: 1 }}>
-                  Lịch sử xóa mentor
-                </VuiTypography>
-              </VuiBox>
-            </VuiBox>
             {loading ? (
               <div
                 style={{
@@ -236,43 +223,39 @@ function Mentor() {
                       .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
+                        const user = users.find(u => u.id === row.user_id);
                         return {
                           ...row,
                           no: page * rowsPerPage + index + 1,
                           author: (
                             <VuiBox style={{ display: 'flex', alignItems: 'center' }}>
                               <img
-                                src={users?.find(u => row.user_id === u.id)?.imageUrl || 'default-image-url.jpg'}
-                                alt="User Avatar"
+                                src={user?.imageUrl ? user.imageUrl : avatardefault}
+                                alt="Hình ảnh người dùng"
                                 style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                                onError={(e) => {
+                                  e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                }}
                               />
 
                               <VuiBox style={{ display: 'flex', flexDirection: 'column' }}>
                                 <VuiTypography variant="button" color="white" fontWeight="medium">
-                                  {users?.find(u => u.id === row.user_id)?.name || 'Unknown'}
+                                  {user?.name || 'Unknown'}
                                 </VuiTypography>
                                 <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                  {users?.find(u => u.id === row.user_id)?.email || 'Unknown'}
+                                  {user?.email || 'Unknown'}
                                 </VuiTypography>
                               </VuiBox>
                             </VuiBox>
                           ),
-                          location: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {users?.find(u => u.id === row.user_id)?.location || 'Unknown'}
-                            </VuiTypography>
-                          ),
-                          phone: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {users?.find(u => u.id === row.user_id)?.phone || 'Unknown'}
-                            </VuiTypography>
-                          ),
-                          information: (
-                            <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                              {row.cv_url.length > 50
-                                ? `${row.cv_url.substring(0, 50)}...`
-                                : row.cv_url}
-                            </VuiTypography>
+                          bio: (
+                            <VuiBox>
+                              <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                {row.bio?.length > 10
+                                  ? `${row.bio?.substring(0, 10)}...`
+                                  : row.bio}
+                              </VuiTypography>
+                            </VuiBox>
                           ),
                           date: (
                             <VuiBox>
@@ -326,8 +309,18 @@ function Mentor() {
                               {row.isApproved == 0 && (
                                 <>
                                   <Tooltip title="Duyệt mentor" placement="top">
-                                    <button className="text-light btn btn-outline-success me-2" onClick={() => handleApprove(row.id)} type="button">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-check-square" viewBox="0 0 16 16">
+                                    <button className="text-light btn btn-outline-success me-2"
+                                      onClick={() => handleApprove(row)}
+                                      type="button"
+                                    >
+                                      <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="16"
+                                        height="16"
+                                        fill="currentColor"
+                                        className="bi bi-check-square"
+                                        viewBox="0 0 16 16"
+                                      >
                                         <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
                                         <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
                                       </svg>
@@ -335,7 +328,6 @@ function Mentor() {
                                   </Tooltip>
                                 </>
                               )}
-
                             </div>
                           ),
                         };

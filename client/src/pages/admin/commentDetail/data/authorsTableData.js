@@ -1,19 +1,20 @@
 export const commentDetails = {
-  articleColumns: [
+  courseColumns: [
     { name: "#", align: "left" },
-    { name: "user_name", align: "center" },
-    { name: "image", align: "center" },
+    { name: "user_id", align: "center" },
+    { name: "images", align: "center" }, 
     { name: "content", align: "center" },
-    { name: "created_date", align: "center" },
-    { name: "updated_date", align: "center" },
+    { name: "date", align: "center" },
     { name: "action", align: "center" },
   ],
   questionColumns: [
     { name: "#", align: "left" },
     { name: "user_id", align: "center" },
+    { name: "images", align: "center" }, 
+    { name: "files", align: "center" }, 
+    { name: "code", align: "center" }, 
     { name: "content", align: "center" },
-    { name: "created_date", align: "center" },
-    { name: "updated_date", align: "center" },
+    { name: "date", align: "center" },
     { name: "action", align: "center" },
   ],
 };

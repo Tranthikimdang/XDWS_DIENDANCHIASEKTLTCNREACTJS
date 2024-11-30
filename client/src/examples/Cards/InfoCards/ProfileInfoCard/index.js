@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 // @mui material components
 import Card from "@mui/material/Card";
 import Divider from "@mui/material/Divider";
-
+import { Avatar } from "@mui/material";
 // Vision UI Dashboard React components
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
@@ -74,11 +74,15 @@ function ProfileInfoCard({ title, description, info, social }) {
           {title}
         </VuiTypography>
       </VuiBox>
+    
       <VuiBox>
         <VuiBox mb={2} lineHeight={1}>
           <VuiTypography variant="button" color="text" fontWeight="regular">
             {description}
           </VuiTypography>
+        </VuiBox>
+        <VuiBox opacity={0.3}>
+          <Divider />
         </VuiBox>
         <VuiBox opacity={0.3}>
           <Divider />

@@ -5,40 +5,40 @@ import { useNavigate } from 'react-router-dom';
 import HashtagApi from "../../apis/HashtagApi"; // Import Hashtag API
 
 const Inter = () => {
-  // State để lưu các hashtag lấy từ API
   const [hashtags, setHashtags] = useState([]);
   const [selectedHashtags, setSelectedHashtags] = useState([]);
   const navigate = useNavigate();
 
-  // Hàm lấy dữ liệu từ Hashtag API
   const fetchHashtags = async () => {
     try {
-      const response = await HashtagApi.getHashtags(); // Gọi API lấy hashtags 
+      const response = await HashtagApi.getHashtags(); // Gọi API lấy hashtags
       setHashtags(response.data.hashtags); // Lưu hashtags vào state
     } catch (error) {
       console.error('Error fetching hashtags:', error);
     }
   };
 
-  // Lấy dữ liệu từ localStorage khi trang load lại
   useEffect(() => {
     const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
     setSelectedHashtags(savedHashtags);
     fetchHashtags();
   }, []);
 
-  // Hàm xử lý khi người dùng chọn hoặc bỏ chọn một hashtag
-  const handleHashtagSelect = (hashtagId) => {
+  const handleHashtagSelect = (hashtag) => {
     setSelectedHashtags((prevSelected) => {
       let updatedSelection;
 
-      if (prevSelected.includes(hashtagId)) {
-        updatedSelection = prevSelected.filter((id) => id !== hashtagId); // Bỏ chọn nếu đã được chọn
+      const isAlreadySelected = prevSelected.some((item) => item.id === hashtag.id);
+
+      if (isAlreadySelected) {
+        // Loại bỏ hashtag đã chọn
+        updatedSelection = prevSelected.filter((item) => item.id !== hashtag.id);
       } else {
-        updatedSelection = [...prevSelected, hashtagId]; // Thêm vào nếu chưa được chọn
+        // Thêm hashtag mới vào danh sách
+        updatedSelection = [...prevSelected, hashtag];
       }
 
-      // Lưu lựa chọn vào localStorage
+      // Lưu vào localStorage toàn bộ danh sách
       localStorage.setItem('selectedHashtags', JSON.stringify(updatedSelection));
 
       return updatedSelection;
@@ -46,10 +46,10 @@ const Inter = () => {
   };
 
   const handleContinue = () => {
-    // Điều hướng đến một trang khác hoặc xử lý logic tiếp theo
+    console.log('Selected Hashtags:', selectedHashtags);
     navigate('/home');
   };
-  
+
   return (
     <PageContainer title="Interests" description="Select your interests">
       <Box
@@ -77,10 +77,7 @@ const Inter = () => {
         <Grid container justifyContent="center">
           <Grid item xs={12} sm={8} md={6} lg={4}>
             <Card elevation={9} sx={{ p: 4 }}>
-              <h3
-                style={{ display: 'flex', justifyContent: 'center' }}
-                className="text-center mb-4"
-              >
+              <h3 style={{ display: 'flex', justifyContent: 'center' }}>
                 Bạn quan tâm đến những nội dung nào?
               </h3>
               <Box
@@ -95,11 +92,11 @@ const Inter = () => {
                     key={hashtag.id}
                     type="button"
                     className={`btn btn-outline-secondary m-2 bigger-btn ${
-                      selectedHashtags.includes(hashtag.id) ? 'selected' : ''
+                      selectedHashtags.some((item) => item.id === hashtag.id) ? 'selected' : ''
                     }`}
-                    onClick={() => handleHashtagSelect(hashtag.id)}
+                    onClick={() => handleHashtagSelect(hashtag)}
                   >
-                    {hashtag.name} {/* Hiển thị tên hashtag */}
+                    {hashtag.name}
                   </button>
                 ))}
               </Box>
@@ -108,7 +105,7 @@ const Inter = () => {
                   variant="contained"
                   color="success"
                   onClick={handleContinue}
-                  disabled={selectedHashtags.length === 0} // Vô hiệu hóa nếu không có hashtag nào được chọn
+                  disabled={selectedHashtags.length === 0}
                 >
                   Hoàn thành
                 </Button>
@@ -118,7 +115,6 @@ const Inter = () => {
         </Grid>
       </Box>
 
-      {/* Style cho nút được chọn */}
       <style>
         {`
           .bigger-btn.selected {
@@ -126,9 +122,9 @@ const Inter = () => {
             color: white;
             border-color: #007bff;
           }
-            .bigger-btn {
-              border-radius: 50px !important;
-            }
+          .bigger-btn {
+            border-radius: 50px !important;
+          }
         `}
       </style>
     </PageContainer>

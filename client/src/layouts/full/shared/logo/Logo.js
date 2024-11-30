@@ -22,6 +22,7 @@ const LogoText = styled('span')({
   whiteSpace: 'nowrap', // Prevents text from wrapping
   display: 'flex', // Aligns text on the same line as the image
   alignItems: 'center', // Vertically center text with the image
+ 
 });
 
 const Logo = () => {

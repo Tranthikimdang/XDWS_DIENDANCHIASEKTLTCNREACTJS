@@ -11,7 +11,7 @@ const CourseDetail = sequelize.define('CourseDetail', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Course', // Tên bảng 'courses' nếu bạn đã thiết lập liên kết với khóa chính của bảng Course
+            model: 'Courses', // Tên bảng 'courses' nếu bạn đã thiết lập liên kết với khóa chính của bảng Course
             key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -32,6 +32,10 @@ const CourseDetail = sequelize.define('CourseDetail', {
     created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
+    },
+    watched_time: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     },
     updated_at: {
         type: DataTypes.DATE,

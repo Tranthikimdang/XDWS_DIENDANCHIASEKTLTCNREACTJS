@@ -1,112 +1,181 @@
 const Mentor = require('../models/mentorModel');
+const UserModel = require('../models/userModel');
 
-// Lấy tất cả danh sách Mentor
-const getMentors = async (req, res) => {
-  try {
-    const mentors = await Mentor.findAll();  // Retrieve all mentors without any filter
-    res.status(200).json(mentors);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching mentors", error });
-  }
+// Lấy danh sách tất cả mentors
+exports.getAllMentors = async (req, res) => {
+    try {
+        const mentors = await Mentor.findAll();
+        res.status(200).json({
+            status: 'success',
+            results: mentors.length,
+            data: {
+                mentors
+            }
+        });
+    } catch (err) {
+        res.status(500).send({
+            status: 'error',
+            message: err.message || 'Some error occurred while retrieving mentors.'
+        });
+    }
+};
+
+// Xem chi tiết mentor theo ID
+exports.detailMentor = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        // Sử dụng findByPk để tìm mentor theo ID
+        const mentor = await Mentor.findByPk(id);
+
+        // Nếu không tìm thấy mentor, trả về mã lỗi 404
+        if (!mentor) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Mentor not found.',
+            });
+        }
+
+        // Trả về mentor trực tiếp trong response
+        res.status(200).json({
+            status: 'success',
+            data: mentor, // Trả về mentor mà không cần bọc thêm một lớp object { mentor }
+        });
+    } catch (err) {
+        console.error("Error retrieving mentor details:", err);
+        // Nếu có lỗi, trả về lỗi server 500
+        res.status(500).send({
+            status: 'error',
+            message: err.message || 'Error retrieving mentor details.',
+        });
+    }
 };
 
 
-// Xem chi tiết Mentor theo ID
-const getMentorById = async (req, res) => {
-  const { id } = req.params;
 
-  try {
-    const mentor = await Mentor.findOne({
-      where: {
-        id,
-        is_deleted: null,  // Kiểm tra Mentor chưa bị xóa
-      },
-    });
+// Tạo mentor mới
+exports.createMentor = async (req, res) => {
+    const {
+        user_id,
+        bio,
+        skills,
+        experience_years,
+        rating,
+        reviews_count,
+        cv_url,
+        certificate_url,
+        isApproved,
+        is_deleted,
+    } = req.body;
 
-    if (!mentor) {
-      return res.status(404).json({ message: "Mentor not found" });
+    // Kiểm tra các trường bắt buộc
+    if (!user_id || !bio || !skills) {
+        return res.status(400).json({
+            status: 'error',
+            message: 'User ID, bio, and skills are required',
+        });
     }
 
-    res.status(200).json(mentor);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching mentor details", error });
-  }
-};
-
-// Cập nhật thông tin Mentor
-const updateMentor = async (req, res) => {
-  const { id } = req.params;
-  const { user_id, cv_url, bio, specialization, hourly_rate, profile_picture_url, languages_spoken, rating, available_hours, last_login, isApproved } = req.body;
-
-  try {
-    const mentor = await Mentor.findOne({ where: { id, is_deleted: null } });
-
-    if (!mentor) {
-      return res.status(404).json({ message: "Mentor not found" });
+    try {
+        const newMentor = await Mentor.create({
+            user_id,
+            bio,
+            skills,
+            experience_years,
+            rating: rating || 0,
+            reviews_count: reviews_count || 0,
+            cv_url,
+            certificate_url,
+            isApproved,
+            is_deleted
+        });
+        res.status(201).json({
+            status: 'success',
+            data: { mentor: newMentor },
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err.message || 'Some error occurred while creating the mentor.',
+        });
     }
-
-    // Cập nhật thông tin Mentor
-    await mentor.update({
-      user_id,
-      cv_url,
-      bio,
-      specialization,
-      hourly_rate,
-      profile_picture_url,
-      languages_spoken,
-      rating,
-      available_hours,
-      last_login,
-      isApproved,
-      updated_at: new Date(),  // Cập nhật thời gian thay đổi
-    });
-
-    res.status(200).json({ message: "Mentor updated successfully", mentor });
-  } catch (error) {
-    res.status(500).json({ message: "Error updating mentor", error });
-  }
 };
 
-// Xóa Mentor (đánh dấu là đã xóa - Soft Delete)
-const deleteMentor = async (req, res) => {
-  const { id } = req.params;
 
-  try {
-    const mentor = await Mentor.findOne({ where: { id, is_deleted: null } });
+// Cập nhật thông tin mentor
+exports.updateMentor = async (req, res) => {
+    const { id } = req.params;
+    const {
+        bio,
+        skills,
+        experience_years,
+        rating,
+        reviews_count,
+        cv_url,
+        certificate_url,
+        isApproved,
+        is_deleted,
+    } = req.body;
 
-    if (!mentor) {
-      return res.status(404).json({ message: "Mentor not found" });
+    try {
+        // Tìm mentor cần cập nhật
+        const mentor = await Mentor.findByPk(id);
+
+        if (!mentor) {
+            return res.status(404).json({
+                status: 'error',
+                message: 'Mentor not found',
+            });
+        }
+
+        // Cập nhật các trường
+        mentor.bio = bio ?? mentor.bio;
+        mentor.skills = skills ?? mentor.skills;
+        mentor.experience_years = experience_years ?? mentor.experience_years;
+        mentor.rating = rating ?? mentor.rating;
+        mentor.reviews_count = reviews_count ?? mentor.reviews_count;
+        mentor.cv_url = cv_url ?? mentor.cv_url;
+        mentor.certificate_url = certificate_url ?? mentor.certificate_url;
+        mentor.isApproved = isApproved !== undefined ? isApproved : mentor.isApproved;
+        mentor.is_deleted = is_deleted !== undefined ? is_deleted : mentor.is_deleted;
+
+        // Lưu lại thông tin
+        await mentor.save();
+
+        res.status(200).json({
+            status: 'success',
+            data: { mentor },
+        });
+    } catch (err) {
+        res.status(500).json({
+            status: 'error',
+            message: err.message || 'Some error occurred while updating the mentor.',
+        });
     }
-
-    // Đánh dấu Mentor là đã xóa (soft delete)
-    await mentor.update({
-      is_deleted: new Date(),  // Cập nhật trường is_deleted với thời gian hiện tại
-    });
-
-    res.status(200).json({ message: "Mentor deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ message: "Error deleting mentor", error });
-  }
 };
 
-// Xóa cứng Mentor (xóa hoàn toàn trong cơ sở dữ liệu)
-const hardDeleteMentor = async (req, res) => {
-  const { id } = req.params;
 
-  try {
-    const mentor = await Mentor.findOne({ where: { id } });
+// Xóa mentor
+exports.deleteMentor = async (req, res) => {
+    const { id } = req.params;
 
-    if (!mentor) {
-      return res.status(404).json({ message: "Mentor not found" });
+    try {
+        const mentor = await Mentor.findByPk(id);
+        if (!mentor) {
+            return res.status(404).json({
+                status: "error",
+                message: "Mentor not found"
+            });
+        }
+        await mentor.destroy();
+        res.status(204).json({
+            status: 'success',
+            data: null
+        });
+    } catch (err) {
+        res.status(500).send({
+            status: 'error',
+            message: err.message || 'Some error occurred while deleting the mentor.'
+        });
     }
-
-    // Xóa Mentor hoàn toàn (hard delete)
-    await mentor.destroy();
-
-    res.status(200).json({ message: "Mentor permanently deleted" });
-  } catch (error) {
-    res.status(500).json({ message: "Error permanently deleting mentor", error });
-  }
 };
-
-module.exports = { getMentors, getMentorById, updateMentor, deleteMentor, hardDeleteMentor };

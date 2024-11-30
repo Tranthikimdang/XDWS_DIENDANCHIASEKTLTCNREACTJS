@@ -6,40 +6,62 @@ import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
 import Table from "src/examples/Tables/Table";
-import { articleColumns, questionColumns } from './data/authorsTableData';
-import ConfirmDialog from './data/formDeleteComment';
-// import apis from "src/apis/commentApi";
+import { courseColumns, questionColumns } from './data/authorsTableData';
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
 import Skeleton from '@mui/material/Skeleton';
 import 'src/pages/admin/comment/index.css';
-import { collection, getDocs } from "firebase/firestore";
-import { db } from 'src/config/firebaseconfig';
+import { getQuestionsList } from 'src/apis/QuestionsApis';
+import CourseApi from 'src/apis/CourseApI';
+const { getCoursesList } = CourseApi;
 
 function Comment() {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [rows, setRows] = useState([]);
-  const [deleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
-  const [page] = useState(0);
+  const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(5);
   const [tabValue, setTabValue] = useState(0);
-  const [articleRows, setArticleRows] = useState([]);
+  const [courseRows, setCourseRows] = useState([]);
   const [questionRows, setQuestionRows] = useState([]);
 
-  // Fetching data from Firestore
   useEffect(() => {
     const fetchComments = async () => {
       setLoading(true);
       try {
-        const articleSnapshot = await getDocs(collection(db, "articles"));
-        const questionSnapshot = await getDocs(collection(db, "questions"));
-        const articleList = articleSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        const questionList = questionSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setArticleRows(articleList);
+        // Fetch API
+        const courseResponse = await getCoursesList();
+        const questionResponse = await getQuestionsList();
+
+        // Log full response to debug
+        console.log("Courses response:", courseResponse);
+        console.log("Questions response:", questionResponse);
+
+        // Extract data safely
+        const courseList = Array.isArray(courseResponse.data)
+          ? courseResponse.data.map(item => ({
+            id: item.id,
+            ...item,
+            updated_at: item.updated_at || null,
+          }))
+          : courseResponse.data.courses.map(item => ({
+            id: item.id,
+            ...item,
+            updated_at: item.updated_at || null,
+          })); // Adjust based on actual structure
+
+        const questionList = Array.isArray(questionResponse.data)
+          ? questionResponse.data.map(item => ({
+            id: item.id,
+            ...item,
+          }))
+          : questionResponse.data.questions.map(item => ({
+            id: item.id,
+            ...item,
+          })); // Adjust based on actual structure
+
+        setCourseRows(courseList);
         setQuestionRows(questionList);
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -51,24 +73,12 @@ function Comment() {
     fetchComments();
   }, []);
 
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
 
-  const confirmDelete = async () => {
-    try {
-      // await apis.deleteComment(deleteId);
-      setRows(rows.filter((comment) => comment.id !== deleteId));
-      setOpenDialog(false);
-      setSnackbarMessage("Comment deleted successfully.");
-      setSnackbarSeverity("success");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-      setSnackbarMessage("Failed to delete comment.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-    }
+  const handleTabChange = (event, newValue) => {
+    setTabValue(newValue);
   };
 
   const removeHtmlTags = (html) => html?.replace(/<[^>]+>/g, '');
@@ -77,7 +87,7 @@ function Comment() {
 
   const formatUpdatedAt = (updatedAt) => {
     if (!updatedAt) return 'Unknown time';
-    const date = new Date(updatedAt.seconds * 1000);
+    const date = updatedAt.seconds ? new Date(updatedAt.seconds * 1000) : new Date(updatedAt);
     const now = new Date();
     const diff = now - date;
 
@@ -92,8 +102,9 @@ function Comment() {
     return `${seconds} giây trước`;
   };
 
+
   // Rendering the table with data
-  const renderTable = (rows, columns) => (
+  const renderTable = (rows, columns,tabValue) => (
     <>
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
@@ -106,11 +117,38 @@ function Comment() {
             ...row,
             '#': page * rowsPerPage + index + 1,
             image: (
-              <ImageLoader
-                src={row.image || defaultImageUrl}
-                alt="Image"
-                defaultImageUrl={defaultImageUrl}
-              />
+              <div
+                className="Product-row"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+                  height: '70px',
+                }}
+              >
+                <div className="image-column" style={{ flex: '0 0 100px' }}>
+                  <img
+                    src={`${row.image}`}
+                    alt={
+                      row.name && row.name.length > 10
+                        ? `${row.name.substring(0, 10).toUpperCase()}...`
+                        : row.name
+                          ? row.name.toUpperCase()
+                          : 'Image of the Product'
+                    }
+                    style={{
+                      width: '100px',
+                      height: '50px',
+                      objectFit: 'cover',
+                      objectPosition: 'center',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                    }}
+                  />
+                </div>
+              </div>
             ),
             function: (
               <div
@@ -150,28 +188,43 @@ function Comment() {
                   : removeHtmlTags(row.content || "")}
               </VuiTypography>
             ),
+            questions: (
+              <VuiTypography variant="caption" color="text">
+                {removeHtmlTags(row?.questions || "").length > 50
+                  ? `${removeHtmlTags(row.questions).substring(0, 50)}...`
+                  : removeHtmlTags(row.questions || "")}
+              </VuiTypography>
+            ),
             date: (
               <VuiTypography variant="caption" color="text">
                 {formatUpdatedAt(row.updated_at)}
               </VuiTypography>
             ),
             action: (
-              <Link to={`/admin/commentDetail/${row.id}`}>
-                <button className="text-light btn btn-outline-primary me-2" type="submit">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    className="bi bi-eye"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-                    <path d="M8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM8 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
-                  </svg>
-                </button>
-              </Link>
-            ),
+              <>
+                {tabValue === 0 ? ( // Kiểm tra nếu tab là "Khóa học"
+                  <Link to={`/admin/commentDetail/${row.id}?type=course`}>
+                    <button className="text-light btn btn-outline-primary me-2" type="button">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
+                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                        <path d="M8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM8 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
+                      </svg>
+                    </button>
+                  </Link>
+                ) : ( // Nếu tab là "Câu hỏi"
+                  <Link to={`/admin/commentDetail/${row.id}?type=question`}>
+                    <button className="text-light btn btn-outline-primary me-2" type="button">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
+                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                        <path d="M8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM8 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
+                      </svg>
+                    </button>
+                  </Link>
+                )}
+              </>
+            )
+            
+
           }))}
         />
       ) : (
@@ -179,27 +232,48 @@ function Comment() {
           <p>No comments available.</p>
         </div>
       )}
+      <div className="d-flex justify-content-center p-2 custom-pagination">
+        <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+          <button
+            className="btn btn-light"
+            onClick={() => handleChangePage(null, page - 1)}
+            disabled={page === 0}
+          >
+            &laquo;
+          </button>
+          <span className="btn btn-light disabled">
+            Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+          </span>
+          <button
+            className="btn btn-light"
+            onClick={() => handleChangePage(null, page + 1)}
+            disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+          >
+            &raquo;
+          </button>
+        </div>
+      </div>
     </>
   );
 
   return (
     <DashboardLayout>
       <DashboardNavbar />
-      <VuiBox py={3} className="tabs-container"  sx={{ padding: 0, margin: 0 }} >
+      <VuiBox py={3} className="tabs-container" sx={{ padding: 0, margin: 0 }} >
         <Card>
           <Tabs value={tabValue} onChange={handleTabChange} aria-label="comment management tabs" >
-            <Tab label="Bài viết " />
+            <Tab label=" Khóa học " />
             <Tab label="Câu hỏi " />
           </Tabs>
 
           <VuiBox>
-            {tabValue === 0 && renderTable(articleRows, articleColumns)}
-            {tabValue === 1 && renderTable(questionRows, questionColumns)}
+            {tabValue === 0 && renderTable(courseRows, courseColumns, tabValue)}
+            {tabValue === 1 && renderTable(questionRows, questionColumns,tabValue)}
           </VuiBox>
 
         </Card>
       </VuiBox>
-      <ConfirmDialog open={openDialog} onClose={() => setOpenDialog(false)} onConfirm={confirmDelete} />
+      {/* <ConfirmDialog open={openDialog} onClose={() => setOpenDialog(false)} onConfirm={confirmDelete} /> */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}

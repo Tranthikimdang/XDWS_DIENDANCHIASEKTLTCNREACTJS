@@ -1,76 +1,149 @@
+// Footer.js
 import React from 'react';
-import './Footer.css'; // Assuming you will write the CSS separately.
+import { Box, Typography, Grid, IconButton, Link } from '@mui/material';
+import FacebookIcon from '@mui/icons-material/Facebook';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import GoogleIcon from '@mui/icons-material/Google';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import HomeIcon from '@mui/icons-material/Home';
+import EmailIcon from '@mui/icons-material/Email';
+import PhoneIcon from '@mui/icons-material/Phone';
+import PrintIcon from '@mui/icons-material/Print';
+import './Footer.css'; // Import file CSS mới
 
-const Footer = () => {
+export default function Footer() {
   return (
-    <footer className="footer">
-      <div className="footer-container">
-        {/* Left Section */}
-        <div className="footer-section company-info">
-          <h2>F8 Học Lập Trình Để Đi Làm</h2>
-          <p>Điện thoại: 08 1919 8989</p>
-          <p>Email: contact@fullstack.edu.vn</p>
-          <p>Địa chỉ: Số 1, ngõ 41, Trần Duy Hưng, Cầu Giấy, Hà Nội</p>
-          <img src="dmca.png" alt="DMCA Protected" className="dmca-logo" />
-        </div>
+    <Box component="footer" className='footer'>
+      {/* Kết Nối Mạng Xã Hội */}
+      <Box className='social-section' sx={{ py: 4, borderBottom: '1px solid #ccc' }}>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid item>
+            <Typography variant="h6">
+              Kết nối với chúng tôi trên các mạng xã hội:
+            </Typography>
+          </Grid>
+          <Grid item className='social-icons'>
+            <IconButton component="a" href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="facebook">
+              <FacebookIcon />
+            </IconButton>
+            <IconButton component="a" href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="twitter">
+              <TwitterIcon />
+            </IconButton>
+            <IconButton component="a" href="https://google.com" target="_blank" rel="noopener noreferrer" aria-label="google">
+              <GoogleIcon />
+            </IconButton>
+            <IconButton component="a" href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="instagram">
+              <InstagramIcon />
+            </IconButton>
+            <IconButton component="a" href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="linkedin">
+              <LinkedInIcon />
+            </IconButton>
+            <IconButton component="a" href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="github">
+              <GitHubIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
+      </Box>
 
-        {/* Center Sections */}
-        <div className="footer-section links">
-          <h3>Về F8</h3>
-          <ul>
-            <li>Giới thiệu</li>
-            <li>Liên hệ</li>
-            <li>Điều khoản</li>
-            <li>Bảo mật</li>
-            <li>Cơ hội việc làm</li>
-          </ul>
-        </div>
-        
-        <div className="footer-section links">
-          <h3>Sản Phẩm</h3>
-          <ul>
-            <li>Game Nester</li>
-            <li>Game CSS Diner</li>
-            <li>Game CSS Selectors</li>
-            <li>Game Froggy</li>
-            <li>Game Froggy Pro</li>
-            <li>Game Scoops</li>
-          </ul>
-        </div>
+      {/* Nội Dung Footer */}
+      <Box className='content-section' sx={{ py: 4 }}>
+        <Grid container spacing={4}>
+          {/* Giới Thiệu Công Ty */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="h6" gutterBottom>
+              ShareCode
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ShareCode là diễn đàn chia sẻ kiến thức lập trình, nơi bạn có thể trao đổi và học hỏi từ cộng đồng.
+            </Typography>
+          </Grid>
 
-        <div className="footer-section links">
-          <h3>Công Cụ</h3>
-          <ul>
-            <li>Tạo CV xin việc</li>
-            <li>Rút gọn liên kết</li>
-            <li>Clip-path maker</li>
-            <li>Snippet generator</li>
-            <li>CSS Grid generator</li>
-            <li>Cảnh báo sờ tay lên mặt</li>
-          </ul>
-        </div>
+          {/* Sản Phẩm */}
+          <Grid item xs={12} md={2}>
+            <Typography variant="h6" gutterBottom>
+              Sản phẩm
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Angular
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                React
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Vue
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Laravel
+              </Link>
+            </Typography>
+          </Grid>
 
-        {/* Right Section */}
-        <div className="footer-section company-details">
-          <h3>Công Ty Cổ Phần Công Nghệ Giáo Dục F8</h3>
-          <p>Mã số thuế: 0109922901</p>
-          <p>Ngày thành lập: 04/03/2022</p>
-          <p>Lĩnh vực hoạt động: Giáo dục, công nghệ - lập trình.</p>
-          <p>Chúng tôi tập trung xây dựng và phát triển các sản phẩm mang lại giá trị cho cộng đồng lập trình viên Việt Nam.</p>
-          <div className="social-icons">
-            <span className="icon">YouTube</span>
-            <span className="icon">Facebook</span>
-            <span className="icon">TikTok</span>
-          </div>
-        </div>
-      </div>
+          {/* Liên Kết Hữu Ích */}
+          <Grid item xs={12} md={2}>
+            <Typography variant="h6" gutterBottom>
+              Liên kết hữu ích
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Bảng giá
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Cài đặt
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Đơn hàng
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Trợ giúp
+              </Link>
+            </Typography>
+          </Grid>
 
-      {/* Footer Bottom */}
-      <div className="footer-bottom">
-        <p>&copy; 2018 - 2024 F8. Nền tảng học lập trình hàng đầu Việt Nam</p>
-      </div>
-    </footer>
+          {/* Thông Tin Liên Hệ */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="h6" gutterBottom>
+              Liên hệ
+            </Typography>
+            <Typography variant="body2" display="flex" alignItems="center">
+              <HomeIcon sx={{ mr: 1 }} /> Cần Thơ, Việt Nam
+            </Typography>
+            <Typography variant="body2" display="flex" alignItems="center">
+              <EmailIcon sx={{ mr: 1 }} /> support@sharecode.vn
+            </Typography>
+            <Typography variant="body2" display="flex" alignItems="center">
+              <PhoneIcon sx={{ mr: 1 }} /> + 84 123 456 789
+            </Typography>
+            <Typography variant="body2" display="flex" alignItems="center">
+              <PrintIcon sx={{ mr: 1 }} /> + 84 987 654 321
+            </Typography>
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Bản Quyền */}
+      <Box className='copyright' sx={{ py: 2, backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
+        <Typography variant="body2" color="text.secondary" align="center">
+          © {new Date().getFullYear()} Bản quyền thuộc về:
+          <Link href="https://sharecode.vn/" color="inherit" sx={{ ml: 1, fontWeight: 'bold' }}>
+            ShareCode.vn
+          </Link>
+        </Typography>
+      </Box>
+    </Box>
   );
-};
-
-export default Footer;
+}

@@ -9,17 +9,16 @@ import CategoryPro from "../pages/admin/category_pro";
 import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
 import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
 
-import Products from "src/pages/admin/product";
-import AddProduct from "../pages/admin/product/data/FormAddProduct";
-import EditProduct from "../pages/admin/product/data/FormEditProduct";
-import productDetail from "../views/product/components/detail"
+import Products from "src/pages/admin/course";
+import AddProduct from "../pages/admin/course/data/FormAdd";
+import EditProduct from "../pages/admin/course/data/FormEdit";
+import productDetail from "../views/course/components/detail"
 
 
-import productDetailAdmin from "../pages/admin/productDetail"
-import AddProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
-import EditProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
-
-import Article from "src/pages/admin/article";
+import productDetailAdmin from "../pages/admin/courseDetail"
+import AddProDetaill from "../pages/admin/courseDetail/data/FormAdd"
+import EditProDetaill from "../pages/admin/courseDetail/data/FormAdd"
+// import Article from "src/pages/admin/article";
 import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
 import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
@@ -54,21 +53,32 @@ const routes = [
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý bài viết",
+    // type: "collapse",
+    // name: "Quản lý bài viết",
     key: "article",
     route: "/admin/article",
-    icon: <BsJournals size="15px" color="inherit" />,
-    component: Article,
-    noCollapse: true,
+    //tamthoi
+    // icon: <BsJournals size="15px" color="inherit" />,
+    // component: Article,
+    // noCollapse: true,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    // type: "collapse",
+    // name: "Danh mục bài viết",
+    key: "category",
+    route: "/admin/category",
+    // icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
+    // noCollapse: true,
+    hidden: true, // Ẩn mục này
   },
   {
     type: "collapse",
-    name: "Danh mục bài viết",
-    key: "category",
-    route: "/admin/category",
-    icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
-    // component: Category,
+    name: "Quản lý câu hỏi",
+    key: "questions",
+    route: "/admin/questions",
+    icon: <FaQuestionCircle size="15px" color="inherit" />,
+    component: Questions,
     noCollapse: true,
   },
   {
@@ -82,11 +92,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý câu hỏi",
-    key: "questions",
-    route: "/admin/questions",
-    icon: <FaQuestionCircle size="15px" color="inherit" />,
-    component: Questions,
+    name: "Quản lý khóa học",
+    key: "products",
+    route: "/admin/products",
+    icon: <FaYoutube size="15px" color="inherit" />,
+    component: CategoryPro,
     noCollapse: true,
   },
   {
@@ -100,29 +110,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý khóa học",
-    key: "products",
-    route: "/admin/products",
-    icon: <FaYoutube size="15px" color="inherit" />,
-    component: CategoryPro,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Quản lý tài khoản",
-    key: "user",
-    route: "/admin/user",
-    icon: <BsFillPersonPlusFill size="15px" color="inherit" />,
-    // component: User,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Quản lý người hướng dẫn",
-    key: "mentor",
-    route: "/admin/mentor",
-    icon: <BsJournals size="15px" color="inherit" />,
-    component: Mentor,
+    name: "Quản lý hashtag",
+    key: "hashtag",
+    route: "/admin/hashtag",
+    icon: <BsHash size="15px" color="inherit" />,
+    component: HashtagAdmin,
     noCollapse: true,
   },
   {
@@ -136,14 +128,23 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý hashtag",
-    key: "hashtag",
-    route: "/admin/hashtag",
-    icon: <BsHash size="15px" color="inherit" />,
-    component: HashtagAdmin,
+    name: "Quản lý tài khoản",
+    key: "user",
+    route: "/admin/user",
+    icon: <BsFillPersonPlusFill size="15px" color="inherit" />,
+    // component: User,
     noCollapse: true,
   },
-  { type: "title", title: "Account Pages", key: "account-pages" },
+  {
+    type: "collapse",
+    name: "Quản lý người cố vấn",
+    key: "mentor",
+    route: "/admin/mentor",
+    icon: <BsJournals size="15px" color="inherit" />,
+    component: Mentor,
+    noCollapse: true,
+  },
+  { type: "title", title: "Mục tài khoản", key: "account-pages" },
   {
     type: "collapse",
     name: "Profile",

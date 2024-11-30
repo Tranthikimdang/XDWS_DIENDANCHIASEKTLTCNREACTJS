@@ -1,238 +1,295 @@
-/* eslint-disable no-lone-blocks */
+import { useEffect, useState } from 'react';
 import {
-  Alert,
-  Box,
-  Button,
-  CircularProgress,
   Grid,
-  Snackbar,
-  Typography
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  CardMedia,
+  TextField,
+  InputAdornment,
+  Pagination,
+  CircularProgress,
 } from '@mui/material';
-import { Card } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-// components
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import { addDoc, collection, getDoc } from 'firebase/firestore';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import { useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
-import { db } from 'src/config/firebaseconfig';
-import Logo from 'src/layouts/full/shared/logo/Logo';
-import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search as SearchIcon } from '@mui/icons-material';
+import { IconUser, IconHeart } from '@tabler/icons-react';
+// Image
+import avatar from 'src/assets/images/profile/user-1.jpg';
+// API
+import apiUser from 'src/apis/UserApI';
+import api from 'src/apis/mentorApi';
+// Icon
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 const Mentor = () => {
-  const [loading, setLoading] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+  const [users, setUsers] = useState([]); // List of users
+  const [mentors, setMentors] = useState([]); // List of mentors
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [itemsPerPage] = useState(12);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const handleUpload = async (file) => {
-    const storage = getStorage();
-    const storageRef = ref(storage, `uploads/${file.name}`);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
-    return downloadURL;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-  
-    const formData = new FormData(e.target);
-    const file = formData.get('upfile');
-  
-    if (!file) {
-      setSnackbarMessage('Vui lòng chọn một file CV.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-      setLoading(false);
-      return;
-    }
-  
-    try {
-      const fileUrl = await handleUpload(file);
-  
-      const dataToSubmit = {
-        user_id: userData?.id,
-        upfile: fileUrl,
-        expertise: "WebDevelopment", // tạm thời
-        // expertise: expertiseList,  // Gán danh sách các expertise
-        isApproved: '0',
-        created_at: new Date(),  // Thời gian tạo
-        is_deleted: false,  // Mặc định là false
-        updated_at: new Date(),  // Thời gian cập nhật
-      };
-  
-      const mentorsCollection = collection(db, 'mentors');
-      const res = await addDoc(mentorsCollection, dataToSubmit);
-      const docSnapshot = await getDoc(res);
-  
-      if (docSnapshot.exists()) {
-        setSnackbarMessage('CV của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
-        setSnackbarSeverity('success');
-        setTimeout(() => {
-          navigate('/auth/inter');  // Chuyển hướng về trang home sau khi thông báo
-        }, 3000);
-      } else {
-        setSnackbarMessage('Đã xảy ra lỗi khi gửi CV.');
-        setSnackbarSeverity('error');
-      }
-      setSnackbarOpen(true);
-      e.target.reset();
-    } catch (error) {
-      console.error('Lỗi khi gửi dữ liệu lên Firestore:', error);
-      setSnackbarMessage('Lỗi khi gửi CV. Vui lòng thử lại.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file ? file.name : null); // Lưu tên file đã chọn
-  };
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
-  };
-
+  // Fetch users
   useEffect(() => {
-    const storedUserData = JSON.parse(localStorage.getItem('user'));
-    if (storedUserData) {
-      setUserData(storedUserData);
-    }{
-      navigate('/auth/mentor')
-    }
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const user = await apiUser.getUsersList();
+        setUsers(Array.isArray(user.data.users) ? user.data.users : []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
   }, []);
 
+  // Fetch mentors
+  useEffect(() => {
+    const fetchMentor = async () => {
+      setLoading(true);
+      try {
+        const response = await api.getMentors();
+        setMentors(Array.isArray(response.data.mentors) ? response.data.mentors : []);
+      } catch (error) {
+        console.error('Error fetching mentors:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMentor();
+  }, []);
+
+  // Handle card click
+  const handleCardClick = (userId) => {
+    navigate(`/profile/${userId}`, { state: { id: userId } });
+  };
+
+  // Filter users by search term
+  const filteredMentors = mentors.filter((mentor) => {
+    const user = users.find((u) => u.id === mentor.user_id);
+    return user?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  // Pagination logic
+  const indexOfLastMentor = currentPage * itemsPerPage;
+  const indexOfFirstMentor = indexOfLastMentor - itemsPerPage;
+  const currentMentors = filteredMentors.slice(indexOfFirstMentor, indexOfLastMentor);
+
   return (
-    <PageContainer title="Login" description="This is the login page">
-      <Box
-        sx={{
-          position: 'relative',
-          height: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          '&:before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            height: '100%',
-            width: '100%',
-            background: 'radial-gradient(#d2f1df, #d3d7fa, #bad8f4)',
-            backgroundSize: '400% 400%',
-            animation: 'gradient 15s ease infinite',
-            opacity: 0.3,
-            zIndex: -1,
-          },
-        }}
-      >
-        <Grid container justifyContent="center">
-          <Grid item xs={12} sm={8} md={6} lg={4}>
-            <Card elevation={9}>
-              <Box display="flex" alignItems="center" justifyContent="center" mb={2}>
-                <div className="text-center mb-4">
-                  <Logo />
-                </div>
-              </Box>
-              <h5 display="flex" justifyContent="center" className="text-center mb-4">
-                Đăng ký mentor
-              </h5>
-              <Box
-                component="form"
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%',
-                }}
-                onSubmit={handleSubmit}
-              >
-                <Box display="flex" alignItems="center" mb={2}>
-                  <img
-                    src={userData?.imageUrl || ''}
-                    width="40px"
-                    alt="User Avatar"
-                    style={{ borderRadius: '50%', marginRight: '10px' }}
-                  />
-                  <Typography variant="h6">{userData?.name || ''}</Typography>
-                </Box>
-
-                <Box display="flex" flexDirection={'column'} sx={{ padding: '10px' }}>
-                  <Box display="flex" gap={1}>
-                    <Button
-                      variant="outlined"
-                      startIcon={<AttachFileIcon />}
-                      sx={{
-                        borderRadius: '16px',
-                        textTransform: 'none',
-                        padding: '5px 15px',
-                      }}
-                      component="label"
-                    >
-                      Tải CV lên
-                      <input
-                        name="upfile"
-                        type="file"
-                        accept=".pdf,.doc,.docx"
-                        hidden
-                        onChange={handleFileChange}
-                      />
-                    </Button>
-                  </Box>
-                  {selectedFile && (
-                    <Typography variant="body2" sx={{ marginTop: '10px' }}>
-                      File đã chọn: {selectedFile}
-                    </Typography>
-                  )}
-
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      textTransform: 'none',
-                      borderRadius: '16px',
-                      padding: '5px 20px',
-                      fontWeight: 'bold',
-                      mt: 2,
-                    }}
-                    disabled={loading} // Vô hiệu hóa khi đang tải lên
-                  >
-                    {loading ? <CircularProgress size={24} /> : 'Gửi'}
-                  </Button>
-                </Box>
-              </Box>
-            </Card>
+    <PageContainer title="Người cố vấn | Share Code" description="Đây là trang người cố vấn">
+      <Box sx={{ padding: { xs: '16px', md: '24px' } }}>
+        <Grid container spacing={3}>
+          {/* Heading */}
+          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+            <Typography variant="h4" component="h1" className="heading" >
+              Cố vấn
+            </Typography>
+            <Typography variant="body1" paragraph className="typography-body" >
+              Tìm kiếm và kết nối với những người cố vấn hàng đầu trong lĩnh vực lập trình.
+              <br />
+              Người cố vấn của chúng tôi là các chuyên gia giàu kinh nghiệm, sẵn sàng hỗ trợ bạn
+              trên hành trình học lập trình và phát triển sự nghiệp.
+            </Typography>
           </Grid>
+
+          {/* Search Section */}
+          <Grid
+            item
+            xs={12}
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '16px',
+              justifyContent: 'flex-start',
+            }}
+          >
+            {/* Tìm kiếm */}
+            <TextField
+              label="Tìm kiếm người hướng dẫn"
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                flex: '1 1 300px',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            {/* Lĩnh vực quan tâm */}
+            <TextField
+              select
+              label="Từ khóa quan tâm"
+              variant="outlined"
+              sx={{
+                flex: '1 1 300px',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              SelectProps={{
+                native: true,
+              }}
+              onChange={(e) => console.log('Từ khóa  chọn:', e.target.value)}
+            >
+              <option value="" disabled>
+                Từ khóa quan tâm
+              </option>
+              <option value="frontend">Frontend</option>
+              <option value="backend">Backend</option>
+              <option value="fullstack">Fullstack</option>
+              <option value="data-science">Data Science</option>
+            </TextField>
+
+            {/* Bộ lọc */}
+            <button
+              style={{
+                padding: '10px 16px',
+                border: '1px solid #ddd',
+                borderRadius: '50px',
+                backgroundColor: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '14px',
+              }}
+              onClick={() => console.log('Kích hoạt bộ lọc!')}
+            >
+              <FilterAltOutlinedIcon style={{ fontSize: '20px' }} />
+              Bộ lọc tìm kiếm
+            </button>
+          </Grid>
+
+          {/* Mentor List */}
+          <Grid container spacing={3} sx={{ marginTop: '16px' }}>
+            {loading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+                <CircularProgress />
+              </Box>
+            ) : currentMentors.length > 0 ? (
+              currentMentors.map((mentor) => {
+                const userInfo = users.find((u) => u.id === mentor.user_id);
+                return (
+                  <Grid item xs={6} sm={4} md={3} key={mentor.id}>
+                    <Card
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        height: '100%',
+                        cursor: 'pointer',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        padding: '16px',
+                        textAlign: 'center',
+                        transition: 'transform 0.3s',
+                        '&:hover': { transform: 'translateY(-5px)' },
+                      }}
+                      onClick={() => handleCardClick(mentor.user_id)}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={userInfo?.imageUrl || avatar}
+                        alt={userInfo?.name || 'Không có hình ảnh'}
+                        sx={{
+                          width: '120px',
+                          height: '120px',
+                          objectFit: 'cover',
+                          borderRadius: '50%',
+                          border: '4px solid #fff',
+                          marginBottom: '16px',
+                        }}
+                      />
+                      <CardContent>
+                        <Typography variant="h6">{userInfo?.name || 'Không rõ tên'}</Typography>
+                        <Typography variant="body2" color="#7f8c8d" sx={{ marginBottom: '8px' }}>
+                          {mentor.skills || 'Chưa có thông tin'}
+                        </Typography>
+
+                         {/* Availability Time */}
+                         <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#ecf2ff',
+                              padding: '8px 16px',
+                              borderRadius: '8px',
+                              marginBottom: '16px',
+                              fontSize: '14px',
+                            }}
+                          >
+                            <Typography variant="body2" color="#5d87ff">
+                              <i className="fas fa-calendar-alt"></i> Lịch rảnh: 16:00, 24/08/2024
+                            </Typography>
+                          </Box>
+
+                          {/* Stats Section */}
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px' }}>
+                            {/* Mentee count */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <IconUser size={18} stroke={1.5} />
+                              <Typography variant="body2" color="#2c3e50">
+                                10 mentee
+                              </Typography>
+                            </Box>
+
+                            {/* Likes count */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <IconHeart size={18} stroke={1.5} />
+                              <Typography variant="body2" color="#2c3e50">
+                                18
+                              </Typography>
+                            </Box>
+                          </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                );
+              })
+            ) : (
+              <Typography sx={{ textAlign: 'center', width: '100%' }}>
+                Không có người hướng dẫn nào...
+              </Typography>
+            )}
+          </Grid>
+
+          {/* Pagination */}
+          <Box display="flex" justifyContent="center" mt={4}>
+            <Pagination
+              count={Math.ceil(filteredMentors.length / itemsPerPage)}
+              page={currentPage}
+              onChange={(event, value) => setCurrentPage(value)}
+              color="primary"
+            />
+          </Box>
         </Grid>
       </Box>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ transform: 'translateY(50px)' }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{
-            width: '100%',
-            border: '1px solid #ccc',
-          }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </PageContainer>
   );
 };
