@@ -18,8 +18,8 @@ import { ref, getDownloadURL } from 'firebase/storage';
 import { collection, getDocs, getDoc } from 'firebase/firestore';
 import { doc, deleteDoc } from 'firebase/firestore'; // Import deleteDoc từ Firebase Firestore
 import { Update } from '@mui/icons-material';
-import api from '../../../apis/CourseDetailApI';
-import apiUser from '../../../apis/UserApI';
+import api from '../../../apis/CourseDetailApi';
+import apiUser from '../../../apis/UserApi';
 
 function ProductDetail() {
   const { columns } = authorsProductData;

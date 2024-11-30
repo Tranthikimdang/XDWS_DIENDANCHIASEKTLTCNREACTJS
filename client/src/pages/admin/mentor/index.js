@@ -21,7 +21,7 @@ import avatardefault from "src/assets/images/profile/user-1.jpg";
 import SearchIcon from '@mui/icons-material/Search';
 //sql
 import api from '../../../apis/mentorApi';
-import apiUser from '../../../apis/UserApI';
+import apiUser from '../../apis/UserApI';
 
 function Mentor() {
   const { columns } = authorsMentorData;

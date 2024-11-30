@@ -14,8 +14,8 @@ import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
 //sql
-import api from '../../../apis/CourseApI';
-import apiUser from '../../../apis/UserApI';
+import api from '../../../apis/CourseApi';
+import apiUser from '../../../apis/UserApi';
 
 
 

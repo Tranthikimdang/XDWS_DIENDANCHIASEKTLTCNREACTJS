@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
 import { useForm } from 'react-hook-form';
@@ -6,7 +5,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
-import api from "../../../../apis/Categories_courseApI"; // Giả sử bạn đã tạo file api.js để xử lý các yêu cầu API
+import api from "../../../../apis/Categories_courseApI";
 
 function FormAddCate() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();

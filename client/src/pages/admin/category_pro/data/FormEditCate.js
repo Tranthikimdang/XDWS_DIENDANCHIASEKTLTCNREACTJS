@@ -4,7 +4,7 @@ import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
 import { useForm } from 'react-hook-form';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
-import api from "../../../../apis/Categories_courseApI"; // Adjust the import path as necessary
+import api from "../../../../apis/Categories_courseApi"; // Adjust the import path as necessary
 
 function FormEditCate() {
   const { id } = useParams(); // Get ID from URL

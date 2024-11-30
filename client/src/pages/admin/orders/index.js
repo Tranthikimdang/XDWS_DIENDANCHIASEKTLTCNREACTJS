@@ -231,11 +231,12 @@ function Orders() {
                           status: row.status,
                           actions: (
                             <div className="action-buttons">
-                              <Tooltip title="Delete Order" placement="top">
+                              {/* delete hoa don  */}
+                              {/* <Tooltip title="Delete Order" placement="top">
                                 <IconButton onClick={() => handleDelete(row.id, row.user_name)}>
                                   Delete
                                 </IconButton>
-                              </Tooltip>
+                              </Tooltip> */}
                               {row.status === 'Pending' && (
                                 <Tooltip title="Confirm Payment" placement="top">
                                   <Button
