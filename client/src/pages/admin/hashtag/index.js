@@ -129,7 +129,7 @@ function Hashtag() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Hashtag Table
+                Bảng Hashtag
               </VuiTypography>
               <Link to="/admin/addhashtag">
                 <button className="text-light btn btn-outline-info" type="button">

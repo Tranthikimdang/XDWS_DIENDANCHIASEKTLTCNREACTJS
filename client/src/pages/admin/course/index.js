@@ -171,7 +171,7 @@ function Course() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Product Table
+                Danh sách khóa học
               </VuiTypography>
               <Link to="/admin/addProduct">
                 <button

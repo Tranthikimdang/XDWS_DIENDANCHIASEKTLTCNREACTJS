@@ -60,8 +60,6 @@ exports.createMentor = async (req, res) => {
         bio,
         skills,
         experience_years,
-        rating,
-        reviews_count,
         cv_url,
         certificate_url,
         isApproved,
@@ -82,8 +80,6 @@ exports.createMentor = async (req, res) => {
             bio,
             skills,
             experience_years,
-            rating: rating || 0,
-            reviews_count: reviews_count || 0,
             cv_url,
             certificate_url,
             isApproved,
@@ -109,8 +105,6 @@ exports.updateMentor = async (req, res) => {
         bio,
         skills,
         experience_years,
-        rating,
-        reviews_count,
         cv_url,
         certificate_url,
         isApproved,
@@ -132,8 +126,6 @@ exports.updateMentor = async (req, res) => {
         mentor.bio = bio ?? mentor.bio;
         mentor.skills = skills ?? mentor.skills;
         mentor.experience_years = experience_years ?? mentor.experience_years;
-        mentor.rating = rating ?? mentor.rating;
-        mentor.reviews_count = reviews_count ?? mentor.reviews_count;
         mentor.cv_url = cv_url ?? mentor.cv_url;
         mentor.certificate_url = certificate_url ?? mentor.certificate_url;
         mentor.isApproved = isApproved !== undefined ? isApproved : mentor.isApproved;

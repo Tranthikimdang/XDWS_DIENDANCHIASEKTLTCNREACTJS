@@ -252,7 +252,6 @@ function User() {
       </Snackbar>
      
     </DashboardLayout>
-    {/* Footer cố định */}
     <Footer />
     </VuiBox>
   );
