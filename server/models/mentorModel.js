@@ -30,6 +30,10 @@ const Mentor = sequelize.define('Mentor', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
+    cv_url: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     rating: {
         type: DataTypes.FLOAT,
         defaultValue: 0
@@ -37,10 +41,6 @@ const Mentor = sequelize.define('Mentor', {
     reviews_count: {
         type: DataTypes.INTEGER,
         defaultValue: 0
-    },
-    cv_url: {
-        type: DataTypes.STRING,
-        allowNull: true
     },
     certificate_url: {
         type: DataTypes.STRING,
