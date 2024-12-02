@@ -1,34 +1,34 @@
 import React, { useEffect, useState } from 'react';
+import Card from '@mui/material/Card';
+import { Link } from 'react-router-dom';
+import VuiBox from 'src/components/admin/VuiBox';
+import { Grid, Box, CardContent, CardMedia } from '@mui/material';
+import VuiTypography from 'src/components/admin/VuiTypography';
+import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
+import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import Tooltip from '@mui/material/Tooltip';
+import Table from 'src/examples/Tables/Table';
+import ConfirmDialog from './data/FormDeleteOrder';
+import authorsOrdersData from './data/authorsOrdersData';
 import {
-  Card,
-  Box,
+  Snackbar,
+  Alert,
   TextField,
   InputAdornment,
   IconButton,
   Button,
   Typography,
-  Snackbar,
-  Alert,
-  Tooltip,
 } from '@mui/material';
-import { Link } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
 import SearchIcon from '@mui/icons-material/Search';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { IconArrowBadgeRight, IconArrowBadgeLeft } from '@tabler/icons-react';
-import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
-import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
-import VuiBox from 'src/components/admin/VuiBox';
-import VuiTypography from 'src/components/admin/VuiTypography';
-import Table from 'src/examples/Tables/Table';
-import ConfirmDialog from './data/FormDeleteOrder';
-import authorsOrdersData from './data/authorsOrdersData';
-import orderApi from 'src/apis/OrderApI'; // Adjust the path as needed
-import courseApi from 'src/apis/CourseApI'; // Import Course API
-import sendEmail from '../../../utils/email'; // Import email sending utility
 
 import './index.css';
+
+// Firebase
+import { collection, getDocs, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../config/firebaseconfig';
+import sendEmail from '../../../utils/email'; // Import email sending utility
 
 function Orders() {
   const { columns } = authorsOrdersData;
@@ -42,16 +42,15 @@ function Orders() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const usersPerPage = 5;
+  const [usersPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
-  const [hiddenRows, setHiddenRows] = useState([]);
 
   useEffect(() => {
     const formatOrderDay = (timestamp) => {
       let formattedString = '';
 
       if (timestamp) {
-        const date = new Date(timestamp);
+        const date = timestamp.toDate();
         const now = new Date();
         const diff = now - date;
 
@@ -76,48 +75,29 @@ function Orders() {
       return formattedString;
     };
 
-    const fetchTotalAmount = async (orderId) => {
-      try {
-        const response = await courseApi.getTotalAmount(orderId);
-        if (response.status === 'success') {
-          return response.data.totalAmount;
-        } else {
-          console.error(`Failed to fetch total amount for order ${orderId}`);
-          return 'N/A';
-        }
-      } catch (error) {
-        console.error(`Error fetching total amount for order ${orderId}:`, error);
-        return 'N/A';
-      }
-    };
-
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const response = await orderApi.getOrdersList();
-        if (response.status === 'success') {
-          const ordersData = await Promise.all(
-            response.data.orders.map(async (order) => ({
-              id: order.id,
-              user_id: order.user_id,
-              user_name: order.username || 'Unknown User',
-              user_email: order.user_email || 'unknown@example.com',
-              paymentMethod: order.payment,
-              totalAmount: await fetchTotalAmount(order.id),
-              items: order.item || 'No items',
-              order_day: formatOrderDay(order.create_at),
-              status: order.status || 'Pending',
-            }))
-          );
-          setRows(ordersData);
-        } else {
-          throw new Error('Failed to fetch orders.');
-        }
+        const ordersSnapshot = await getDocs(collection(db, 'orders'));
+        const ordersData = ordersSnapshot.docs.map((orderDoc) => {
+          const data = orderDoc.data();
+
+          return {
+            id: orderDoc.id,
+            user_id: data.user_id,
+            user_name: data.user_name || 'Unknown User',
+            user_email: data.user_email || 'unknown@example.com',
+            paymentMethod: data.paymentMethod,
+            totalAmount: data.totalAmount,
+            items: data.items || [],
+            order_day: formatOrderDay(data.createdAt),
+            status: data.status || 'Pending',
+          };
+        });
+        console.log('Fetched Orders Data: ', ordersData);
+        setRows(ordersData);
       } catch (error) {
         console.error('Error fetching orders:', error);
-        setSnackbarMessage('Error fetching orders.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
       } finally {
         setLoading(false);
       }
@@ -134,58 +114,49 @@ function Orders() {
 
   const confirmDelete = async () => {
     try {
-      const response = await orderApi.deleteOrder(deleteId);
-      if (response.status === 'success') {
-        setRows(rows.filter((row) => row.id !== deleteId));
-        setSnackbarMessage('Order deleted successfully');
-        setSnackbarSeverity('success');
-      } else {
-        throw new Error('Failed to delete order.');
-      }
+      const orderRef = doc(db, 'orders', deleteId);
+      await deleteDoc(orderRef);
+      setRows(rows.filter((row) => row.id !== deleteId));
+      setOpenDialog(false);
+      setSnackbarMessage('Order deleted successfully');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Error deleting order:', error);
       setSnackbarMessage('Failed to delete order.');
       setSnackbarSeverity('error');
-    } finally {
-      setOpenDialog(false);
       setSnackbarOpen(true);
     }
   };
 
   const handleConfirmPayment = async (row) => {
     try {
-      const updateResponse = await orderApi.updateOrder(row.id, { status: 'Paid' });
-      if (updateResponse.status === 'success') {
-        const emailContent = {
-          to: row.user_email,
-          subject: 'Payment Confirmation',
-          body: `Dear ${row.user_name},\n\nYour payment for order ${row.id} has been successfully confirmed.\n\nThank you for your business!\n\nBest regards,\nYour Company Name`,
-        };
-        await sendEmail(emailContent);
-        setRows(rows.map((r) => (r.id === row.id ? { ...r, status: 'Paid' } : r)));
-        setSnackbarMessage('Payment confirmed and email sent successfully');
-        setSnackbarSeverity('success');
-      } else {
-        throw new Error('Failed to update order status.');
-      }
+      const orderRef = doc(db, 'orders', row.id);
+      await updateDoc(orderRef, { status: 'Paid' });
+
+      const emailContent = {
+        to: row.user_email,
+        subject: 'Payment Confirmation',
+        body: `Dear ${row.user_name},\n\nYour payment for order ${row.id} has been successfully confirmed.\n\nThank you for your business!\n\nBest regards,\nYour Company Name`,
+      };
+      await sendEmail(emailContent);
+
+      setRows(rows.map((r) => (r.id === row.id ? { ...r, status: 'Paid' } : r)));
+      setSnackbarMessage('Payment confirmation email sent successfully');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
     } catch (error) {
       console.error('Error confirming payment:', error);
       setSnackbarMessage('Failed to confirm payment and send email.');
       setSnackbarSeverity('error');
-    } finally {
       setSnackbarOpen(true);
     }
   };
 
-  const handleHide = (id) => {
-    setHiddenRows([...hiddenRows, id]);
-    setSnackbarMessage('Order hidden successfully');
-    setSnackbarSeverity('info');
-    setSnackbarOpen(true);
-  };
-
   const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') return;
+    if (reason === 'clickaway') {
+      return;
+    }
     setSnackbarOpen(false);
   };
 
@@ -194,10 +165,7 @@ function Orders() {
   };
 
   const filteredRows = rows.filter(
-    (row) =>
-      row.user_name &&
-      row.user_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      !hiddenRows.includes(row.id)
+    (row) => row.user_name && row.user_name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const indexOfLastUser = currentPage * usersPerPage;
@@ -207,11 +175,15 @@ function Orders() {
   const totalPages = Math.ceil(filteredRows.length / usersPerPage);
 
   const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
   const handlePreviousPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -226,28 +198,18 @@ function Orders() {
               </VuiTypography>
             </VuiBox>
 
-            {/* Search Field */}
-            <VuiBox mb={3} px={3}>
-              <TextField
-                variant="outlined"
-                fullWidth
-                placeholder="Search by user name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </VuiBox>
 
             {loading ? (
-              <Box display="flex" justifyContent="center" alignItems="center" height="100px">
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: '100px',
+                }}
+              >
                 <ClipLoader size={50} color={'#123abc'} loading={loading} />
-              </Box>
+              </div>
             ) : (
               <VuiBox>
                 <Table
@@ -257,23 +219,35 @@ function Orders() {
                       ? currentUsers.map((row, index) => ({
                           ...row,
                           no: indexOfFirstUser + index + 1,
-                          items: row.items,
+                          items:
+                            row.items && Array.isArray(row.items)
+                              ? row.items
+                                  .map((item) => `${item.product_id} (Qty: ${item.quantity})`)
+                                  .join(', ')
+                              : 'No items',
                           order_day: row.order_day,
                           paymentMethod: row.paymentMethod,
-                          totalAmount: `$${row.totalAmount}`, // Display total amount with currency
+                          totalAmount: row.totalAmount,
                           status: row.status,
                           actions: (
                             <div className="action-buttons">
-                              <Tooltip title="Hide Order" placement="top">
-                                <IconButton onClick={() => handleHide(row.id)} color="warning">
-                                  <VisibilityOffIcon />
+                              <Tooltip title="Delete Order" placement="top">
+                                <IconButton onClick={() => handleDelete(row.id, row.user_name)}>
+                                  Delete
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="View Details" placement="top">
-                                <IconButton component={Link} to={`/orders/${row.id}`} color="primary">
-                                  <VisibilityIcon />
-                                </IconButton>
-                              </Tooltip>
+                              {row.status === 'Pending' && (
+                                <Tooltip title="Confirm Payment" placement="top">
+                                  <Button
+                                    variant="outlined"
+                                    color="success"
+                                    size="small"
+                                    onClick={() => handleConfirmPayment(row)}
+                                  >
+                                    Confirm Payment
+                                  </Button>
+                                </Tooltip>
+                              )}
                             </div>
                           ),
                         }))
@@ -284,29 +258,30 @@ function Orders() {
             )}
           </Card>
           {/* Pagination Controls */}
-          <Box display="flex" justifyContent="center" marginTop="20px">
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
             <Button variant="contained" onClick={handlePreviousPage} disabled={currentPage === 1}>
               <IconArrowBadgeLeft />
             </Button>
-            <Typography margin="0 10px" alignSelf="center">
-              Page {currentPage} of {totalPages}
+            <Typography sx={{ margin: '0 10px', alignSelf: 'center' }}>
+              Page {currentPage}
             </Typography>
-            <Button variant="contained" onClick={handleNextPage} disabled={currentPage === totalPages}>
+            <Button
+              variant="contained"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
               <IconArrowBadgeRight />
             </Button>
           </Box>
         </VuiBox>
       </VuiBox>
 
-      {/* Confirm Delete Dialog */}
       <ConfirmDialog
         open={openDialog}
         onClose={cancelDelete}
         onConfirm={confirmDelete}
-        title={`Delete order for user: ${deleteNote}`}
+        title={`Delete order with user name: ${deleteNote}`}
       />
-
-      {/* Snackbar for Notifications */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={5000}

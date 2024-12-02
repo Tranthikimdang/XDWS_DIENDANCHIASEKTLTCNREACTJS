@@ -9,12 +9,10 @@ import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
 import Table from 'src/examples/Tables/Table';
 import authorsTableData from './data/authorsTableData';
 import ConfirmDialog from './data/FormDeleteUser';
-import Footer from "src/examples/Footer";
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Import từ Firebase
 import { db } from '../../../config/firebaseconfig'; // Đảm bảo bạn đã cấu hình Firebase
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
-//sql
 import UserApI from 'src/apis/UserApI';
 import './index.css';
 
@@ -28,7 +26,7 @@ function User() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(4);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   
   const user = JSON.parse(localStorage.getItem('user'));
@@ -99,11 +97,6 @@ function User() {
   };
 
   return (
-    <VuiBox
-    display="flex"
-    flexDirection="column"
-    minHeight="100vh" // Chiều cao tối thiểu toàn bộ màn hình
-  >
     <DashboardLayout>
       <DashboardNavbar />
       <VuiBox py={3}>
@@ -111,7 +104,7 @@ function User() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Danh sách người dùng
+                User table
               </VuiTypography>
               <Link to="/admin/addUser">
                 <button className="text-light btn btn-outline-info" type="button">
@@ -128,7 +121,7 @@ function User() {
                       d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
                     />
                   </svg>
-                  Thêm
+                  Add
                 </button>
               </Link>
             </VuiBox>
@@ -250,11 +243,7 @@ function User() {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-     
     </DashboardLayout>
-    {/* Footer cố định */}
-    <Footer />
-    </VuiBox>
   );
 }
 

@@ -9,15 +9,15 @@ import CategoryPro from "../pages/admin/category_pro";
 import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
 import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
 
-import Products from "src/pages/admin/course";
-import AddProduct from "../pages/admin/course/data/FormAdd";
-import EditProduct from "../pages/admin/course/data/FormEdit";
-import productDetail from "../views/course/components/detail"
+import Products from "src/pages/admin/product";
+import AddProduct from "../pages/admin/product/data/FormAddProduct";
+import EditProduct from "../pages/admin/product/data/FormEditProduct";
+import productDetail from "../views/product/components/detail"
 
 
-import productDetailAdmin from "../pages/admin/courseDetail"
-import AddProDetaill from "../pages/admin/courseDetail/data/FormAdd"
-import EditProDetaill from "../pages/admin/courseDetail/data/FormAdd"
+import productDetailAdmin from "../pages/admin/productDetail"
+import AddProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
+import EditProDetaill from "../pages/admin/productDetail/data/FormAddProduct"
 // import Article from "src/pages/admin/article";
 import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
 import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
@@ -137,7 +137,7 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Quản lý người cố vấn",
+    name: "Quản lý người hướng dẫn",
     key: "mentor",
     route: "/admin/mentor",
     icon: <BsJournals size="15px" color="inherit" />,

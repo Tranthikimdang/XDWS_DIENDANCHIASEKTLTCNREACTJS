@@ -5,19 +5,15 @@ const categoriesCourseRoutes = require("./routes/categories_courseRoutes");
 const courseRoutes = require("./routes/courseRoutes");
 const courseDetailRoutes = require("./routes/courseDetailRoutes");
 const userRouter = require("./routes/userRoutes");
-const orderRouter = require("./routes/orderRoutes");
-const hashtagRouter = require("./routes/hashtagRoutes");
-const mentorRouter = require("./routes/mentorRoutes");
-const questionRouter = require("./routes/questionRoutes");
-const studyTimeRouter = require("./routes/studyRoutes");
-const exerciseRouter = require("./routes/exerciseRoutes");
+const orderRouter = require('./routes/orderRoutes');
+const hashtagRouter = require('./routes/hashtagRoutes')
+const mentorRouter = require('./routes/mentorRoutes');
+const questionRouter = require('./routes/questionRoutes');
+const studyTimeRouter = require('./routes/studyRoutes'); 
 const commentRoutes = require("./routes/commentRoutes");
 const commentCourseRoutes = require("./routes/commentCourseRoutes");
-const questionHashtagsRouter = require("./routes/QuestionHashtagsRoutes");
-const followRouter = require('./routes/followRoutes'); 
-const notificationRouter = require('./routes/notificationRoutes');
 
-const cartsRoutes = require('./routes/cartsRoutes');
+
 const sequelize = require("./models"); // Kết nối Sequelize
 const cors = require("cors");
 const multer = require("multer");
@@ -26,12 +22,6 @@ const fs = require("fs");
 
 const app = express();
 const port = 3000;
-
-const uploadPath = path.join(__dirname, "videos");
-
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true }); // Tạo thư mục nếu chưa tồn tại
-}
 
 // Cấu hình body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -74,15 +64,16 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
   }
 });
 
-app.post("/api/upload-file", upload.single("file"), (req, res) => {
+
+app.post('/api/upload-file', upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.status(400).send({
-      message: "Không có tệp nào được tải lên.",
+      message: 'Không có tệp nào được tải lên.'
     });
   }
 
   res.status(200).send({
-    fileUrl: `/uploads/${req.file.filename}`,
+    fileUrl: `/uploads/${req.file.filename}`
   });
 });
 
@@ -105,18 +96,18 @@ app.use("/api/categories_course", categoriesCourseRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/course-details", courseDetailRoutes);
 app.use("/api/users", userRouter);
-app.use("/api/comments", commentRoutes);
-app.use("/api/commentCourse", commentCourseRoutes);
-app.use("/api/questionHashtags", questionHashtagsRouter);
-app.use('/api/carts', cartsRoutes);
+app.use("/api/comments", commentRoutes); 
+app.use("/api/commentCourse", commentCourseRoutes); 
+
+
 app.use("/api/orders", orderRouter);
 app.use("/api/hashtags", hashtagRouter);
 app.use("/api/questions", questionRouter);
 app.use("/api/study-times", studyTimeRouter);   // Sử dụng mentor routes
-app.use("/api/exercise", exerciseRouter);
-app.use("/api/follows", followRouter);
+
 app.use("/api/mentors", mentorRouter);
-app.use("/api/notifications", notificationRouter);
+
+
 // Khởi chạy server
 app.listen(port, async () => {
   try {

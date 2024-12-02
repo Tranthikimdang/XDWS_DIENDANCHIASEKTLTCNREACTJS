@@ -16,7 +16,6 @@ import { setAccount } from 'src/store/action';
 import apiUser from '../../../apis/UserApI';
 import bcrypt from 'bcryptjs';
 import { TextField } from '@mui/material';
-import { Alert, Snackbar } from '@mui/material';
 
 const AuthLogin = ({ title, subtitle, subtext }) => {
   const [state, dispatch] = useContext(context);
@@ -26,9 +25,6 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
   const [errors, setErrors] = useState({ email: '', password: '' });
   const form = useRef();
   const navigate = useNavigate();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
   const handleSetRememberMe = () => setRememberMe(!rememberMe);
 
@@ -36,14 +32,12 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
-  
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       navigate('/home');
     }
   }, [navigate]);
-  
   const validate = () => {
     let valid = true;
     let errors = {};
@@ -65,13 +59,6 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
     return valid;
   };
 
-  const handleSnackbarClose = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setSnackbarOpen(false);
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -82,41 +69,28 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       const response = await apiUser.getUsersList();
 
       if (!response || !response.data) {
-        setSnackbarMessage('Không thể lấy danh sách người dùng..');
-        setSnackbarSeverity('warning');
-        setSnackbarOpen(true);
+        alert('Không thể lấy danh sách người dùng.');
         return;
       }
 
       const user = response.data.users.find((user) => user.email === email);
 
       if (user) {
-        console.log('Hashed Password from DB:', user.password);
-        console.log('Plain Password Entered:', password);
-        
         // So sánh mật khẩu nhập vào với mật khẩu đã băm
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log('Password Match:', isMatch);
-        
         if (isMatch) {
           // Nếu thông tin đăng nhập hợp lệ
           dispatch(setAccount(user));
           localStorage.setItem('user', JSON.stringify(user));
           navigate('/home');
         } else {
-          setSnackbarMessage('Mật khẩu không đúng.');
-          setSnackbarSeverity('warning');
-          setSnackbarOpen(true);
+          alert('Mật khẩu không đúng.');
         }
       } else {
-        setSnackbarMessage('Email không tồn tại.');
-        setSnackbarSeverity('warning');
-        setSnackbarOpen(true);
+        alert('Email không tồn tại.');
       }
     } catch (error) {
-      setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
+      alert('Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.');
       console.error('Lỗi đăng nhập:', error);
     }
   };
@@ -163,19 +137,13 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
               message: `Mật khẩu của bạn là: ${rawPassword}`, // Gửi mật khẩu gốc (chưa băm)
             });
 
-            setSnackbarMessage('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-            setTimeout(() => {
-              navigate('/auth/inter');
-            }, 2000);
+            alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+            navigate('/auth/inter');
           }
         }
       } catch (error) {
         console.error('Lỗi trong xử lý đăng nhập Google:', error);
-        setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
-        setSnackbarSeverity('error');
-        setSnackbarOpen(true);
+        alert('Đã xảy ra lỗi, vui lòng thử lại.');
       }
     },
     onError: (error) => {
@@ -197,14 +165,10 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       )
       .then(
         (result) => {
-          setSnackbarMessage('Tin nhắn đã được gửi thành công...');
-          setSnackbarSeverity('success');
-          setSnackbarOpen(true);
+          alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
         },
         (error) => {
-          setSnackbarMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
-          setSnackbarSeverity('error');
-          setSnackbarOpen(true);
+          alert('Đã xảy ra lỗi, vui lòng thử lại.');
         },
       );
   };
@@ -326,20 +290,6 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
                 Đăng nhập với Google
               </Button>
             </Box>
-            <Snackbar
-              open={snackbarOpen}
-              autoHideDuration={3000}
-              onClose={handleSnackbarClose}
-              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            >
-              <Alert
-                onClose={handleSnackbarClose}
-                severity={snackbarSeverity}
-                sx={{ width: '100%' }}
-              >
-                {snackbarMessage}
-              </Alert>
-            </Snackbar>
           </div>
 
           {/* Subtitle */}

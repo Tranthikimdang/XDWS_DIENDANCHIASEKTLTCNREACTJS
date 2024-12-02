@@ -7,50 +7,46 @@ const Order = sequelize.define('Order', {
         autoIncrement: true,
         primaryKey: true
     },
-    user_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+    items: {
+        type: DataTypes.JSON,
+        allowNull: false // Các item của đơn hàng có thể lưu dưới dạng JSON
     },
-    cart_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'carts',
-            key: 'id'
-        }
-    },
-    item: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    payment: {
+    paymentMethod: {
         type: DataTypes.STRING,
         allowNull: false
     },
     status: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'pending'
+        defaultValue: 'pending' // Giá trị mặc định là 'pending'
     },
-    username: {
+    totalAmount: {
+        type: DataTypes.FLOAT,
+        allowNull: false
+    },
+    user_email: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    create_at: {
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    user_name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
     },
-    update_at: {
+    updated_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
     }
 }, {
     tableName: 'orders',
-    timestamps: false
+    timestamps: false // Không sử dụng timestamps mặc định của Sequelize
 });
 
 module.exports = Order;
