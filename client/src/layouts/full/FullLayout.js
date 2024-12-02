@@ -1,10 +1,11 @@
+// FullLayout.js
 import React, { useState } from "react";
 import { styled, Container, Box } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 
-
 import Header from './header/Header';
 import Sidebar from './sidebar/Sidebar';
+import Footer from './footer/Footer'; // Import Footer
 
 const MainWrapper = styled('div')(() => ({
   display: 'flex',
@@ -15,7 +16,7 @@ const MainWrapper = styled('div')(() => ({
 const PageWrapper = styled('div')(() => ({
   display: 'flex',
   flexGrow: 1,
-  paddingBottom: '60px',
+  paddingBottom: '60px', // Khoảng cách để Footer không che nội dung
   flexDirection: 'column',
   zIndex: 1,
   backgroundColor: 'transparent',
@@ -28,43 +29,33 @@ const FullLayout = () => {
   // const lgUp = useMediaQuery((theme) => theme.breakpoints.up("lg"));
 
   return (
-    <MainWrapper
-      className='mainwrapper'
-    >
-      {/* ------------------------------------------- */}
+    <MainWrapper className='mainwrapper'>
       {/* Sidebar */}
-      {/* ------------------------------------------- */}
-      <Sidebar isSidebarOpen={isSidebarOpen}
+      <Sidebar 
+        isSidebarOpen={isSidebarOpen}
         isMobileSidebarOpen={isMobileSidebarOpen}
-        onSidebarClose={() => setMobileSidebarOpen(false)} />
-      {/* ------------------------------------------- */}
+        onSidebarClose={() => setMobileSidebarOpen(false)} 
+      />
       {/* Main Wrapper */}
-      {/* ------------------------------------------- */}
-      <PageWrapper
-        className="page-wrapper"
-      >
-        {/* ------------------------------------------- */}
+      <PageWrapper className="page-wrapper">
         {/* Header */}
-        {/* ------------------------------------------- */}
-        <Header toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} toggleMobileSidebar={() => setMobileSidebarOpen(true)} />
-        {/* ------------------------------------------- */}
+        <Header 
+          toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} 
+          toggleMobileSidebar={() => setMobileSidebarOpen(true)} 
+        />
         {/* PageContent */}
-        {/* ------------------------------------------- */}
         <Container sx={{
           paddingTop: "20px",
           maxWidth: '1200px',
-        }}
-        >
-          {/* ------------------------------------------- */}
+        }}>
           {/* Page Route */}
-          {/* ------------------------------------------- */}
           <Box sx={{ minHeight: 'calc(100vh - 170px)' }}>
             <Outlet />
           </Box>
-          {/* ------------------------------------------- */}
           {/* End Page */}
-          {/* ------------------------------------------- */}
         </Container>
+        {/* Footer */}
+        <Footer /> {/* Thêm Footer ở đây */}
       </PageWrapper>
     </MainWrapper>
   );
