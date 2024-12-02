@@ -91,12 +91,9 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       const user = response.data.users.find((user) => user.email === email);
 
       if (user) {
-        console.log('Hashed Password from DB:', user.password);
-        console.log('Plain Password Entered:', password);
         
         // So sánh mật khẩu nhập vào với mật khẩu đã băm
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log('Password Match:', isMatch);
         
         if (isMatch) {
           // Nếu thông tin đăng nhập hợp lệ
