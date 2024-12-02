@@ -206,8 +206,8 @@ exports.checkFollowStatus = async (req, res) => {
         return res.status(404).json({ message: 'Follow record not found' });
       }
   
-      follow.status = status || follow.status;
-      follow.is_approved = is_approved !== undefined ? is_approved : follow.is_approved;
+      follow.status = status || follow.status; // Cập nhật nếu có giá trị
+      follow.is_approved = is_approved !== undefined ? is_approved : follow.is_approved; // Không cập nhật nếu undefined
       await follow.save();
   
       res.json({ message: 'Follow record updated successfully', follow });
@@ -215,4 +215,5 @@ exports.checkFollowStatus = async (req, res) => {
       res.status(500).json({ message: 'Error updating follow', error });
     }
   };
+  
   

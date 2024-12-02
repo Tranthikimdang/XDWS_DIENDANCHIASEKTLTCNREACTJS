@@ -1,3 +1,4 @@
+/* eslint-disable no-lone-blocks */
 import {
   Alert,
   Box,
@@ -8,13 +9,15 @@ import {
   Typography,
   TextField,
   Container,
-  Paper,
+  Paper
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Logo from 'src/layouts/full/shared/logo/Logo';
 import PageContainer from 'src/components/container/PageContainer';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+
+// API
 import api from '../../../apis/mentorApi';
 
 const RegisterMentor = () => {
@@ -22,8 +25,7 @@ const RegisterMentor = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-  const [selectedFileCV, setSelectedFileCV] = useState(null);
-  const [selectedFileCertification, setSelectedFileCertification] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
 
@@ -33,19 +35,10 @@ const RegisterMentor = () => {
 
     const response = await api.post('/upload', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+        'Content-Type': 'multipart/form-data'
+      }
     });
     return response.data.fileUrl;
-  };
-
-  const handleFileChange = (e, fileType) => {
-    const file = e.target.files[0];
-    if (fileType === 'cv') {
-      setSelectedFileCV(file ? file.name : null);
-    } else if (fileType === 'certification') {
-      setSelectedFileCertification(file ? file.name : null);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -53,11 +46,10 @@ const RegisterMentor = () => {
     setLoading(true);
 
     const formData = new FormData(e.target);
-    const cvFile = formData.get('cv');
-    const certificationFile = formData.get('certification');
+    const file = formData.get('upfile');
 
-    if (!cvFile || !certificationFile) {
-      setSnackbarMessage('Vui lòng chọn cả CV và chứng chỉ.');
+    if (!file) {
+      setSnackbarMessage('Vui lòng chọn một file CV.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
       setLoading(false);
@@ -65,51 +57,58 @@ const RegisterMentor = () => {
     }
 
     try {
-      // Upload CV và chứng chỉ
-      const cvFileUrl = await handleUpload(cvFile);
-      const certificationFileUrl = await handleUpload(certificationFile);
+      const fileUrl = await handleUpload(file);
 
-      // Chuẩn bị dữ liệu gửi lên API
       const dataToSubmit = {
         user_id: userData?.id,
-        cv_url: cvFileUrl,
-        certification_url: certificationFileUrl,
+        cv_url: fileUrl,
         bio: formData.get('bio'),
+        specialization: formData.get('specialization'),
+        hourly_rate: formData.get('hourly_rate'),
+        languages_spoken: formData.get('languages_spoken'),
         experience_years: formData.get('experience_years'),
-        skills: formData.get('skills'),
-        rating: 0, // Mặc định là 0
-        reviews_count: 0, // Mặc định là 0
-        isApproved: '0', // Đang chờ xét duyệt
+        certification: formData.get('certification'),
+        education: formData.get('education'),
+        contact_info: formData.get('contact_info'),
+        linkedin_profile: formData.get('linkedin_profile'),
+        github_profile: formData.get('github_profile'),
+        isApproved: '0',
         created_at: new Date(),
         is_deleted: false,
         updated_at: new Date(),
       };
 
-      // Gửi dữ liệu lên API
-      const response = await api.post('/mentors', dataToSubmit);  // Đảm bảo gọi đúng URL tại đây
+      const response = await api.post('/mentors', dataToSubmit);
 
       if (response.data.success) {
-        setSnackbarMessage('CV và chứng chỉ của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
+        setSnackbarMessage('CV của bạn đã được gửi, đang chờ quản trị viên phê duyệt.');
         setSnackbarSeverity('success');
-        setSnackbarOpen(true);
-
         setTimeout(() => {
-          navigate('/home');
+          navigate('/home');  // Chuyển hướng về trang home sau khi thông báo
         }, 3000);
       } else {
-        setSnackbarMessage('Đã xảy ra lỗi khi gửi thông tin.');
+        setSnackbarMessage('Đã xảy ra lỗi khi gửi CV.');
         setSnackbarSeverity('error');
-        setSnackbarOpen(true);
       }
-      e.target.reset(); // Reset form sau khi gửi thành công
+      setSnackbarOpen(true);
+      e.target.reset();
     } catch (error) {
       console.error('Lỗi khi gửi dữ liệu lên API:', error);
-      setSnackbarMessage('Lỗi khi gửi CV và chứng chỉ. Vui lòng thử lại.');
+      setSnackbarMessage('Lỗi khi gửi CV. Vui lòng thử lại.');
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file ? file.name : null); // Lưu tên file đã chọn
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
   };
 
   useEffect(() => {
@@ -135,30 +134,130 @@ const RegisterMentor = () => {
             <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <TextField fullWidth name="bio" label="Bio" multiline rows={4} variant="outlined" />
+                  <TextField
+                    fullWidth
+                    name="bio"
+                    label="Bio"
+                    multiline
+                    rows={4}
+                    variant="outlined"
+                  />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextField fullWidth name="experience_years" label="Số năm kinh nghiệm" type="number" variant="outlined" />
+                  <TextField
+                    fullWidth
+                    name="specialization"
+                    label="Chuyên môn"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="hourly_rate"
+                    label="Giá mỗi giờ"
+                    type="number"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="languages_spoken"
+                    label="Ngôn ngữ"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="experience_years"
+                    label="Số năm kinh nghiệm"
+                    type="number"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="certification"
+                    label="Chứng chỉ"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="education"
+                    label="Học vấn"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="contact_info"
+                    label="Thông tin liên lạc"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="linkedin_profile"
+                    label="LinkedIn Profile"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    name="github_profile"
+                    label="GitHub Profile"
+                    variant="outlined"
+                  />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextField fullWidth name="skills" label="Kỹ năng" variant="outlined" />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button variant="outlined" startIcon={<AttachFileIcon />} fullWidth sx={{ borderRadius: '16px', textTransform: 'none', padding: '5px 15px' }} component="label">
-                    Tải CV lên (PDF, DOC, DOCX)
-                    <input name="cv" type="file" accept=".pdf,.doc,.docx" hidden onChange={(e) => handleFileChange(e, 'cv')} />
+                  <Button
+                    variant="outlined"
+                    startIcon={<AttachFileIcon />}
+                    fullWidth
+                    sx={{
+                      borderRadius: '16px',
+                      textTransform: 'none',
+                      padding: '5px 15px',
+                    }}
+                    component="label"
+                  >
+                    Tải CV lên
+                    <input
+                      name="upfile"
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      hidden
+                      onChange={handleFileChange}
+                    />
                   </Button>
-                  {selectedFileCV && <Typography variant="body2" sx={{ marginTop: '10px' }}>File đã chọn: {selectedFileCV}</Typography>}
-                </Grid>
-                <Grid item xs={12}>
-                  <Button variant="outlined" startIcon={<AttachFileIcon />} fullWidth sx={{ borderRadius: '16px', textTransform: 'none', padding: '5px 15px' }} component="label">
-                    Tải chứng chỉ lên (PDF)
-                    <input name="certification" type="file" accept=".pdf" hidden onChange={(e) => handleFileChange(e, 'certification')} />
-                  </Button>
-                  {selectedFileCertification && <Typography variant="body2" sx={{ marginTop: '10px' }}>File đã chọn: {selectedFileCertification}</Typography>}
+                  {selectedFile && (
+                    <Typography variant="body2" sx={{ marginTop: '10px' }}>
+                      File đã chọn: {selectedFile}
+                    </Typography>
+                  )}
                 </Grid>
                 <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                  <Button type="submit" variant="contained" color="primary" sx={{ textTransform: 'none', borderRadius: '16px', padding: '5px 20px', fontWeight: 'bold', mt: 2 }} disabled={loading}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    sx={{
+                      textTransform: 'none',
+                      borderRadius: '16px',
+                      padding: '5px 20px',
+                      fontWeight: 'bold',
+                      mt: 2,
+                    }}
+                    disabled={loading}
+                  >
                     {loading ? <CircularProgress size={24} /> : 'Gửi'}
                   </Button>
                 </Grid>
@@ -168,8 +267,21 @@ const RegisterMentor = () => {
         </Paper>
       </Container>
 
-      <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={() => setSnackbarOpen(false)} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(50px)' }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{
+            width: '100%',
+            border: '1px solid #ccc',
+          }}
+        >
           {snackbarMessage}
         </Alert>
       </Snackbar>

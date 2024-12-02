@@ -81,7 +81,7 @@ const Profile = () => {
         const studyTimes = studyTimeResponse?.data?.studyTimes || [];
 
         // 2. Lọc dữ liệu studyTime theo userId
-const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userId));
+        const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userId));
 
         // 3. Lấy danh sách course_id từ studyTime của user
         const courseIds = userStudyTimes.map((item) => item.course_id);
@@ -163,7 +163,6 @@ const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userI
       try {
         const response = await StudytimeApi.getStudyTimesList();
         const course = response.data.studyTimes;
-        console.log(course);
 
         setStudyTime(course);
       } catch (error) {
@@ -175,75 +174,128 @@ const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userI
     fetchStudyTime();
   }, []);
 
-
   const hasStudyAccess = (productId) => {
     return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
   };
 
-  //xóa các thẻ html
-  const removeHtmlTags = (html) => {
-return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
+  //thông báo cho người khác
+  const addNotification = async (message, followId = null) => {
+    try {
+      const notification = {
+        userId: userId,
+        message,
+        type: followId ? 'not_followed' : 'pending',
+        relatedId: followId || null,
+      };
+  
+      await NotificationApi.createNotification(notification);
+      console.log('Thông báo đã được thêm vào database');
+    } catch (error) {
+      console.error('Error adding notification:', error);
+    }
   };
-  const addNotification = (message, followId = null) => { 
-    const notification = {
-      userId: followId ? userLocalId : userId, // Nếu followId tồn tại, lấy từ localStorage (người hủy yêu cầu), ngược lại lấy từ params (người gửi yêu cầu)
-      message,
-      type: followId ? 'not_followed' : 'pending', // 'not_followed' khi hủy yêu cầu, 'pending' khi gửi yêu cầu
-      relatedId: followId || null, // Thêm followId vào relatedId nếu có
+
+    //thông báo cho tôi
+    const addNotificationMe = async (message, followId = null) => {
+      try {
+        const notification = {
+          userId: userLocalId,
+          message,
+          type: 'pending',
+          relatedId: followId || null,
+        };
+    
+        await NotificationApi.createNotification(notification);
+        console.log('Thông báo đã được thêm vào database');
+      } catch (error) {
+        console.error('Error adding notification:', error);
+      }
     };
   
-    // Gọi API để tạo thông báo
-    NotificationApi.createNotification(notification)
-      .then(() => {
-        console.log('Thông báo đã được thêm vào database');
-      })
-      .catch((error) => {
-        console.error('Error adding notification:', error);
-      });
-  };
-
   useEffect(() => {
-    if (userId !== userLocalId) {
-      FollowApi.checkFollowStatus(userLocalId, userId)
-        .then((response) => {
-          setFollowStatus(response.status); // Trạng thái: pending, friend, or not_followed
-          console.log('Follow status:', response); // Kiểm tra trạng thái trong console
-          setFollowId(response.followId); // ID bản ghi follow (nếu có)
-        })
-        .catch((error) => console.error('Error checking follow status:', error));
-    }
-  }, [userId, userLocalId]);
-
-  const handleFollowClick = () => {
-    if (followStatus === 'not_followed') {
-      // Gửi yêu cầu theo dõi
-      FollowApi.createFollow(userLocalId, userId)
-        .then((response) => {
-          setFollowStatus('pending'); // Chuyển sang trạng thái chờ duyệt
-          setFollowId(response.data.id); // Lưu ID follow mới
-          setSnackbarMessage('Đã gửi yêu cầu theo dõi');
-          setOpenSnackbar(true);
-  
-          // Thêm thông báo vào bảng thông báo
-          addNotification(`${user.name} Đã gửi lời mời kết bạn`);
-        })
-        .catch((error) => console.error('Error creating follow request:', error));
-    } else if (followStatus === 'pending') {
-      // Hủy yêu cầu theo dõi
-      if (followId) {
-        FollowApi.deleteFollow(followId)
-          .then(() => {
-            setFollowStatus('not_followed'); // Quay lại trạng thái chưa theo dõi
-            setFollowId(null); // Xóa ID follow
-            setSnackbarMessage('Đã hủy yêu cầu theo dõi');
-            setOpenSnackbar(true);
-  
-            // Thêm thông báo vào bảng thông báo
-            addNotification(`${user.name} Đã hủy yêu cầu kết bạn`, followId); // Truyền theo followId khi hủy yêu cầu
-          })
-          .catch((error) => console.error('Error cancelling follow request:', error));
+    const fetchFollowStatus = async () => {
+      if (!userId || !userLocalId) {
+        console.warn('User ID hoặc User Local ID không tồn tại');
+        return;
       }
+  
+      if (userId !== userLocalId) {
+        try {
+          const response = await FollowApi.checkFollowStatus(userLocalId, userId);
+          if (!response) {
+            console.error('API trả về response null hoặc không hợp lệ');
+            return;
+          }
+          setFollowStatus(response.status || 'not_followed'); // Mặc định là not_followed nếu không có
+          setFollowId(response.followId || null); // Đảm bảo followId không bị null
+        } catch (error) {
+          console.error('Error checking follow status:', error);
+        }
+      }
+    };
+  
+    fetchFollowStatus();
+  }, [userId, userLocalId]);
+  
+  const deleteFollow = async () => {
+    try {
+      if (followId) {
+        // Gọi API để xóa follow
+        await FollowApi.deleteFollow(followId);
+        setFollowStatus('not_followed'); // Cập nhật trạng thái
+        setFollowId(null); // Xóa followId khỏi state
+        setSnackbarMessage('Đã hủy kết bạn');
+        setOpenSnackbar(true);
+      } else {
+        console.warn("Không tìm thấy followId để xóa.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi hủy kết bạn:", error);
+      setSnackbarMessage('Hủy kết bạn thất bại, vui lòng thử lại.');
+      setOpenSnackbar(true);
     }
+  }
+  const handleFollowClick = async () => {
+    try {
+      if (!isUserLoggedIn()) {
+        setSnackbarMessage('Bạn cần đăng nhập để thực hiện hành động này');
+        setOpenSnackbar(true);
+        return;
+      }
+      if (followStatus === 'not_followed') {
+        // Gửi yêu cầu theo dõi
+        const response = await FollowApi.createFollow(userLocalId, userId);
+        if (!response || !response.data || !response.data.id) {
+          console.error('API createFollow không trả về dữ liệu hợp lệ');
+          return;
+        }
+  
+        const newFollowId = response.data.id; // Lấy ID của bản follow vừa được thêm
+        setFollowStatus('pending');
+        setFollowId(newFollowId); // Gán followId mới vào state
+        setSnackbarMessage('Đã gửi yêu cầu theo dõi');
+        setOpenSnackbar(true);
+  
+        // Gửi thông báo với followId làm relatedId
+        await addNotification(`${user.name} đã gửi lời mời kết bạn`, newFollowId);
+      } else if (followStatus === 'pending' && followId) {
+        // Hủy yêu cầu theo dõi
+        await FollowApi.deleteFollow(followId);
+        setFollowStatus('not_followed');
+        setFollowId(null);
+        setSnackbarMessage('Đã hủy yêu cầu theo dõi');
+        setOpenSnackbar(true);
+  
+        // Gửi thông báo với followId làm relatedId
+        await addNotificationMe(`Bạn đã hủy yêu cầu kết bạn`, userLocalId);
+      }
+    } catch (error) {
+      console.error('Error handling follow click:', error);
+    }
+  };
+  const isUserLoggedIn = () => {
+    const userLocalId = localStorage.getItem('user');
+    return !!userLocalId; // Trả về true nếu tồn tại, ngược lại false
   };
   
   if (loading) return <div>Đang tải...</div>;
@@ -256,7 +308,7 @@ return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
           padding: '20px',
           maxWidth: '1200px',
           margin: '0 auto',
-backgroundColor: '#f4f6f8',
+          backgroundColor: '#f4f6f8',
           borderRadius: '15px',
         }}
       >
@@ -302,7 +354,7 @@ backgroundColor: '#f4f6f8',
                     Chỉnh sửa trang cá nhân
                   </Button>
                 ) : followStatus === 'friend' ? (
-                  <Button variant="contained" color="success" disabled>
+                  <Button variant="contained" color="success" onClick={deleteFollow}>
                     Hủy kết bạn
                   </Button>
                 ) : followStatus === 'pending' ? (
@@ -337,7 +389,7 @@ backgroundColor: '#f4f6f8',
               sx={{
                 borderRadius: '10px',
                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
-backgroundColor: '#ffffff',
+                backgroundColor: '#ffffff',
               }}
             >
               <CardContent>
@@ -398,7 +450,7 @@ backgroundColor: '#ffffff',
                         <Typography variant="body1" color="textSecondary">
                           <Work fontSize="small" sx={{ marginRight: '8px' }} />
                           Nghề Nghiệp:
-</Typography>
+                        </Typography>
                       </Grid>
                       <Grid item xs={6}>
                         <Typography variant="body1">
@@ -457,7 +509,7 @@ backgroundColor: '#ffffff',
                                           borderRadius: '8px',
                                           transition: 'all 0.3s ease',
                                           cursor: 'pointer',
-}}
+                                        }}
                                       />
                                     </div>
                                   </Link>
@@ -513,7 +565,7 @@ backgroundColor: '#ffffff',
                                         fontWeight: 'bold',
                                       }}
                                     >
-{product.discount?.toLocaleString('vi-VN')} VND
+                                      {product.discount?.toLocaleString('vi-VN')} VND
                                     </h6>
                                     {/* Giá gốc */}
                                     <span
@@ -569,7 +621,7 @@ backgroundColor: '#ffffff',
                       <Typography variant="body2">Không có khóa học nào.</Typography>
                     )}
                   </>
-)}
+                )}
                 {activeTab === 2 && (
                   <>
                     {/* Nội dung tab Câu Hỏi */}
@@ -628,7 +680,7 @@ backgroundColor: '#ffffff',
                                   #{question.hashtag}
                                 </Typography>
                               )}
-</Box>
+                            </Box>
                             <Box sx={{ mt: 3, mb: 3 }}>
                               {question?.up_code ? (
                                 <>
@@ -688,7 +740,7 @@ backgroundColor: '#ffffff',
                                     borderRadius: '8px',
                                     backgroundColor: '#fff',
                                     width: 'fit-content',
-height: '30px',
+                                    height: '30px',
                                   }}
                                 >
                                   <IconButton sx={{ color: '#007bff' }}>
