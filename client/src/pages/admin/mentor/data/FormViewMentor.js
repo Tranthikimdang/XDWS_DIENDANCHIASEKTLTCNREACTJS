@@ -13,13 +13,14 @@ import {
 import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 
-import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
-import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
-import DefaultProjectCard from "src/examples/Cards/ProjectCards/DefaultProjectCard";
-import Skillcertificate from "src/examples/Mentorinfomanagement/Skillcertificate";
-import Contactinformation from "src/examples/Mentorinfomanagement/Contactinformation";
-import Personalinformation from "src/examples/Mentorinfomanagement/Personalinformation";
-import Activate from "src/examples/Mentorinfomanagement/Activate";
+import DashboardLayout from "../../../../examples/LayoutContainers/DashboardLayout";
+// import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
+import DefaultProjectCard from "../../../../examples/Cards/ProjectCards/DefaultProjectCard";
+import Skillcertificate from "../../../../examples/Mentorinfomanagement/Skillcertificate";
+import Contactinformation from "../../../../examples/Mentorinfomanagement/Contactinformation";
+import Personalinformation from "../../../../examples/Mentorinfomanagement/Personalinformation";
+import Activate from "../../../../examples/Mentorinfomanagement/Activate";
 
 //Icon
 import FacebookIcon from "@mui/icons-material/Facebook";
