@@ -178,7 +178,7 @@ const Profile = () => {
     return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
   };
 
-  //xóa các thẻ html
+  //thông báo cho người khác
   const addNotification = async (message, followId = null) => {
     try {
       const notification = {
@@ -194,6 +194,23 @@ const Profile = () => {
       console.error('Error adding notification:', error);
     }
   };
+
+    //thông báo cho tôi
+    const addNotificationMe = async (message, followId = null) => {
+      try {
+        const notification = {
+          userId: userLocalId,
+          message,
+          type: 'pending',
+          relatedId: followId || null,
+        };
+    
+        await NotificationApi.createNotification(notification);
+        console.log('Thông báo đã được thêm vào database');
+      } catch (error) {
+        console.error('Error adding notification:', error);
+      }
+    };
   
   useEffect(() => {
     const fetchFollowStatus = async () => {
@@ -220,6 +237,24 @@ const Profile = () => {
     fetchFollowStatus();
   }, [userId, userLocalId]);
   
+  const deleteFollow = async () => {
+    try {
+      if (followId) {
+        // Gọi API để xóa follow
+        await FollowApi.deleteFollow(followId);
+        setFollowStatus('not_followed'); // Cập nhật trạng thái
+        setFollowId(null); // Xóa followId khỏi state
+        setSnackbarMessage('Đã hủy kết bạn');
+        setOpenSnackbar(true);
+      } else {
+        console.warn("Không tìm thấy followId để xóa.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi hủy kết bạn:", error);
+      setSnackbarMessage('Hủy kết bạn thất bại, vui lòng thử lại.');
+      setOpenSnackbar(true);
+    }
+  }
   const handleFollowClick = async () => {
     try {
       if (!isUserLoggedIn()) {
@@ -252,7 +287,7 @@ const Profile = () => {
         setOpenSnackbar(true);
   
         // Gửi thông báo với followId làm relatedId
-        await addNotification(`Bạn đã hủy yêu cầu kết bạn`, followId);
+        await addNotificationMe(`Bạn đã hủy yêu cầu kết bạn`, userLocalId);
       }
     } catch (error) {
       console.error('Error handling follow click:', error);
@@ -319,7 +354,7 @@ const Profile = () => {
                     Chỉnh sửa trang cá nhân
                   </Button>
                 ) : followStatus === 'friend' ? (
-                  <Button variant="contained" color="success" disabled>
+                  <Button variant="contained" color="success" onClick={deleteFollow}>
                     Hủy kết bạn
                   </Button>
                 ) : followStatus === 'pending' ? (

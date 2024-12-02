@@ -82,7 +82,7 @@ const NotificationPage = () => {
       console.error('Error accepting notification:', error);
     }
   };
-  
+  if (loading) return <div>Đang tải...</div>;
 
   return (
     <PageContainer title="Thông báo của bạn" description="Danh sách thông báo của người dùng">
