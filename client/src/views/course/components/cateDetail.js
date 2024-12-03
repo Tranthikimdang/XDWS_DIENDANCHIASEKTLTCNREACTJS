@@ -32,7 +32,6 @@ const Products = () => {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
 
-
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -123,7 +122,7 @@ const Products = () => {
   const hasStudyAccess = (productId) => {
     return StudyTime.some((study) => study.user_id == userId && study.course_id == productId);
   };
-  
+
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
@@ -263,31 +262,31 @@ const Products = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
                               <div className="align-items-center mb-1">
                                 <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
-                                  {product.discount
-                                    ? product.discount.toLocaleString('vi-VN')
-                                    : 'N/A'}{' '}
-                                  VND
+                                  {product.discount + ' VND'
+                                    ? product.discount.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </h6>
                                 <span className="text-danger" style={{ fontSize: '0.7rem' }}>
                                   <s>
-                                    {product.price ? product.price.toLocaleString('vi-VN') : 'N/A'}{' '}
-                                    VND
+                                    {product.price + ' VND'
+                                      ? product.price.toLocaleString('vi-VN') + ' VND'
+                                      : 'Miễn phí'}{' '}
                                   </s>
                                 </span>
                               </div>
                               <h6 className="text-success">
                                 <b>Giảm giá sốc</b>
                               </h6>
-                               <div className="d-flex flex-column mt-4">
+                              <div className="d-flex flex-column mt-4">
                                 {/* Kiểm tra quyền truy cập để hiển thị nút */}
                                 {hasStudyAccess(product.id) ? (
-                                   <button
-                                   className="btn btn-success btn-sm"
-                                   type="button"
-                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
-                                 >
-                                   Bắt đầu học
-                                 </button>
+                                  <button
+                                    className="btn btn-success btn-sm"
+                                    type="button"
+                                    onClick={() => navigate(`/productDetailUser/${product.id}`)}
+                                  >
+                                    Bắt đầu học
+                                  </button>
                                 ) : (
                                   <>
                                     <button className="btn btn-primary btn-sm" type="button">

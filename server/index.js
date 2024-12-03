@@ -16,6 +16,7 @@ const commentCourseRoutes = require("./routes/commentCourseRoutes");
 const questionHashtagsRouter = require("./routes/QuestionHashtagsRoutes");
 const followRouter = require('./routes/followRoutes'); 
 const notificationRouter = require('./routes/notificationRoutes');
+const certificateRouter = require('./routes/certificateRoutes');
 
 const cartsRoutes = require('./routes/cartsRoutes');
 const sequelize = require("./models"); // Kết nối Sequelize
@@ -28,6 +29,29 @@ const app = express();
 const port = 3000;
 
 const uploadPath = path.join(__dirname, "videos");
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+
+  // Gửi thông báo mới khi có thay đổi
+  ws.on('message', (message) => {
+    console.log('Received message:', message);
+
+    // Phát thông báo mới đến tất cả client
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ type: 'new_notification', content: 'You have a new notification!' }));
+      }
+    });
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
+});
 
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true }); // Tạo thư mục nếu chưa tồn tại
@@ -117,6 +141,7 @@ app.use("/api/exercise", exerciseRouter);
 app.use("/api/follows", followRouter);
 app.use("/api/mentors", mentorRouter);
 app.use("/api/notifications", notificationRouter);
+app.use("/api/certificates", certificateRouter);
 // Khởi chạy server
 app.listen(port, async () => {
   try {

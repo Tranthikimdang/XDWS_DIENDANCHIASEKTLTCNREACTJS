@@ -38,4 +38,7 @@ router.get('/pending', followController.getPendingFollows);
 // Kiểm tra trạng thái theo dõi giữa hai người dùng
 router.get('/status/:follower_id/:target_id', followController.checkFollowStatus);
 
+// Cập nhật trạng thái follow
+router.put('/:id', validateId, followController.updateFollow);
+
 module.exports = router;
