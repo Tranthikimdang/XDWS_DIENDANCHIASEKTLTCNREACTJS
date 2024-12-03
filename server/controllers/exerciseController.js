@@ -84,13 +84,6 @@ exports.createExercise = async (req, res) => {
   }
 
   try {
-    const courseDetail = await CourseDetail.findByPk(course_detail_id);
-    if (!courseDetail) {
-      return res.status(404).json({
-        status: "error",
-        message: "Course detail not found",
-      });
-    }
 
     const courseModel = await CourseModel.findByPk(course_id);
     if (!courseModel) {
@@ -145,14 +138,6 @@ exports.updateExercise = async (req, res) => {
       return res.status(404).json({
         status: "error",
         message: "Exercise not found",
-      });
-    }
-
-    const courseDetail = await CourseDetail.findByPk(course_detail_id);
-    if (course_detail_id && !courseDetail) {
-      return res.status(404).json({
-        status: "error",
-        message: "Course detail not found",
       });
     }
 
