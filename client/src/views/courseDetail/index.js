@@ -22,7 +22,7 @@ import './index.css';
 import ReplyIcon from '@mui/icons-material/Reply';
 import CourseDetailApi from '../../apis/CourseDetailApI';
 import StudyTimeApi from '../../apis/StudyTimeApI';
-import { getExercise, getExerciseByIdCourseDetail } from '../../apis/ExerciseApi';
+import { getExercise, getExerciseByIdCourse } from '../../apis/ExerciseApi';
 import Player from '@vimeo/player';
 
 const ProductsDetail = () => {
@@ -35,7 +35,11 @@ const ProductsDetail = () => {
   const [showNextButton, setShowNextButton] = useState(false);
   const [questionData, setQuestionData] = useState({});
   const [selectedAnswer, setSelectedAnswer] = useState(null);
-
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [isCourseCompleted, setIsCourseCompleted] = useState(false);
+  const [questions, setQuestions] = useState([]);
+  const [incorrectAnswers, setIncorrectAnswers] = useState(0);
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const [studyTime, setStudyTime] = useState([]);
@@ -77,7 +81,6 @@ const ProductsDetail = () => {
           const getVideo = productDetail.find(
             (lesson) => lesson.no == currentStudyTime?.lesson_current + 1,
           );
-          console.log(getVideo);
           setCurrentVideo(getVideo?.video);
           setCurrentName(getVideo?.name);
           currentIndex.current = currentStudyTime?.lesson_current;
@@ -150,17 +153,48 @@ const ProductsDetail = () => {
     }
   }, [currentVideo]);
 
-  const fetchQuestion = async (id) => {
-    try {
-      const res = await getExerciseByIdCourseDetail(id);
-      if (res.status == 'success') {
-        questionsData.current = res.data.questions;
-        count.current = 0;
-        setQuestionData(questionsData.current[0]);
-      }
-    } catch (error) {
-      console.error('Error fetching question:', error);
-      setQuestionData({ question_text: 'Không có câu hỏi' });
+  useEffect(() => {
+    if (selectedTab === 1) {
+      const fetchQuestions = async () => {
+        try {
+          const response = await getExerciseByIdCourse(id); // Gọi API lấy câu hỏi
+
+          if (response.status === 'success') {
+            const exercises = response.data.courseDetails;
+            setQuestions(exercises); // Cập nhật danh sách câu hỏi
+            if (exercises.length > 0) {
+              questionsData.current = exercises;
+              count.current = 0; // Reset vị trí câu hỏi hiện tại
+              setQuestionData(exercises[0]); // Hiển thị câu hỏi đầu tiên
+              setTotalQuestions(exercises.length);
+            }
+          }
+        } catch (error) {
+          console.error('Lỗi khi lấy danh sách câu hỏi:', error);
+        }
+      };
+      fetchQuestions();
+    }
+  }, [selectedTab, id]);
+
+
+  const handleCompleteCourse = async () => {
+    const incorrectAnswers = totalQuestions - correctAnswers; // Số câu sai
+    if (videoWatchedEnough && correctAnswers / totalQuestions >= 0.8) {
+      alert(`
+        🎉 Chúc mừng bạn đã hoàn thành khóa học! 
+        - Số câu trả lời đúng: ${correctAnswers}
+        - Số câu trả lời sai: ${incorrectAnswers}
+      `);
+      // Gửi yêu cầu cập nhật trạng thái khóa học đã hoàn thành
+      await StudyTimeApi.updateStudyTime(studyItem.current.id, { is_completed: true });
+      navigate('/products');
+    } else {
+      alert(`
+        Bạn cần xem hết video và trả lời ít nhất 80% câu hỏi đúng! 
+        - Số câu trả lời đúng: ${correctAnswers}
+        - Số câu trả lời sai: ${incorrectAnswers}
+      `);
     }
   };
 
@@ -169,7 +203,6 @@ const ProductsDetail = () => {
     setProgress(percentage);
 
     if (percentage >= 1) {
-      console.log(studyItem.current);
       setShowNextButton(true);
     }
     if (percentage < 100) {
@@ -187,7 +220,6 @@ const ProductsDetail = () => {
     if (res.status == 'success') {
       setReload((reload) => !reload);
     }
-    console.log(res);
   };
 
   // Chuyển sang video tiếp theo
@@ -213,8 +245,7 @@ const ProductsDetail = () => {
     if (index > studyItem.current.lesson_current) {
       await updateLesson();
     }
-    console.log(lesson.video);
-    
+
     setCurrentVideo(lesson.video);
     setCurrentName(lesson.name);
     setShowNextButton(false);
@@ -232,21 +263,45 @@ const ProductsDetail = () => {
   const handleAnswerClick = (answer) => {
     if (!isSubmitted) {
       setSelectedAnswer(answer); // Cập nhật lựa chọn khi chưa gửi
+      console.log('Đáp án được chọn:', answer);
     }
   };
 
   const handleSubmit = () => {
-    if (!selectedAnswer) return; // Không cho gửi nếu chưa chọn đáp án
-    const correct = selectedAnswer === questionData.correct_answer;
-    setIsCorrect(correct);
-    setIsSubmitted(true);
+    if (!selectedAnswer) {
+      console.log('Chưa chọn đáp án!');
+      return; // Không cho phép gửi nếu chưa chọn
+    }
+    if (selectedAnswer == questionData.correct_answer) {
+      setCorrectAnswers(prev => prev + 1);
+    } else {
+      setIncorrectAnswers(prev => prev + 1);
+    }
+    const correct = selectedAnswer === questionData.correct_answer; // Kiểm tra đáp án
+    setIsCorrect(correct); // Cập nhật trạng thái đúng/sai
+    setIsSubmitted(true); // Đánh dấu đã gửi
+    console.log('Đáp án được gửi:', selectedAnswer, 'Đúng:', correct);
   };
+  
+
   const handleNextQuestion = () => {
-    setSelectedAnswer('');
-    setIsSubmitted(false);
-    setIsCorrect(null);
-    setQuestionData(questionsData.current[count.current++]);
+    if (count.current < questionsData.current.length - 1) {
+      count.current++;
+      setQuestionData(questionsData.current[count.current]); // Chuyển sang câu hỏi tiếp theo
+    
+      // Đánh dấu câu hỏi đã được gửi
+      setIsSubmitted(true);
+      setSelectedAnswer(null);
+      setIsSubmitted(false);
+      setIsCorrect(null);
+    } else {
+      alert('Đã hết câu hỏi!');
+    }
   };
+
+  if (correctAnswers / totalQuestions >= 0.8) {
+    setIsCourseCompleted(true); // Hoàn thành khóa học nếu đủ điều kiện
+  }
   return (
     <PageContainer title="products" description="This is products">
       <Grid item xs={12}>
@@ -284,9 +339,14 @@ const ProductsDetail = () => {
                     Chuyển Bài Tiếp
                   </Button>
                 )}
-                <div className="nav-buttons mt-5">
-                  <h4>Bình luận</h4>
-                </div>
+              </div>
+              {!videoWatchedEnough && (
+                <Alert severity="warning">
+                  Bạn cần xem hết video này trước khi chuyển bài tiếp theo!
+                </Alert>
+              )}
+              <div className="nav-buttons mt-5">
+                <h4>Bình luận</h4>
               </div>
               <ListItem alignItems="flex-start">
                 <Avatar
@@ -333,11 +393,6 @@ const ProductsDetail = () => {
               </div>
             </Grid>
           </Grid>
-          {!videoWatchedEnough && (
-            <Alert severity="warning">
-              Bạn cần xem hết video này trước khi chuyển bài tiếp theo!
-            </Alert>
-          )}
         </Box>
       )}
       {selectedTab === 1 && (
@@ -353,31 +408,32 @@ const ProductsDetail = () => {
                   {['A', 'B', 'C', 'D'].map((option) => (
                     <Box
                       key={option}
-                      onClick={() => handleAnswerClick(`option_${option.toLowerCase()}`)} // Xử lý khi người dùng bấm chọn
+                      onClick={() => handleAnswerClick(`${option.toLowerCase()}`)} // Xử lý khi người dùng bấm chọn
                       sx={{
                         padding: 2,
                         borderRadius: 1,
                         border: '2px solid',
                         borderColor: isSubmitted
-                          ? option === selectedAnswer
+                          ? option.toLowerCase() === selectedAnswer
                             ? isCorrect
-                              ? 'green' // Đúng -> Xanh
-                              : 'red' // Sai -> Đỏ
-                            : option === questionData.correct_answer
-                            ? 'green' // Hiển thị đáp án đúng
-                            : 'grey.400'
-                          : selectedAnswer === option
-                          ? 'primary.main' // Khi chọn đáp án
-                          : 'grey.400',
-                        cursor: isSubmitted ? 'default' : 'pointer',
-                        backgroundColor:
-                          isSubmitted && option === questionData.correct_answer
-                            ? 'rgba(0, 255, 0, 0.8)' // Đúng -> Nền xanh nhạt
-                            : isSubmitted && option === selectedAnswer && !isCorrect
-                            ? 'rgba(255, 0, 0, 0.8)' // Sai -> Nền đỏ nhạt
-                            : 'transparent',
+                              ? 'green' // Đúng: viền xanh
+                              : 'red' // Sai: viền đỏ
+                            : option.toLowerCase() === questionData.correct_answer
+                            ? 'green' // Đáp án đúng: viền xanh
+                            : 'grey' // Đáp án khác: viền xám
+                          : selectedAnswer === option.toLowerCase()
+                          ? 'blue' // Khi chọn: viền xanh
+                          : 'grey', // Chưa chọn: viền xám
+                        backgroundColor: isSubmitted
+                          ? option.toLowerCase() === questionData.correct_answer
+                            ? 'rgba(0, 255, 0, 0.2)' // Đúng: nền xanh nhạt
+                            : option.toLowerCase() === selectedAnswer && !isCorrect
+                            ? 'rgba(255, 0, 0, 0.2)' // Sai: nền đỏ nhạt
+                            : 'transparent' // Nền trong suốt
+                          : 'transparent', // Chưa gửi: nền trong suốt
+                        cursor: isSubmitted ? 'default' : 'pointer', // Đổi con trỏ khi đã gửi
                         '&:hover': {
-                          borderColor: !isSubmitted ? 'primary.light' : undefined,
+                          borderColor: !isSubmitted ? 'blue' : undefined, // Hover chỉ hoạt động khi chưa gửi
                         },
                       }}
                     >
@@ -386,11 +442,21 @@ const ProductsDetail = () => {
                       </Typography>
                     </Box>
                   ))}
+                  {videoWatchedEnough && (
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={handleCompleteCourse}
+                      sx={{ marginTop: 3 }}
+                    >
+                      Hoàn thành khóa học
+                    </Button>
+                  )}
                 </Box>
                 {isSubmitted && !isCorrect && (
                   <Typography variant="body1" color="error" sx={{ marginTop: 2 }}>
                     Sai! Đáp án đúng là{' '}
-                    {questionData.correct_answer + ':' + questionData.explanation}:{' '}
+                    {questionData.correct_answer + ':' + questionData.explanation}:
                     {questionData[`option_${questionData.correct_answer.toLowerCase()}`]}.
                   </Typography>
                 )}
@@ -431,12 +497,14 @@ const ProductsDetail = () => {
 
           <Grid item md={4}>
             <div className="course-content">
-              <div className="course-progress">Số lượng bài học: {productDetail.length}</div>
+              <div className="course-progress">
+                Số câu hỏi đúng: {correctAnswers}, Số câu hỏi sai: {incorrectAnswers}
+              </div>
               <ul className="course-list">
                 {productDetail.map((lesson, index) => (
                   <li
                     key={lesson.id}
-                    onClick={() => fetchQuestion(lesson?.id)}
+                    onClick={() => handleLessonClick(lesson, index)}
                     style={{ cursor: 'pointer' }}
                   >
                     <span>Bài {lesson.no}</span>
