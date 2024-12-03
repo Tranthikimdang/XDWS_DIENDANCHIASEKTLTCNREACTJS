@@ -165,7 +165,7 @@ const Course = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
             <Typography variant="h4" component="h1" className="heading">
-              Các khóa học của chúng tôi
+            <strong> Các khóa học của chúng tôi</strong>
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
               Tổng hợp các khoá học chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật

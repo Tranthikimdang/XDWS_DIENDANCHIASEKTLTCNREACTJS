@@ -50,7 +50,7 @@ const Questions = sequelize.define('Questions', {
         defaultValue: false,
     },
     up_code: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT('long'),
     },
     comments: {
         type: DataTypes.JSON,

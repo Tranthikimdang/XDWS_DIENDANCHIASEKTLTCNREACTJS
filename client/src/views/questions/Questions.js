@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
 import PageContainer from 'src/components/container/PageContainer';
-import DashboardCard from 'src/components/shared/DashboardCard';
 import axios from 'axios';
 import {
   Alert,
@@ -29,6 +28,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  InputAdornment,
 } from '@mui/material';
 // icon
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -46,6 +46,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import { IconMessageCircle } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { addQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
+import SearchIcon from '@mui/icons-material/Search';
 // Images
 import avatardefault from "src/assets/images/profile/user-1.jpg";
 //api
@@ -74,7 +75,7 @@ const Questions = () => {
   const [edit, setEdit] = useState(false);
   const [dataTemp, setDataTemp] = useState(null);
   const [users, setUsers] = useState([]);
-  const [articles, setArticles] = useState([]);
+  const [questions, setQuestions] = useState([]);
   const listUser = useRef([]);
   const [showCodeDialog, setShowCodeDialog] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -96,6 +97,7 @@ const Questions = () => {
   const [replyFile, setReplyFile] = useState('');
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [hashtag, setHashtag] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleToggleComments = (questionId) => {
     setVisibleComments((prev) => ({
@@ -239,6 +241,17 @@ const Questions = () => {
   const handleSnackbarClose = (event, reason) => {
     setSnackbarOpen(false);
   };
+
+  // Tìm kiếm tất cả trong bảng questions
+  const filteredQuestions = questions.filter((question) => {
+    // Chuyển đổi tất cả các trường cần tìm kiếm thành chuỗi và kiểm tra nếu có chứa searchTerm
+    return (
+      question.hashtag.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      question.up_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      question.questions.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+  
 
   const validateImageFile = (files) => {
     const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -743,8 +756,8 @@ const Questions = () => {
     setError('');
   };
 
-  const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`, { state: { id: articleId } });
+  const handleCardClick = (questionId) => {
+    navigate(`/question/${questionId}`, { state: { id: questionId } });
   };
 
   const handleCodeButtonClick = () => {
@@ -845,173 +858,209 @@ const Questions = () => {
       title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code"
       description="Đây là trang đặt câu hỏi"
     >
-     
-        <Grid container spacing={2}>
-          {/* Left Column */}
-          <Grid item md={8}>
-            <Box
-              sx={{
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                padding: '20px',
-                backgroundColor: '#fff',
-              }}
-            >
-              {/* Create Post Header */}
-              <Box component="form" onSubmit={handleSubmit}>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <img
-                    // eslint-disable-next-line no-undef
-                    src={userData?.current?.imageUrl || avatardefault}
-                    alt="Hình ảnh người dùng"
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      marginRight: 8,
-                    }}
-                    onError={(e) => {
-                      e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+      <Grid container spacing={2}>
+        <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+          <Typography variant="h4" component="h1" className="heading">
+            <strong>Tất cả câu hỏi</strong>
+          </Typography>
+          <Typography variant="body1" paragraph className="typography-body">
+            Tổng hợp các câu hỏi và bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật
+            lập trình web.
+          </Typography>
+        </Grid>
+        <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <TextField
+            label="Tìm kiếm câu hỏi"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{
+              margin: 'auto',
+              borderRadius: '50px',
+              backgroundColor: '#f7f7f7',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '50px',
+              },
+              '& .MuiInputBase-input': {
+                padding: '12px 16px',
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+
+        {/* Left Column */}
+        <Grid item md={8}>
+          <Box
+            sx={{
+              border: '1px solid #e0e0e0',
+              borderRadius: '8px',
+              padding: '20px',
+              backgroundColor: '#fff',
+            }}
+          >
+            {/* Create Post Header */}
+            <Box component="form" onSubmit={handleSubmit}>
+              <Box display="flex" alignItems="center" mb={2}>
+                <img
+                  // eslint-disable-next-line no-undef
+                  src={userData?.current?.imageUrl || avatardefault}
+                  alt="Hình ảnh người dùng"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    marginRight: 8,
+                  }}
+                  onError={(e) => {
+                    e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                  }}
+                />
+                <Typography variant="h6">Đặt câu hỏi</Typography>
+              </Box>
+
+              {/* Post Content */}
+              <TextField
+                label="Hãy đặt câu hỏi hoặc chia sẻ kiến thức?"
+                variant="outlined"
+                multiline
+                fullWidth
+                rows={4}
+                name="questions"
+                // value={newComment}
+                // onChange={(e) => setNewComment(e.target.value)}
+                sx={{ marginBottom: 2 }}
+              />
+
+              {/* Add Hashtag Section */}
+              <Box display="flex" alignItems="center" mb={2}>
+                <Typography variant="body2" sx={{ mr: 2 }}>
+                  <strong>+ Thêm Hashtag</strong>
+                </Typography>
+                <Box sx={{ flexGrow: 1 }}>
+                  <TextField
+                    fullWidth
+                    placeholder="Nhập hashtag"
+                    variant="standard"
+                    name="hashtag"
+                    InputProps={{
+                      disableUnderline: true,
                     }}
                   />
-                  <Typography variant="h6">Đặt câu hỏi</Typography>
-                </Box>
-
-                {/* Post Content */}
-                <TextField
-                  label="Hãy đặt câu hỏi?"
-                  variant="outlined"
-                  multiline
-                  fullWidth
-                  rows={4}
-                  name="questions"
-                  // value={newComment}
-                  // onChange={(e) => setNewComment(e.target.value)}
-                  sx={{ marginBottom: 2 }}
-                />
-
-                {/* Add Hashtag Section */}
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Typography variant="body2" sx={{ mr: 2 }}>
-                    <strong>+ Thêm Hashtag</strong>
-                  </Typography>
-                  <Box sx={{ flexGrow: 1 }}>
-                    <TextField
-                      fullWidth
-                      placeholder="Nhập hashtag"
-                      variant="standard"
-                      name="hashtag"
-                      InputProps={{
-                        disableUnderline: true,
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                {/* Options for Image, File, Code */}
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Box display="flex" gap={1}>
-                    {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
-                      <Button
-                        key={index}
-                        variant="outlined"
-                        startIcon={
-                          index === 0 ? (
-                            <ImageIcon />
-                          ) : index === 1 ? (
-                            <AttachFileIcon />
-                          ) : (
-                            <CodeIcon />
-                          )
-                        }
-                        sx={{
-                          borderRadius: '16px',
-                          textTransform: 'none',
-                          padding: '5px 15px',
-                        }}
-                        component="label"
-                        onClick={index === 2 ? handleCodeButtonClick : undefined} // Chỉ mở dialog khi nhấn vào icon Code
-                      >
-                        {label}
-                        {index === 0 && (
-                          <input
-                            name="image"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            hidden
-                            onChange={handleImageChange}
-                          />
-                        )}
-                        {index === 1 && (
-                          <input
-                            type="file"
-                            name="file"
-                            multiple
-                            hidden
-                            onChange={handleFileChange}
-                          />
-                        )}
-                      </Button>
-                    ))}
-                  </Box>
-                  {/* Code Dialog */}
-                  <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                    <DialogTitle>Nhập code của bạn</DialogTitle>
-                    <DialogContent>
-                      {showCodeField && (
-                        <FormControl fullWidth>
-                          <TextField
-                            id="code-input"
-                            multiline
-                            rows={4}
-                            name="up_code"
-                            variant="outlined"
-                            value={codeSnippet}
-                            onChange={handleCodeChange}
-                            error={!!error}
-                          />
-                          <FormHelperText>{error}</FormHelperText>
-                        </FormControl>
-                      )}
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseDialog} color="secondary">
-                        Hủy
-                      </Button>
-                      <Button onClick={handleSubmitCode} color="primary">
-                        Lưu
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                  {/* Post Button */}
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      textTransform: 'none',
-                      borderRadius: '16px',
-                      padding: '5px 20px',
-                      fontWeight: 'bold',
-                      mt: 2,
-                    }}
-                  >
-                    Đăng
-                  </Button>
                 </Box>
               </Box>
 
-              {/* Loading Spinner */}
-              {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                  <CircularProgress />
+              {/* Options for Image, File, Code */}
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box display="flex" gap={1}>
+                  {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                    <Button
+                      key={index}
+                      variant="outlined"
+                      startIcon={
+                        index === 0 ? (
+                          <ImageIcon />
+                        ) : index === 1 ? (
+                          <AttachFileIcon />
+                        ) : (
+                          <CodeIcon />
+                        )
+                      }
+                      sx={{
+                        borderRadius: '16px',
+                        textTransform: 'none',
+                        padding: '5px 15px',
+                      }}
+                      component="label"
+                      onClick={index === 2 ? handleCodeButtonClick : undefined} // Chỉ mở dialog khi nhấn vào icon Code
+                    >
+                      {label}
+                      {index === 0 && (
+                        <input
+                          name="image"
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          hidden
+                          onChange={handleImageChange}
+                        />
+                      )}
+                      {index === 1 && (
+                        <input
+                          type="file"
+                          name="file"
+                          multiple
+                          hidden
+                          onChange={handleFileChange}
+                        />
+                      )}
+                    </Button>
+                  ))}
                 </Box>
-              ) : listQuestion?.length > 0 ? ( // Sử dụng danh sách đã lọc
-                listQuestion.map((question) => {
+                {/* Code Dialog */}
+                <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+                  <DialogTitle>Nhập code của bạn</DialogTitle>
+                  <DialogContent>
+                    {showCodeField && (
+                      <FormControl fullWidth>
+                        <TextField
+                          id="code-input"
+                          multiline
+                          rows={4}
+                          name="up_code"
+                          variant="outlined"
+                          value={codeSnippet}
+                          onChange={handleCodeChange}
+                          error={!!error}
+                        />
+                        <FormHelperText>{error}</FormHelperText>
+                      </FormControl>
+                    )}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseDialog} color="secondary">
+                      Hủy
+                    </Button>
+                    <Button onClick={handleSubmitCode} color="primary">
+                      Lưu
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+                {/* Post Button */}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    textTransform: 'none',
+                    borderRadius: '16px',
+                    padding: '5px 20px',
+                    fontWeight: 'bold',
+                    mt: 2,
+                  }}
+                >
+                  Đăng
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Loading Spinner */}
+            {loading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                <CircularProgress />
+              </Box>
+            ) : listQuestion?.length > 0 ? ( // Sử dụng danh sách đã lọc
+              listQuestion
+                .map((question) => {
                   const listImgUrl = question.imageUrls;
                   const listFileUrl = question.fileUrls;
-
                   return (
                     question.isApproved === true && (
                       <Box
@@ -1973,99 +2022,99 @@ const Questions = () => {
                     )
                   );
                 })
-              ) : (
-                <Typography variant="h6" align="center" sx={{ mt: 3 }}>
-                  Không có câu hỏi nào.
-                </Typography>
-              )}
-            </Box>
-          </Grid>
-          {/* Right Column */}
-          <Grid item md={4}>
-            <Box
-              sx={{
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                padding: '20px',
-                backgroundColor: '#fff',
-              }}
-            >
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Từ khóa nổi bật</Typography>
-                <IconButton>
-                  <MoreHorizIcon />
-                </IconButton>
-              </Box>
-              <hr
-                style={{
-                  border: 'none',
-                  height: '1px',
-                  backgroundColor: '#007bff',
-                  margin: '1px 0',
-                }}
-              />
-
-              {/* Danh sách Hashtags */}
-              <>
-                {loading ? (
-                  <CircularProgress /> // Hiển thị spinner khi đang tải
-                ) : (
-                  <List>
-                    {hashtag.length > 0 ? (
-                      hashtag.map((hashtag) => (
-                        <ListItem key={hashtag?.id} sx={{ padding: 0 }}>
-                          {hashtag && (
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                color: '#007bff',
-                                fontSize: '0.8rem',
-                              }}
-                            >
-                              {hashtag.name} {/* Hiển thị hashtag nếu có */}
-                            </Typography>
-                          )}
-                        </ListItem>
-                      ))
-                    ) : (
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#999',
-                          fontSize: '0.9rem',
-                          textAlign: 'center',
-                          marginTop: '1rem',
-                        }}
-                      >
-                        Không có hashtags nào để hiển thị.
-                      </Typography>
-                    )}
-                  </List>
-                )}
-              </>
-            </Box>
-            {/* tam thoi */}
-          </Grid>
+            ) : (
+              <Typography variant="h6" align="center" sx={{ mt: 3 }}>
+                Không có câu hỏi nào.
+              </Typography>
+            )}
+          </Box>
         </Grid>
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          sx={{ transform: 'translateY(50px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
-        >
-          <Alert
-            onClose={handleSnackbarClose}
-            severity={snackbarSeverity}
+        {/* Right Column */}
+        <Grid item md={4}>
+          <Box
             sx={{
-              width: '100%',
-              border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+              border: '1px solid #e0e0e0',
+              borderRadius: '8px',
+              padding: '20px',
+              backgroundColor: '#fff',
             }}
           >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-  
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6">Từ khóa nổi bật</Typography>
+              <IconButton>
+                <MoreHorizIcon />
+              </IconButton>
+            </Box>
+            <hr
+              style={{
+                border: 'none',
+                height: '1px',
+                backgroundColor: '#007bff',
+                margin: '1px 0',
+              }}
+            />
+
+            {/* Danh sách Hashtags */}
+            <>
+              {loading ? (
+                <CircularProgress /> // Hiển thị spinner khi đang tải
+              ) : (
+                <List>
+                  {hashtag.length > 0 ? (
+                    hashtag.map((hashtag) => (
+                      <ListItem key={hashtag?.id} sx={{ padding: 0 }}>
+                        {hashtag && (
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              color: '#007bff',
+                              fontSize: '0.8rem',
+                            }}
+                          >
+                            {hashtag.name} {/* Hiển thị hashtag nếu có */}
+                          </Typography>
+                        )}
+                      </ListItem>
+                    ))
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#999',
+                        fontSize: '0.9rem',
+                        textAlign: 'center',
+                        marginTop: '1rem',
+                      }}
+                    >
+                      Không có hashtags nào để hiển thị.
+                    </Typography>
+                  )}
+                </List>
+              )}
+            </>
+          </Box>
+          {/* tam thoi */}
+        </Grid>
+      </Grid>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(50px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{
+            width: '100%',
+            border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
     </PageContainer>
   );
 };
