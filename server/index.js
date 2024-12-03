@@ -23,6 +23,38 @@ const fs = require("fs");
 const app = express();
 const port = 3000;
 
+<<<<<<< HEAD
+=======
+const uploadPath = path.join(__dirname, "videos");
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+
+  // Gửi thông báo mới khi có thay đổi
+  ws.on('message', (message) => {
+    console.log('Received message:', message);
+
+    // Phát thông báo mới đến tất cả client
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ type: 'new_notification', content: 'You have a new notification!' }));
+      }
+    });
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
+});
+
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true }); // Tạo thư mục nếu chưa tồn tại
+}
+
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
 // Cấu hình body-parser middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

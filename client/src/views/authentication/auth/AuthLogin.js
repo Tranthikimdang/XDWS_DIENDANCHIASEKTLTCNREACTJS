@@ -76,8 +76,15 @@ const AuthLogin = ({ title, subtitle, subtext }) => {
       const user = response.data.users.find((user) => user.email === email);
 
       if (user) {
+<<<<<<< HEAD
         // So sánh mật khẩu nhập vào với mật khẩu đã băm
         const isMatch = await bcrypt.compare(password, user.password);
+=======
+        
+        // So sánh mật khẩu nhập vào với mật khẩu đã băm
+        const isMatch = await bcrypt.compare(password, user.password);
+        
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
         if (isMatch) {
           // Nếu thông tin đăng nhập hợp lệ
           dispatch(setAccount(user));

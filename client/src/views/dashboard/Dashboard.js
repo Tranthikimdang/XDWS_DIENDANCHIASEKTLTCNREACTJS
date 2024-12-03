@@ -27,6 +27,7 @@ import StudyTimeApi from '../../apis/StudyTimeApI';
 // Firebase
 import { db } from '../../config/firebaseconfig';
 import { collection, getDocs } from 'firebase/firestore';
+import ChatBox from './chatAI/chatAI';
 
 // Styled components
 const StyledBox = styled(Box)(({ theme }) => ({
@@ -440,6 +441,7 @@ const Home = () => {
             ))}
         </Grid>
       </Box>
+      <ChatBox /> {/* Add the ChatBox component */}
     </PageContainer>
   );
 };

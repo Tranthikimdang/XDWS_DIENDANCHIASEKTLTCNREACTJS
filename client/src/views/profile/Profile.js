@@ -70,6 +70,7 @@ useEffect(() => {
   }, []);
   
 
+<<<<<<< HEAD
 // Fetch câu hỏi
 useEffect(() => {
   const fetchQuestions = async () => {
@@ -78,6 +79,35 @@ useEffect(() => {
       const res = await getQuestionsList();
       if (res.status == 'success') {
         setQuestions(res?.data?.questions);
+=======
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // 1. Lấy toàn bộ dữ liệu studyTime
+        const studyTimeResponse = await StudytimeApi.getStudyTimesList();
+        const studyTimes = studyTimeResponse?.data?.studyTimes || [];
+
+        // 2. Lọc dữ liệu studyTime theo userId
+        const userStudyTimes = studyTimes.filter((item) => item.user_id === Number(userId));
+
+        // 3. Lấy danh sách course_id từ studyTime của user
+        const courseIds = userStudyTimes.map((item) => item.course_id);
+
+        // 4. Lấy toàn bộ danh sách courses
+        const coursesResponse = await CourseApi.getCoursesList();
+        const allCourses = coursesResponse?.data?.courses || [];
+
+        // 5. Lọc courses có id trùng với course_id
+        const filteredCourses = allCourses.filter((course) => courseIds.includes(course.id));
+
+        // 6. Cập nhật state
+        setProducts(filteredCourses);
+      } catch (error) {
+        console.error('Error fetching data:', error); // Log lỗi nếu có
+      } finally {
+        setIsLoading(false); // Tắt trạng thái loading
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
       }
     } catch (error) {
       console.error('Lỗi khi tải câu hỏi:', error);
@@ -129,12 +159,156 @@ useEffect(() => {
     return updatedAtString;
   };
 
+<<<<<<< HEAD
 
   //xóa các thẻ html
   const removeHtmlTags = (html) => {
     return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
   };
 
+=======
+  useEffect(() => {
+    const fetchStudyTime = async () => {
+      setLoading(true);
+      try {
+        const response = await StudytimeApi.getStudyTimesList();
+        const course = response.data.studyTimes;
+
+        setStudyTime(course);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStudyTime();
+  }, []);
+
+  const hasStudyAccess = (productId) => {
+    return StudyTime.some((study) => study.user_id == userLocalId && study.course_id == productId);
+  };
+
+  //thông báo cho người khác
+  const addNotification = async (message, followId = null) => {
+    try {
+      const notification = {
+        userId: userId,
+        message,
+        type: followId ? 'not_followed' : 'pending',
+        relatedId: followId || null,
+      };
+  
+      await NotificationApi.createNotification(notification);
+      console.log('Thông báo đã được thêm vào database');
+    } catch (error) {
+      console.error('Error adding notification:', error);
+    }
+  };
+
+    //thông báo cho tôi
+    const addNotificationMe = async (message, followId = null) => {
+      try {
+        const notification = {
+          userId: userLocalId,
+          message,
+          type: 'pending',
+          relatedId: followId || null,
+        };
+    
+        await NotificationApi.createNotification(notification);
+        console.log('Thông báo đã được thêm vào database');
+      } catch (error) {
+        console.error('Error adding notification:', error);
+      }
+    };
+  
+  useEffect(() => {
+    const fetchFollowStatus = async () => {
+      if (!userId || !userLocalId) {
+        console.warn('User ID hoặc User Local ID không tồn tại');
+        return;
+      }
+  
+      if (userId !== userLocalId) {
+        try {
+          const response = await FollowApi.checkFollowStatus(userLocalId, userId);
+          if (!response) {
+            console.error('API trả về response null hoặc không hợp lệ');
+            return;
+          }
+          setFollowStatus(response.status || 'not_followed'); // Mặc định là not_followed nếu không có
+          setFollowId(response.followId || null); // Đảm bảo followId không bị null
+        } catch (error) {
+          console.error('Error checking follow status:', error);
+        }
+      }
+    };
+  
+    fetchFollowStatus();
+  }, [userId, userLocalId]);
+  
+  const deleteFollow = async () => {
+    try {
+      if (followId) {
+        // Gọi API để xóa follow
+        await FollowApi.deleteFollow(followId);
+        setFollowStatus('not_followed'); // Cập nhật trạng thái
+        setFollowId(null); // Xóa followId khỏi state
+        setSnackbarMessage('Đã hủy kết bạn');
+        setOpenSnackbar(true);
+      } else {
+        console.warn("Không tìm thấy followId để xóa.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi hủy kết bạn:", error);
+      setSnackbarMessage('Hủy kết bạn thất bại, vui lòng thử lại.');
+      setOpenSnackbar(true);
+    }
+  }
+  const handleFollowClick = async () => {
+    try {
+      if (!isUserLoggedIn()) {
+        setSnackbarMessage('Bạn cần đăng nhập để thực hiện hành động này');
+        setOpenSnackbar(true);
+        return;
+      }
+      if (followStatus === 'not_followed') {
+        // Gửi yêu cầu theo dõi
+        const response = await FollowApi.createFollow(userLocalId, userId);
+        if (!response || !response.data || !response.data.id) {
+          console.error('API createFollow không trả về dữ liệu hợp lệ');
+          return;
+        }
+  
+        const newFollowId = response.data.id; // Lấy ID của bản follow vừa được thêm
+        setFollowStatus('pending');
+        setFollowId(newFollowId); // Gán followId mới vào state
+        setSnackbarMessage('Đã gửi yêu cầu theo dõi');
+        setOpenSnackbar(true);
+  
+        // Gửi thông báo với followId làm relatedId
+        await addNotification(`${user.name} đã gửi lời mời kết bạn`, newFollowId);
+      } else if (followStatus === 'pending' && followId) {
+        // Hủy yêu cầu theo dõi
+        await FollowApi.deleteFollow(followId);
+        setFollowStatus('not_followed');
+        setFollowId(null);
+        setSnackbarMessage('Đã hủy yêu cầu theo dõi');
+        setOpenSnackbar(true);
+  
+        // Gửi thông báo với followId làm relatedId
+        await addNotificationMe(`Bạn đã hủy yêu cầu kết bạn`, userLocalId);
+      }
+    } catch (error) {
+      console.error('Error handling follow click:', error);
+    }
+  };
+  const isUserLoggedIn = () => {
+    const userLocalId = localStorage.getItem('user');
+    return !!userLocalId; // Trả về true nếu tồn tại, ngược lại false
+  };
+  
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -178,6 +352,7 @@ useEffect(() => {
               <Typography variant="body2" color="textSecondary" gutterBottom>
                 {user?.role === 'mentors' ? 'Mentors' : 'Người hướng dẫn'}
               </Typography>
+<<<<<<< HEAD
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" >
@@ -186,6 +361,33 @@ useEffect(() => {
                 <Button variant="outlined" color="secondary">
                   Yêu Cầu Làm Mentor
                 </Button>
+=======
+              <Divider sx={{ width: '100%', margin: '10px 0' }} />
+              {/* Kiểm tra nếu userId trong URL trùng với userLocalId */}
+              <Box sx={{ display: 'flex', gap: '10px', marginBottom: '0px' }}>
+                {userId == userLocalId ? (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    component={Link}
+                    to={`/editProfile/${userId}`}
+                  >
+                    Chỉnh sửa trang cá nhân
+                  </Button>
+                ) : followStatus === 'friend' ? (
+                  <Button variant="contained" color="success" onClick={deleteFollow}>
+                    Hủy kết bạn
+                  </Button>
+                ) : followStatus === 'pending' ? (
+                  <Button variant="contained" color="warning" onClick={handleFollowClick}>
+                    Hủy yêu cầu
+                  </Button>
+                ) : (
+                  <Button variant="contained" color="primary" onClick={handleFollowClick}>
+                    Theo dõi
+                  </Button>
+                )}
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
               </Box>
               <Divider sx={{ width: '100%', margin: '20px 0' }} />
               <Tabs
@@ -276,6 +478,7 @@ useEffect(() => {
                     <Typography variant="h4" gutterBottom>
                       Câu hỏi Của Người Dùng
                     </Typography>
+<<<<<<< HEAD
                     {products.length > 0 ? (
                       products.map((product) =>
                         product.isApproved === 1 && (
@@ -302,6 +505,60 @@ useEffect(() => {
                                       user.imageUrl || '../../assets/images/profile/user-1.jpg'
                                     }
                                     alt="User Avatar"
+=======
+                    {Array.isArray(products) && products.length > 0 ? (
+                      products.map((product) => (
+                        <Card
+                          key={product?.id}
+                          sx={{
+                            display: 'flex',
+                            mb: 3,
+                            flexDirection: { xs: 'column', md: 'row' },
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <div className="card-body border p-3 rounded col-md-12 col-xl-12">
+                            <div className="shadow-sm rounded-3">
+                              <div className="row g-2">
+                                {/* Product Image */}
+                                <div className="col-12 col-md-4 mb-3 mb-md-0">
+                                  <Link
+                                    to={`/productDetail/${product.id}`}
+                                    style={{ textDecoration: 'none' }}
+                                  >
+                                    <div
+                                      className="bg-image hover-zoom ripple rounded ripple-surface"
+                                      style={{
+                                        display: 'flex',
+                                        border: '1px solid #ddd',
+                                        padding: '4px',
+                                        height: '120px',
+                                        borderRadius: '8px',
+                                      }}
+                                    >
+                                      <img
+                                        src={product.image}
+                                        className="w-100"
+                                        alt={product.name}
+                                        style={{
+                                          objectFit: 'cover',
+                                          height: '100%',
+                                          borderRadius: '8px',
+                                          transition: 'all 0.3s ease',
+                                          cursor: 'pointer',
+                                        }}
+                                      />
+                                    </div>
+                                  </Link>
+                                </div>
+
+                                {/* Product Details */}
+                                <div className="col-12 col-md-4">
+                                  <h6
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
                                     style={{
                                       width: 40,
                                       height: 40,
@@ -333,6 +590,7 @@ useEffect(() => {
                                     className="category-badge"
                                   >
 
+<<<<<<< HEAD
                                   </Typography>
                                   <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
                                     {formatUpdatedAt(product.updated_at)}
@@ -340,6 +598,39 @@ useEffect(() => {
                                 </Box>
                               </CardContent>
                             </Box>
+=======
+                                {/* Price and Actions */}
+                                <div className="col-12 col-md-4 d-flex flex-column align-items-start align-items-md-end">
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      alignItems: 'center',
+                                      padding: '10px',
+                                      border: '1px solid #ddd',
+                                      borderRadius: '8px',
+                                      backgroundColor: '#f9f9f9',
+                                      minWidth: '200px',
+                                    }}
+                                  >
+                                    {/* Giá giảm */}
+                                    <h6
+                                      className="text-success mb-1"
+                                      style={{
+                                        fontSize: '1.1rem',
+                                        fontWeight: 'bold',
+                                      }}
+                                    >
+                                      {product.discount?.toLocaleString('vi-VN')} VND
+                                    </h6>
+                                    {/* Giá gốc */}
+                                    <span
+                                      className="text-danger small mb-3"
+                                      style={{ fontSize: '0.9rem', textDecoration: 'line-through' }}
+                                    >
+                                      {product.price?.toLocaleString('vi-VN')} VND
+                                    </span>
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
 
                             {/* Bên phải: Hình ảnh và các nút hành động */}
                             <Box
@@ -502,6 +793,7 @@ useEffect(() => {
                                   </Box>
                                 ))}
                             </Box>
+<<<<<<< HEAD
                             {question.fileUrls && question.fileUrls.length > 0 && question.fileUrls.some(url => decodeURIComponent(url).split('/').pop().split('?')[0] !== 'uploads') && (
                               <Box
                                 sx={{
@@ -541,6 +833,56 @@ useEffect(() => {
                                 </Typography>
                               </Box>
                             )}
+=======
+                            {question.fileUrls &&
+                              question.fileUrls.length > 0 &&
+                              question.fileUrls.some(
+                                (url) =>
+                                  decodeURIComponent(url).split('/').pop().split('?')[0] !==
+                                  'uploads',
+                              ) && (
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '10px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#fff',
+                                    width: 'fit-content',
+                                    height: '30px',
+                                  }}
+                                >
+                                  <IconButton sx={{ color: '#007bff' }}>
+                                    <DescriptionIcon />
+                                  </IconButton>
+                                  <Typography variant="subtitle1">
+                                    {question.fileUrls.map((url, index) => {
+                                      const fileName = decodeURIComponent(url)
+                                        .split('/')
+                                        .pop()
+                                        .split('?')[0];
+                                      return fileName !== 'uploads' ? (
+                                        <a
+                                          key={index}
+                                          href={url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          style={{
+                                            color: 'inherit',
+                                            textDecoration: 'none',
+                                            fontSize: '14px',
+                                            marginRight: '10px',
+                                          }}
+                                        >
+                                          {fileName}
+                                        </a>
+                                      ) : null;
+                                    })}
+                                  </Typography>
+                                </Box>
+                              )}
+>>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
 
                             <Divider sx={{ my: 2 }} />
                             {/* Like and Comment Counts */}
