@@ -862,7 +862,7 @@ const Questions = () => {
                 <Box display="flex" alignItems="center" mb={2}>
                   <img
                     // eslint-disable-next-line no-undef
-                    src={userData?.current?.imageUrl || '../../assets/images/profile/user-1.jpg'}
+                    src={userData?.current?.imageUrl || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
                     alt="avatar"
                     style={{
                       width: 40,
@@ -1032,7 +1032,7 @@ const Questions = () => {
                             <img
                               src={
                                 users?.find((u) => question?.user_id === u.id)?.imageUrl ||
-                                '../../assets/images/profile/user-1.jpg'
+                                'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'
                               }
                               alt="Author"
                               style={{
