@@ -630,11 +630,9 @@ const Profile = () => {
                     </Typography>
                     {questions?.length > 0 ? (
                       questions
-                        .filter((question) => question.isApproved === 1)
-                        .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                         .map((question) => (
                           <Box
-                            key={question.id}
+                            key={question?.id}
                             sx={{
                               border: '1px solid #e0e0e0',
                               borderRadius: '8px',
@@ -677,7 +675,7 @@ const Profile = () => {
                                   variant="h6"
                                   sx={{ color: '#007bff', fontSize: '0.8rem' }}
                                 >
-                                  #{question.hashtag}
+                                {question.hashtag}
                                 </Typography>
                               )}
                             </Box>
@@ -772,12 +770,6 @@ const Profile = () => {
                                   </Typography>
                                 </Box>
                               )}
-
-                            <Divider sx={{ my: 2 }} />
-                            {/* Like and Comment Counts */}
-                            <Typography variant="subtitle1" color="textSecondary">
-                              345 Likes • 34 Comments
-                            </Typography>
                           </Box>
                         ))
                     ) : (
