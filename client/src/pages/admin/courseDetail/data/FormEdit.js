@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
 import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
-import api from '../../../../apis/CourseDetailApi';
+import api from '../../../../apis/CourseDetailApI';
 
 function EditProductDetail() {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();

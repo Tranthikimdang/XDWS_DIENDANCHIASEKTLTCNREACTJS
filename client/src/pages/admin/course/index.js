@@ -14,8 +14,8 @@ import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
 //sql
-import api from '../../../apis/CourseApi';
-import apiUser from '../../../apis/UserApi';
+import api from '../../../apis/CourseApI';
+import apiUser from '../../../apis/UserApI';
 
 
 
@@ -171,7 +171,7 @@ function Course() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Danh sách khóa học
+                Product Table
               </VuiTypography>
               <Link to="/admin/addProduct">
                 <button

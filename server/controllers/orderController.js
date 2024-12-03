@@ -21,21 +21,20 @@ exports.getAllOrders = async (req, res) => {
 
 // Tạo mới đơn hàng
 exports.createOrder = async (req, res) => {
-    const { items, paymentMethod, status, totalAmount, user_email, user_id, user_name } = req.body;
+    const { item, payment, status, user_id, cart_id, username } = req.body;
 
-    if (!items || !paymentMethod || !totalAmount || !user_id || !user_email || !user_name) {
-        return res.status(400).json({ error: 'Items, payment method, total amount, user ID, user email, and user name are required' });
+    if (!item || !payment || !user_id || !username || !cart_id) {
+        return res.status(400).json({ error: 'Item, payment, user ID, username, and cart ID are required' });
     }
 
     try {
         const newOrder = await Order.create({
-            items,
-            paymentMethod,
-            status,
-            totalAmount,
-            user_email,
+            item,
+            payment,
+            status: status || 'pending',
             user_id,
-            user_name
+            cart_id,
+            username
         });
         res.status(201).json({
             status: 'success',
@@ -54,7 +53,7 @@ exports.createOrder = async (req, res) => {
 // Cập nhật đơn hàng
 exports.updateOrder = async (req, res) => {
     const { id } = req.params;
-    const { items, paymentMethod, status, totalAmount, user_email, user_id, user_name } = req.body;
+    const { item, payment, status, user_id, cart_id, username } = req.body;
 
     try {
         const order = await Order.findByPk(id);
@@ -64,13 +63,12 @@ exports.updateOrder = async (req, res) => {
                 message: "Order not found"
             });
         }
-        order.items = items || order.items;
-        order.paymentMethod = paymentMethod || order.paymentMethod;
+        order.item = item || order.item;
+        order.payment = payment || order.payment;
         order.status = status || order.status;
-        order.totalAmount = totalAmount || order.totalAmount;
-        order.user_email = user_email || order.user_email;
         order.user_id = user_id || order.user_id;
-        order.user_name = user_name || order.user_name;
+        order.cart_id = cart_id || order.cart_id;
+        order.username = username || order.username;
 
         await order.save();
         res.status(200).json({

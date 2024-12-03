@@ -12,7 +12,7 @@ import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import HashtagApi from 'src/apis/HashtagApi';
+import HashtagApi from 'src/apis/HashtagApI';
 
 function Hashtag() {
   const { columns } = authorsTableData;
@@ -129,7 +129,7 @@ function Hashtag() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Bảng Hashtag
+                Hashtag Table
               </VuiTypography>
               <Link to="/admin/addhashtag">
                 <button className="text-light btn btn-outline-info" type="button">

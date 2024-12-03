@@ -4,7 +4,7 @@ import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
 import { useForm } from "react-hook-form";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Snackbar, Alert } from "@mui/material";
-import HashtagApi from "../../../../apis/HashtagApi";
+import HashtagApi from "../../../../apis/HashtagApI";
 
 function FormEditHashtag() {
   const { id } = useParams(); // Lấy ID từ URL

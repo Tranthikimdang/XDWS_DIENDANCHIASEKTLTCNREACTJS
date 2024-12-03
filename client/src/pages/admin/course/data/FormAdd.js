@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { Snackbar, Alert } from '@mui/material';
-import api from '../../../../apis/CourseApi';
+import api from '../../../../apis/CourseApI';
 import axios from "axios";
 
 function FormAddCourse() {

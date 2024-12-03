@@ -11,7 +11,7 @@ import authorsTableData from "./data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
 import { Alert, Snackbar } from "@mui/material";
 import { ClipLoader } from "react-spinners";
-import api from "../../../apis/Categories_courseApi";
+import api from "../../../apis/Categories_courseApI";
 
 
 function Category() {

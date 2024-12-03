@@ -5,7 +5,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
 import PageContainer from 'src/components/container/PageContainer';
 import DashboardCard from 'src/components/shared/DashboardCard';
-
+import axios from 'axios';
 import {
   Alert,
   Box,
@@ -46,14 +46,15 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import { IconMessageCircle } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { addQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
+//api
 import userApis from 'src/apis/UserApI';
-//firebase
-import axios from 'axios';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import moment from 'moment';
-import { getQuestionComments } from '../../apis/CommentApi';
 import HashtagApi from 'src/apis/HashtagApI';
 import QuestionHashtags from '../../apis/QuestionHashtagsApI';
+//
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+
 
 const Questions = () => {
   const navigate = useNavigate();
@@ -212,7 +213,7 @@ const Questions = () => {
         const res = await getQuestionsList();
         if (res.status === 'success') {
           const questions = res?.data?.questions || [];
-  
+
           // Load comments từ localStorage
           const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
           const updatedQuestions = questions.map((question) => {
@@ -222,7 +223,7 @@ const Questions = () => {
               comments: savedQuestion ? savedQuestion.comments : [],
             };
           });
-  
+
           setListQuestion(updatedQuestions);
         }
       } catch (error) {
@@ -231,10 +232,10 @@ const Questions = () => {
         setLoading(false);
       }
     };
-  
+
     fetchQuestions();
   }, [reload]);
-  
+
   const handleSnackbarClose = (event, reason) => {
     setSnackbarOpen(false);
   };
@@ -497,7 +498,7 @@ const Questions = () => {
             }
             return question;
           });
-  
+
           // Persist updated list in localStorage
           localStorage.setItem('comment_question', JSON.stringify(newList));
           return newList;
@@ -527,7 +528,7 @@ const Questions = () => {
   const handleAddReply = async (questionId, commentId) => {
     if (isSubmittingReply) return;
     setIsSubmittingReply(true);
-  
+
     // Kiểm tra xem có nội dung phản hồi hay không
     if (!newReplies[commentId] || newReplies[commentId].trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
@@ -536,11 +537,11 @@ const Questions = () => {
       setIsSubmittingReply(false);
       return;
     }
-  
+
     try {
       let imageUrls = [];
       let fileUrls = [];
-  
+
       // Upload ảnh nếu có
       if (replyImageFile && replyImageFile.length > 0) {
         const formDataImage = new FormData();
@@ -554,7 +555,7 @@ const Questions = () => {
           imageUrls = imageResponse.data.imagePaths;
         }
       }
-  
+
       // Upload file nếu có
       if (replyFile && replyFile.length > 0) {
         const formDataFile = new FormData();
@@ -566,7 +567,7 @@ const Questions = () => {
           fileUrls = fileResponse.data.filePaths;
         }
       }
-  
+
       // Tạo dữ liệu mới cho phản hồi
       const newReply = {
         user_id: userData.current.id,
@@ -576,10 +577,10 @@ const Questions = () => {
         up_code: dataTemp?.up_code || codeSnippet || '',
         created_at: new Date(),
       };
-  
+
       // Gửi phản hồi tới server
       const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
-  
+
       if (response.data.status === 'success') {
         // Cập nhật danh sách câu hỏi và câu trả lời sau khi thành công
         setListQuestion((prevList) => {
@@ -601,12 +602,12 @@ const Questions = () => {
             }
             return item;
           });
-  
+
           // Lưu danh sách mới vào localStorage
           localStorage.setItem('comment_question', JSON.stringify(updatedList));
           return updatedList;
         });
-  
+
         // Reset form và các trạng thái liên quan
         setNewReplies((prev) => ({ ...prev, [commentId]: '' }));
         setReplyingTo(null);
@@ -805,42 +806,40 @@ const Questions = () => {
     return updatedAtString;
   };
 
-  const getFilteredQuestions = () => {
-    // Lấy danh sách hashtag được lưu từ localStorage
-    const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
-    const hashtagNames = savedHashtags.map((hashtag) => hashtag.name.toLowerCase());
-    const strippedHashtagNames = hashtagNames.map((name) =>
-      name.startsWith('#') ? name.slice(1) : name,
-    );
+  // const getFilteredQuestions = () => {
+  //   // Lấy danh sách hashtag được lưu từ localStorage
+  //   const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
+  //   const hashtagNames = savedHashtags.map((hashtag) => hashtag.name.toLowerCase());
+  //   const strippedHashtagNames = hashtagNames.map((name) =>
+  //     name.startsWith('#') ? name.slice(1) : name,
+  //   );
 
-    // Lọc các câu hỏi liên quan đến hashtag
-    const relevantQuestions = listQuestion.filter((question) => {
-      // Kiểm tra hashtag liên quan
-      const isHashtagRelevant = question.hashtag?.split(',').some(
-        (tag) =>
-          hashtagNames.includes(tag.toLowerCase()) ||
-          strippedHashtagNames.includes(tag.toLowerCase()),
-      );
+  //   // Lọc các câu hỏi liên quan đến hashtag
+  //   const relevantQuestions = listQuestion.filter((question) => {
+  //     // Kiểm tra hashtag liên quan
+  //     const isHashtagRelevant = question.hashtag?.split(',').some(
+  //       (tag) =>
+  //         hashtagNames.includes(tag.toLowerCase()) ||
+  //         strippedHashtagNames.includes(tag.toLowerCase()),
+  //     );
 
-      // Kiểm tra nội dung câu hỏi có chứa từ khóa từ hashtag không
-      const isQuestionRelevant = hashtagNames.some((tag) =>
-        question.questions?.toLowerCase().includes(tag),
-      );
+  //     // Kiểm tra nội dung câu hỏi có chứa từ khóa từ hashtag không
+  //     const isQuestionRelevant = hashtagNames.some((tag) =>
+  //       question.questions?.toLowerCase().includes(tag),
+  //     );
 
-      return isHashtagRelevant || isQuestionRelevant;
-    });
+  //     return isHashtagRelevant || isQuestionRelevant;
+  //   });
 
-    // Lọc các câu hỏi không liên quan
-    const irrelevantQuestions = listQuestion.filter(
-      (question) => !relevantQuestions.includes(question),
-    );
+  //   // Lọc các câu hỏi không liên quan
+  //   const irrelevantQuestions = listQuestion.filter(
+  //     (question) => !relevantQuestions.includes(question),
+  //   );
 
-    // Kết hợp các câu hỏi liên quan và không liên quan
-    return [...relevantQuestions, ...irrelevantQuestions];
-  };
-
-
-  const filteredQuestions = getFilteredQuestions();
+  //   // Kết hợp các câu hỏi liên quan và không liên quan
+  //   return [...relevantQuestions, ...irrelevantQuestions];
+  // };
+  // const filteredQuestions = getFilteredQuestions();
   return (
     <PageContainer
       title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code"
@@ -863,13 +862,16 @@ const Questions = () => {
                 <Box display="flex" alignItems="center" mb={2}>
                   <img
                     // eslint-disable-next-line no-undef
-                    src={userData?.current?.imageUrl || '../../assets/images/profile/user-1.jpg'}
-                    alt="avatar"
+                    src={userData?.current?.imageUrl || avatardefault}
+                    alt="Hình ảnh người dùng"
                     style={{
                       width: 40,
                       height: 40,
                       borderRadius: '50%',
                       marginRight: 8,
+                    }}
+                    onError={(e) => {
+                      e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                     }}
                   />
                   <Typography variant="h6">Đặt câu hỏi</Typography>
@@ -1005,8 +1007,8 @@ const Questions = () => {
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
                   <CircularProgress />
                 </Box>
-              ) : filteredQuestions?.length > 0 ? ( // Sử dụng danh sách đã lọc
-                filteredQuestions.map((question) => {
+              ) : listQuestion?.length > 0 ? ( // Sử dụng danh sách đã lọc
+                listQuestion.map((question) => {
                   const listImgUrl = question.imageUrls;
                   const listFileUrl = question.fileUrls;
 
@@ -1032,15 +1034,16 @@ const Questions = () => {
                           <Box display="flex" alignItems="center">
                             <img
                               src={
-                                users?.find((u) => question?.user_id === u.id)?.imageUrl ||
-                                '../../assets/images/profile/user-1.jpg'
-                              }
-                              alt="Author"
+                                users?.find((u) => question?.user_id === u.id)?.imageUrl || avatardefault}
+                              alt="Hình ảnh người dùng"
                               style={{
                                 width: 40,
                                 height: 40,
                                 borderRadius: '50%',
                                 marginRight: 8,
+                              }}
+                              onError={(e) => {
+                                e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                               }}
                             />
                             <Box>
@@ -1255,8 +1258,8 @@ const Questions = () => {
                                     }}
                                   >
                                     <img
-                                      src={image || '../../assets/images/profile/user-1.jpg'}
-                                      alt=""
+                                      src={image || 'không có hình ảnh'}
+                                      alt="hình ảnh"
                                       style={{
                                         width: '100%',
                                         height: 'auto',
@@ -1344,10 +1347,13 @@ const Questions = () => {
                               {/* Avatar và Text Input */}
                               <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
                                 <img
-                                  src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                                  src={currentUserImage || avatardefault}
+                                  alt="Hình ảnh người dùng"
                                   width="30px"
-                                  alt="User Avatar"
                                   style={{ borderRadius: '50%', marginRight: '10px' }}
+                                  onError={(e) => {
+                                    e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                  }}
                                 />
                                 <TextField
                                   placeholder={`Bình luận dưới tên ${users.find((user) => user.id === userData.current.id)?.name ||
@@ -1502,10 +1508,13 @@ const Questions = () => {
                               <Box key={comment.id} sx={{ mt: 2 }}>
                                 <Box display="flex" alignItems="center">
                                   <img
-                                    src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
-                                    alt="Commenter Avatar"
+                                    src={currentUserImage || avatardefault}
+                                    alt="Hình ảnh người dùng"
                                     style={{ borderRadius: '50%', marginRight: '10px' }}
                                     width="30px"
+                                    onError={(e) => {
+                                      e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                    }}
                                   />
                                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                                     {users.find((user) => user.id === comment.user_id)?.name}
@@ -1542,8 +1551,8 @@ const Questions = () => {
                                         sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}
                                       >
                                         <img
-                                          src={imageUrl}
-                                          alt={`Comment image ${index + 1}`}
+                                          src={imageUrl || 'không có hình ảnh'}
+                                          alt={`hình ảnh bình luận ${index + 1}`}
                                           style={{
                                             width: '35%',
                                             height: 'auto',
@@ -1567,8 +1576,8 @@ const Questions = () => {
                                     >
                                       <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                                         <img
-                                          src={comment.imageUrls}
-                                          alt="Comment image"
+                                          src={comment.imageUrls || "không có hình ảnh"}
+                                          alt="Hình ảnh bình luận"
                                           style={{
                                             width: '35%',
                                             height: 'auto',
@@ -1652,14 +1661,17 @@ const Questions = () => {
                                   <Box sx={{ mt: 2 }}>
                                     <Box display="flex" alignItems="center">
                                       <img
-                                        src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                                        src={currentUserImage || avatardefault}
+                                        alt="Hình ảnh người dùng"
                                         width="30px"
-                                        alt="User  Avatar"
                                         style={{ borderRadius: '50%', marginRight: '10px' }}
+                                        onError={(e) => {
+                                          e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                        }}
                                       />
                                       <TextField
                                         placeholder={`Trả lời dưới tên ${users.find((user) => user.id === userData.current.id)
-                                            ?.name || 'Người dùng'
+                                          ?.name || 'Người dùng'
                                           }`}
                                         variant="outlined"
                                         size="small"
@@ -1809,10 +1821,13 @@ const Questions = () => {
                                       <Box key={reply.id || index} sx={{ pl: 4, mt: 2 }}>
                                         <Box display="flex" alignItems="center">
                                           <img
-                                            src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
-                                            alt="Commenter Avatar"
+                                            src={currentUserImage || avatardefault}
+                                            alt="Hình ảnh người dùng"
                                             style={{ borderRadius: '50%', marginRight: '10px' }}
                                             width="20px"
+                                            onError={(e) => {
+                                              e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                            }}
                                           />
                                           <Typography
                                             variant="subtitle2"
@@ -1866,8 +1881,8 @@ const Questions = () => {
                                                   }}
                                                 >
                                                   <img
-                                                    src={imageUrl}
-                                                    alt={`Comment image ${index + 1}`}
+                                                    src={imageUrl || 'không có hình ảnh'}
+                                                    alt={`hình ảnh bình luận ${index + 1}`}
                                                     style={{
                                                       width: '35%',
                                                       height: 'auto',

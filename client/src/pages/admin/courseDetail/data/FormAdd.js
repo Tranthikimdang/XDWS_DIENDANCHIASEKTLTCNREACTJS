@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate, useParams } from 'react-router-dom'; // Sử dụng useParams để lấy course_id từ URL
+import { useNavigate, useParams } from 'react-router-dom';
 import { Snackbar, Alert } from '@mui/material';
 import DashboardLayout from '../../../../examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from '../../../../examples/Navbars/DashboardNavbar';
-import api from '../../../../apis/CourseDetailApi'; // Import API module của bạn nếu đã tạo các hàm cho courseDetail
+import api from '../../../../apis/CourseDetailApI'; // Import API module của bạn
 
 function FormAddCourseDetail() {
   const {
@@ -14,12 +14,11 @@ function FormAddCourseDetail() {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
-  const { course_id } = useParams(); // Lấy course_id từ URL
+  const { course_id } = useParams();
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
-  // Kiểm tra nếu không lấy được course_id
   useEffect(() => {
     if (!course_id) {
       setSnackbarMessage('Không thể lấy ID khóa học từ URL.');
@@ -40,15 +39,15 @@ function FormAddCourseDetail() {
       return;
     }
 
+    // Sử dụng FormData để gửi dữ liệu
+    const formData = new FormData();
+    formData.append('course_id', course_id);
+    formData.append('no', data.no);
+    formData.append('name', data.name);
+    formData.append('video', data.video[0]); // Lấy file video từ input
+
     try {
-      await api.addCourseDetail({
-        course_id: course_id, // Lưu course_id từ URL
-        no: data.no,
-        name: data.name,
-        video: data.video,
-        created_at: new Date(),
-        updated_at: new Date(),
-      });
+      await api.addCourseDetail(formData);
 
       setSnackbarMessage('Thêm chi tiết khóa học thành công.');
       setSnackbarSeverity('success');
@@ -70,7 +69,7 @@ function FormAddCourseDetail() {
     <DashboardLayout>
       <DashboardNavbar />
       <div className="container">
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
           <div className="row">
             <div className="col-6 mb-3">
               <label className="text-light form-label" style={smallFontStyle}>
@@ -102,9 +101,9 @@ function FormAddCourseDetail() {
                 Video
               </label>
               <input
-                style={smallFontStyle}
+                type="file"
                 className={`form-control bg-dark text-light ${errors.video ? 'is-invalid' : ''}`}
-                {...register('video', { required: 'Liên kết video là bắt buộc.' })}
+                {...register('video', { required: 'File video là bắt buộc.' })}
               />
               {errors.video && <span className="text-danger">{errors.video.message}</span>}
             </div>

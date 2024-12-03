@@ -46,12 +46,12 @@ const Comment = sequelize.define('Comment', {
     up_code: {
         type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: []
+        defaultValue: null // Giá trị mặc định sửa thành null
     },
     replies: {
-        type: DataTypes.JSON,  // Lưu các trả lời dưới dạng mảng JSON
+        type: DataTypes.JSON, // Lưu các trả lời dưới dạng mảng JSON
         allowNull: true,
-        defaultValue: []  // Mảng trống nếu không có trả lời
+        defaultValue: [] // Mảng trống nếu không có trả lời
     }
 }, {
     tableName: 'comments',
@@ -63,4 +63,5 @@ sequelize.sync()
     console.log('Comment table created if not exists');
   })
   .catch((error) => console.log('Error creating table:', error));
+
 module.exports = Comment;

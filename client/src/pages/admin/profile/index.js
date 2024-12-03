@@ -65,7 +65,7 @@ function Overview() {
             })}
           >
             <ProfileInfoCard
-              title="Hồ sơ cá nhân"
+              title="Profile Information"
               description={userInfo.description || "Hi, I’m " + (userInfo.name || "User") + "."}
               info={{
                 fullName: userInfo.name || "User Name",

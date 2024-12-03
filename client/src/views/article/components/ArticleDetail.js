@@ -383,7 +383,10 @@ const ArticleDetail = () => {
             <div dangerouslySetInnerHTML={{ __html: article.content }} />
           </Typography>
 
-          
+          <Box sx={{ textAlign: 'center', marginBottom: '20px' }}>
+            <img src={article.image || 'https://via.placeholder.com/800x400'} alt="Article" style={{ width: '100%', borderRadius: '8px' }} />
+          </Box>
+
           <Box sx={{ marginTop: '20px' }}>
             <Typography variant="body2" color="textSecondary" sx={{ backgroundColor: '#f0f0f0', borderRadius: '5px', padding: '5px 10px', color: '#555', display: 'inline-block' }}>
               {catesMap[article.categories_id] || 'Chưa rõ chuyên mục'}
@@ -626,7 +629,7 @@ const ArticleDetail = () => {
                             )}
                           </Box>
                         </ListItem>
-                      ))}s
+                      ))}
                     </List>
                   )}
                 </Box>

@@ -30,6 +30,14 @@ const Mentor = sequelize.define('Mentor', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
+    rating: {
+        type: DataTypes.FLOAT,
+        defaultValue: 0
+    },
+    reviews_count: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
     cv_url: {
         type: DataTypes.STRING,
         allowNull: true

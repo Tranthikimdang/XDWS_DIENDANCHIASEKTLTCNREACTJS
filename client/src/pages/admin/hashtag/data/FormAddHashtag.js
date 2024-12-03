@@ -6,7 +6,7 @@ import { Snackbar, Alert } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { Link } from "react-router-dom";
 import DashboardNavbar from "../../../../examples/Navbars/DashboardNavbar";
-import HashtagApi from "../../../../apis/HashtagApi"; // API mới của bạn
+import HashtagApi from "../../../../apis/HashtagApI"; // API mới của bạn
 
 function FormAddHashtag() {
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
