@@ -244,7 +244,7 @@ const Questions = () => {
   };
 
   // Tìm kiếm tất cả trong bảng questions
-  const filteredQuestions = questions.filter((question) => {
+  const filteredQuestion = questions.filter((question) => {
     // Chuyển đổi tất cả các trường cần tìm kiếm thành chuỗi và kiểm tra nếu có chứa searchTerm
     return (
       question.hashtag.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -256,7 +256,7 @@ const Questions = () => {
   // Pagination logic
   const indexOfLastQuestion = currentPage * usersPerPage;
   const indexOfFirstQuestion = indexOfLastQuestion - usersPerPage;
-  const listQuestion = filteredQuestions.slice(indexOfFirstQuestion , indexOfLastQuestion);
+  const listQuestion = filteredQuestion.slice(indexOfFirstQuestion , indexOfLastQuestion);
 
 
 
@@ -860,6 +860,7 @@ const Questions = () => {
   //   return [...relevantQuestions, ...irrelevantQuestions];
   // };
   // const filteredQuestions = getFilteredQuestions();
+
   return (
     <PageContainer
       title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code"
