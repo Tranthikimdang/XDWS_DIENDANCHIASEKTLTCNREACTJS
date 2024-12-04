@@ -67,7 +67,7 @@ const Questions = () => {
   const [showCodeField, setShowCodeField] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
-  const [listQuestion, setListQuestion] = useState([]);
+  const [questions,setListQuestion] = useState([]);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -75,7 +75,6 @@ const Questions = () => {
   const [edit, setEdit] = useState(false);
   const [dataTemp, setDataTemp] = useState(null);
   const [users, setUsers] = useState([]);
-  const [questions, setQuestions] = useState([]);
   const listUser = useRef([]);
   const [showCodeDialog, setShowCodeDialog] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -98,6 +97,8 @@ const Questions = () => {
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [hashtag, setHashtag] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
 
   const handleToggleComments = (questionId) => {
     setVisibleComments((prev) => ({
@@ -251,7 +252,13 @@ const Questions = () => {
       question.questions.toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
-  
+
+  // Pagination logic
+  const indexOfLastQuestion = currentPage * usersPerPage;
+  const indexOfFirstQuestion = indexOfLastQuestion - usersPerPage;
+  const listQuestion = filteredQuestions.slice(indexOfFirstQuestion , indexOfLastQuestion);
+
+
 
   const validateImageFile = (files) => {
     const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
