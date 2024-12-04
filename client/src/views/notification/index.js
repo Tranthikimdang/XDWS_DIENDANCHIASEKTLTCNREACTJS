@@ -12,7 +12,6 @@ import {
 } from '@mui/material';
 import { useParams } from 'react-router-dom'; // Để lấy id từ URL
 import PageContainer from 'src/components/container/PageContainer';
-import DeleteIcon from '@mui/icons-material/Delete';
 import api from '../../apis/NotificationsApI';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import FollowApi from '../../apis/FollowApI';
@@ -20,9 +19,7 @@ const NotificationPage = () => {
   const { userId } = useParams(); // Lấy userId từ URL params
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showQRCodeDialog, setShowQRCodeDialog] = useState(false);
-  const [qrCodeUrl, setQRCodeUrl] = useState('');
-
+  const userLocal = JSON.parse(localStorage.getItem('user'));
   useEffect(() => {
     // Lấy thông báo của người dùng từ API khi component được render
     const fetchNotifications = async () => {
@@ -49,9 +46,15 @@ const NotificationPage = () => {
   };
 
   const handleAcceptNotification = async (notification) => {
-    console.log('Notification data:', notification); // Kiểm tra dữ liệu thông báo
+    console.log('Notification data:', notification.relatedId); // Kiểm tra dữ liệu thông báo
     try {
       // Cập nhật trạng thái thông báo
+      if (!notification.relatedId) {
+        await api.deleteNotification(notification.id); // Gọi API xóa thông báo
+        setNotifications(notifications.filter((item) => item.id !== notification.id)); // Cập nhật danh sách thông báo trong state
+        return;
+      }
+
       await api.updateNotification(notification.id, { type: 'friend' });
   
       // Cập nhật trạng thái follow
@@ -60,17 +63,26 @@ const NotificationPage = () => {
         is_approved: 1,
       });
   
+      const senderId = notification.userId; // Người khởi tạo yêu cầu
+      const message = `Người dùng ${userLocal.name} đã đồng ý kết bạn với bạn.`; // user.name là người nhận yêu cầu
+  
+      await api.createNotification({
+        userId: senderId,
+        message,
+        type: 'friend',
+        relatedId: notification.relatedId,
+      });
       setNotifications(
         notifications.map((item) =>
           item.id === notification.id ? { ...item, type: 'friend' } : item
         )
       );
-      console.log('Thông báo và trạng thái follow đã được cập nhật thành công!');
+      
     } catch (error) {
       console.error('Error accepting notification:', error);
     }
   };
-  
+  if (loading) return <div>Đang tải...</div>;
 
   return (
     <PageContainer title="Thông báo của bạn" description="Danh sách thông báo của người dùng">
@@ -125,7 +137,7 @@ const NotificationPage = () => {
                                   </button>
 
                                   {/* Nút Chấp nhận khi thông báo là "pending" */}
-                                  {notification.type === 'pending' && (
+                                  {notification.type === 'not_followed' && (
                                     <button
                                       className="btn btn-outline-success btn-sm m-2"
                                       type="button"

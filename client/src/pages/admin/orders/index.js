@@ -1,3 +1,5 @@
+// Orders.js
+
 import React, { useEffect, useState } from 'react';
 import {
   Card,
@@ -16,6 +18,7 @@ import { ClipLoader } from 'react-spinners';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import CheckIcon from '@mui/icons-material/Check';
 import { IconArrowBadgeRight, IconArrowBadgeLeft } from '@tabler/icons-react';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
@@ -24,8 +27,8 @@ import VuiTypography from 'src/components/admin/VuiTypography';
 import Table from 'src/examples/Tables/Table';
 import ConfirmDialog from './data/FormDeleteOrder';
 import authorsOrdersData from './data/authorsOrdersData';
-import orderApi from 'src/apis/OrderApI'; // Adjust the path as needed
-import courseApi from 'src/apis/CourseApI'; // Import Course API
+import orderApi from '../../../apis/OrderApI'; // Corrected the casing
+import courseApi from '../../../apis/CourseApI'; // Corrected the casing
 import sendEmail from '../../../utils/email'; // Import email sending utility
 
 import './index.css';
@@ -48,43 +51,26 @@ function Orders() {
 
   useEffect(() => {
     const formatOrderDay = (timestamp) => {
-      let formattedString = '';
+      if (!timestamp) return 'Unknown time';
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
 
-      if (timestamp) {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = now - date;
+      const seconds = Math.floor(diff / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const hours = Math.floor(minutes / 60);
+      const days = Math.floor(hours / 24);
 
-        const seconds = Math.floor(diff / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        const days = Math.floor(hours / 24);
-
-        if (days > 0) {
-          formattedString = `${days} ngày trước`;
-        } else if (hours > 0) {
-          formattedString = `${hours} giờ trước`;
-        } else if (minutes > 0) {
-          formattedString = `${minutes} phút trước`;
-        } else {
-          formattedString = `${seconds} giây trước`;
-        }
-      } else {
-        formattedString = 'Unknown time';
-      }
-
-      return formattedString;
+      if (days > 0) return `${days} ngày trước`;
+      if (hours > 0) return `${hours} giờ trước`;
+      if (minutes > 0) return `${minutes} phút trước`;
+      return `${seconds} giây trước`;
     };
 
     const fetchTotalAmount = async (orderId) => {
       try {
         const response = await courseApi.getTotalAmount(orderId);
-        if (response.status === 'success') {
-          return response.data.totalAmount;
-        } else {
-          console.error(`Failed to fetch total amount for order ${orderId}`);
-          return 'N/A';
-        }
+        return response.totalAmount || 'N/A';
       } catch (error) {
         console.error(`Error fetching total amount for order ${orderId}:`, error);
         return 'N/A';
@@ -94,28 +80,29 @@ function Orders() {
     const fetchOrders = async () => {
       setLoading(true);
       try {
-        const response = await orderApi.getOrdersList();
-        if (response.status === 'success') {
+        const data = await orderApi.getOrdersList();
+        if (data.orders) {
           const ordersData = await Promise.all(
-            response.data.orders.map(async (order) => ({
+            data.orders.map(async (order) => ({
               id: order.id,
               user_id: order.user_id,
-              user_name: order.username || 'Unknown User',
-              user_email: order.user_email || 'unknown@example.com',
-              paymentMethod: order.payment,
+              user_name: order.User?.name || 'Unknown User',
+              user_email: order.User?.email || 'unknown@example.com',
+              paymentMethod: order.payment_method,
               totalAmount: await fetchTotalAmount(order.id),
-              items: order.item || 'No items',
-              order_day: formatOrderDay(order.create_at),
-              status: order.status || 'Pending',
+              items: order.items || 'No items',
+              order_day: formatOrderDay(order.created_at),
+              status: order.order_status || 'Pending',
             }))
           );
           setRows(ordersData);
         } else {
-          throw new Error('Failed to fetch orders.');
+          throw new Error('No orders data found.');
         }
       } catch (error) {
         console.error('Error fetching orders:', error);
-        setSnackbarMessage('Error fetching orders.');
+        // Display the actual error message from the API
+        setSnackbarMessage(error.message);
         setSnackbarSeverity('error');
         setSnackbarOpen(true);
       } finally {
@@ -134,17 +121,14 @@ function Orders() {
 
   const confirmDelete = async () => {
     try {
-      const response = await orderApi.deleteOrder(deleteId);
-      if (response.status === 'success') {
-        setRows(rows.filter((row) => row.id !== deleteId));
-        setSnackbarMessage('Order deleted successfully');
-        setSnackbarSeverity('success');
-      } else {
-        throw new Error('Failed to delete order.');
-      }
+      await orderApi.deleteOrder(deleteId);
+      setRows(rows.filter((row) => row.id !== deleteId));
+      setSnackbarMessage('Order deleted successfully');
+      setSnackbarSeverity('success');
     } catch (error) {
       console.error('Error deleting order:', error);
-      setSnackbarMessage('Failed to delete order.');
+      // Display the actual error message from the API
+      setSnackbarMessage(error.message);
       setSnackbarSeverity('error');
     } finally {
       setOpenDialog(false);
@@ -154,23 +138,20 @@ function Orders() {
 
   const handleConfirmPayment = async (row) => {
     try {
-      const updateResponse = await orderApi.updateOrder(row.id, { status: 'Paid' });
-      if (updateResponse.status === 'success') {
-        const emailContent = {
-          to: row.user_email,
-          subject: 'Payment Confirmation',
-          body: `Dear ${row.user_name},\n\nYour payment for order ${row.id} has been successfully confirmed.\n\nThank you for your business!\n\nBest regards,\nYour Company Name`,
-        };
-        await sendEmail(emailContent);
-        setRows(rows.map((r) => (r.id === row.id ? { ...r, status: 'Paid' } : r)));
-        setSnackbarMessage('Payment confirmed and email sent successfully');
-        setSnackbarSeverity('success');
-      } else {
-        throw new Error('Failed to update order status.');
-      }
+      await orderApi.updateOrder(row.id, { order_status: 'Paid' });
+      const emailContent = {
+        to: row.user_email,
+        subject: 'Payment Confirmation',
+        body: `Dear ${row.user_name},\n\nYour payment for order ${row.id} has been successfully confirmed.\n\nThank you for your business!\n\nBest regards,\nYour Company Name`,
+      };
+      await sendEmail(emailContent);
+      setRows(rows.map((r) => (r.id === row.id ? { ...r, status: 'Paid' } : r)));
+      setSnackbarMessage('Payment confirmed and email sent successfully');
+      setSnackbarSeverity('success');
     } catch (error) {
       console.error('Error confirming payment:', error);
-      setSnackbarMessage('Failed to confirm payment and send email.');
+      // Display the actual error message from the API
+      setSnackbarMessage(error.message);
       setSnackbarSeverity('error');
     } finally {
       setSnackbarOpen(true);
@@ -195,8 +176,9 @@ function Orders() {
 
   const filteredRows = rows.filter(
     (row) =>
-      row.user_name &&
-      row.user_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (row.user_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.user_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.status.toLowerCase().includes(searchTerm.toLowerCase())) &&
       !hiddenRows.includes(row.id)
   );
 
@@ -204,7 +186,7 @@ function Orders() {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = filteredRows.slice(indexOfFirstUser, indexOfLastUser);
 
-  const totalPages = Math.ceil(filteredRows.length / usersPerPage);
+  const totalPages = Math.ceil(filteredRows.length / usersPerPage) || 1;
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -231,7 +213,7 @@ function Orders() {
               <TextField
                 variant="outlined"
                 fullWidth
-                placeholder="Search by user name"
+                placeholder="Search by user name, email, or status"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 InputProps={{
@@ -257,9 +239,6 @@ function Orders() {
                       ? currentUsers.map((row, index) => ({
                           ...row,
                           no: indexOfFirstUser + index + 1,
-                          items: row.items,
-                          order_day: row.order_day,
-                          paymentMethod: row.paymentMethod,
                           totalAmount: `$${row.totalAmount}`, // Display total amount with currency
                           status: row.status,
                           actions: (
@@ -272,6 +251,11 @@ function Orders() {
                               <Tooltip title="View Details" placement="top">
                                 <IconButton component={Link} to={`/orders/${row.id}`} color="primary">
                                   <VisibilityIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Confirm Payment" placement="top">
+                                <IconButton onClick={() => handleConfirmPayment(row)} color="success">
+                                  <CheckIcon />
                                 </IconButton>
                               </Tooltip>
                             </div>

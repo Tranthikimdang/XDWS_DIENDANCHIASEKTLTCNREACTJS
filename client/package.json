@@ -36,6 +36,7 @@
     "chroma-js": "^3.1.1",
     "crypto-browserify": "^3.12.1",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
     "emailjs-com": "^3.2.0",
     "express": "^4.21.1",
     "firebase": "^10.13.0",
