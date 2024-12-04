@@ -164,17 +164,6 @@ const Questions = () => {
     }));
   };
 
-  const handleReplyButtonClick = (comment) => {
-    if (replyingTo === comment.id) {
-      // Nếu đang trả lời comment này, ẩn form
-      setReplyingTo(null);
-      setNewReplies((prev) => ({ ...prev, [comment.id]: '' })); // Xóa nội dung trả lời
-    } else {
-      // Nếu không, thiết lập comment này là comment đang được trả lời
-      setReplyingTo(comment.id);
-      // Không cần reset newReplies ở đây, vì chỉ có 1 comment id có thể trả lời cùng 1 lúc
-    }
-  };
 
   // Lấy danh sách người dùng từ Firestore
   const [currentUserImage, setCurrentUserImage] = useState('');
@@ -464,6 +453,12 @@ const Questions = () => {
 
   const handleAddComment = async (question_id) => {
     try {
+      if (!userData?.current?.id) {
+        setSnackbarMessage("Bạn cần đăng nhập để gửi bình luận.");
+        setSnackbarSeverity("warning");
+        setSnackbarOpen(true);
+        return;
+      }
       if (!newComment || newComment.trim() === '') {
         setSnackbarMessage("Nội dung bình luận không được để trống.");
         setSnackbarSeverity("error");
@@ -545,12 +540,20 @@ const Questions = () => {
   };
 
 
-  const handleAddReply = async (questionId, commentId) => {
-    if (isSubmittingReply) return;
-    setIsSubmittingReply(true);
+  const handleAddReply = async (questionId, commentId ,parentId = null) => {
+    if (!userData?.current?.id) {
+      setSnackbarOpen(false);
+      setTimeout(() => {
+        setSnackbarMessage("Bạn cần đăng nhập để gửi trả lời.");
+        setSnackbarSeverity("warning");
+        setSnackbarOpen(true);
+      }, 100);
+      return;
+    }
 
     // Kiểm tra xem có nội dung phản hồi hay không
-    if (!newReplies[commentId] || newReplies[commentId].trim() === '') {
+    const replyContent = newReplies[parentId || commentId];
+    if (!replyContent || typeof replyContent !== 'string' || replyContent.trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
@@ -591,7 +594,7 @@ const Questions = () => {
       // Tạo dữ liệu mới cho phản hồi
       const newReply = {
         user_id: userData.current.id,
-        content: newReplies[commentId] || '',
+        content: replyContent,
         imageUrls: imageUrls,
         fileUrls: fileUrls,
         up_code: dataTemp?.up_code || codeSnippet || '',
@@ -629,7 +632,7 @@ const Questions = () => {
         });
 
         // Reset form và các trạng thái liên quan
-        setNewReplies((prev) => ({ ...prev, [commentId]: '' }));
+        setNewReplies((prev) => ({ ...prev, [parentId || commentId]: '' }));
         setReplyingTo(null);
         setReplyImageFile(null);
         setReplyFile(null);
@@ -1412,9 +1415,7 @@ const Questions = () => {
                                   }}
                                 />
                                 <TextField
-                                  placeholder={`Bình luận dưới tên ${users.find((user) => user.id === userData.current.id)?.name ||
-                                    'Người dùng'
-                                    } `}
+                                   placeholder={`Bình luận dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'} `}
                                   variant="outlined"
                                   size="small"
                                   fullWidth
@@ -1699,21 +1700,40 @@ const Questions = () => {
                                 ) : null}
 
                                 {/* Reply Button */}
-                                <Button
-                                  variant="text"
-                                  sx={{
-                                    textTransform: 'none',
-                                    padding: '2px 10px',
-                                    fontSize: '0.8rem',
-                                    borderRadius: '16px',
-                                    marginRight: '10px',
-                                  }}
-                                  onClick={() => handleReplyButtonClick(comment)} // Toggle reply form
+                                <Box
+                                  display="flex"
+                                  alignItems="center"
+                                  gap="8px"
                                 >
-                                  {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
-                                </Button>
+                                   <Typography
+                                    component="span"
+                                    variant="caption"
+                                    sx={{ color: 'text.secondary' }}
+                                  >{formatUpdatedAt(comment.created_at)}
+                                  </Typography>
+                                  <Button
+                                    variant="text"
+                                    sx={{
+                                      textTransform: 'none',
+                                      padding: '2px 10px',
+                                      fontSize: '0.8rem',
+                                      borderRadius: '16px',
+                                      margin: 0,
+                                    }}
+                                    onClick={() =>
+                                      setReplyingTo(
+                                        replyingTo?.id === comment.id && replyingTo?.type === 'comment'
+                                          ? null
+                                          : { id: comment.id, type: 'comment' }
+                                      )
+                                    }
+
+                                  >
+                                    {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
+                                  </Button>
+                                </Box>
                                 {/* Reply Section */}
-                                {replyingTo === comment.id && (
+                                {replyingTo ?.id === comment.id && replyingTo?.type === 'comment' && (
                                   <Box sx={{ mt: 2 }}>
                                     <Box display="flex" alignItems="center">
                                       <img
@@ -1726,9 +1746,7 @@ const Questions = () => {
                                         }}
                                       />
                                       <TextField
-                                        placeholder={`Trả lời dưới tên ${users.find((user) => user.id === userData.current.id)
-                                          ?.name || 'Người dùng'
-                                          }`}
+                                       placeholder={`Trả lời dưới tên${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
                                         variant="outlined"
                                         size="small"
                                         fullWidth
@@ -2005,19 +2023,190 @@ const Questions = () => {
                                               })}
                                             </Box>
                                           )}
-                                        <Button
-                                          variant="text"
-                                          sx={{
-                                            textTransform: 'none',
-                                            padding: '2px 10px',
-                                            fontSize: '0.8rem',
-                                            borderRadius: '16px',
-                                            marginRight: '10px',
-                                          }}
-                                          onClick={() => handleReplyButtonClick(comment)} // Toggle reply form
+                                        <Box
+                                          display="flex"
+                                          alignItems="center"
+                                          gap="8px"
                                         >
-                                          {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
-                                        </Button>
+                                           <Typography
+                                            component="span"
+                                            variant="caption"
+                                            sx={{ color: 'text.secondary' }}
+                                          >{formatUpdatedAt(comment.created_at)}
+                                          </Typography>
+                                          <Button
+                                            variant="text"
+                                            sx={{
+                                              textTransform: 'none',
+                                              padding: '2px 10px',
+                                              fontSize: '0.8rem',
+                                              borderRadius: '16px',
+                                              marginRight: '10px',
+                                            }}
+                                            onClick={() =>
+                                              setReplyingTo(
+                                                replyingTo?.id === reply.id && replyingTo?.type === 'reply'
+                                                  ? null
+                                                  : { id: reply.id, type: 'reply' }
+                                              )
+                                            }
+
+                                          >
+                                            {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
+                                          </Button>
+                                        </Box>
+                                        {replyingTo?.id === reply.id && replyingTo?.type === 'reply' && (
+                                          <Box sx={{ mt: 2 }}>
+                                            <Box display="flex" alignItems="center">
+                                              <img
+                                                src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                                                width="30px"
+                                                alt="User  Avatar"
+                                                style={{ borderRadius: '50%', marginRight: '10px' }}
+                                              />
+                                              <TextField
+                                                placeholder={`Trả lời dưới tên${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                value={newReplies[comment.id] || ''} // Lấy nội dung trả lời cho bình luận cụ thể
+                                                onChange={(e) =>
+                                                  setNewReplies((prev) => ({
+                                                    ...prev,
+                                                    [comment.id]: e.target.value,
+                                                  }))
+                                                } // Cập nhật nội dung trả lời cho bình luận cụ thể
+                                              />
+                                            </Box>
+
+                                            <Box
+                                              display="flex"
+                                              justifyContent="center"
+                                              sx={{
+                                                width: '100%',
+                                                gap: 1,
+                                                marginLeft: '-174px',
+                                                marginTop: '-2px',
+                                              }}
+                                            >
+                                              <IconButton>
+                                                <InsertEmoticonIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <SentimentSatisfiedAltIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <InsertPhotoIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <CameraAltIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <GifBoxIcon fontSize="medium" />
+                                              </IconButton>
+                                            </Box>
+
+                                            {/* Options for Image, File, Code */}
+                                            <Box
+                                              display="flex"
+                                              justifyContent="space-between"
+                                              alignItems="center"
+                                              sx={{
+                                                width: '100%',
+                                                marginLeft: ' 40px',
+                                                marginTop: '2px',
+                                              }}
+                                            >
+                                              <Box display="flex" gap={1}>
+                                                {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                                                  <Button
+                                                    key={index}
+                                                    variant="outlined"
+                                                    startIcon={
+                                                      index === 0 ? (
+                                                        <ImageIcon />
+                                                      ) : index === 1 ? (
+                                                        <AttachFileIcon />
+                                                      ) : (
+                                                        <CodeIcon />
+                                                      )
+                                                    }
+                                                    sx={{
+                                                      borderRadius: '16px',
+                                                      textTransform: 'none',
+                                                      padding: '5px 15px',
+                                                    }}
+                                                    component="label"
+                                                    onClick={
+                                                      index === 2 ? handleCodeButtonClick : undefined
+                                                    }
+                                                  >
+                                                    {label}
+                                                    {index === 0 && (
+                                                      <input
+                                                        name="image"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        hidden
+                                                        onChange={(e) => handleAddReplyImage(e, comment.id)} // Xử lý hình ảnh đính kèm cho phản hồi
+                                                      />
+                                                    )}
+                                                    {index === 1 && (
+                                                      <input
+                                                        type="file"
+                                                        name="file"
+                                                        multiple
+                                                        hidden
+                                                        onChange={(e) => handleAddReplyFile(e, comment.id)} // Xử lý tệp đính kèm cho phản hồi
+                                                      />
+                                                    )}
+                                                  </Button>
+                                                ))}
+                                              </Box>
+
+                                              <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => handleAddReply(question.id, comment.id)} // Gửi phản hồi
+                                                sx={{ marginRight: '40px' }}
+                                              >
+                                                Gửi
+                                              </Button>
+                                            </Box>
+                                            <Dialog
+                                              open={showCodeDialog}
+                                              onClose={handleCloseDialog}
+                                              maxWidth="sm"
+                                              fullWidth
+                                            >
+                                              <DialogTitle>Nhập code của bạn</DialogTitle>
+                                              <DialogContent>
+                                                <FormControl fullWidth>
+                                                  <TextField
+                                                    id="code-input"
+                                                    multiline
+                                                    rows={4}
+                                                    name="up_code"
+                                                    variant="outlined"
+                                                    value={codeSnippet}
+                                                    onChange={handleCodeChange}
+                                                    error={!!error}
+                                                  />
+                                                  <FormHelperText>{error}</FormHelperText>
+                                                </FormControl>
+                                              </DialogContent>
+                                              <DialogActions>
+                                                <Button onClick={handleCloseDialog} color="secondary">
+                                                  Hủy
+                                                </Button>
+                                                <Button onClick={handleSubmitCode} color="primary">
+                                                  Lưu
+                                                </Button>
+                                              </DialogActions>
+                                            </Dialog>
+                                          </Box>
+                                          )}
                                       </Box>
                                     );
                                   })}

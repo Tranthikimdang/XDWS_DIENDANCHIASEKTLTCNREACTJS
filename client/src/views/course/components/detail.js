@@ -204,25 +204,38 @@ const ProductsDetail = () => {
 
   // Load comments from localStorage on initial load
   useEffect(() => {
-    const storedComments = localStorage.getItem('comment_course');
+    const fetchComments = async () => {
+      try {
+        const response = await getCourseComments(id);
+        console.log('Comments from API:', response.data);
+        setDataTemp(response.data);
+        localStorage.setItem(`comment_course_${id}`, JSON.stringify(response.data));
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    };
+  
+    const storedComments = localStorage.getItem(`comment_course_${id}`);
+    console.log('Loading comments from localStorage:', storedComments);
     if (storedComments) {
       setDataTemp(JSON.parse(storedComments));
+      // So sánh dữ liệu localStorage với API
+      fetchComments();
     } else {
-      const fetchComments = async () => {
-        try {
-          const response = await getCourseComments(id);
-          console.log('Comments:', response.data);
-          setDataTemp(response.data); // Assuming this includes replies
-          localStorage.setItem('comments', JSON.stringify(response.data)); // Store to localStorage
-        } catch (error) {
-          console.error("Error fetching comments:", error);
-        }
-      };
-
       if (id) fetchComments();
     }
   }, [id]);
-
+  
+  useEffect(() => {
+    if (dataTemp) {
+      localStorage.setItem(`comment_course_${id}`, JSON.stringify(dataTemp));
+      console.log('Updated localStorage:', JSON.parse(localStorage.getItem(`comment_course_${id}`)));
+    }
+  }, [dataTemp, id]);
+  
+  
+  
+  
   // Save comments to localStorage after adding a new comment or reply
   const handleAddComment = async (course_id) => {
     try {
