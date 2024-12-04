@@ -1,3 +1,4 @@
+// Footer.js
 import React from 'react';
 import { Box, Typography, Grid, IconButton, Link } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
@@ -10,88 +11,111 @@ import HomeIcon from '@mui/icons-material/Home';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import PrintIcon from '@mui/icons-material/Print';
-import './Footer.css';
+import './Footer.css'; // Import file CSS mới
 
 export default function Footer() {
   return (
-    <Box component="footer" className="footer">
+    <Box component="footer" className='footer'>
       {/* Kết Nối Mạng Xã Hội */}
-      <Box className="social-section">
-        <Typography variant="h6" align="center" gutterBottom>
-          Kết nối với chúng tôi
-        </Typography>
-        <Box display="flex" justifyContent="center" className="social-icons">
-          <IconButton href="https://facebook.com" target="_blank" aria-label="facebook">
-            <FacebookIcon />
-          </IconButton>
-          <IconButton href="https://twitter.com" target="_blank" aria-label="twitter">
-            <TwitterIcon />
-          </IconButton>
-          <IconButton href="https://google.com" target="_blank" aria-label="google">
-            <GoogleIcon />
-          </IconButton>
-          <IconButton href="https://instagram.com" target="_blank" aria-label="instagram">
-            <InstagramIcon />
-          </IconButton>
-          <IconButton href="https://linkedin.com" target="_blank" aria-label="linkedin">
-            <LinkedInIcon />
-          </IconButton>
-          <IconButton href="https://github.com" target="_blank" aria-label="github">
-            <GitHubIcon />
-          </IconButton>
-        </Box>
+      <Box className='social-section' sx={{ py: 4, borderBottom: '1px solid #ccc' }}>
+        <Grid container justifyContent="space-between" alignItems="center">
+          <Grid item>
+            <Typography variant="h6">
+              Kết nối với chúng tôi trên các mạng xã hội:
+            </Typography>
+          </Grid>
+          <Grid item className='social-icons'>
+            <IconButton component="a" href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="facebook">
+              <FacebookIcon />
+            </IconButton>
+            <IconButton component="a" href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="twitter">
+              <TwitterIcon />
+            </IconButton>
+            <IconButton component="a" href="https://google.com" target="_blank" rel="noopener noreferrer" aria-label="google">
+              <GoogleIcon />
+            </IconButton>
+            <IconButton component="a" href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="instagram">
+              <InstagramIcon />
+            </IconButton>
+            <IconButton component="a" href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="linkedin">
+              <LinkedInIcon />
+            </IconButton>
+            <IconButton component="a" href="https://github.com" target="_blank" rel="noopener noreferrer" aria-label="github">
+              <GitHubIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
       </Box>
 
       {/* Nội Dung Footer */}
-      <Box className="content-section">
-        <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} sm={6} md={3}>
+      <Box className='content-section' sx={{ py: 4 }}>
+        <Grid container spacing={4}>
+          {/* Giới Thiệu Công Ty */}
+          <Grid item xs={12} md={3}>
             <Typography variant="h6" gutterBottom>
               ShareCode
             </Typography>
-            <Typography variant="body2">
-              Diễn đàn chia sẻ kiến thức lập trình, nơi bạn có thể học hỏi và trao đổi từ cộng đồng.
+            <Typography variant="body2" color="text.secondary">
+              ShareCode là diễn đàn chia sẻ kiến thức lập trình, nơi bạn có thể trao đổi và học hỏi từ cộng đồng.
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+
+          {/* Sản Phẩm */}
+          <Grid item xs={12} md={2}>
             <Typography variant="h6" gutterBottom>
               Sản phẩm
             </Typography>
-            <ul className="footer-list">
-              <li>
-                <Link href="#" underline="hover">Angular</Link>
-              </li>
-              <li>
-                <Link href="#" underline="hover">React</Link>
-              </li>
-              <li>
-                <Link href="#" underline="hover">Vue</Link>
-              </li>
-              <li>
-                <Link href="#" underline="hover">Laravel</Link>
-              </li>
-            </ul>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Angular
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                React
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Vue
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Laravel
+              </Link>
+            </Typography>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+
+          {/* Liên Kết Hữu Ích */}
+          <Grid item xs={12} md={2}>
             <Typography variant="h6" gutterBottom>
               Liên kết hữu ích
             </Typography>
-            <ul className="footer-list">
-              <li>
-                <Link href="#" underline="hover">Bảng giá</Link>
-              </li>
-              <li>
-                <Link href="#" underline="hover">Cài đặt</Link>
-              </li>
-              <li>
-                <Link href="#" underline="hover">Đơn hàng</Link>
-              </li>
-              <li>
-                <Link href="#" underline="hover">Trợ giúp</Link>
-              </li>
-            </ul>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Bảng giá
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Cài đặt
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Đơn hàng
+              </Link>
+            </Typography>
+            <Typography variant="body2">
+              <Link href="#" color="inherit" underline="hover">
+                Trợ giúp
+              </Link>
+            </Typography>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
+
+          {/* Thông Tin Liên Hệ */}
+          <Grid item xs={12} md={3}>
             <Typography variant="h6" gutterBottom>
               Liên hệ
             </Typography>
@@ -112,10 +136,10 @@ export default function Footer() {
       </Box>
 
       {/* Bản Quyền */}
-      <Box className="copyright">
-        <Typography variant="body2" align="center">
+      <Box className='copyright' sx={{ py: 2, backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
+        <Typography variant="body2" color="text.secondary" align="center">
           © {new Date().getFullYear()} Bản quyền thuộc về:
-          <Link href="https://sharecode.vn/" sx={{ ml: 1, fontWeight: 'bold' }}>
+          <Link href="https://sharecode.vn/" color="inherit" sx={{ ml: 1, fontWeight: 'bold' }}>
             ShareCode.vn
           </Link>
         </Typography>

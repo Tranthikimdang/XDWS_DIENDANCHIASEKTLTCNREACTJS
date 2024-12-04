@@ -160,7 +160,10 @@ const Course = () => {
   };
 
   return (
-    <PageContainer title="Danh sách khóa học | Share Code" description="Đây là trang danh sách khóa học">
+    <PageContainer
+      title="Danh sách khóa học | Share Code"
+      description="Đây là trang danh sách khóa học"
+    >
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
@@ -297,15 +300,14 @@ const Course = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
                               <div className="align-items-center mb-1">
                                 <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
-                                  {product.discount
-                                    ? product.discount.toLocaleString('vi-VN')
-                                    : 'N/A'}{' '}
-                                  VND
+                                  {product.discount +" VND"
+                                    ? product.discount.toLocaleString('vi-VN') +" VND"
+                                    : 'Miễn phí'}{' '}
                                 </h6>
                                 <span className="text-danger" style={{ fontSize: '0.7rem' }}>
                                   <s>
-                                    {product.price ? product.price.toLocaleString('vi-VN') : 'N/A'}{' '}
-                                    VND
+                                    {product.price +" VND" ? product.price.toLocaleString('vi-VN')+" VND"  : 'Miễn phí'}{' '}
+                                    
                                   </s>
                                 </span>
                               </div>
@@ -315,25 +317,36 @@ const Course = () => {
                               <div className="d-flex flex-column mt-4">
                                 {/* Kiểm tra quyền truy cập để hiển thị nút */}
                                 {hasStudyAccess(product.id) ? (
-                                   <button
-                                   className="btn btn-success btn-sm"
-                                   type="button"
-                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
-                                 >
-                                   Bắt đầu học
-                                 </button>
+                                  <button
+                                    className="btn btn-success btn-sm"
+                                    type="button"
+                                    onClick={() => navigate(`/productDetailUser/${product.id}`)}
+                                  >
+                                    Bắt đầu học
+                                  </button>
                                 ) : (
                                   <>
-                                    <button className="btn btn-primary btn-sm" type="button">
+                                    <button
+                                      className="btn btn-primary btn-sm"
+                                      type="button"
+                                      onClick={() => navigate('/cart')}
+                                    >
                                       Mua ngay
                                     </button>
                                     <button
                                       className="btn btn-outline-primary btn-sm mt-2"
                                       type="button"
-                                      onClick={() => addToCart(product)}
+                                      onClick={() => navigate(`/productDetail/${product.id}`)}
                                     >
-                                      Thêm vào giỏ hàng
+                                      Xem thêm
                                     </button>
+                                    {/* <button
+        className="btn btn-outline-primary btn-sm mt-2"
+        type="button"
+        onClick={() => addToCart(product)}
+      >
+        Thêm vào giỏ hàng
+      </button> */}
                                   </>
                                 )}
                               </div>

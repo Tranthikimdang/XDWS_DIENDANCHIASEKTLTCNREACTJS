@@ -13,20 +13,14 @@ import {
 } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';  // Firebase
-import { db } from '../../../config/firebaseconfig';  // Kết nối Firebase Firestore
 // components
 import Profile from './Profile';
 import { IconBellRinging, IconMenu } from '@tabler/icons';
 import SearchIcon from '@mui/icons-material/Search';
 import HelpIcon from '@mui/icons-material/Help';
 import CartIcon from '@mui/icons-material/ShoppingCartCheckout';
-<<<<<<< HEAD
-
-=======
 import cartApi from '../../../apis/cartsApi';
 import notificationApi from '../../../apis/NotificationsApI';
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
 // Styled components
 const AppBarStyled = styled(AppBar)(({ theme }) => ({
   boxShadow: 'none',
@@ -60,18 +54,6 @@ const Header = (props) => {
 
   const [cartCount, setCartCount] = useState(0);
 
-  // Lắng nghe sự thay đổi từ giỏ hàng trên Firebase
-  useEffect(() => {
-    if (userId) {
-      const q = query(collection(db, 'orders'), where('user_id', '==', userId));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        setCartCount(snapshot.size);  // Cập nhật số lượng sản phẩm trong giỏ hàng
-      });
-
-      return () => unsubscribe();  // Cleanup khi component unmount
-    }
-  }, [userId]);
-
   const handleLogin = () => {
     navigate('/auth/login'); // Điều hướng tới trang login
   };
@@ -79,8 +61,6 @@ const Header = (props) => {
   const handleCart = () => {
     navigate('/cart'); // Điều hướng tới trang giỏ hàng
   };
-<<<<<<< HEAD
-=======
   useEffect(() => {
     const fetchCartCount = async () => {
       if (userId) {
@@ -124,7 +104,6 @@ const Header = (props) => {
         }
       }
     };
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
 
     fetchNotificationCount();
   }, [userId]); 
@@ -149,10 +128,6 @@ const Header = (props) => {
         <Box flexGrow={1} />
 
         <Stack spacing={1} direction="row" alignItems="center">
-<<<<<<< HEAD
-          <IconButton size="large" aria-label="show new notifications" color="inherit">
-            <Badge variant="dot" color="primary">
-=======
           {/* Hiển thị thông báo */}
           <IconButton
             size="large"
@@ -161,18 +136,13 @@ const Header = (props) => {
             onClick={handleNotification}
           >
             <Badge badgeContent={notificationCount} color="error">
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
               <IconBellRinging size="21" stroke="1.5" />
             </Badge>
           </IconButton>
 
           {/* Icon giỏ hàng với thông báo */}
           <IconButton size="large" aria-label="cart" color="inherit" onClick={handleCart}>
-<<<<<<< HEAD
-            <Badge badgeContent={cartCount} color="secondary">
-=======
             <Badge badgeContent={cartCount} color="error">
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
               <CartIcon />
             </Badge>
           </IconButton>

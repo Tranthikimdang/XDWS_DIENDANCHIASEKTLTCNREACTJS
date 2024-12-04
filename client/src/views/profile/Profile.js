@@ -1,18 +1,33 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
-import { Grid, Box, Card, CardContent, Typography, Avatar, Divider, Tabs, Tab, Button, IconButton, CardMedia } from '@mui/material';
-import { Email, LocationOn, Phone, Work, Person } from '@mui/icons-material';
+import { useNavigate, Link, useParams } from 'react-router-dom';
+import {
+  Grid,
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Avatar,
+  Divider,
+  Tabs,
+  Tab,
+  Button,
+  IconButton,
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import { Email, LocationOn, Phone, Work, Person, Cake } from '@mui/icons-material';
 import PageContainer from 'src/components/container/PageContainer';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
 //sql
 import UserAPI from 'src/apis/UserApI';
 import CourseApi from '../../apis/CourseApI';
+import StudytimeApi from '../../apis/StudyTimeApI';
 import QuestionsApis from '../../apis/QuestionsApis';
 import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
+import FollowApi from '../../apis/FollowApI';
+import NotificationApi from '../../apis/NotificationsApI';
 //
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -30,56 +45,33 @@ const Profile = () => {
   const [questions, setQuestions] = useState([]);
   const [reload, setReload] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
-  const [productsLoading, setProductsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [StudyTime, setStudyTime] = useState([]);
+  const [followStatus, setFollowStatus] = useState('not_followed'); // Trạng thái ban đầu
+  const [followId, setFollowId] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
+  const userLocal = JSON.parse(localStorage.getItem('user'));
+  const userLocalId = userLocal ? userLocal.id : null;
 
-
-useEffect(() => {
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await UserAPI.getUsersList();
-      const matchingUser = response.data.users.find(user => user.id == userId);
-      
-
-        setUser(matchingUser); 
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchUsers();
-}, [userId]);
-
-  
   useEffect(() => {
-    const fetchProducts = async () => {
-      setProductsLoading(true);
+    const fetchUsers = async () => {
+      setLoading(true);
       try {
-        const response = await CourseApi.getCoursesList();
-        setProducts(response.data.courses || []);
+        const response = await UserAPI.getUsersList();
+        const matchingUser = response.data.users.find((user) => user.id == userId);
+
+        setUser(matchingUser);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching users:', error);
       } finally {
-        setProductsLoading(false);
+        setLoading(false);
       }
     };
-  
-    fetchProducts();
-  }, []);
-  
+    fetchUsers();
+  }, [userId]);
 
-<<<<<<< HEAD
-// Fetch câu hỏi
-useEffect(() => {
-  const fetchQuestions = async () => {
-    setLoading(true);
-    try {
-      const res = await getQuestionsList();
-      if (res.status == 'success') {
-        setQuestions(res?.data?.questions);
-=======
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -107,38 +99,46 @@ useEffect(() => {
         console.error('Error fetching data:', error); // Log lỗi nếu có
       } finally {
         setIsLoading(false); // Tắt trạng thái loading
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
       }
-    } catch (error) {
-      console.error('Lỗi khi tải câu hỏi:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchQuestions();
-}, [reload]);
+    };
 
+    fetchData();
+  }, [userId]);
 
-
+  // Fetch câu hỏi
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      setLoading(true);
+      try {
+        const res = await getQuestionsList();
+        if (res.status == 'success') {
+          setQuestions(res?.data?.questions);
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải câu hỏi:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchQuestions();
+  }, [reload]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
 
-  const handleCardClick = (courseId) => {
-    navigate(`/course/${courseId}`, { state: { id: courseId } });
-  };
+
 
   //date
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
 
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt);
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
+      const diff = now - date;
 
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -158,15 +158,6 @@ useEffect(() => {
 
     return updatedAtString;
   };
-
-<<<<<<< HEAD
-
-  //xóa các thẻ html
-  const removeHtmlTags = (html) => {
-    return html?.replace(/<[^>]+>/g, ''); // Loại bỏ tất cả các thẻ HTML
-  };
-
-=======
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -197,7 +188,7 @@ useEffect(() => {
         type: followId ? 'not_followed' : 'pending',
         relatedId: followId || null,
       };
-  
+
       await NotificationApi.createNotification(notification);
       console.log('Thông báo đã được thêm vào database');
     } catch (error) {
@@ -205,30 +196,30 @@ useEffect(() => {
     }
   };
 
-    //thông báo cho tôi
-    const addNotificationMe = async (message, followId = null) => {
-      try {
-        const notification = {
-          userId: userLocalId,
-          message,
-          type: 'pending',
-          relatedId: followId || null,
-        };
-    
-        await NotificationApi.createNotification(notification);
-        console.log('Thông báo đã được thêm vào database');
-      } catch (error) {
-        console.error('Error adding notification:', error);
-      }
-    };
-  
+  //thông báo cho tôi
+  const addNotificationMe = async (message, followId = null) => {
+    try {
+      const notification = {
+        userId: userLocalId,
+        message,
+        type: 'pending',
+        relatedId: followId || null,
+      };
+
+      await NotificationApi.createNotification(notification);
+      console.log('Thông báo đã được thêm vào database');
+    } catch (error) {
+      console.error('Error adding notification:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchFollowStatus = async () => {
       if (!userId || !userLocalId) {
         console.warn('User ID hoặc User Local ID không tồn tại');
         return;
       }
-  
+
       if (userId !== userLocalId) {
         try {
           const response = await FollowApi.checkFollowStatus(userLocalId, userId);
@@ -243,10 +234,10 @@ useEffect(() => {
         }
       }
     };
-  
+
     fetchFollowStatus();
   }, [userId, userLocalId]);
-  
+
   const deleteFollow = async () => {
     try {
       if (followId) {
@@ -279,13 +270,13 @@ useEffect(() => {
           console.error('API createFollow không trả về dữ liệu hợp lệ');
           return;
         }
-  
+
         const newFollowId = response.data.id; // Lấy ID của bản follow vừa được thêm
         setFollowStatus('pending');
         setFollowId(newFollowId); // Gán followId mới vào state
         setSnackbarMessage('Đã gửi yêu cầu theo dõi');
         setOpenSnackbar(true);
-  
+
         // Gửi thông báo với followId làm relatedId
         await addNotification(`${user.name} đã gửi lời mời kết bạn`, newFollowId);
       } else if (followStatus === 'pending' && followId) {
@@ -295,7 +286,7 @@ useEffect(() => {
         setFollowId(null);
         setSnackbarMessage('Đã hủy yêu cầu theo dõi');
         setOpenSnackbar(true);
-  
+
         // Gửi thông báo với followId làm relatedId
         await addNotificationMe(`Bạn đã hủy yêu cầu kết bạn`, userLocalId);
       }
@@ -307,8 +298,7 @@ useEffect(() => {
     const userLocalId = localStorage.getItem('user');
     return !!userLocalId; // Trả về true nếu tồn tại, ngược lại false
   };
-  
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
+
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -350,18 +340,12 @@ useEffect(() => {
                 {user?.name}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                {user?.role === 'mentors' ? 'Mentors' : 'Người hướng dẫn'}
+                {user?.role === 'mentors'
+                  ? 'Người hướng dẫn'
+                  : user?.role === 'admin' || user?.role === 'user'
+                    ? 'Người dùng'
+                    : 'Không xác định'}
               </Typography>
-<<<<<<< HEAD
-              <Divider sx={{ width: '100%', margin: '20px 0' }} />
-              <Box sx={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                <Button variant="contained" color="primary" >
-                  Theo Dõi
-                </Button>
-                <Button variant="outlined" color="secondary">
-                  Yêu Cầu Làm Mentor
-                </Button>
-=======
               <Divider sx={{ width: '100%', margin: '10px 0' }} />
               {/* Kiểm tra nếu userId trong URL trùng với userLocalId */}
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '0px' }}>
@@ -387,9 +371,9 @@ useEffect(() => {
                     Theo dõi
                   </Button>
                 )}
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
               </Box>
-              <Divider sx={{ width: '100%', margin: '20px 0' }} />
+
+              <Divider sx={{ width: '100%', margin: '10px 0' }} />
               <Tabs
                 value={activeTab}
                 onChange={handleTabChange}
@@ -451,6 +435,15 @@ useEffect(() => {
                       </Grid>
                       <Grid item xs={6}>
                         <Typography variant="body1" color="textSecondary">
+                          <Cake fontSize="small" sx={{ marginRight: '8px' }} />
+                          Ngày sinh:
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body1">{user.birthday}</Typography>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Typography variant="body1" color="textSecondary">
                           <LocationOn fontSize="small" sx={{ marginRight: '8px' }} />
                           Địa Chỉ:
                         </Typography>
@@ -476,36 +469,8 @@ useEffect(() => {
                   <>
                     {/* Nội dung tab khóa học*/}
                     <Typography variant="h4" gutterBottom>
-                      Câu hỏi Của Người Dùng
+                      Khóa học của người dùng đăng ký
                     </Typography>
-<<<<<<< HEAD
-                    {products.length > 0 ? (
-                      products.map((product) =>
-                        product.isApproved === 1 && (
-                          <Card
-                            key={product?.id}
-                            sx={{
-                              display: 'flex',
-                              mb: 3,
-                              flexDirection: { xs: 'column', md: 'row' },
-                              border: '1px solid #ddd',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              overflow: 'hidden',
-                            }}
-                            onClick={() => handleCardClick(product.id)} // Điều hướng đến chi tiết
-                          >
-                            {/* Bên trái: Nội dung */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                              <CardContent>
-                                {/*  */}
-                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                  <img
-                                    src={
-                                      user.imageUrl || '../../assets/images/profile/user-1.jpg'
-                                    }
-                                    alt="User Avatar"
-=======
                     {Array.isArray(products) && products.length > 0 ? (
                       products.map((product) => (
                         <Card
@@ -558,47 +523,31 @@ useEffect(() => {
                                 {/* Product Details */}
                                 <div className="col-12 col-md-4">
                                   <h6
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
                                     style={{
-                                      width: 40,
-                                      height: 40,
-                                      borderRadius: '50%',
-                                      marginRight: 8,
+                                      fontSize: '1rem',
+                                      fontWeight: 'bold',
+                                      marginBottom: '8px',
+                                      textAlign: 'left', // Căn lề trái cho tên sản phẩm
                                     }}
-                                  />
-                                  <Typography variant="body1" component="span" className="author-name">
-                                    <strong>
-                                      {user.name}
-                                    </strong>
-                                  </Typography>
-                                </Box>
-                                {/*  */}
-                                <Typography variant="h6" component="h2" className="course-title">
-                                  {product.title.length > 100
-                                    ? `${product.title.substring(0, 100)}...`
-                                    : product.title}
-                                </Typography>
-                                <Typography variant="body2" paragraph color="textSecondary" className="course-description">
-                                  {removeHtmlTags(product.content, 'p').length > 10
-                                    ? `${removeHtmlTags(product.content, 'p').substring(0, 10)}...`
-                                    : removeHtmlTags(product.content, 'p')}
-                                </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                                  <Typography
-                                    variant="body2"
-                                    color="textSecondary"
-                                    className="category-badge"
                                   >
+                                    {product.name}
+                                  </h6>
+                                  <div
+                                    className="text-muted small mt-1"
+                                    style={{
+                                      width: '100%', // Chiếm toàn bộ chiều rộng của phần tử cha
+                                      whiteSpace: 'normal', // Cho phép nội dung xuống dòng
+                                      overflow: 'visible', // Không ẩn nội dung thừa
+                                      textOverflow: 'clip', // Không cắt phần thừa
+                                      textAlign: 'left', // Căn lề trái cho mô tả
+                                    }}
+                                  >
+                                    Mô tả:{' '}
+                                    {product.description?.replace(/(<([^>]+)>)/gi, '') ||
+                                      'Không có mô tả'}
+                                  </div>
+                                </div>
 
-<<<<<<< HEAD
-                                  </Typography>
-                                  <Typography variant="body2" color="textSecondary" sx={{ ml: 2 }}>
-                                    {formatUpdatedAt(product.updated_at)}
-                                  </Typography>
-                                </Box>
-                              </CardContent>
-                            </Box>
-=======
                                 {/* Price and Actions */}
                                 <div className="col-12 col-md-4 d-flex flex-column align-items-start align-items-md-end">
                                   <div
@@ -630,62 +579,52 @@ useEffect(() => {
                                     >
                                       {product.price?.toLocaleString('vi-VN')} VND
                                     </span>
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
 
-                            {/* Bên phải: Hình ảnh và các nút hành động */}
-                            <Box
-                              sx={{ display: 'flex', flexDirection: 'column', position: 'relative' }}
-                              className="card-media"
-                            >
-                              <CardMedia
-                                component="img"
-                                sx={{
-                                  width: { xs: '100%', md: 200 },
-                                  height: { xs: 'auto', md: '100%' },
-                                  aspectRatio: '16/9',
-                                  objectFit: 'cover',
-                                }}
-                                image={product.image}
-                                alt={product.title}
-                              />
-                              {/* <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                                <IconButton
-                                  aria-label="bookmark"
-                                  onClick={(event) => event.stopPropagation()} // Ngăn sự kiện click thẻ Card
-                                >
-                                  <IconBookmark />
-                                </IconButton>
-                                <IconButton
-                                  aria-label="more"
-                                  onClick={(event) => {
-                                    event.stopPropagation(); // Ngăn sự kiện click thẻ Card
-                                    handleClick(event);
-                                  }}
-                                >
-                                  <IconDots />
-                                </IconButton>
-                                <Menu
-                                  id="menu"
-                                  anchorEl={anchorEl}
-                                  open={Boolean(anchorEl)}
-                                  onClose={handleClose}
-                                >
-                                  {menuItems.map((item, i) => (
-                                    <MenuItem key={i} onClick={handleClose}>
-                                      {item.icon}
-                                      <span style={{ marginLeft: 10 }}>{item.text}</span>
-                                    </MenuItem>
-                                  ))}
-                                </Menu>
-                              </Box> */}
-                            </Box>
-                          </Card>
-                        )
-                      )
+                                    {/* Nút hành động */}
+                                    <div className="mt-2 w-100 d-flex flex-column align-items-center">
+                                      {hasStudyAccess(product.id) ? (
+                                        <button
+                                          className="btn btn-success btn-sm w-100"
+                                          type="button"
+                                          style={{ marginBottom: '8px' }}
+                                          onClick={() =>
+                                            navigate(`/productDetailUser/${product.id}`)
+                                          }
+                                        >
+                                          Bắt đầu học
+                                        </button>
+                                      ) : (
+                                        <>
+                                          <button
+                                            className="btn btn-primary btn-sm w-100"
+                                            type="button"
+                                            style={{ marginBottom: '8px' }}
+                                          >
+                                            Mua ngay
+                                          </button>
+                                          <button
+                                            className="btn btn-outline-primary btn-sm w-100"
+                                            type="button"
+                                            style={{
+                                              borderColor: '#007bff',
+                                              color: '#007bff',
+                                            }}
+                                          >
+                                            Thêm vào giỏ hàng
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </Card>
+                      ))
                     ) : (
-                      <Typography variant="body2">Không có khóa họcnào.</Typography>
+                      <Typography variant="body2">Không có khóa học nào.</Typography>
                     )}
-
                   </>
                 )}
                 {activeTab === 2 && (
@@ -696,11 +635,9 @@ useEffect(() => {
                     </Typography>
                     {questions?.length > 0 ? (
                       questions
-                        .filter((question) => question.isApproved === 1)
-                        .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                         .map((question) => (
                           <Box
-                            key={question.id}
+                            key={question?.id}
                             sx={{
                               border: '1px solid #e0e0e0',
                               borderRadius: '8px',
@@ -713,10 +650,7 @@ useEffect(() => {
                             <Box display="flex" alignItems="center" justifyContent="space-between">
                               <Box display="flex" alignItems="center">
                                 <img
-                                  src={
-                                    user.imageUrl ||
-                                    '../../assets/images/profile/user-1.jpg'
-                                  }
+                                  src={user.imageUrl || '../../assets/images/profile/user-1.jpg'}
                                   alt="Author"
                                   style={{
                                     width: 40,
@@ -730,7 +664,7 @@ useEffect(() => {
                                     {user.name}
                                   </Typography>
                                   <Typography variant="body2" color="textSecondary">
-                                    {formatUpdatedAt(question.updated_at)}
+                                    {formatUpdatedAt(question.updatedAt)}
                                   </Typography>
                                 </Box>
                               </Box>
@@ -746,7 +680,7 @@ useEffect(() => {
                                   variant="h6"
                                   sx={{ color: '#007bff', fontSize: '0.8rem' }}
                                 >
-                                  #{question.hashtag}
+                                  {question.hashtag}
                                 </Typography>
                               )}
                             </Box>
@@ -793,47 +727,6 @@ useEffect(() => {
                                   </Box>
                                 ))}
                             </Box>
-<<<<<<< HEAD
-                            {question.fileUrls && question.fileUrls.length > 0 && question.fileUrls.some(url => decodeURIComponent(url).split('/').pop().split('?')[0] !== 'uploads') && (
-                              <Box
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  padding: '10px',
-                                  border: '1px solid #e0e0e0',
-                                  borderRadius: '8px',
-                                  backgroundColor: '#fff',
-                                  width: 'fit-content',
-                                  height: '30px',
-                                }}
-                              >
-                                <IconButton sx={{ color: '#007bff' }}>
-                                  <DescriptionIcon />
-                                </IconButton>
-                                <Typography variant="subtitle1">
-                                  {question.fileUrls.map((url, index) => {
-                                    const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
-                                    return fileName !== 'uploads' ? (
-                                      <a
-                                        key={index}
-                                        href={url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        style={{
-                                          color: 'inherit',
-                                          textDecoration: 'none',
-                                          fontSize: '14px',
-                                          marginRight: '10px',
-                                        }}
-                                      >
-                                        {fileName}
-                                      </a>
-                                    ) : null;
-                                  })}
-                                </Typography>
-                              </Box>
-                            )}
-=======
                             {question.fileUrls &&
                               question.fileUrls.length > 0 &&
                               question.fileUrls.some(
@@ -882,13 +775,6 @@ useEffect(() => {
                                   </Typography>
                                 </Box>
                               )}
->>>>>>> 9e70bbc752dce3fe5e502875a9cc28948cf60de6
-
-                            <Divider sx={{ my: 2 }} />
-                            {/* Like and Comment Counts */}
-                            < Typography variant="subtitle1" color="textSecondary" >
-                              345 Likes • 34 Comments
-                            </Typography>
                           </Box>
                         ))
                     ) : (
@@ -896,13 +782,22 @@ useEffect(() => {
                     )}
                   </>
                 )}
-
               </CardContent>
             </Card>
+            <Snackbar
+              open={openSnackbar}
+              autoHideDuration={6000}
+              onClose={() => setOpenSnackbar(false)}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Vị trí thông báo
+            >
+              <Alert onClose={() => setOpenSnackbar(false)} sx={{ width: '100%' }}>
+                {snackbarMessage}
+              </Alert>
+            </Snackbar>
           </Grid>
         </Grid>
-      </Box >
-    </PageContainer >
+      </Box>
+    </PageContainer>
   );
 };
 
