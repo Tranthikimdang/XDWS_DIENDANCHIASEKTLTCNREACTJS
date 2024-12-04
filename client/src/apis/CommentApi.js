@@ -2,6 +2,10 @@ import axios from 'axios';
 
 const BASE_URL = 'http://localhost:3000/api/comments';
 
+// API cho bình luận khóa học
+export const getCourseComments = async (course_id) => 
+  await axios.get(`${BASE_URL}/courses/${course_id}`);
+
 // API cho bình luận câu hỏi
 export const getQuestionComments = async (question_id) => 
     await axios.get(`${BASE_URL}/questions/${question_id}`);

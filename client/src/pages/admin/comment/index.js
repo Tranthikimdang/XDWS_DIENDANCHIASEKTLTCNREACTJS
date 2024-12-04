@@ -86,8 +86,9 @@ function Comment() {
   const defaultImageUrl = "/path/to/default/image.png"; // Replace with your actual default image
 
   const formatUpdatedAt = (updatedAt) => {
-    if (!updatedAt) return 'Unknown time';
-    const date = updatedAt.seconds ? new Date(updatedAt.seconds * 1000) : new Date(updatedAt);
+    if (!updatedAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
+
+    const date = new Date(updatedAt);
     const now = new Date();
     const diff = now - date;
 
@@ -104,7 +105,7 @@ function Comment() {
 
 
   // Rendering the table with data
-  const renderTable = (rows, columns,tabValue) => (
+  const renderTable = (rows, columns) => (
     <>
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
@@ -201,29 +202,22 @@ function Comment() {
               </VuiTypography>
             ),
             action: (
-              <>
-                {tabValue === 0 ? ( // Kiểm tra nếu tab là "Khóa học"
-                  <Link to={`/admin/commentDetail/${row.id}?type=course`}>
-                    <button className="text-light btn btn-outline-primary me-2" type="button">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
-                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-                        <path d="M8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM8 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
-                      </svg>
-                    </button>
-                  </Link>
-                ) : ( // Nếu tab là "Câu hỏi"
-                  <Link to={`/admin/commentDetail/${row.id}?type=question`}>
-                    <button className="text-light btn btn-outline-primary me-2" type="button">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-eye" viewBox="0 0 16 16">
-                        <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
-                        <path d="M8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM8 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
-                      </svg>
-                    </button>
-                  </Link>
-                )}
-              </>
-            )
-            
+              <Link to={`/admin/commentDetail/${row.id}`}>
+                <button className="text-light btn btn-outline-primary me-2" type="submit">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    className="bi bi-eye"
+                    viewBox="0 0 16 16"
+                  >
+                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                    <path d="M8 5a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM8 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
+                  </svg>
+                </button>
+              </Link>
+            ),
 
           }))}
         />
@@ -267,8 +261,8 @@ function Comment() {
           </Tabs>
 
           <VuiBox>
-            {tabValue === 0 && renderTable(courseRows, courseColumns, tabValue)}
-            {tabValue === 1 && renderTable(questionRows, questionColumns,tabValue)}
+            {tabValue === 0 && renderTable(courseRows, courseColumns)}
+            {tabValue === 1 && renderTable(questionRows, questionColumns)}
           </VuiBox>
 
         </Card>

@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const courseDetailController = require('../controllers/courseDetailController');
-const multer = require('../middleware/multer');
 
 router.get('/', courseDetailController.getAllCourseDetails);
 
-router.post('/',multer.single('video'), courseDetailController.createCourseDetail);
+router.post('/', courseDetailController.createCourseDetail);
 
 router.put('/:id', courseDetailController.updateCourseDetail);
 

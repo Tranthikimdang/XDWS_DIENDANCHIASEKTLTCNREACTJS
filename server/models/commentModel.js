@@ -1,13 +1,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const User = require('./userModel'); // Giả sử có bảng user
-const Question = require('./questionModel'); // Giả sử có bảng question
+// const Question = require('./questionModel'); // Giả sử có bảng question
 
 const Comment = sequelize.define('Comment', {
     question_id: {
         type: DataTypes.STRING,
         references: {
-            model: Question,
+            // model: Question,
             key: 'id'
         },
         onUpdate: 'CASCADE',
@@ -46,12 +46,12 @@ const Comment = sequelize.define('Comment', {
     up_code: {
         type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: null // Giá trị mặc định sửa thành null
+        defaultValue: []
     },
     replies: {
-        type: DataTypes.JSON, // Lưu các trả lời dưới dạng mảng JSON
+        type: DataTypes.JSON,  // Lưu các trả lời dưới dạng mảng JSON
         allowNull: true,
-        defaultValue: [] // Mảng trống nếu không có trả lời
+        defaultValue: []  // Mảng trống nếu không có trả lời
     }
 }, {
     tableName: 'comments',
@@ -63,5 +63,4 @@ sequelize.sync()
     console.log('Comment table created if not exists');
   })
   .catch((error) => console.log('Error creating table:', error));
-
 module.exports = Comment;
