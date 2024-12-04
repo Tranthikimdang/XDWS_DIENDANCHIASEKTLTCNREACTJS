@@ -829,39 +829,43 @@ const Questions = () => {
     return updatedAtString;
   };
 
-  // const getFilteredQuestions = () => {
-  //   // Lấy danh sách hashtag được lưu từ localStorage
-  //   const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
-  //   const hashtagNames = savedHashtags.map((hashtag) => hashtag.name.toLowerCase());
-  //   const strippedHashtagNames = hashtagNames.map((name) =>
-  //     name.startsWith('#') ? name.slice(1) : name,
-  //   );
+  const getFilteredQuestions = () => {
+    // Lấy danh sách hashtag được lưu từ localStorage
+    const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
+    const hashtagNames = savedHashtags.map((hashtag) => hashtag.name.toLowerCase());
+    const strippedHashtagNames = hashtagNames.map((name) =>
+      name.startsWith('#') ? name.slice(1) : name,
+    );
 
-  //   // Lọc các câu hỏi liên quan đến hashtag
-  //   const relevantQuestions = listQuestion.filter((question) => {
-  //     // Kiểm tra hashtag liên quan
-  //     const isHashtagRelevant = question.hashtag?.split(',').some(
-  //       (tag) =>
-  //         hashtagNames.includes(tag.toLowerCase()) ||
-  //         strippedHashtagNames.includes(tag.toLowerCase()),
-  //     );
+    // Lọc các câu hỏi liên quan đến hashtag
+    const relevantQuestions = listQuestion.filter((question) => {
+      // Kiểm tra hashtag liên quan
+      const isHashtagRelevant = question.hashtag?.split(',').some(
+        (tag) =>
+          hashtagNames.includes(tag.toLowerCase()) ||
+          strippedHashtagNames.includes(tag.toLowerCase()),
+      );
 
-  //     // Kiểm tra nội dung câu hỏi có chứa từ khóa từ hashtag không
-  //     const isQuestionRelevant = hashtagNames.some((tag) =>
-  //       question.questions?.toLowerCase().includes(tag),
-  //     );
+      // Kiểm tra nội dung câu hỏi có chứa từ khóa từ hashtag không
+      const isQuestionRelevant = hashtagNames.some((tag) =>
+        question.questions?.toLowerCase().includes(tag),
+      );
 
-  //     return isHashtagRelevant || isQuestionRelevant;
-  //   });
+      return isHashtagRelevant || isQuestionRelevant;
+    });
 
-  //   // Lọc các câu hỏi không liên quan
-  //   const irrelevantQuestions = listQuestion.filter(
-  //     (question) => !relevantQuestions.includes(question),
-  //   );
+    // Lọc các câu hỏi không liên quan
+    const irrelevantQuestions = listQuestion.filter(
+      (question) => !relevantQuestions.includes(question),
+    );
 
-  //   // Kết hợp các câu hỏi liên quan và không liên quan
-  //   return [...relevantQuestions, ...irrelevantQuestions];
-  // };
+    // Kết hợp các câu hỏi liên quan và không liên quan
+    return [...relevantQuestions, ...irrelevantQuestions];
+  };
+
+  useEffect(() => {
+    getFilteredQuestions();;
+  }, [searchTerm, currentPage, usersPerPage, questions]);
   // const filteredQuestions = getFilteredQuestions();
   return (
     <PageContainer
