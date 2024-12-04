@@ -14,10 +14,11 @@ import DashboardCard from '../../components/shared/DashboardCard';
 import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+//api
 import UserAPI from 'src/apis/UserApI';
 import api from 'src/apis/mentorApi';
-
-const defaultImageUrl = 'path-to-default-image.jpg';
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
 
 const User = () => {
   const [users, setUsers] = useState([]); // Separate state for users
@@ -145,7 +146,7 @@ const User = () => {
                     <Box sx={{ flexShrink: 0 }}>
                       <CardMedia
                         component="img"
-                        image={user.imageUrl || defaultImageUrl}
+                        image={user.imageUrl || avatardefault}
                         alt={user.name || 'User'}
                         sx={{
                           width: '120px',
@@ -155,6 +156,9 @@ const User = () => {
                           margin: '16px',
                           border: '4px solid #fff',
                           boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+                        }}
+                        onError={(e) => {
+                          e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                         }}
                       />
                     </Box>
