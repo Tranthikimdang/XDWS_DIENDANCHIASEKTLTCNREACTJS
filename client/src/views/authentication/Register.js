@@ -1,10 +1,9 @@
 /* eslint-disable no-unused-vars */
-import { Form, Button, Alert, Container, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Alert, Snackbar } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import Logo from 'src/layouts/full/shared/logo/Logo';
 import emailjs from 'emailjs-com';
 import axios from 'axios';
@@ -30,7 +29,9 @@ const AuthRegister = ({ subtext }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const imageRef = useRef(null);
-
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const navigate = useNavigate();
   const recordCreated = useRef();
 
@@ -132,12 +133,14 @@ const AuthRegister = ({ subtext }) => {
       const emailExists = await checkEmailExists(formData.email);
 
       if (emailExists) {
-        alert('Đã có tài khoản được tạo bằng email này.');
+        setSnackbarMessage('Đã có tài khoản được tạo bằng email này.');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
         return;
       } else {
         const file = imageRef.current.files[0];
         let imageUrl = '';
-  
+
         if (file) {
           imageUrl = await uploadImage(file);
         }
@@ -154,12 +157,16 @@ const AuthRegister = ({ subtext }) => {
 
         if (newUser) {
           localStorage.setItem('user', JSON.stringify(newUser.user));
-          alert('Đăng ký thành công!');
+          setSnackbarMessage('Đăng ký thành công!');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
           onCancel(); // Chuyển hướng sau khi đăng ký thành công
         }
       }
     } catch (error) {
-      alert('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
+      setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
       console.error('Lỗi đăng ký:', error);
     }
   };
@@ -171,6 +178,13 @@ const AuthRegister = ({ subtext }) => {
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
   };
 
   const googleLogin = useGoogleLogin({
@@ -214,13 +228,20 @@ const AuthRegister = ({ subtext }) => {
               message: `Mật khẩu của bạn là: ${rawPassword}`, // Gửi mật khẩu gốc (chưa băm)
             });
 
-            alert('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
-            navigate('/auth/inter');
+            setSnackbarMessage('Đăng ký thành công, kiểm tra email để nhận mật khẩu');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+            setTimeout(() => {
+              navigate('/auth/inter');
+          }, 2000);
+            
           }
         }
       } catch (error) {
         console.error('Lỗi trong xử lý đăng nhập Google:', error);
-        alert('Đã xảy ra lỗi, vui lòng thử lại.');
+        setSnackbarMessage('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
       }
     },
     onError: (error) => {
@@ -246,11 +267,15 @@ const AuthRegister = ({ subtext }) => {
       )
       .then(
         (result) => {
-          alert('Tin nhắn đã được gửi thành công...');
+          setSnackbarMessage('Tin nhắn đã được gửi thành công...');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
           console.log(result.text);
         },
         (error) => {
-          alert('Đã xảy ra lỗi, vui lòng thử lại.');
+          setSnackbarMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
           console.log(error.text);
         },
       );
@@ -462,6 +487,16 @@ const AuthRegister = ({ subtext }) => {
           </Col>
         </Row>
       </Container>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

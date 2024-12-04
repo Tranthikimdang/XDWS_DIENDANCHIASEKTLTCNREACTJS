@@ -113,15 +113,21 @@ const ForgotPassword = () => {
           to_email: data.email,
           message: data.message,
         },
-        process.env.REACT_APP_PUBLIC_KEY
+        process.env.REACT_APP_PUBLIC_KEY,
       )
       .then(
-        () => {
-          toast.success('Email đã được gửi thành công!');
+        (result) => {
+          setSnackbarMessage('Tin nhắn đã được gửi thành công...');
+          setSnackbarSeverity('success');
+          setSnackbarOpen(true);
+          console.log(result.text);
         },
-        () => {
-          toast.error('Đã xảy ra lỗi khi gửi email.');
-        }
+        (error) => {
+          setSnackbarMessage('Đã xảy ra lỗi. Vui lòng thử lại.');
+          setSnackbarSeverity('error');
+          setSnackbarOpen(true);
+          console.log(error.text);
+        },
       );
   };
 
