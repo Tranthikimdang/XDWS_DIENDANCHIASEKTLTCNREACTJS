@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
 import PageContainer from 'src/components/container/PageContainer';
-import DashboardCard from 'src/components/shared/DashboardCard';
-
+import axios from 'axios';
 import {
   Alert,
   Box,
@@ -29,6 +28,7 @@ import {
   TextField,
   Tooltip,
   Typography,
+  InputAdornment,
 } from '@mui/material';
 // icon
 import AttachFileIcon from '@mui/icons-material/AttachFile';
@@ -46,14 +46,16 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import { IconMessageCircle } from '@tabler/icons-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { addQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
+import SearchIcon from '@mui/icons-material/Search';
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
+//api
 import userApis from 'src/apis/UserApI';
-//firebase
-import axios from 'axios';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
-import moment from 'moment';
-import { getQuestionComments } from '../../apis/CommentApi';
 import HashtagApi from 'src/apis/HashtagApI';
 import QuestionHashtags from '../../apis/QuestionHashtagsApI';
+//
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+
 
 const Questions = () => {
   const navigate = useNavigate();
@@ -65,7 +67,7 @@ const Questions = () => {
   const [showCodeField, setShowCodeField] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
-  const [listQuestion, setListQuestion] = useState([]);
+  const [questions,setListQuestion] = useState([]);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -73,7 +75,6 @@ const Questions = () => {
   const [edit, setEdit] = useState(false);
   const [dataTemp, setDataTemp] = useState(null);
   const [users, setUsers] = useState([]);
-  const [articles, setArticles] = useState([]);
   const listUser = useRef([]);
   const [showCodeDialog, setShowCodeDialog] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -95,6 +96,9 @@ const Questions = () => {
   const [replyFile, setReplyFile] = useState('');
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [hashtag, setHashtag] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const usersPerPage = 10;
 
   const handleToggleComments = (questionId) => {
     setVisibleComments((prev) => ({
@@ -160,17 +164,6 @@ const Questions = () => {
     }));
   };
 
-  const handleReplyButtonClick = (comment) => {
-    if (replyingTo === comment.id) {
-      // Nếu đang trả lời comment này, ẩn form
-      setReplyingTo(null);
-      setNewReplies((prev) => ({ ...prev, [comment.id]: '' })); // Xóa nội dung trả lời
-    } else {
-      // Nếu không, thiết lập comment này là comment đang được trả lời
-      setReplyingTo(comment.id);
-      // Không cần reset newReplies ở đây, vì chỉ có 1 comment id có thể trả lời cùng 1 lúc
-    }
-  };
 
   // Lấy danh sách người dùng từ Firestore
   const [currentUserImage, setCurrentUserImage] = useState('');
@@ -212,7 +205,7 @@ const Questions = () => {
         const res = await getQuestionsList();
         if (res.status === 'success') {
           const questions = res?.data?.questions || [];
-  
+
           // Load comments từ localStorage
           const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
           const updatedQuestions = questions.map((question) => {
@@ -222,7 +215,7 @@ const Questions = () => {
               comments: savedQuestion ? savedQuestion.comments : [],
             };
           });
-  
+
           setListQuestion(updatedQuestions);
         }
       } catch (error) {
@@ -231,13 +224,30 @@ const Questions = () => {
         setLoading(false);
       }
     };
-  
+
     fetchQuestions();
   }, [reload]);
-  
+
   const handleSnackbarClose = (event, reason) => {
     setSnackbarOpen(false);
   };
+
+  // Tìm kiếm tất cả trong bảng questions
+  const filteredQuestions = questions.filter((question) => {
+    // Chuyển đổi tất cả các trường cần tìm kiếm thành chuỗi và kiểm tra nếu có chứa searchTerm
+    return (
+      question.hashtag.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      question.up_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      question.questions.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  // Pagination logic
+  const indexOfLastQuestion = currentPage * usersPerPage;
+  const indexOfFirstQuestion = indexOfLastQuestion - usersPerPage;
+  const listQuestion = filteredQuestions.slice(indexOfFirstQuestion , indexOfLastQuestion);
+
+
 
   const validateImageFile = (files) => {
     const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -443,6 +453,12 @@ const Questions = () => {
 
   const handleAddComment = async (question_id) => {
     try {
+      if (!userData?.current?.id) {
+        setSnackbarMessage("Bạn cần đăng nhập để gửi bình luận.");
+        setSnackbarSeverity("warning");
+        setSnackbarOpen(true);
+        return;
+      }
       if (!newComment || newComment.trim() === '') {
         setSnackbarMessage("Nội dung bình luận không được để trống.");
         setSnackbarSeverity("error");
@@ -497,7 +513,7 @@ const Questions = () => {
             }
             return question;
           });
-  
+
           // Persist updated list in localStorage
           localStorage.setItem('comment_question', JSON.stringify(newList));
           return newList;
@@ -524,23 +540,31 @@ const Questions = () => {
   };
 
 
-  const handleAddReply = async (questionId, commentId) => {
-    if (isSubmittingReply) return;
-    setIsSubmittingReply(true);
-  
+  const handleAddReply = async (questionId, commentId ,parentId = null) => {
+    if (!userData?.current?.id) {
+      setSnackbarOpen(false);
+      setTimeout(() => {
+        setSnackbarMessage("Bạn cần đăng nhập để gửi trả lời.");
+        setSnackbarSeverity("warning");
+        setSnackbarOpen(true);
+      }, 100);
+      return;
+    }
+
     // Kiểm tra xem có nội dung phản hồi hay không
-    if (!newReplies[commentId] || newReplies[commentId].trim() === '') {
+    const replyContent = newReplies[parentId || commentId];
+    if (!replyContent || typeof replyContent !== 'string' || replyContent.trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       setIsSubmittingReply(false);
       return;
     }
-  
+
     try {
       let imageUrls = [];
       let fileUrls = [];
-  
+
       // Upload ảnh nếu có
       if (replyImageFile && replyImageFile.length > 0) {
         const formDataImage = new FormData();
@@ -554,7 +578,7 @@ const Questions = () => {
           imageUrls = imageResponse.data.imagePaths;
         }
       }
-  
+
       // Upload file nếu có
       if (replyFile && replyFile.length > 0) {
         const formDataFile = new FormData();
@@ -566,20 +590,20 @@ const Questions = () => {
           fileUrls = fileResponse.data.filePaths;
         }
       }
-  
+
       // Tạo dữ liệu mới cho phản hồi
       const newReply = {
         user_id: userData.current.id,
-        content: newReplies[commentId] || '',
+        content: replyContent,
         imageUrls: imageUrls,
         fileUrls: fileUrls,
         up_code: dataTemp?.up_code || codeSnippet || '',
         created_at: new Date(),
       };
-  
+
       // Gửi phản hồi tới server
       const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
-  
+
       if (response.data.status === 'success') {
         // Cập nhật danh sách câu hỏi và câu trả lời sau khi thành công
         setListQuestion((prevList) => {
@@ -601,14 +625,14 @@ const Questions = () => {
             }
             return item;
           });
-  
+
           // Lưu danh sách mới vào localStorage
           localStorage.setItem('comment_question', JSON.stringify(updatedList));
           return updatedList;
         });
-  
+
         // Reset form và các trạng thái liên quan
-        setNewReplies((prev) => ({ ...prev, [commentId]: '' }));
+        setNewReplies((prev) => ({ ...prev, [parentId || commentId]: '' }));
         setReplyingTo(null);
         setReplyImageFile(null);
         setReplyFile(null);
@@ -742,8 +766,8 @@ const Questions = () => {
     setError('');
   };
 
-  const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`, { state: { id: articleId } });
+  const handleCardClick = (questionId) => {
+    navigate(`/question/${questionId}`, { state: { id: questionId } });
   };
 
   const handleCodeButtonClick = () => {
@@ -839,177 +863,218 @@ const Questions = () => {
     return [...relevantQuestions, ...irrelevantQuestions];
   };
 
-
-  const filteredQuestions = getFilteredQuestions();
+  useEffect(() => {
+    getFilteredQuestions();;
+  }, [searchTerm, currentPage, usersPerPage, questions]);
+  // const filteredQuestions = getFilteredQuestions();
   return (
     <PageContainer
       title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code"
       description="Đây là trang đặt câu hỏi"
     >
-      <DashboardCard>
-        <Grid container spacing={2}>
-          {/* Left Column */}
-          <Grid item md={8}>
-            <Box
-              sx={{
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                padding: '20px',
-                backgroundColor: '#fff',
-              }}
-            >
-              {/* Create Post Header */}
-              <Box component="form" onSubmit={handleSubmit}>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <img
-                    // eslint-disable-next-line no-undef
-                    src={userData?.current?.imageUrl || '../../assets/images/profile/user-1.jpg'}
-                    alt="avatar"
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '50%',
-                      marginRight: 8,
+      <Grid container spacing={2}>
+        <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+          <Typography variant="h4" component="h1" className="heading">
+            <strong>Tất cả câu hỏi</strong>
+          </Typography>
+          <Typography variant="body1" paragraph className="typography-body">
+            Tổng hợp các câu hỏi và bài viết chia sẻ về kinh nghiệm tự học lập trình online và các kỹ thuật
+            lập trình web.
+          </Typography>
+        </Grid>
+        <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <TextField
+            label="Tìm kiếm câu hỏi"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{
+              margin: 'auto',
+              borderRadius: '50px',
+              backgroundColor: '#f7f7f7',
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '50px',
+              },
+              '& .MuiInputBase-input': {
+                padding: '12px 16px',
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+
+        {/* Left Column */}
+        <Grid item md={8}>
+          <Box
+            sx={{
+              border: '1px solid #e0e0e0',
+              borderRadius: '8px',
+              padding: '20px',
+              backgroundColor: '#fff',
+            }}
+          >
+            {/* Create Post Header */}
+            <Box component="form" onSubmit={handleSubmit}>
+              <Box display="flex" alignItems="center" mb={2}>
+                <img
+                  // eslint-disable-next-line no-undef
+                  src={userData?.current?.imageUrl || avatardefault}
+                  alt="Hình ảnh người dùng"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: '50%',
+                    marginRight: 8,
+                  }}
+                  onError={(e) => {
+                    e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                  }}
+                />
+                <Typography variant="h6">Đặt câu hỏi</Typography>
+              </Box>
+
+              {/* Post Content */}
+              <TextField
+                label="Hãy đặt câu hỏi hoặc chia sẻ kiến thức?"
+                variant="outlined"
+                multiline
+                fullWidth
+                rows={4}
+                name="questions"
+                // value={newComment}
+                // onChange={(e) => setNewComment(e.target.value)}
+                sx={{ marginBottom: 2 }}
+              />
+
+              {/* Add Hashtag Section */}
+              <Box display="flex" alignItems="center" mb={2}>
+                <Typography variant="body2" sx={{ mr: 2 }}>
+                  <strong>+ Thêm Hashtag</strong>
+                </Typography>
+                <Box sx={{ flexGrow: 1 }}>
+                  <TextField
+                    fullWidth
+                    placeholder="Nhập hashtag"
+                    variant="standard"
+                    name="hashtag"
+                    InputProps={{
+                      disableUnderline: true,
                     }}
                   />
-                  <Typography variant="h6">Đặt câu hỏi</Typography>
-                </Box>
-
-                {/* Post Content */}
-                <TextField
-                  label="Hãy đặt câu hỏi?"
-                  variant="outlined"
-                  multiline
-                  fullWidth
-                  rows={4}
-                  name="questions"
-                  // value={newComment}
-                  // onChange={(e) => setNewComment(e.target.value)}
-                  sx={{ marginBottom: 2 }}
-                />
-
-                {/* Add Hashtag Section */}
-                <Box display="flex" alignItems="center" mb={2}>
-                  <Typography variant="body2" sx={{ mr: 2 }}>
-                    <strong>+ Thêm Hashtag</strong>
-                  </Typography>
-                  <Box sx={{ flexGrow: 1 }}>
-                    <TextField
-                      fullWidth
-                      placeholder="Nhập hashtag"
-                      variant="standard"
-                      name="hashtag"
-                      InputProps={{
-                        disableUnderline: true,
-                      }}
-                    />
-                  </Box>
-                </Box>
-
-                {/* Options for Image, File, Code */}
-                <Box display="flex" justifyContent="space-between" alignItems="center">
-                  <Box display="flex" gap={1}>
-                    {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
-                      <Button
-                        key={index}
-                        variant="outlined"
-                        startIcon={
-                          index === 0 ? (
-                            <ImageIcon />
-                          ) : index === 1 ? (
-                            <AttachFileIcon />
-                          ) : (
-                            <CodeIcon />
-                          )
-                        }
-                        sx={{
-                          borderRadius: '16px',
-                          textTransform: 'none',
-                          padding: '5px 15px',
-                        }}
-                        component="label"
-                        onClick={index === 2 ? handleCodeButtonClick : undefined} // Chỉ mở dialog khi nhấn vào icon Code
-                      >
-                        {label}
-                        {index === 0 && (
-                          <input
-                            name="image"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            hidden
-                            onChange={handleImageChange}
-                          />
-                        )}
-                        {index === 1 && (
-                          <input
-                            type="file"
-                            name="file"
-                            multiple
-                            hidden
-                            onChange={handleFileChange}
-                          />
-                        )}
-                      </Button>
-                    ))}
-                  </Box>
-                  {/* Code Dialog */}
-                  <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-                    <DialogTitle>Nhập code của bạn</DialogTitle>
-                    <DialogContent>
-                      {showCodeField && (
-                        <FormControl fullWidth>
-                          <TextField
-                            id="code-input"
-                            multiline
-                            rows={4}
-                            name="up_code"
-                            variant="outlined"
-                            value={codeSnippet}
-                            onChange={handleCodeChange}
-                            error={!!error}
-                          />
-                          <FormHelperText>{error}</FormHelperText>
-                        </FormControl>
-                      )}
-                    </DialogContent>
-                    <DialogActions>
-                      <Button onClick={handleCloseDialog} color="secondary">
-                        Hủy
-                      </Button>
-                      <Button onClick={handleSubmitCode} color="primary">
-                        Lưu
-                      </Button>
-                    </DialogActions>
-                  </Dialog>
-                  {/* Post Button */}
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    sx={{
-                      textTransform: 'none',
-                      borderRadius: '16px',
-                      padding: '5px 20px',
-                      fontWeight: 'bold',
-                      mt: 2,
-                    }}
-                  >
-                    Đăng
-                  </Button>
                 </Box>
               </Box>
 
-              {/* Loading Spinner */}
-              {loading ? (
-                <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
-                  <CircularProgress />
+              {/* Options for Image, File, Code */}
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+                <Box display="flex" gap={1}>
+                  {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                    <Button
+                      key={index}
+                      variant="outlined"
+                      startIcon={
+                        index === 0 ? (
+                          <ImageIcon />
+                        ) : index === 1 ? (
+                          <AttachFileIcon />
+                        ) : (
+                          <CodeIcon />
+                        )
+                      }
+                      sx={{
+                        borderRadius: '16px',
+                        textTransform: 'none',
+                        padding: '5px 15px',
+                      }}
+                      component="label"
+                      onClick={index === 2 ? handleCodeButtonClick : undefined} // Chỉ mở dialog khi nhấn vào icon Code
+                    >
+                      {label}
+                      {index === 0 && (
+                        <input
+                          name="image"
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          hidden
+                          onChange={handleImageChange}
+                        />
+                      )}
+                      {index === 1 && (
+                        <input
+                          type="file"
+                          name="file"
+                          multiple
+                          hidden
+                          onChange={handleFileChange}
+                        />
+                      )}
+                    </Button>
+                  ))}
                 </Box>
-              ) : filteredQuestions?.length > 0 ? ( // Sử dụng danh sách đã lọc
-                filteredQuestions.map((question) => {
+                {/* Code Dialog */}
+                <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+                  <DialogTitle>Nhập code của bạn</DialogTitle>
+                  <DialogContent>
+                    {showCodeField && (
+                      <FormControl fullWidth>
+                        <TextField
+                          id="code-input"
+                          multiline
+                          rows={4}
+                          name="up_code"
+                          variant="outlined"
+                          value={codeSnippet}
+                          onChange={handleCodeChange}
+                          error={!!error}
+                        />
+                        <FormHelperText>{error}</FormHelperText>
+                      </FormControl>
+                    )}
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={handleCloseDialog} color="secondary">
+                      Hủy
+                    </Button>
+                    <Button onClick={handleSubmitCode} color="primary">
+                      Lưu
+                    </Button>
+                  </DialogActions>
+                </Dialog>
+                {/* Post Button */}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    textTransform: 'none',
+                    borderRadius: '16px',
+                    padding: '5px 20px',
+                    fontWeight: 'bold',
+                    mt: 2,
+                  }}
+                >
+                  Đăng
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Loading Spinner */}
+            {loading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+                <CircularProgress />
+              </Box>
+            ) : listQuestion?.length > 0 ? ( // Sử dụng danh sách đã lọc
+              listQuestion
+                .map((question) => {
                   const listImgUrl = question.imageUrls;
                   const listFileUrl = question.fileUrls;
-
                   return (
                     question.isApproved === true && (
                       <Box
@@ -1032,15 +1097,16 @@ const Questions = () => {
                           <Box display="flex" alignItems="center">
                             <img
                               src={
-                                users?.find((u) => question?.user_id === u.id)?.imageUrl ||
-                                '../../assets/images/profile/user-1.jpg'
-                              }
-                              alt="Author"
+                                users?.find((u) => question?.user_id === u.id)?.imageUrl || avatardefault}
+                              alt="Hình ảnh người dùng"
                               style={{
                                 width: 40,
                                 height: 40,
                                 borderRadius: '50%',
                                 marginRight: 8,
+                              }}
+                              onError={(e) => {
+                                e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                               }}
                             />
                             <Box>
@@ -1255,8 +1321,8 @@ const Questions = () => {
                                     }}
                                   >
                                     <img
-                                      src={image || '../../assets/images/profile/user-1.jpg'}
-                                      alt=""
+                                      src={image || 'không có hình ảnh'}
+                                      alt="hình ảnh"
                                       style={{
                                         width: '100%',
                                         height: 'auto',
@@ -1344,15 +1410,16 @@ const Questions = () => {
                               {/* Avatar và Text Input */}
                               <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
                                 <img
-                                  src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                                  src={currentUserImage || avatardefault}
+                                  alt="Hình ảnh người dùng"
                                   width="30px"
-                                  alt="User Avatar"
                                   style={{ borderRadius: '50%', marginRight: '10px' }}
+                                  onError={(e) => {
+                                    e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                  }}
                                 />
                                 <TextField
-                                  placeholder={`Bình luận dưới tên ${users.find((user) => user.id === userData.current.id)?.name ||
-                                    'Người dùng'
-                                    } `}
+                                   placeholder={`Bình luận dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'} `}
                                   variant="outlined"
                                   size="small"
                                   fullWidth
@@ -1502,10 +1569,13 @@ const Questions = () => {
                               <Box key={comment.id} sx={{ mt: 2 }}>
                                 <Box display="flex" alignItems="center">
                                   <img
-                                    src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
-                                    alt="Commenter Avatar"
+                                    src={currentUserImage || avatardefault}
+                                    alt="Hình ảnh người dùng"
                                     style={{ borderRadius: '50%', marginRight: '10px' }}
                                     width="30px"
+                                    onError={(e) => {
+                                      e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                    }}
                                   />
                                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                                     {users.find((user) => user.id === comment.user_id)?.name}
@@ -1542,8 +1612,8 @@ const Questions = () => {
                                         sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}
                                       >
                                         <img
-                                          src={imageUrl}
-                                          alt={`Comment image ${index + 1}`}
+                                          src={imageUrl || 'không có hình ảnh'}
+                                          alt={`hình ảnh bình luận ${index + 1}`}
                                           style={{
                                             width: '35%',
                                             height: 'auto',
@@ -1567,8 +1637,8 @@ const Questions = () => {
                                     >
                                       <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                                         <img
-                                          src={comment.imageUrls}
-                                          alt="Comment image"
+                                          src={comment.imageUrls || "không có hình ảnh"}
+                                          alt="Hình ảnh bình luận"
                                           style={{
                                             width: '35%',
                                             height: 'auto',
@@ -1634,33 +1704,53 @@ const Questions = () => {
                                 ) : null}
 
                                 {/* Reply Button */}
-                                <Button
-                                  variant="text"
-                                  sx={{
-                                    textTransform: 'none',
-                                    padding: '2px 10px',
-                                    fontSize: '0.8rem',
-                                    borderRadius: '16px',
-                                    marginRight: '10px',
-                                  }}
-                                  onClick={() => handleReplyButtonClick(comment)} // Toggle reply form
+                                <Box
+                                  display="flex"
+                                  alignItems="center"
+                                  gap="8px"
                                 >
-                                  {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
-                                </Button>
+                                   <Typography
+                                    component="span"
+                                    variant="caption"
+                                    sx={{ color: 'text.secondary' }}
+                                  >{formatUpdatedAt(comment.created_at)}
+                                  </Typography>
+                                  <Button
+                                    variant="text"
+                                    sx={{
+                                      textTransform: 'none',
+                                      padding: '2px 10px',
+                                      fontSize: '0.8rem',
+                                      borderRadius: '16px',
+                                      margin: 0,
+                                    }}
+                                    onClick={() =>
+                                      setReplyingTo(
+                                        replyingTo?.id === comment.id && replyingTo?.type === 'comment'
+                                          ? null
+                                          : { id: comment.id, type: 'comment' }
+                                      )
+                                    }
+
+                                  >
+                                    {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
+                                  </Button>
+                                </Box>
                                 {/* Reply Section */}
-                                {replyingTo === comment.id && (
+                                {replyingTo ?.id === comment.id && replyingTo?.type === 'comment' && (
                                   <Box sx={{ mt: 2 }}>
                                     <Box display="flex" alignItems="center">
                                       <img
-                                        src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                                        src={currentUserImage || avatardefault}
+                                        alt="Hình ảnh người dùng"
                                         width="30px"
-                                        alt="User  Avatar"
                                         style={{ borderRadius: '50%', marginRight: '10px' }}
+                                        onError={(e) => {
+                                          e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                        }}
                                       />
                                       <TextField
-                                        placeholder={`Trả lời dưới tên ${users.find((user) => user.id === userData.current.id)
-                                            ?.name || 'Người dùng'
-                                          }`}
+                                       placeholder={`Trả lời dưới tên${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
                                         variant="outlined"
                                         size="small"
                                         fullWidth
@@ -1809,10 +1899,13 @@ const Questions = () => {
                                       <Box key={reply.id || index} sx={{ pl: 4, mt: 2 }}>
                                         <Box display="flex" alignItems="center">
                                           <img
-                                            src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
-                                            alt="Commenter Avatar"
+                                            src={currentUserImage || avatardefault}
+                                            alt="Hình ảnh người dùng"
                                             style={{ borderRadius: '50%', marginRight: '10px' }}
                                             width="20px"
+                                            onError={(e) => {
+                                              e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                            }}
                                           />
                                           <Typography
                                             variant="subtitle2"
@@ -1866,8 +1959,8 @@ const Questions = () => {
                                                   }}
                                                 >
                                                   <img
-                                                    src={imageUrl}
-                                                    alt={`Comment image ${index + 1}`}
+                                                    src={imageUrl || 'không có hình ảnh'}
+                                                    alt={`hình ảnh bình luận ${index + 1}`}
                                                     style={{
                                                       width: '35%',
                                                       height: 'auto',
@@ -1934,19 +2027,190 @@ const Questions = () => {
                                               })}
                                             </Box>
                                           )}
-                                        <Button
-                                          variant="text"
-                                          sx={{
-                                            textTransform: 'none',
-                                            padding: '2px 10px',
-                                            fontSize: '0.8rem',
-                                            borderRadius: '16px',
-                                            marginRight: '10px',
-                                          }}
-                                          onClick={() => handleReplyButtonClick(comment)} // Toggle reply form
+                                        <Box
+                                          display="flex"
+                                          alignItems="center"
+                                          gap="8px"
                                         >
-                                          {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
-                                        </Button>
+                                           <Typography
+                                            component="span"
+                                            variant="caption"
+                                            sx={{ color: 'text.secondary' }}
+                                          >{formatUpdatedAt(comment.created_at)}
+                                          </Typography>
+                                          <Button
+                                            variant="text"
+                                            sx={{
+                                              textTransform: 'none',
+                                              padding: '2px 10px',
+                                              fontSize: '0.8rem',
+                                              borderRadius: '16px',
+                                              marginRight: '10px',
+                                            }}
+                                            onClick={() =>
+                                              setReplyingTo(
+                                                replyingTo?.id === reply.id && replyingTo?.type === 'reply'
+                                                  ? null
+                                                  : { id: reply.id, type: 'reply' }
+                                              )
+                                            }
+
+                                          >
+                                            {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
+                                          </Button>
+                                        </Box>
+                                        {replyingTo?.id === reply.id && replyingTo?.type === 'reply' && (
+                                          <Box sx={{ mt: 2 }}>
+                                            <Box display="flex" alignItems="center">
+                                              <img
+                                                src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                                                width="30px"
+                                                alt="User  Avatar"
+                                                style={{ borderRadius: '50%', marginRight: '10px' }}
+                                              />
+                                              <TextField
+                                                placeholder={`Trả lời dưới tên${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
+                                                variant="outlined"
+                                                size="small"
+                                                fullWidth
+                                                value={newReplies[comment.id] || ''} // Lấy nội dung trả lời cho bình luận cụ thể
+                                                onChange={(e) =>
+                                                  setNewReplies((prev) => ({
+                                                    ...prev,
+                                                    [comment.id]: e.target.value,
+                                                  }))
+                                                } // Cập nhật nội dung trả lời cho bình luận cụ thể
+                                              />
+                                            </Box>
+
+                                            <Box
+                                              display="flex"
+                                              justifyContent="center"
+                                              sx={{
+                                                width: '100%',
+                                                gap: 1,
+                                                marginLeft: '-174px',
+                                                marginTop: '-2px',
+                                              }}
+                                            >
+                                              <IconButton>
+                                                <InsertEmoticonIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <SentimentSatisfiedAltIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <InsertPhotoIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <CameraAltIcon fontSize="medium" />
+                                              </IconButton>
+                                              <IconButton>
+                                                <GifBoxIcon fontSize="medium" />
+                                              </IconButton>
+                                            </Box>
+
+                                            {/* Options for Image, File, Code */}
+                                            <Box
+                                              display="flex"
+                                              justifyContent="space-between"
+                                              alignItems="center"
+                                              sx={{
+                                                width: '100%',
+                                                marginLeft: ' 40px',
+                                                marginTop: '2px',
+                                              }}
+                                            >
+                                              <Box display="flex" gap={1}>
+                                                {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
+                                                  <Button
+                                                    key={index}
+                                                    variant="outlined"
+                                                    startIcon={
+                                                      index === 0 ? (
+                                                        <ImageIcon />
+                                                      ) : index === 1 ? (
+                                                        <AttachFileIcon />
+                                                      ) : (
+                                                        <CodeIcon />
+                                                      )
+                                                    }
+                                                    sx={{
+                                                      borderRadius: '16px',
+                                                      textTransform: 'none',
+                                                      padding: '5px 15px',
+                                                    }}
+                                                    component="label"
+                                                    onClick={
+                                                      index === 2 ? handleCodeButtonClick : undefined
+                                                    }
+                                                  >
+                                                    {label}
+                                                    {index === 0 && (
+                                                      <input
+                                                        name="image"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        multiple
+                                                        hidden
+                                                        onChange={(e) => handleAddReplyImage(e, comment.id)} // Xử lý hình ảnh đính kèm cho phản hồi
+                                                      />
+                                                    )}
+                                                    {index === 1 && (
+                                                      <input
+                                                        type="file"
+                                                        name="file"
+                                                        multiple
+                                                        hidden
+                                                        onChange={(e) => handleAddReplyFile(e, comment.id)} // Xử lý tệp đính kèm cho phản hồi
+                                                      />
+                                                    )}
+                                                  </Button>
+                                                ))}
+                                              </Box>
+
+                                              <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => handleAddReply(question.id, comment.id)} // Gửi phản hồi
+                                                sx={{ marginRight: '40px' }}
+                                              >
+                                                Gửi
+                                              </Button>
+                                            </Box>
+                                            <Dialog
+                                              open={showCodeDialog}
+                                              onClose={handleCloseDialog}
+                                              maxWidth="sm"
+                                              fullWidth
+                                            >
+                                              <DialogTitle>Nhập code của bạn</DialogTitle>
+                                              <DialogContent>
+                                                <FormControl fullWidth>
+                                                  <TextField
+                                                    id="code-input"
+                                                    multiline
+                                                    rows={4}
+                                                    name="up_code"
+                                                    variant="outlined"
+                                                    value={codeSnippet}
+                                                    onChange={handleCodeChange}
+                                                    error={!!error}
+                                                  />
+                                                  <FormHelperText>{error}</FormHelperText>
+                                                </FormControl>
+                                              </DialogContent>
+                                              <DialogActions>
+                                                <Button onClick={handleCloseDialog} color="secondary">
+                                                  Hủy
+                                                </Button>
+                                                <Button onClick={handleSubmitCode} color="primary">
+                                                  Lưu
+                                                </Button>
+                                              </DialogActions>
+                                            </Dialog>
+                                          </Box>
+                                          )}
                                       </Box>
                                     );
                                   })}
@@ -1958,99 +2222,99 @@ const Questions = () => {
                     )
                   );
                 })
-              ) : (
-                <Typography variant="h6" align="center" sx={{ mt: 3 }}>
-                  Không có câu hỏi nào.
-                </Typography>
-              )}
-            </Box>
-          </Grid>
-          {/* Right Column */}
-          <Grid item md={4}>
-            <Box
-              sx={{
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                padding: '20px',
-                backgroundColor: '#fff',
-              }}
-            >
-              <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                <Typography variant="h6">Từ khóa nổi bật</Typography>
-                <IconButton>
-                  <MoreHorizIcon />
-                </IconButton>
-              </Box>
-              <hr
-                style={{
-                  border: 'none',
-                  height: '1px',
-                  backgroundColor: '#007bff',
-                  margin: '1px 0',
-                }}
-              />
-
-              {/* Danh sách Hashtags */}
-              <>
-                {loading ? (
-                  <CircularProgress /> // Hiển thị spinner khi đang tải
-                ) : (
-                  <List>
-                    {hashtag.length > 0 ? (
-                      hashtag.map((hashtag) => (
-                        <ListItem key={hashtag?.id} sx={{ padding: 0 }}>
-                          {hashtag && (
-                            <Typography
-                              variant="h6"
-                              sx={{
-                                color: '#007bff',
-                                fontSize: '0.8rem',
-                              }}
-                            >
-                              {hashtag.name} {/* Hiển thị hashtag nếu có */}
-                            </Typography>
-                          )}
-                        </ListItem>
-                      ))
-                    ) : (
-                      <Typography
-                        variant="body2"
-                        sx={{
-                          color: '#999',
-                          fontSize: '0.9rem',
-                          textAlign: 'center',
-                          marginTop: '1rem',
-                        }}
-                      >
-                        Không có hashtags nào để hiển thị.
-                      </Typography>
-                    )}
-                  </List>
-                )}
-              </>
-            </Box>
-            {/* tam thoi */}
-          </Grid>
+            ) : (
+              <Typography variant="h6" align="center" sx={{ mt: 3 }}>
+                Không có câu hỏi nào.
+              </Typography>
+            )}
+          </Box>
         </Grid>
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={5000}
-          onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-          sx={{ transform: 'translateY(50px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
-        >
-          <Alert
-            onClose={handleSnackbarClose}
-            severity={snackbarSeverity}
+        {/* Right Column */}
+        <Grid item md={4}>
+          <Box
             sx={{
-              width: '100%',
-              border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+              border: '1px solid #e0e0e0',
+              borderRadius: '8px',
+              padding: '20px',
+              backgroundColor: '#fff',
             }}
           >
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </DashboardCard>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+              <Typography variant="h6">Từ khóa nổi bật</Typography>
+              <IconButton>
+                <MoreHorizIcon />
+              </IconButton>
+            </Box>
+            <hr
+              style={{
+                border: 'none',
+                height: '1px',
+                backgroundColor: '#007bff',
+                margin: '1px 0',
+              }}
+            />
+
+            {/* Danh sách Hashtags */}
+            <>
+              {loading ? (
+                <CircularProgress /> // Hiển thị spinner khi đang tải
+              ) : (
+                <List>
+                  {hashtag.length > 0 ? (
+                    hashtag.map((hashtag) => (
+                      <ListItem key={hashtag?.id} sx={{ padding: 0 }}>
+                        {hashtag && (
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              color: '#007bff',
+                              fontSize: '0.8rem',
+                            }}
+                          >
+                            {hashtag.name} {/* Hiển thị hashtag nếu có */}
+                          </Typography>
+                        )}
+                      </ListItem>
+                    ))
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#999',
+                        fontSize: '0.9rem',
+                        textAlign: 'center',
+                        marginTop: '1rem',
+                      }}
+                    >
+                      Không có hashtags nào để hiển thị.
+                    </Typography>
+                  )}
+                </List>
+              )}
+            </>
+          </Box>
+          {/* tam thoi */}
+        </Grid>
+      </Grid>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={5000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        sx={{ transform: 'translateY(50px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbarSeverity}
+          sx={{
+            width: '100%',
+            border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+          }}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
     </PageContainer>
   );
 };

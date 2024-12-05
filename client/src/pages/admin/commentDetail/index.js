@@ -129,21 +129,23 @@ function CommentDetail() {
       const response = await deleteApi(deleteId);
   
       if (response.status === 204) {
-        // Cập nhật lại giao diện nếu xóa thành công
-        setRows(prevRows => {
-          const updatedRows = prevRows.filter(comment => comment.id !== deleteId);
+        // Xóa bình luận khỏi state
+        setRows((prevRows) => {
+          const updatedRows = prevRows.filter((comment) => comment.id !== deleteId);
   
-          // Cập nhật local storage mà không xóa toàn bộ danh sách câu hỏi
-          const storedQuestions = JSON.parse(localStorage.getItem('comment_question')) || [];
-          const updatedQuestions = storedQuestions.map(question => {
-            return {
+          // Cập nhật lại localStorage cho từng loại bình luận
+          if (commentType === 'course') {
+            const storedCourses = JSON.parse(localStorage.getItem('comment_course')) || [];
+            const updatedCourses = storedCourses.filter((comment) => comment.id !== deleteId);
+            localStorage.setItem('comment_course', JSON.stringify(updatedCourses));
+          } else if (commentType === 'question') {
+            const storedQuestions = JSON.parse(localStorage.getItem('comment_question')) || [];
+            const updatedQuestions = storedQuestions.map((question) => ({
               ...question,
-              comments: question.comments.filter(comment => comment.id !== deleteId)
-            };
-          });
-  
-          // Lưu danh sách cập nhật vào local storage
-          localStorage.setItem('comment_question', JSON.stringify(updatedQuestions));
+              comments: question.comments.filter((comment) => comment.id !== deleteId),
+            }));
+            localStorage.setItem('comment_question', JSON.stringify(updatedQuestions));
+          }
   
           return updatedRows;
         });
@@ -164,9 +166,7 @@ function CommentDetail() {
     }
   };
   
-  
-
-
+      
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
