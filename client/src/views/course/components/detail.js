@@ -208,7 +208,7 @@ const ProductsDetail = () => {
       try {
         const response = await getCourseComments(id);
         console.log('Comments from API:', response.data);
-  
+
         if (Array.isArray(response.data)) {
           const mergedData = response.data.map((apiComment) => {
             const storedComments = JSON.parse(localStorage.getItem(`comment_course_${id}`)) || [];
@@ -218,7 +218,7 @@ const ProductsDetail = () => {
               replies: storedComment?.replies || apiComment.replies || [],
             };
           });
-  
+
           setDataTemp(mergedData);
           localStorage.setItem(`comment_course_${id}`, JSON.stringify(mergedData));
         } else {
@@ -228,7 +228,7 @@ const ProductsDetail = () => {
         console.error("Error fetching comments:", error);
       }
     };
-  
+
     const storedComments = localStorage.getItem(`comment_course_${id}`);
     if (storedComments) {
       const parsedComments = JSON.parse(storedComments);
@@ -239,10 +239,10 @@ const ProductsDetail = () => {
         localStorage.removeItem(`comment_course_${id}`);
       }
     }
-  
+
     fetchComments();
   }, [id]);
-  
+
 
   // Save comments to localStorage after adding a new comment or reply
   const handleAddComment = async (course_id) => {
@@ -315,14 +315,14 @@ const ProductsDetail = () => {
       }, 100);
       return;
     }
-  
+
     if (!newReplies[parentId || commentId] || newReplies[parentId || commentId].trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;
     }
-  
+
     try {
       let imageUrls = [];
       if (replyImageFile && replyImageFile.length > 0) {
@@ -330,25 +330,37 @@ const ProductsDetail = () => {
         replyImageFile.forEach((image) => {
           formDataImage.append("image", image);
         });
-        const imageResponse = await axios.post("http://localhost:3000/api/upload", formDataImage, {
+
+        // Log FormData content
+        for (let pair of formDataImage.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+        }
+
+        const imageResponse = await axios.post("http://localhost:3000/api/uploads", formDataImage, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
+
+        // Log response from the upload API
+        console.log("Upload response:", imageResponse.data);
+
         if (imageResponse.data && Array.isArray(imageResponse.data.imagePaths)) {
           imageUrls = imageResponse.data.imagePaths;
         }
       }
-  
+
+      console.log("Image URLs to be sent:", imageUrls); // Log image URLs
+
       const newReply = {
         user_id: userData.current.id,
         content: newReplies[parentId || commentId] || '',
         imageUrls: imageUrls,
         created_at: new Date(),
       };
-  
+
       const response = await axios.post(`http://localhost:3000/api/commentCourse/${commentId}/replies`, newReply);
-  
+
       if (response.data.status === 'success') {
         setDataTemp((prevComments) => {
           const updatedComments = prevComments.map((item) => {
@@ -367,13 +379,12 @@ const ProductsDetail = () => {
             }
             return item;
           });
-        
+
           // Cập nhật đầy đủ vào localStorage
           localStorage.setItem(`comment_course_${course_id}`, JSON.stringify(updatedComments));
           return updatedComments;
         });
-        
-  
+
         setNewReplies((prev) => ({ ...prev, [parentId || commentId]: '' }));
         setReplyingTo(null);
         setReplyImageFile(null);
@@ -390,7 +401,6 @@ const ProductsDetail = () => {
       setIsSubmittingReply(false);
     }
   };
-  
 
   const formatDate = (createdAt) => {
     if (!createdAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
@@ -751,30 +761,18 @@ const ProductsDetail = () => {
                           {reply.content}
                         </Typography>
 
-                        {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 ? (
+                        {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 && (
                           <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                            {reply.imageUrls.map((imageUrl, index) => (
-                              <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                            {reply.imageUrls.map((imageUrl, idx) => (
+                              <Box key={idx} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                                 <img
-                                  src={`http://localhost:3000${imageUrl}`}  // Ensure correct URL path
-                                  alt={`Comment image ${index + 1}`}
+                                  src={imageUrl}  // Ensure correct URL path
+                                  alt={`Comment image ${idx + 1}`}
                                   style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
                                 />
                               </Box>
                             ))}
                           </Box>
-                        ) : (
-                          reply.imageUrls && typeof reply.imageUrls === 'string' && (
-                            <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                              <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
-                                <img
-                                  src={reply.imageUrls}
-                                  alt="Comment image"
-                                  style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
-                                />
-                              </Box>
-                            </Box>
-                          )
                         )}
 
                         <Typography
@@ -853,6 +851,8 @@ const ProductsDetail = () => {
                     ))}
                   </Box>
                 )}
+
+
               </Box>
             ))
           ) : (

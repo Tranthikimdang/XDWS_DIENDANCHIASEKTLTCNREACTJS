@@ -67,7 +67,7 @@ const Questions = () => {
   const [showCodeField, setShowCodeField] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
-  const [questions,setListQuestion] = useState([]);
+  const [questions, setListQuestion] = useState([]);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -117,8 +117,9 @@ const Questions = () => {
       formData.append('image', image);
 
       try {
-        const response = await axios.post('http://localhost:3000/api/upload-image', formData);
-        uploadedImages.push(response.data.url); // Assuming response contains image URL
+        const response = await axios.post('http://localhost:3000/api/uploads', formData);
+        console.log('Image upload response:', response.data);
+        uploadedImages.push(response.data.imagePaths[0]); // Ensure the correct path from response
       } catch (error) {
         console.error('Error uploading image:', error);
       }
@@ -126,9 +127,13 @@ const Questions = () => {
 
     setNewReplies((prev) => ({
       ...prev,
-      [commentId]: { ...prev[commentId], imageUrls: uploadedImages },
+      [commentId]: {
+        ...prev[commentId],
+        imageUrls: (prev[commentId]?.imageUrls || []).concat(uploadedImages),
+      },
     }));
   };
+
 
   const handleAddReplyFile = async (event, commentId) => {
     const files = event.target.files;
@@ -140,19 +145,15 @@ const Questions = () => {
       formData.append('file', file);
 
       try {
-        const response = await axios
-          .post('http://localhost:3000/api/upload-file', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          })
-          .then((response) => {
-            console.log('File uploaded successfully', response);
-          })
-          .catch((error) => {
-            console.error('Error uploading file:', error);
-          });
-        uploadedFiles.push(response.data.url); // Assuming response contains file URL
+        const response = await axios.post('http://localhost:3000/api/upload-files', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log('File upload response:', response.data);
+        if (response.data && Array.isArray(response.data.filePaths)) {
+          uploadedFiles.push(...response.data.filePaths);
+        }
       } catch (error) {
         console.error('Error uploading file:', error);
       }
@@ -160,7 +161,10 @@ const Questions = () => {
 
     setNewReplies((prev) => ({
       ...prev,
-      [commentId]: { ...prev[commentId], fileUrls: uploadedFiles },
+      [commentId]: {
+        ...prev[commentId],
+        fileUrls: (prev[commentId]?.fileUrls || []).concat(uploadedFiles),
+      },
     }));
   };
 
@@ -245,7 +249,7 @@ const Questions = () => {
   // Pagination logic
   const indexOfLastQuestion = currentPage * usersPerPage;
   const indexOfFirstQuestion = indexOfLastQuestion - usersPerPage;
-  const listQuestion = filteredQuestions.slice(indexOfFirstQuestion , indexOfLastQuestion);
+  const listQuestion = filteredQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
 
 
 
@@ -540,7 +544,7 @@ const Questions = () => {
   };
 
 
-  const handleAddReply = async (questionId, commentId ,parentId = null) => {
+  const handleAddReply = async (questionId, commentId, parentId = null) => {
     if (!userData?.current?.id) {
       setSnackbarOpen(false);
       setTimeout(() => {
@@ -551,8 +555,7 @@ const Questions = () => {
       return;
     }
 
-    // Kiểm tra xem có nội dung phản hồi hay không
-    const replyContent = newReplies[parentId || commentId];
+    const replyContent = newReplies[parentId || commentId]?.content;
     if (!replyContent || typeof replyContent !== 'string' || replyContent.trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
       setSnackbarSeverity("error");
@@ -565,33 +568,16 @@ const Questions = () => {
       let imageUrls = [];
       let fileUrls = [];
 
-      // Upload ảnh nếu có
-      if (replyImageFile && replyImageFile.length > 0) {
-        const formDataImage = new FormData();
-        replyImageFile.forEach((image, index) => {
-          formDataImage.append(`image_${index}`, image);
-        });
-        const imageResponse = await axios.post("http://localhost:3000/api/upload", formDataImage, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        if (imageResponse.data && Array.isArray(imageResponse.data.imagePaths)) {
-          imageUrls = imageResponse.data.imagePaths;
-        }
+      // Handle image URLs from state
+      if (newReplies[parentId || commentId]?.imageUrls) {
+        imageUrls = newReplies[parentId || commentId].imageUrls;
       }
 
-      // Upload file nếu có
-      if (replyFile && replyFile.length > 0) {
-        const formDataFile = new FormData();
-        replyFile.forEach((file, index) => {
-          formDataFile.append(`file_${index}`, file);
-        });
-        const fileResponse = await axios.post("http://localhost:3000/api/upload-files", formDataFile);
-        if (fileResponse.data && Array.isArray(fileResponse.data.filePaths)) {
-          fileUrls = fileResponse.data.filePaths;
-        }
+      // Handle file URLs from state
+      if (newReplies[parentId || commentId]?.fileUrls) {
+        fileUrls = newReplies[parentId || commentId].fileUrls;
       }
 
-      // Tạo dữ liệu mới cho phản hồi
       const newReply = {
         user_id: userData.current.id,
         content: replyContent,
@@ -601,11 +587,9 @@ const Questions = () => {
         created_at: new Date(),
       };
 
-      // Gửi phản hồi tới server
       const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
 
       if (response.data.status === 'success') {
-        // Cập nhật danh sách câu hỏi và câu trả lời sau khi thành công
         setListQuestion((prevList) => {
           const updatedList = prevList.map((item) => {
             if (item.id === questionId) {
@@ -626,13 +610,11 @@ const Questions = () => {
             return item;
           });
 
-          // Lưu danh sách mới vào localStorage
           localStorage.setItem('comment_question', JSON.stringify(updatedList));
           return updatedList;
         });
 
-        // Reset form và các trạng thái liên quan
-        setNewReplies((prev) => ({ ...prev, [parentId || commentId]: '' }));
+        setNewReplies((prev) => ({ ...prev, [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] } }));
         setReplyingTo(null);
         setReplyImageFile(null);
         setReplyFile(null);
@@ -649,6 +631,8 @@ const Questions = () => {
       setIsSubmittingReply(false);
     }
   };
+
+
 
   useEffect(() => {
     const fetchHashtags = async () => {
@@ -1419,7 +1403,7 @@ const Questions = () => {
                                   }}
                                 />
                                 <TextField
-                                   placeholder={`Bình luận dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'} `}
+                                  placeholder={`Bình luận dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'} `}
                                   variant="outlined"
                                   size="small"
                                   fullWidth
@@ -1709,7 +1693,7 @@ const Questions = () => {
                                   alignItems="center"
                                   gap="8px"
                                 >
-                                   <Typography
+                                  <Typography
                                     component="span"
                                     variant="caption"
                                     sx={{ color: 'text.secondary' }}
@@ -1737,7 +1721,7 @@ const Questions = () => {
                                   </Button>
                                 </Box>
                                 {/* Reply Section */}
-                                {replyingTo ?.id === comment.id && replyingTo?.type === 'comment' && (
+                                {replyingTo?.id === comment.id && replyingTo?.type === 'comment' && (
                                   <Box sx={{ mt: 2 }}>
                                     <Box display="flex" alignItems="center">
                                       <img
@@ -1750,15 +1734,15 @@ const Questions = () => {
                                         }}
                                       />
                                       <TextField
-                                       placeholder={`Trả lời dưới tên${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
+                                        placeholder={`Trả lời dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
                                         variant="outlined"
                                         size="small"
                                         fullWidth
-                                        value={newReplies[comment.id] || ''} // Lấy nội dung trả lời cho bình luận cụ thể
+                                        value={newReplies[comment.id]?.content || ''} // Lấy nội dung trả lời cho bình luận cụ thể
                                         onChange={(e) =>
                                           setNewReplies((prev) => ({
                                             ...prev,
-                                            [comment.id]: e.target.value,
+                                            [comment.id]: { ...prev[comment.id], content: e.target.value, },
                                           }))
                                         } // Cập nhật nội dung trả lời cho bình luận cụ thể
                                       />
@@ -1940,99 +1924,98 @@ const Questions = () => {
                                         )}
 
                                         {/* Display images */}
-                                        {Array.isArray(reply.imageUrls) &&
-                                          reply.imageUrls.length > 0 && (
-                                            <Box
-                                              sx={{
-                                                mt: 1,
-                                                display: 'flex',
-                                                flexWrap: 'wrap',
-                                                gap: '5px',
-                                              }}
-                                            >
-                                              {reply.imageUrls.map((imageUrl, index) => (
+                                        {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 && (
+                                          <Box
+                                            sx={{
+                                              mt: 1,
+                                              display: 'flex',
+                                              flexWrap: 'wrap',
+                                              gap: '5px',
+                                            }}
+                                          >
+                                            {reply.imageUrls.map((imageUrl, index) => (
+                                              <Box
+                                                key={index}
+                                                sx={{
+                                                  flexBasis: 'calc(50% - 5px)',
+                                                  flexGrow: 1,
+                                                }}
+                                              >
+                                                <img
+                                                  src={imageUrl || 'không có hình ảnh'}
+                                                  alt={`hình ảnh bình luận ${index + 1}`}
+                                                  style={{
+                                                    width: '35%',
+                                                    height: 'auto',
+                                                    borderRadius: '8px',
+                                                    objectFit: 'contain',
+                                                  }}
+                                                />
+                                              </Box>
+                                            ))}
+                                          </Box>
+                                        )}
+
+                                        {Array.isArray(reply.fileUrls) && reply.fileUrls.length > 0 && (
+                                          <Box
+                                            sx={{
+                                              mt: 1,
+                                              display: 'flex',
+                                              flexDirection: 'column',
+                                              gap: '10px',
+                                            }}
+                                          >
+                                            {reply.fileUrls.map((fileUrl, index) => {
+                                              const fileName = decodeURIComponent(fileUrl)
+                                                .split('/')
+                                                .pop()
+                                                .split('?')[0];
+                                              return (
                                                 <Box
                                                   key={index}
                                                   sx={{
-                                                    flexBasis: 'calc(50% - 5px)',
-                                                    flexGrow: 1,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    padding: '8px 16px',
+                                                    border: '1px solid #e0e0e0',
+                                                    borderRadius: '8px',
+                                                    backgroundColor: '#fff',
+                                                    width: 'fit-content',
                                                   }}
                                                 >
-                                                  <img
-                                                    src={imageUrl || 'không có hình ảnh'}
-                                                    alt={`hình ảnh bình luận ${index + 1}`}
-                                                    style={{
-                                                      width: '35%',
-                                                      height: 'auto',
-                                                      borderRadius: '8px',
-                                                      objectFit: 'contain',
-                                                    }}
-                                                  />
-                                                </Box>
-                                              ))}
-                                            </Box>
-                                          )}
-
-                                        {Array.isArray(reply.fileUrls) &&
-                                          reply.fileUrls.length > 0 && (
-                                            <Box
-                                              sx={{
-                                                mt: 1,
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                gap: '10px',
-                                              }}
-                                            >
-                                              {reply.fileUrls.map((fileUrl, index) => {
-                                                const fileName = decodeURIComponent(fileUrl)
-                                                  .split('/')
-                                                  .pop()
-                                                  .split('?')[0];
-                                                return (
-                                                  <Box
-                                                    key={index}
+                                                  <IconButton
+                                                    sx={{ color: '#007bff', padding: '0' }}
+                                                  >
+                                                    <DescriptionIcon />
+                                                  </IconButton>
+                                                  <Typography
+                                                    component="a"
+                                                    href={fileUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
                                                     sx={{
-                                                      display: 'flex',
-                                                      alignItems: 'center',
-                                                      padding: '8px 16px',
-                                                      border: '1px solid #e0e0e0',
-                                                      borderRadius: '8px',
-                                                      backgroundColor: '#fff',
-                                                      width: 'fit-content',
+                                                      marginLeft: '8px',
+                                                      color: '#333',
+                                                      textDecoration: 'none',
+                                                      fontSize: '14px',
+                                                      fontWeight: '500',
+                                                      wordBreak: 'break-all',
                                                     }}
                                                   >
-                                                    <IconButton
-                                                      sx={{ color: '#007bff', padding: '0' }}
-                                                    >
-                                                      <DescriptionIcon />
-                                                    </IconButton>
-                                                    <Typography
-                                                      component="a"
-                                                      href={fileUrl}
-                                                      target="_blank"
-                                                      rel="noopener noreferrer"
-                                                      sx={{
-                                                        marginLeft: '8px',
-                                                        color: '#333',
-                                                        textDecoration: 'none',
-                                                        fontSize: '14px',
-                                                        fontWeight: '500',
-                                                        wordBreak: 'break-all',
-                                                      }}
-                                                    >
-                                                      {fileName}
-                                                    </Typography>
-                                                  </Box>
-                                                );
-                                              })}
-                                            </Box>
-                                          )}
+                                                    {fileName}
+                                                  </Typography>
+                                                </Box>
+                                              );
+                                            })}
+                                          </Box>
+                                        )}
+
                                         <Box
                                           display="flex"
                                           alignItems="center"
                                           gap="8px"
                                         >
-                                           <Typography
+                                          <Typography
                                             component="span"
                                             variant="caption"
                                             sx={{ color: 'text.secondary' }}
@@ -2069,15 +2052,15 @@ const Questions = () => {
                                                 style={{ borderRadius: '50%', marginRight: '10px' }}
                                               />
                                               <TextField
-                                                placeholder={`Trả lời dưới tên${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
+                                                placeholder={`Trả lời dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
                                                 variant="outlined"
                                                 size="small"
                                                 fullWidth
-                                                value={newReplies[comment.id] || ''} // Lấy nội dung trả lời cho bình luận cụ thể
+                                                value={newReplies[comment.id]?.content || ''} // Lấy nội dung trả lời cho bình luận cụ thể
                                                 onChange={(e) =>
                                                   setNewReplies((prev) => ({
                                                     ...prev,
-                                                    [comment.id]: e.target.value,
+                                                    [comment.id]: { ...prev[comment.id], content: e.target.value, },
                                                   }))
                                                 } // Cập nhật nội dung trả lời cho bình luận cụ thể
                                               />
@@ -2210,7 +2193,7 @@ const Questions = () => {
                                               </DialogActions>
                                             </Dialog>
                                           </Box>
-                                          )}
+                                        )}
                                       </Box>
                                     );
                                   })}
@@ -2315,7 +2298,7 @@ const Questions = () => {
         </Alert>
       </Snackbar>
 
-    </PageContainer>
+    </PageContainer >
   );
 };
 
