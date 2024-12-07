@@ -41,6 +41,10 @@ const RegisterMentor = Loadable(lazy(() => import('../views/mentor/registerMento
 const EditProfile = Loadable(lazy(() => import('../views/profile/editProfile')));
 const Notification = Loadable(lazy(() => import('../views/notification')));
 const Friend = Loadable(lazy(() => import('../views/Friend/Friend')));
+const Certificate = Loadable(lazy(() => import('../views/certificate')));
+
+
+
 //admin
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
 const ArticleAdmin = Loadable(lazy(() => import('../pages/admin/article')));
@@ -140,7 +144,7 @@ const renderRoutes = (role) => {
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
-        
+        { path: '/certificate', exact: true, element: <Certificate /> },
       ],
     });
     routes.push({
@@ -216,6 +220,7 @@ const renderRoutes = (role) => {
         { path: '*', element: <Navigate to="/auth/404" /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
+        { path: '/certificate', exact: true, element: <Certificate /> },
       ],
     });
   } else {
@@ -248,6 +253,7 @@ const renderRoutes = (role) => {
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
+        { path: '/certificate', exact: true, element: <Certificate /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

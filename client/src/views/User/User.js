@@ -83,17 +83,20 @@ const User = () => {
   return (
     <PageContainer title="Người dùng | Share Code" description="Đây là trang người dùng">
       <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-            <Typography
-              variant="h4"
-              component="h1"
-              className="heading"
-              sx={{ fontWeight: 'bold', color: '#333' }}
-            >
-              Danh Sách Tài Khoản
+        <Grid container spacing={3}>
+          {/* Heading */}
+          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+            <Typography variant="h4" component="h1" className="heading">
+              Danh sách người dùng
+            </Typography>
+            <Typography variant="body1" paragraph className="typography-body">
+              Tìm kiếm và kết nối với những người dùng hàng đầu trong lĩnh vực lập trình.
+              <br />
+              Người người dùng sẵn sàng hỗ trợ bạn
+              trên hành trình học lập trình và phát triển sự nghiệp.
             </Typography>
           </Grid>
+
           <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
             <TextField
               label="Tìm kiếm người dùng"

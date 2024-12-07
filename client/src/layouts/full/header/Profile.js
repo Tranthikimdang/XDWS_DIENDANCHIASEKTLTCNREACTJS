@@ -16,7 +16,8 @@ import {
   IconUser,
   IconUserCircle,
   IconPencil,
-  IconFriends
+  IconFriends,
+  IconCertificate
 } from '@tabler/icons';
 
 const Profile = () => {
@@ -105,6 +106,13 @@ const Profile = () => {
           <ListItemText>Bạn bè</ListItemText>
         </MenuItem>
 
+        <MenuItem component={Link} to={`/certificate`}>
+          <ListItemIcon>
+            <IconCertificate width={20} />
+          </ListItemIcon>
+          <ListItemText>Chứng chỉ</ListItemText>
+        </MenuItem>
+
         <MenuItem component={Link} to={`/editProfile/${user?.id}`}>
           <ListItemIcon>
             <IconPencil width={20} />
@@ -112,24 +120,6 @@ const Profile = () => {
           <ListItemText>Sửa tài khoản</ListItemText>
         </MenuItem>
 
-        {/* <MenuItem>
-          <ListItemIcon>
-            <IconListCheck width={20} />
-          </ListItemIcon>
-          <ListItemText>Khóa học của tôi</ListItemText>
-        </MenuItem>
-        <MenuItem component={Link} to="/new-post">
-          <ListItemIcon>
-            <IconPencil width={20} />
-          </ListItemIcon>
-          <ListItemText>Thêm câu hỏi</ListItemText>
-        </MenuItem>
-        <MenuItem component={Link} to="/new-post">
-          <ListItemIcon>
-            <IconBook2 width={20} />
-          </ListItemIcon>
-          <ListItemText>Thêm bài viết</ListItemText>
-        </MenuItem> */}
         <Box mt={1} py={1} px={2}>
           <Button onClick={handleLogout} variant="outlined" color="primary" fullWidth>
             Đăng xuất
