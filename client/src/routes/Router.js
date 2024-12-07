@@ -21,7 +21,6 @@ const CateArticleDetail = Loadable(
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail')));
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post')));
 const Questions = Loadable(lazy(() => import('../views/questions/Questions')));
-const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestions')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -54,6 +53,9 @@ const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')));
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')));
 
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')));
+const FormViewQuestion = Loadable(lazy(() => import('../pages/admin/questions/data/formViewQuestion')));
+const FormEditQuestion = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestion.js')));
+
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
 const AddCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormAddCate')));
@@ -152,7 +154,8 @@ const renderRoutes = (role) => {
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
-        { path: 'questions/:id', exact: true, element: <EditQuestions /> },
+        { path: 'questions/:id', exact: true, element: <FormViewQuestion /> },
+        { path: 'questions/:id', exact: true, element: <FormEditQuestion /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },

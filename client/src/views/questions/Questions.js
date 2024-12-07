@@ -99,6 +99,8 @@ const Questions = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 10;
+ // Lấy danh sách người dùng từ Firestore
+ const [currentUserImage, setCurrentUserImage] = useState('');
 
   const handleToggleComments = (questionId) => {
     setVisibleComments((prev) => ({
@@ -176,8 +178,7 @@ const Questions = () => {
     }
   };
 
-  // Lấy danh sách người dùng từ Firestore
-  const [currentUserImage, setCurrentUserImage] = useState('');
+ 
 
   useEffect(() => {
     const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
@@ -191,14 +192,14 @@ const Questions = () => {
           setUsers(res?.data.users);
         }
         // Tìm thông tin người dùng hiện tại dựa trên user ID trong localStorage
-        // const currentUserInfo = userList.find((user) => user.id === userDataFromLocalStorage?.id);
+        const currentUserInfo = userApis.find((user) => user.id === userDataFromLocalStorage?.id);
 
         // Cập nhật hình ảnh người dùng hiện tại
-        // if (currentUserInfo && currentUserInfo.imageUrl) {
-        //   setCurrentUserImage(currentUserInfo.imageUrl);
-        // } else {
-        //   setCurrentUserImage('default-image-url.jpg'); // Hình ảnh mặc định nếu không có
-        // }
+        if (currentUserInfo && currentUserInfo.imageUrl) {
+          setCurrentUserImage(currentUserInfo.imageUrl);
+        } else {
+          setCurrentUserImage('default-image-url.jpg'); // Hình ảnh mặc định nếu không có
+        }
       } catch (error) {
         console.error('Lỗi khi lấy người dùng:', error);
       } finally {
@@ -361,7 +362,6 @@ const Questions = () => {
           user_id: userData.current.id,
           imageUrls,
           fileUrls,
-          isApproved: true,
           is_deleted: data.is_deleted || false,
           up_code: dataTemp?.up_code || codeSnippet,
           comments: [],
@@ -703,7 +703,6 @@ const Questions = () => {
           ...data,
           imageUrls: imageUrls.length > 0 ? imageUrls : dataTemp.imageUrls,
           fileUrls: fileUrls.length > 0 ? fileUrls : dataTemp.fileUrls,
-          isApproved: false,
           is_deleted: data.is_deleted || false,
           up_code: dataTemp?.up_code || codeSnippet,
         };
@@ -1070,7 +1069,6 @@ const Questions = () => {
                   const listImgUrl = question.imageUrls;
                   const listFileUrl = question.fileUrls;
                   return (
-                    question.isApproved === true && (
                       <Box
                         key={question?.id}
                         sx={{
@@ -1426,35 +1424,6 @@ const Questions = () => {
                                   onChange={(e) => setNewComment(e.target.value)}
                                 />
                               </Box>
-
-                              {/* Hàng biểu tượng cho Emojis, GIFs, Hình ảnh */}
-                              <Box
-                                display="flex"
-                                justifyContent="center"
-                                sx={{
-                                  width: '100%',
-                                  gap: 1,
-                                  marginRight: '345px',
-                                  marginTop: '-18px',
-                                }}
-                              >
-                                <IconButton>
-                                  <InsertEmoticonIcon fontSize="medium" />
-                                </IconButton>
-                                <IconButton>
-                                  <SentimentSatisfiedAltIcon fontSize="medium" />
-                                </IconButton>
-                                <IconButton>
-                                  <InsertPhotoIcon fontSize="medium" />
-                                </IconButton>
-                                <IconButton>
-                                  <CameraAltIcon fontSize="medium" />
-                                </IconButton>
-                                <IconButton>
-                                  <GifBoxIcon fontSize="medium" />
-                                </IconButton>
-                              </Box>
-
                               {/* File input cho hình ảnh */}
                               <Box
                                 display="flex"
@@ -1742,34 +1711,6 @@ const Questions = () => {
                                         } // Cập nhật nội dung trả lời cho bình luận cụ thể
                                       />
                                     </Box>
-
-                                    <Box
-                                      display="flex"
-                                      justifyContent="center"
-                                      sx={{
-                                        width: '100%',
-                                        gap: 1,
-                                        marginLeft: '-174px',
-                                        marginTop: '-2px',
-                                      }}
-                                    >
-                                      <IconButton>
-                                        <InsertEmoticonIcon fontSize="medium" />
-                                      </IconButton>
-                                      <IconButton>
-                                        <SentimentSatisfiedAltIcon fontSize="medium" />
-                                      </IconButton>
-                                      <IconButton>
-                                        <InsertPhotoIcon fontSize="medium" />
-                                      </IconButton>
-                                      <IconButton>
-                                        <CameraAltIcon fontSize="medium" />
-                                      </IconButton>
-                                      <IconButton>
-                                        <GifBoxIcon fontSize="medium" />
-                                      </IconButton>
-                                    </Box>
-
                                     {/* Options for Image, File, Code */}
                                     <Box
                                       display="flex"
@@ -2027,7 +1968,6 @@ const Questions = () => {
                           </Box>
                         )}
                       </Box>
-                    )
                   );
                 })
             ) : (
