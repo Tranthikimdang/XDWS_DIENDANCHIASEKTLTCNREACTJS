@@ -290,19 +290,17 @@ const Mentor = () => {
               </Typography>
             )}
           </Grid>
-
-          
         </Grid>
       </Box>
       {/* Pagination */}
       <Box display="flex" justifyContent="center" mt={4} mb={4}>
-            <Pagination
-              count={Math.ceil(filteredMentors.length / itemsPerPage)}
-              page={currentPage}
-              onChange={(event, value) => setCurrentPage(value)}
-              color="primary"
-            />
-          </Box>
+        <Pagination
+          count={Math.ceil(filteredMentors.length / itemsPerPage)}
+          page={currentPage}
+          onChange={(event, value) => setCurrentPage(value)}
+          color="primary"
+        />
+      </Box>
     </PageContainer>
   );
 };

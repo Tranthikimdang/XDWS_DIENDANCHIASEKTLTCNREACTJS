@@ -62,6 +62,8 @@ const Profile = () => {
         const response = await UserAPI.getUsersList();
         const matchingUser = response.data.users.find((user) => user.id == userId);
 
+        console.log(matchingUser.imageUrl);
+        
         setUser(matchingUser);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -130,19 +132,20 @@ const Profile = () => {
 
 
   //date
-  const formatUpdatedAt = (updatedAt) => {
+  const formatUpdatedAt = (updatedAt) => { 
     let updatedAtString = '';
-
+  
     if (updatedAt) {
-      const date = new Date(updatedAt);
+      const date = new Date(updatedAt);  // Tạo đối tượng Date từ chuỗi thời gian
       const now = new Date();
       const diff = now - date;
-
+  
       const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
-
+  
+      // Hiển thị thời gian theo các đơn vị khác nhau
       if (days > 0) {
         updatedAtString = `${days} ngày trước`;
       } else if (hours > 0) {
@@ -155,9 +158,10 @@ const Profile = () => {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-
+  
     return updatedAtString;
   };
+  
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -298,6 +302,7 @@ const Profile = () => {
     const userLocalId = localStorage.getItem('user');
     return !!userLocalId; // Trả về true nếu tồn tại, ngược lại false
   };
+  
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;

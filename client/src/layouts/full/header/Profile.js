@@ -12,12 +12,11 @@ import {
 } from '@mui/material';
 
 import {
-  IconListCheck,
   IconMail,
   IconUser,
   IconUserCircle,
   IconPencil,
-  IconBook2,
+  IconFriends
 } from '@tabler/icons';
 
 const Profile = () => {
@@ -98,12 +97,21 @@ const Profile = () => {
           </ListItemIcon>
           <ListItemText>Thông báo</ListItemText>
         </MenuItem>
+
+        <MenuItem component={Link} to={`/friend`}>
+          <ListItemIcon>
+            <IconFriends width={20} />
+          </ListItemIcon>
+          <ListItemText>Bạn bè</ListItemText>
+        </MenuItem>
+
         <MenuItem component={Link} to={`/editProfile/${user?.id}`}>
           <ListItemIcon>
             <IconPencil width={20} />
           </ListItemIcon>
           <ListItemText>Sửa tài khoản</ListItemText>
         </MenuItem>
+
         {/* <MenuItem>
           <ListItemIcon>
             <IconListCheck width={20} />
