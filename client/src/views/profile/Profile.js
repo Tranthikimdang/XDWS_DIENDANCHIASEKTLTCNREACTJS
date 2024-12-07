@@ -219,28 +219,42 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchFollowStatus = async () => {
-      if (!userId || !userLocalId) {
-        console.warn('User ID hoặc User Local ID không tồn tại');
+      if (!userId) {
+        console.warn('User ID không tồn tại');
         return;
       }
-
-      if (userId !== userLocalId) {
-        try {
-          const response = await FollowApi.checkFollowStatus(userLocalId, userId);
-          if (!response) {
-            console.error('API trả về response null hoặc không hợp lệ');
-            return;
-          }
-          setFollowStatus(response.status || 'not_followed'); // Mặc định là not_followed nếu không có
-          setFollowId(response.followId || null); // Đảm bảo followId không bị null
-        } catch (error) {
-          console.error('Error checking follow status:', error);
+  
+      try {
+        // Lấy tất cả các follow từ API
+        const response = await FollowApi.getAllFollows();
+        if (!response || !Array.isArray(response.data)) {
+          console.error('API trả về dữ liệu không hợp lệ');
+          return;
         }
+  
+        // Tìm follow có liên quan đến userId
+        const follow = response.data.find(
+          (follow) =>
+            (follow.follower_id == userId && follow.target_id == userLocalId) ||
+            (follow.follower_id == userLocalId && follow.target_id == userId)
+        );
+  
+        // Kiểm tra nếu có follow
+        if (follow) {
+          setFollowStatus(follow.status || 'not_followed');
+          setFollowId(follow.id || null);
+        } else {
+          setFollowStatus('not_followed'); // Mặc định là 'not_followed' nếu không tìm thấy follow
+          setFollowId(null);
+        }
+      } catch (error) {
+        console.error('Error checking follow status:', error);
       }
     };
-
+  
     fetchFollowStatus();
-  }, [userId, userLocalId]);
+  }, [userId, userLocalId]);  // Chạy lại khi userId hoặc userLocalId thay đổi
+  
 
   const deleteFollow = async () => {
     try {

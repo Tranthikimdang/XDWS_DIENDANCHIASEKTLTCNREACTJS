@@ -58,7 +58,6 @@ const FriendsList = () => {
 
         // Lọc danh sách bạn bè đã kết bạn từ bảng User
         const friendsInfo = users.filter(user => friendIds.includes(user.id));
- console.log(friendsInfo);
  
         setFriends(friendsInfo); // Lưu danh sách bạn bè vào state
       } catch (error) {
