@@ -65,7 +65,6 @@ function ProductDetail() {
       try {
         const data = await getExerciseByIdCourse(course_id);
         setExercises(data.data.courseDetails);
-        console.log(data);
 
         // const filteredProducts = response.data.courseDetails.filter(product => product.course_id === Number(course_id)); // Lọc sản phẩm theo course_id
         setRow(data.data.courseDetails); // Cập nhật danh sách sản phẩm
@@ -292,7 +291,7 @@ function ProductDetail() {
                             <div className="action-buttons">
                               <Link
                                 to={{
-                                  pathname: `/admin/editProDetaill/${row.id}`,
+                                  pathname: `/admin/editProDetaill/${course_id}/${row.id}`,
                                   state: { data: row },
                                 }}
                               >
