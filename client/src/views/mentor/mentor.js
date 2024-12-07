@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { IconUser, IconHeart } from '@tabler/icons-react';
 // Image
-import avatardefault from "src/assets/images/profile/user-1.jpg";
+import avatardefault from 'src/assets/images/profile/user-1.jpg';
 // API
 import apiUser from 'src/apis/UserApI';
 import api from 'src/apis/mentorApi';
@@ -86,10 +86,10 @@ const Mentor = () => {
         <Grid container spacing={3}>
           {/* Heading */}
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading" >
+            <Typography variant="h4" component="h1" className="heading">
               Cố vấn
             </Typography>
-            <Typography variant="body1" paragraph className="typography-body" >
+            <Typography variant="body1" paragraph className="typography-body">
               Tìm kiếm và kết nối với những người cố vấn hàng đầu trong lĩnh vực lập trình.
               <br />
               Người cố vấn của chúng tôi là các chuyên gia giàu kinh nghiệm, sẵn sàng hỗ trợ bạn
@@ -192,50 +192,52 @@ const Mentor = () => {
                 <CircularProgress />
               </Box>
             ) : currentMentors.length > 0 ? (
-              currentMentors.map((mentor) => {
-                const userInfo = users.find((u) => u.id === mentor.user_id);
-                return (
-                  <Grid item xs={6} sm={4} md={3} key={mentor.id}>
-                    <Card
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        height: '100%',
-                        cursor: 'pointer',
-                        borderRadius: '12px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        padding: '16px',
-                        textAlign: 'center',
-                        transition: 'transform 0.3s',
-                        '&:hover': { transform: 'translateY(-5px)' },
-                      }}
-                      onClick={() => handleCardClick(mentor.user_id)}
-                    >
-                      <CardMedia
-                        component="img"
-                        image={userInfo?.imageUrl ||  avatardefault}
-                        alt={userInfo?.name || 'Không có hình ảnh'}
+              currentMentors
+                .filter((mentor) => mentor.isApproved === true) // Lọc những mentor được duyệt
+                .map((mentor) => {
+                  const userInfo = users.find((u) => u.id === mentor.user_id);
+                  return (
+                    <Grid item xs={6} sm={4} md={3} key={mentor.id}>
+                      <Card
                         sx={{
-                          width: '120px',
-                          height: '120px',
-                          objectFit: 'cover',
-                          borderRadius: '50%',
-                          border: '4px solid #fff',
-                          marginBottom: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          height: '100%',
+                          cursor: 'pointer',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          padding: '16px',
+                          textAlign: 'center',
+                          transition: 'transform 0.3s',
+                          '&:hover': { transform: 'translateY(-5px)' },
                         }}
-                        onError={(e) => {
-                          e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
-                        }}
-                      />
-                      <CardContent>
-                        <Typography variant="h6">{userInfo?.name || 'Không rõ tên'}</Typography>
-                        <Typography variant="body2" color="#7f8c8d" sx={{ marginBottom: '8px' }}>
-                          {mentor.skills || 'Chưa có thông tin'}
-                        </Typography>
+                        onClick={() => handleCardClick(mentor.user_id)}
+                      >
+                        <CardMedia
+                          component="img"
+                          image={userInfo?.imageUrl || avatardefault}
+                          alt={userInfo?.name || 'Không có hình ảnh'}
+                          sx={{
+                            width: '120px',
+                            height: '120px',
+                            objectFit: 'cover',
+                            borderRadius: '50%',
+                            border: '4px solid #fff',
+                            marginBottom: '16px',
+                          }}
+                          onError={(e) => {
+                            e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                          }}
+                        />
+                        <CardContent>
+                          <Typography variant="h6">{userInfo?.name || 'Không rõ tên'}</Typography>
+                          <Typography variant="body2" color="#7f8c8d" sx={{ marginBottom: '8px' }}>
+                            {mentor.skills || 'Chưa có thông tin'}
+                          </Typography>
 
-                         {/* Availability Time */}
-                         <Box
+                          {/* Availability Time */}
+                          <Box
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
@@ -253,7 +255,14 @@ const Mentor = () => {
                           </Box>
 
                           {/* Stats Section */}
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginTop: '8px' }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              width: '100%',
+                              marginTop: '8px',
+                            }}
+                          >
                             {/* Mentee count */}
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <IconUser size={18} stroke={1.5} />
@@ -270,11 +279,11 @@ const Mentor = () => {
                               </Typography>
                             </Box>
                           </Box>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                );
-              })
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  );
+                })
             ) : (
               <Typography sx={{ textAlign: 'center', width: '100%' }}>
                 Không có người hướng dẫn nào...
@@ -282,8 +291,11 @@ const Mentor = () => {
             )}
           </Grid>
 
-          {/* Pagination */}
-          <Box display="flex" justifyContent="center" mt={4}>
+          
+        </Grid>
+      </Box>
+      {/* Pagination */}
+      <Box display="flex" justifyContent="center" mt={4} mb={4}>
             <Pagination
               count={Math.ceil(filteredMentors.length / itemsPerPage)}
               page={currentPage}
@@ -291,8 +303,6 @@ const Mentor = () => {
               color="primary"
             />
           </Box>
-        </Grid>
-      </Box>
     </PageContainer>
   );
 };
