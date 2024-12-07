@@ -21,48 +21,37 @@ exports.getAllQuestions = async (req, res) => {
     }
 };
 
+// Lấy câu hỏi theo ID
 exports.getQuestionId = async (req, res) => {
+    const { id } = req.params; // Lấy ID từ URL
+    console.log(`Fetching question with ID: ${id}`); // Log ID để kiểm tra
     try {
-        const { id } = req.params;
-
-        let questions;
-        if (id) {
-            // Tìm câu hỏi theo ID
-            questions = await Question.findByPk(id);
-            if (!questions) {
-                return res.status(404).json({
-                    status: 'error',
-                    message: `No question found with ID ${id}`
-                });
-            }
-        } else {
-            // Lấy tất cả câu hỏi
-            questions = await Question.findAll();
-        }
-
-        res.status(200).json({
-            status: 'success',
-            results: Array.isArray(questions) ? questions.length : 1,
-            data: {
-                questions
-            }
-        });
-    } catch (err) {
-        res.status(500).send({
-            status: 'error',
-            message: err.message || 'Some error occurred while retrieving questions.'
-        });
+      // Truy vấn cơ sở dữ liệu với ID
+      const question = await Question.findByPk(id);
+      console.log('Truy vấn kết quả:', question); // Log dữ liệu trả về từ DB
+  
+      if (question) {
+        // Nếu tìm thấy, trả về dữ liệu
+        res.status(200).json({ status: 'success', data: { question } });
+      } else {
+        // Nếu không tìm thấy, trả về lỗi 404
+        res.status(404).json({ status: 'error', message: 'Question not found' });
+      }
+    } catch (error) {
+      // Log lỗi nếu có vấn đề
+      console.error('Lỗi truy vấn:', error);
+      res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
-};
+  };
 
 // Tạo câu hỏi mới
 exports.createQuestion = async (req, res) => {
-    const { user_id,questions,hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies } = req.body;
     console.log(questions);
-    
-    
+
+
     const userExists = await UserModel.findOne({ where: { id: user_id } });
-    
+
     if (!userExists) {
         return res.status(400).json({ error: 'User not found with the provided user_id' });
     }
@@ -73,7 +62,7 @@ exports.createQuestion = async (req, res) => {
 
     try {
         const newQuestion = await Question.create({
-            user_id,questions,hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies
+            user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies
         });
         res.status(201).json({
             status: 'success',
@@ -93,7 +82,7 @@ exports.createQuestion = async (req, res) => {
 // Cập nhật câu hỏi
 exports.updateQuestion = async (req, res) => {
     const { id } = req.params;
-    const { user_id,questions,hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies } = req.body;
 
     try {
         const question = await Question.findByPk(id);

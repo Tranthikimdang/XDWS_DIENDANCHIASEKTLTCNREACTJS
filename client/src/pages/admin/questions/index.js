@@ -16,7 +16,9 @@ import ConfirmDialog from './data/formDeleteQuestions';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import './index.css';
-
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
+import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg";
 //kết nối sql
 import userApis from 'src/apis/UserApI';
 import { deleteQuestion, getQuestionsList } from 'src/apis/QuestionsApis';
@@ -218,15 +220,18 @@ function Questions() {
                             >
                               <div className="image-column" style={{ flex: '0 0 100px' }}>
                                 <img
-                                  src={row.imageUrls}
+                                  src={row.imageUrls||imageplaceholder}
                                   alt="Không có hình ảnh"
                                   style={{
                                     width: '100px',
-                                    height: '50px',
+                                    height: '60px',
                                     objectFit: 'cover',
                                     objectPosition: 'center',
                                     borderRadius: '8px',
                                     boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                  }}
+                                  onError={(e) => {
+                                    e.target.src = imageplaceholder; // Hiển thị ảnh mặc định nếu ảnh không tải được
                                   }}
                                 />
                               </div>
@@ -237,14 +242,17 @@ function Questions() {
                               <img
                                 src={
                                   users?.find((u) => row?.user_id === u.id)?.imageUrl ||
-                                  'default-image-url.jpg'
+                                  avatardefault
                                 }
-                                alt="User Avatar"
+                                alt="Hình ảnh người dùng"
                                 style={{
                                   width: 40,
                                   height: 40,
                                   borderRadius: '50%',
                                   marginRight: 8,
+                                }}
+                                onError={(e) => {
+                                  e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                                 }}
                               />
                               <VuiTypography variant="button" color="white" fontWeight="medium">

@@ -71,8 +71,6 @@ function FormViewMentor() {
         setLoading(false);
       }
     };
-    console.log(mentor?.skills);
-
     fetchMentor();
   }, [id]);
 
