@@ -231,8 +231,6 @@ exports.updateCourseDetail = async (req, res) => {
   }
 };
 
-
-
 // Xóa thông tin chi tiết khóa học
 exports.deleteCourseDetail = async (req, res) => {
   const { id } = req.params;
