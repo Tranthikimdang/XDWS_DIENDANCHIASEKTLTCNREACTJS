@@ -455,6 +455,42 @@ const Questions = () => {
     }
   };
 
+  const sensitiveWords = [
+    // Xúc phạm trí tuệ
+    "ngu", "ngu ngốc", "ngu si", "dốt", "dốt nát", "đần", "đần độn", "hâm", "khùng", "điên", "đồ ngu", 
+    "đồ dốt", "thiểu năng", "chậm hiểu", "đần thối", "hâm hấp", "óc", "con",
+  
+    // Xúc phạm nhân phẩm
+    "mất dạy", "vô học", "đồ chó", "đồ điếm", "con điếm", "lừa đảo", "bẩn thỉu", "rác rưởi", 
+    "hèn mọn", "vô liêm sỉ", "mặt dày", "khốn nạn", "đồ khốn", "thất đức", "kẻ thù", 
+    "phản bội", "vô dụng", "đáng khinh", "nhục nhã",
+  
+    // Chửi tục thô lỗ
+    "địt", "đụ", "lồn", "buồi", "chịch", "cặc", "đéo", "vãi lồn", "vãi buồi", "đái", "ỉa", 
+    "đéo mẹ", "đéo biết", "mẹ kiếp", "chết mẹ", "chết tiệt", "cái lồn", "cái buồi", 
+    "cái đít", "mặt lồn", "mặt c*",
+  
+    // Xúc phạm gia đình
+    "bố mày", "mẹ mày", "ông mày", "bà mày", "con mày", "chó má", "cút mẹ", "xéo mẹ", "bố láo",
+    "đồ mất dạy", "không biết điều", "con hoang", "đồ rẻ rách", "đồ phế thải", "đồ vô ơn",
+  
+    // Từ viết tắt thô tục
+    "dm", "vcl", "vkl", "clgt", "vl", "cc", "dcm", "đmm", "dkm", "vãi cả lồn", "vc", "đb",
+  
+    // Kích động/hạ bệ
+    "đập chết", "cút xéo", "đâm đầu", "tự tử", "biến đi", "mày đi chết đi", "vô giá trị", 
+    "không xứng đáng", "đồ thừa", "kẻ vô ơn", "đồ bất tài",
+  
+    // Các từ vùng miền hoặc ẩn ý tiêu cực
+    "mất nết", "dơ dáy", "đồ rác", "đồ hèn", "hết thuốc", "chó cắn", "ngu như bò", "câm mồm", 
+    "hèn hạ", "ngu xuẩn", "đồ quỷ", "đồ xấu xa", "đồ ác độc"
+  ];
+  
+
+  const containsSensitiveWords = (text) => {
+    return sensitiveWords.some(word => text.includes(word));
+  };
+  
   const handleAddComment = async (question_id) => {
     try {
       if (!userData?.current?.id) {
@@ -469,9 +505,17 @@ const Questions = () => {
         setSnackbarOpen(true);
         return; // Ngừng thực hiện hàm nếu bình luận rỗng
       }
+  
+      if (containsSensitiveWords(newComment)) {
+        setSnackbarMessage("Nội dung bình luận không hợp lệ.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return; // Stop execution if comment contains sensitive words
+      }
+  
       let imageUrl = [];
       let fileUrl = [];
-
+  
       // Upload image if available
       if (imageFile) {
         const formDataImage = new FormData();
@@ -481,7 +525,7 @@ const Questions = () => {
           imageUrl = imageResponse.data.imagePath;
         }
       }
-
+  
       // Upload file if available
       if (file) {
         const formDataFile = new FormData();
@@ -491,7 +535,7 @@ const Questions = () => {
           fileUrl = fileResponse.data.filePath;
         }
       }
-
+  
       const newCommentData = {
         question_id,
         user_id: userData.current.id,
@@ -517,12 +561,12 @@ const Questions = () => {
             }
             return question;
           });
-
+  
           // Persist updated list in localStorage
           localStorage.setItem('comment_question', JSON.stringify(newList));
           return newList;
         });
-
+  
         // Reset the input fields after success
         setNewComment('');  // Reset comment input
         setCommentImages([]);  // Reset images
@@ -542,8 +586,7 @@ const Questions = () => {
       setSnackbarOpen(true);
     }
   };
-
-
+  
   const handleAddReply = async (questionId, commentId, parentId = null) => {
     if (!userData?.current?.id) {
       setSnackbarOpen(false);
@@ -554,7 +597,7 @@ const Questions = () => {
       }, 100);
       return;
     }
-
+  
     const replyContent = newReplies[parentId || commentId]?.content;
     if (!replyContent || typeof replyContent !== 'string' || replyContent.trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
@@ -563,21 +606,28 @@ const Questions = () => {
       setIsSubmittingReply(false);
       return;
     }
-
+  
+    if (containsSensitiveWords(replyContent)) {
+      setSnackbarMessage("Nội dung phản hồi không hợp lệ.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return; // Stop execution if reply contains sensitive words
+    }
+  
     try {
       let imageUrls = [];
       let fileUrls = [];
-
+  
       // Handle image URLs from state
       if (newReplies[parentId || commentId]?.imageUrls) {
         imageUrls = newReplies[parentId || commentId].imageUrls;
       }
-
+  
       // Handle file URLs from state
       if (newReplies[parentId || commentId]?.fileUrls) {
         fileUrls = newReplies[parentId || commentId].fileUrls;
       }
-
+  
       const newReply = {
         user_id: userData.current.id,
         content: replyContent,
@@ -586,9 +636,9 @@ const Questions = () => {
         up_code: dataTemp?.up_code || codeSnippet || '',
         created_at: new Date(),
       };
-
+  
       const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
-
+  
       if (response.data.status === 'success') {
         setListQuestion((prevList) => {
           const updatedList = prevList.map((item) => {
@@ -609,11 +659,11 @@ const Questions = () => {
             }
             return item;
           });
-
+  
           localStorage.setItem('comment_question', JSON.stringify(updatedList));
           return updatedList;
         });
-
+  
         setNewReplies((prev) => ({ ...prev, [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] } }));
         setReplyingTo(null);
         setReplyImageFile(null);
@@ -631,6 +681,7 @@ const Questions = () => {
       setIsSubmittingReply(false);
     }
   };
+  
 
 
 
@@ -2283,7 +2334,7 @@ const Questions = () => {
         open={snackbarOpen}
         autoHideDuration={5000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         sx={{ transform: 'translateY(50px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
       >
         <Alert
