@@ -123,7 +123,7 @@ function Mentor() {
       if (res.status == 'success') {
         setReload((reload) => !reload);
         // Cập nhật lại danh sách bài viết
-        setSnackbarMessage('Câu hỏi đã được duyệt thành công.');
+        setSnackbarMessage('Người hướng dẫn đã được duyệt thành công.');
         setSnackbarSeverity('success');
         setSnackbarOpen(true);
       }
