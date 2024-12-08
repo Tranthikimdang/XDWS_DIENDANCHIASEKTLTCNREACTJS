@@ -14,6 +14,9 @@ import { ClipLoader } from 'react-spinners';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import HashtagApi from 'src/apis/HashtagApI';
+import VuiInput from "src/components/admin/VuiInput";
+
+
 
 function Hashtag() {
   const { columns } = authorsTableData;
@@ -156,44 +159,26 @@ function Hashtag() {
                   </button>
                 </Link>
               </VuiBox>
-
               <VuiBox mb={2} display="flex" justifyContent="flex-end">
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  placeholder="Nhập vào đây..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <IconButton sx={{ color: '#8e8e93' }}>
-                          <SearchIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    sx: {
-                      backgroundColor: '#1c1f2b', // Màu nền (giống màu nền tối trong hình)
-                      borderRadius: '50px',       // Bo góc tròn
-                      color: '#8e8e93',           // Màu placeholder chữ xám
-                      padding: '5px 15px',        // Padding bên trong
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          border: '1px solid rgba(255, 255, 255, 0.2)', // Viền trắng mờ
-                        },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.4)',      // Viền sáng hơn khi hover
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#4e9df7',                       // Viền xanh khi focus
-                        },
+                {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
                       },
-                    },
-                  }}
-                  sx={{ width: '300px' }} // Kích thước chiều ngang
-                />
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
               </VuiBox>
-
 
 
 

@@ -11,7 +11,11 @@ import authorsTableData from "./data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
 import { Alert, Snackbar, TextField } from "@mui/material";
 import { ClipLoader } from "react-spinners";
+import VuiInput from "src/components/admin/VuiInput";
+
 import api from "../../../apis/Categories_courseApI";
+import SearchIcon from '@mui/icons-material/Search';
+
 
 
 function Category() {
@@ -156,17 +160,28 @@ function Category() {
                   </button>
                 </Link>
               </VuiBox>
-              
-              {/* Trường tìm kiếm */}
-              <VuiBox mb={2}>
-                <TextField
-                  label="Search Categories"
-                  variant="outlined"
-                  fullWidth
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                  {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
               </VuiBox>
+
+
 
               {loading ? (
                 <div
