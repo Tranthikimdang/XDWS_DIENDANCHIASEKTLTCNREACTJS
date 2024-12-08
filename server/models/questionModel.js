@@ -41,10 +41,6 @@ const Questions = sequelize.define('Questions', {
         type: DataTypes.JSON, 
         defaultValue: []
     },
-    isApproved: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
     is_deleted: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
