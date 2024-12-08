@@ -180,7 +180,7 @@ const renderRoutes = (role) => {
         { path: 'orders', exact: true, element: <Orders /> }, 
         { path: 'addProDetaill/:course_id', exact: true, element: <AddProDetaill /> }, 
         { path: 'productDetail/:course_id', exact: true, element: <ProDetaill /> }, 
-        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
+        { path: 'editProDetaill/:course_id/:detailId', exact: true, element: <EditProDetaill /> }, 
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
