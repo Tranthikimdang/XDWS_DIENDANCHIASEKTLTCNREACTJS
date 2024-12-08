@@ -6,10 +6,10 @@ import VuiBox from 'src/components/admin/VuiBox';
 import VuiTypography from 'src/components/admin/VuiTypography';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import Footer from "src/examples/Footer";
 import Table from 'src/examples/Tables/Table';
 import authorsTableData from './data/authorsTableData';
 import ConfirmDialog from './data/FormDeleteUser';
-import Footer from "src/examples/Footer";
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Import từ Firebase
 import { db } from '../../../config/firebaseconfig'; // Đảm bảo bạn đã cấu hình Firebase
 import { Alert, Snackbar } from '@mui/material';

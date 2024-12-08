@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid, Button } from '@mui/material';
+import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid} from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
@@ -287,18 +287,13 @@ const FormViewQuestion = () => {
                         </Box>
                         <Grid item xs={12}>
                             <Box display="flex" justifyContent="flex-end" mt={3}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
+                                <button
+                                    className="text-light btn btn-outline-secondary"
+                                    type="button"
                                     onClick={() => navigate("/admin/questions")}
-                                    startIcon={
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-return-left" viewBox="0 0 16 16">
-                                            <path fillRule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5" />
-                                        </svg>
-                                    }
                                 >
-                                    Quay Lại
-                                </Button>
+                                    Quay lại
+                                </button>
                             </Box>
                         </Grid>
                     </Box>

@@ -161,8 +161,8 @@ const renderRoutes = (role) => {
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
-        { path: 'questions/:id', exact: true, element: <FormViewQuestion /> },
-        { path: 'questions/:id', exact: true, element: <FormEditQuestion /> },
+        { path: 'questions/view/:id', exact: true, element: <FormViewQuestion /> },
+        { path: 'questions/edit/:id', exact: true, element: <FormEditQuestion /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
