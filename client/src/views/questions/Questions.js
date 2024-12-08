@@ -997,7 +997,7 @@ const Questions = () => {
 
                             {/* Post Content */}
                             <TextField
-                                label="Hãy đặt câu hỏi hoặc chia sẻ kiến thức?"
+                                label="Hãy đặt câu hỏi hoặc chia sẻ kiến thức ?"
                                 variant="outlined"
                                 multiline
                                 fullWidth

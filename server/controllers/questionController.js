@@ -46,7 +46,7 @@ exports.getQuestionId = async (req, res) => {
 
 // Tạo câu hỏi mới
 exports.createQuestion = async (req, res) => {
-    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
     console.log(questions);
 
 
@@ -62,7 +62,7 @@ exports.createQuestion = async (req, res) => {
 
     try {
         const newQuestion = await Question.create({
-            user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies
+            user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code
         });
         res.status(201).json({
             status: 'success',
@@ -82,7 +82,7 @@ exports.createQuestion = async (req, res) => {
 // Cập nhật câu hỏi
 exports.updateQuestion = async (req, res) => {
     const { id } = req.params;
-    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
 
     try {
         const question = await Question.findByPk(id);
@@ -100,8 +100,7 @@ exports.updateQuestion = async (req, res) => {
         question.fileUrls = fileUrls || question.fileUrls;
         question.is_deleted = is_deleted !== undefined ? is_deleted : question.is_deleted;
         question.up_code = up_code || question.up_code;
-        question.comments = comments || question.comments;
-        question.replies = replies || question.replies;
+       
 
         await question.save();
         res.status(200).json({

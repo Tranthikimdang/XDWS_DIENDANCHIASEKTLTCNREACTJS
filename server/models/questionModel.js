@@ -47,14 +47,6 @@ const Questions = sequelize.define('Questions', {
     },
     up_code: {
         type: DataTypes.TEXT('long'),
-    },
-    comments: {
-        type: DataTypes.JSON,
-        defaultValue: [], // Mặc định là mảng trống
-    },
-    replies: {
-        type: DataTypes.JSON,
-        defaultValue: [], // Mặc định là mảng trống
     }
 }, {
     tableName: 'questions',
