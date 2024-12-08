@@ -244,29 +244,31 @@ const Questions = () => {
 
       // Lấy danh sách mentors
       const mentorResponse = await memtorApis.getMentors();
-      const mentorsList = Array.isArray(mentorResponse.data.mentors) ? mentorResponse.data.mentors : [];
+      const mentorsList = Array.isArray(mentorResponse.data.mentors)
+        ? mentorResponse.data.mentors
+        : [];
 
       // Kết hợp mentors với users
-      const combinedData = mentorsList.map((mentor) => {
-        const user = users.find((u) => u.id == mentor.user_id); // Tìm user theo user_id của mentor
-        if (user) {
-          return {  user }; // Kết hợp mentor với user
-        }
-        return null; // Nếu không tìm thấy user, trả về null
-      }).filter((mentor) => mentor !== null); // Loại bỏ các giá trị null nếu không tìm thấy user
+      const combinedData = mentorsList
+        .map((mentor) => {
+          const user = users.find((u) => u.id == mentor.user_id); // Tìm user theo user_id của mentor
+          if (user) {
+            return { user }; // Kết hợp mentor với user
+          }
+          return null; // Nếu không tìm thấy user, trả về null
+        })
+        .filter((mentor) => mentor !== null); // Loại bỏ các giá trị null nếu không tìm thấy user
 
       // Cập nhật state
       setMentors(mentorsList);
       setUserss(users);
       setFilteredMentors(combinedData); // Set kết quả cuối cùng vào state filteredMentors
-
     } catch (error) {
       console.error('Error fetching users or mentors:', error);
     } finally {
       setLoading(false);
     }
   };
-
 
   // useEffect để gọi hàm getMentorsAndUsers khi component mount
   useEffect(() => {
@@ -2324,15 +2326,19 @@ const Questions = () => {
               ) : (
                 <List>
                   {filteredMentors.length > 0 ? (
-                    filteredMentors.map((mentor) => (
-                      <ListItem key={mentor.user?.id} sx={{ padding: 0 }}>
+                    filteredMentors.slice(0, 10).map((mentor) => (
+                      <ListItem
+                        key={mentor.user?.id}
+                        sx={{ padding: 0 }}
+                        onClick={() => navigate(`/profile/${mentor.user.id}`)} 
+                      >
                         {mentor && (
                           <Box
                             className="mb-1"
                             sx={{
                               display: 'flex', // Để căn chỉnh các phần tử ngang hàng
                               alignItems: 'center', // Căn chỉnh dọc cho hình ảnh và tên
-                              border: '2px solid #1976d2', // Thêm viền ngoài với màu #1976d2
+                              border: '2px solid #999999', // Thêm viền ngoài với màu #1976d2
                               padding: '8px', // Khoảng cách giữa viền và nội dung bên trong
                               borderRadius: '10px', // Làm bo góc viền, nếu cần
                               backgroundColor: '#fff', // Màu nền bên trong Box
@@ -2403,7 +2409,7 @@ const Questions = () => {
               ) : (
                 <List>
                   {hashtag.length > 0 ? (
-                    hashtag.map((hashtag) => (
+                    hashtag.slice(0, 20).map((hashtag) => (
                       <ListItem key={hashtag?.id} sx={{ padding: 0 }}>
                         {hashtag && (
                           <Typography
