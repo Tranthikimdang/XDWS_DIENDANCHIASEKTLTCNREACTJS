@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Card from "@mui/material/Card";
@@ -10,9 +9,13 @@ import Footer from "src/examples/Footer";
 import Table from "../../../examples/Tables/Table";
 import authorsTableData from "./data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
-import { Alert, Snackbar } from "@mui/material";
+import { Alert, Snackbar} from "@mui/material";
 import { ClipLoader } from "react-spinners";
+import VuiInput from "src/components/admin/VuiInput";
+
 import api from "../../../apis/Categories_courseApI";
+import SearchIcon from '@mui/icons-material/Search';
+
 
 
 function Category() {
@@ -26,6 +29,7 @@ function Category() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(4);
+  const [searchQuery, setSearchQuery] = useState(""); // Trạng thái tìm kiếm
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -52,17 +56,15 @@ function Category() {
     fetchCategories();
   }, []);
 
-
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
   };
 
   const confirmDelete = async (deleteId) => {
-    setLoading(true); // Bắt đầu trạng thái loading
+    setLoading(true);
     try {
-      await api.deleteCategory(deleteId); // Gọi API để xóa danh mục
-      // Lấy lại danh sách danh mục từ API
+      await api.deleteCategory(deleteId);
       const categoriesList = await api.getList();
       setRows(categoriesList);
       setSnackbarMessage("Category deleted successfully.");
@@ -74,12 +76,12 @@ function Category() {
     } finally {
       setOpenDialog(false);
       setSnackbarOpen(true);
-      setLoading(false); // Kết thúc trạng thái loading
+      setLoading(false);
     }
   };
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
+if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
@@ -93,16 +95,13 @@ function Category() {
     setPage(newPage);
   };
 
-
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
-
     if (updatedAt) {
-      const date = new Date(updatedAt); // Chuyển đổi chuỗi thành đối tượng Date
+      const date = new Date(updatedAt);
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
-
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const diff = now - date;
+      const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
@@ -119,17 +118,19 @@ function Category() {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-
     return updatedAtString;
   };
 
-
+  // Lọc danh mục theo từ khóa tìm kiếm
+  const filteredRows = rows.filter((row) =>
+    row.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <VuiBox
       display="flex"
       flexDirection="column"
-      minHeight="100vh" // Chiều cao tối thiểu toàn bộ màn hình
+      minHeight="100vh"
     >
       <DashboardLayout>
         <DashboardNavbar />
@@ -159,6 +160,29 @@ function Category() {
                   </button>
                 </Link>
               </VuiBox>
+              <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                  {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
+              </VuiBox>
+
+
+
               {loading ? (
                 <div
                   style={{
@@ -188,7 +212,7 @@ function Category() {
                   >
                     <Table
                       columns={columns}
-                      rows={rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
+                      rows={filteredRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, index) => {
                         return {
                           no: page * rowsPerPage + index + 1,
                           name: row.name,
@@ -205,7 +229,7 @@ function Category() {
                               </Link>
                               <button
                                 className="text-light btn btn-outline-danger"
-                                type="button"
+type="button"
                                 onClick={() => handleDelete(row.id)}
                               >
                                 <svg
@@ -237,12 +261,12 @@ function Category() {
                         &laquo;
                       </button>
                       <span className="btn btn-light disabled">
-                        Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+                        Page {page + 1} of {Math.ceil(filteredRows.length / rowsPerPage)}
                       </span>
                       <button
                         className="btn btn-light"
                         onClick={() => handleChangePage(null, page + 1)}
-                        disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+                        disabled={page >= Math.ceil(filteredRows.length / rowsPerPage) - 1}
                       >
                         &raquo;
                       </button>
@@ -253,7 +277,6 @@ function Category() {
             </Card>
           </VuiBox>
         </VuiBox>
-        {/* Dialog for delete confirmation */}
         <ConfirmDialog
           open={openDialog}
           onClose={cancelDelete}
@@ -272,7 +295,6 @@ function Category() {
           </Alert>
         </Snackbar>
       </DashboardLayout>
-      {/* Footer cố định */}
       <Footer />
     </VuiBox>
   );

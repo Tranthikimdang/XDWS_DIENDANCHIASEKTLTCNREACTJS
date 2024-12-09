@@ -14,6 +14,9 @@ import { ClipLoader } from 'react-spinners';
 import { TextField, InputAdornment, IconButton } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import HashtagApi from 'src/apis/HashtagApI';
+import VuiInput from "src/components/admin/VuiInput";
+
+
 
 function Hashtag() {
   const { columns } = authorsTableData;
@@ -156,27 +159,28 @@ function Hashtag() {
                   </button>
                 </Link>
               </VuiBox>
-
               <VuiBox mb={2} display="flex" justifyContent="flex-end">
-                <TextField
-                  variant="outlined"
-                  size="small"
-                  placeholder="Search hashtag..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <IconButton>
-                          <SearchIcon />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                    sx: { backgroundColor: 'white', borderRadius: '4px' },
-                  }}
-                  sx={{ width: '250px' }}
-                />
+                {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
               </VuiBox>
+
+
 
               {loading ? (
                 <div

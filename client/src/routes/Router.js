@@ -21,6 +21,7 @@ const CateArticleDetail = Loadable(
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail')));
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post')));
 const Questions = Loadable(lazy(() => import('../views/questions/Questions')));
+const QuestionDetail = Loadable(lazy(() => import('../views/questions/components/QuestionDetail')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -124,9 +125,10 @@ const renderRoutes = (role) => {
         { path: '/article', exact: true, element: <Article /> },
         { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
-        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
-        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
+        { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/questions/:questionId', exact: true, element: <QuestionDetail /> }, 
         { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
@@ -205,6 +207,7 @@ const renderRoutes = (role) => {
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
         { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/questions/:questionId', exact: true, element: <QuestionDetail /> }, 
         { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/registerMentor', exact: true, element: <RegisterMentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
@@ -236,9 +239,10 @@ const renderRoutes = (role) => {
         { path: '/article', exact: true, element: <Article /> },
         { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
-        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
-        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
+        { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/questions/:questionId', exact: true, element: <QuestionDetail /> }, 
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },

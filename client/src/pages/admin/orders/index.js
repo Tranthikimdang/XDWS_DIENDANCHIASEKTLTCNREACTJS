@@ -27,6 +27,9 @@ import authorsOrdersData from './data/authorsOrdersData';
 import orderApi from 'src/apis/OrderApI'; // Adjust the path as needed
 import courseApi from 'src/apis/CourseApI'; // Import Course API
 import sendEmail from '../../../utils/email'; // Import email sending utility
+import VuiInput from "src/components/admin/VuiInput";
+
+
 
 import './index.css';
 
@@ -227,22 +230,24 @@ function Orders() {
             </VuiBox>
 
             {/* Search Field */}
-            <VuiBox mb={3} px={3}>
-              <TextField
-                variant="outlined"
-                fullWidth
-                placeholder="Search by user name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </VuiBox>
+            <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                  {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
+              </VuiBox>
 
             {loading ? (
               <Box display="flex" justifyContent="center" alignItems="center" height="100px">

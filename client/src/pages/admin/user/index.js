@@ -10,10 +10,12 @@ import Footer from "src/examples/Footer";
 import Table from 'src/examples/Tables/Table';
 import authorsTableData from './data/authorsTableData';
 import ConfirmDialog from './data/FormDeleteUser';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore'; // Import từ Firebase
-import { db } from '../../../config/firebaseconfig'; // Đảm bảo bạn đã cấu hình Firebase
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
+import VuiInput from "src/components/admin/VuiInput";
+import SearchIcon from '@mui/icons-material/Search';
+
+
 //sql
 import UserApI from 'src/apis/UserApI';
 import './index.css';
@@ -22,6 +24,7 @@ function User() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
+  const [filteredRows, setFilteredRows] = useState([]); // Thêm state cho danh sách đã lọc
   const [deleteId, setDeleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -29,23 +32,23 @@ function User() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(4);
-
+  const [searchTerm, setSearchTerm] = useState(''); // Thêm state cho từ khóa tìm kiếm
 
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
-  const userRole = user ? user.role : null;  // Lấy role của user từ localStorage
+  const userRole = user ? user.role : null; // Lấy role của user từ localStorage
 
-  // Fetch dữ liệu từ MySQL chỉ khi user không phải là admin hoặc userId không trùng với id
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const users = await UserApI.getUsersList();  // Gọi API để lấy dữ liệu người dùng từ MySQL
+        const users = await UserApI.getUsersList(); // Gọi API để lấy dữ liệu người dùng từ MySQL
         console.log(users);
 
         // Lọc những tài khoản có role là admin và id trùng với userId trong localStorage
         const filteredUsers = users.data.users.filter(user => !(user.role === 'admin' && user.id === userId));
 
-        setRows(filteredUsers);  // Cập nhật danh sách người dùng đã lọc
+        setRows(filteredUsers); // Cập nhật danh sách người dùng
+        setFilteredRows(filteredUsers); // Cập nhật danh sách đã lọc
         console.log('Filtered users:', filteredUsers);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -57,6 +60,15 @@ function User() {
     fetchUsers();
   }, [userRole, userId]);
 
+  // Lọc dữ liệu theo từ khóa tìm kiếm
+  useEffect(() => {
+    const result = rows.filter((row) =>
+      row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      row.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredRows(result);
+  }, [searchTerm, rows]);
+
   const handleDelete = (id) => {
     setDeleteId(id);
     setOpenDialog(true);
@@ -66,6 +78,7 @@ function User() {
     try {
       await UserApI.deleteUser(deleteId); // Xóa người dùng từ MySQL
       setRows(rows.filter((user) => user.id !== deleteId));
+      setFilteredRows(filteredRows.filter((user) => user.id !== deleteId)); // Xóa khỏi danh sách đã lọc
       setOpenDialog(false);
       setSnackbarMessage('User deleted successfully.');
       setSnackbarSeverity('success');
@@ -99,11 +112,7 @@ function User() {
   };
 
   return (
-    <VuiBox
-      display="flex"
-      flexDirection="column"
-      minHeight="100vh" // Chiều cao tối thiểu toàn bộ màn hình
-    >
+    <VuiBox display="flex" flexDirection="column" minHeight="100vh">
       <DashboardLayout>
         <DashboardNavbar />
         <VuiBox py={3}>
@@ -113,34 +122,42 @@ function User() {
                 <VuiTypography variant="lg" color="white">
                   Danh sách người dùng
                 </VuiTypography>
+                {/* <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Tìm kiếm người dùng..."
+                  style={{ maxWidth: '300px' }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                /> */}
                 <Link to="/admin/addUser">
                   <button className="text-light btn btn-outline-info" type="button">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      fill="currentColor"
-                      className="bi bi-plus"
-                      viewBox="0 0 16 16"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M8 1.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0v-5a.5.5 0 0 1 .5-.5zM1.5 8a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5.5zM8 14.5a.5.5 0 0 1-.5-.5v-5a.5.5 0 0 1 1 0v5a.5.5 0 0 1-.5.5zM14.5 8a.5.5 0 0 1-.5.5h-5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5z"
-                      />
-                    </svg>
                     Thêm
                   </button>
                 </Link>
               </VuiBox>
+              <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                  {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
+              </VuiBox>
               {loading ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100px',
-                  }}
-                >
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
                   <ClipLoader size={50} color={'#123abc'} loading={loading} />
                 </div>
               ) : (
@@ -148,25 +165,11 @@ function User() {
                   <VuiBox>
                     <Table
                       columns={columns}
-                      rows={rows
+                      rows={filteredRows
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => ({
                           ...row,
                           no: page * rowsPerPage + index + 1,
-                          avatar: (
-                            <div style={{ textAlign: 'center' }}>
-                              <img
-                                src={row.imageUrl || '/default-avatar.png'}
-                                alt={row.name}
-                                style={{
-                                  width: '50px',
-                                  height: '50px',
-                                  borderRadius: '50%',
-                                  objectFit: 'cover',
-                                }}
-                              />
-                            </div>
-                          ), // Hiển thị hình ảnh hoặc hình ảnh mặc định nếu không có
                           action: (
                             <div>
                               <Link to={`/admin/editUser/${row.id}`}>
@@ -219,12 +222,12 @@ function User() {
                         &laquo;
                       </button>
                       <span className="btn btn-light disabled">
-                        Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+                        Page {page + 1} of {Math.ceil(filteredRows.length / rowsPerPage)}
                       </span>
                       <button
                         className="btn btn-light"
                         onClick={() => handleChangePage(null, page + 1)}
-                        disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+                        disabled={page >= Math.ceil(filteredRows.length / rowsPerPage) - 1}
                       >
                         &raquo;
                       </button>
@@ -250,9 +253,7 @@ function User() {
             {snackbarMessage}
           </Alert>
         </Snackbar>
-
       </DashboardLayout>
-      {/* Footer cố định */}
       <Footer />
     </VuiBox>
   );

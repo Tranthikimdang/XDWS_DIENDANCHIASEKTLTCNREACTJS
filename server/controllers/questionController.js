@@ -26,27 +26,27 @@ exports.getQuestionId = async (req, res) => {
     const { id } = req.params; // Lấy ID từ URL
     console.log(`Fetching question with ID: ${id}`); // Log ID để kiểm tra
     try {
-      // Truy vấn cơ sở dữ liệu với ID
-      const question = await Question.findByPk(id);
-      console.log('Truy vấn kết quả:', question); // Log dữ liệu trả về từ DB
-  
-      if (question) {
-        // Nếu tìm thấy, trả về dữ liệu
-        res.status(200).json({ status: 'success', data: { question } });
-      } else {
-        // Nếu không tìm thấy, trả về lỗi 404
-        res.status(404).json({ status: 'error', message: 'Question not found' });
-      }
+        // Truy vấn cơ sở dữ liệu với ID
+        const question = await Question.findByPk(id);
+        console.log('Truy vấn kết quả:', question); // Log dữ liệu trả về từ DB
+
+        if (question) {
+            // Nếu tìm thấy, trả về dữ liệu
+            res.status(200).json({ status: 'success', data: { question } });
+        } else {
+            // Nếu không tìm thấy, trả về lỗi 404
+            res.status(404).json({ status: 'error', message: 'Question not found' });
+        }
     } catch (error) {
-      // Log lỗi nếu có vấn đề
-      console.error('Lỗi truy vấn:', error);
-      res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+        // Log lỗi nếu có vấn đề
+        console.error('Lỗi truy vấn:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
-  };
+};
 
 // Tạo câu hỏi mới
 exports.createQuestion = async (req, res) => {
-    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
+    const { user_id, title, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
     console.log(questions);
 
 
@@ -62,7 +62,7 @@ exports.createQuestion = async (req, res) => {
 
     try {
         const newQuestion = await Question.create({
-            user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code
+            user_id, title, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code
         });
         res.status(201).json({
             status: 'success',
@@ -82,7 +82,7 @@ exports.createQuestion = async (req, res) => {
 // Cập nhật câu hỏi
 exports.updateQuestion = async (req, res) => {
     const { id } = req.params;
-    const { user_id, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
+    const { user_id, title, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
 
     try {
         const question = await Question.findByPk(id);
@@ -94,13 +94,14 @@ exports.updateQuestion = async (req, res) => {
         }
 
         question.user_id = user_id || question.user_id;
+        question.title = title || question.title;
         question.questions = questions || question.questions;
         question.hashtag = hashtag || question.hashtag;
         question.imageUrls = imageUrls || question.imageUrls;
         question.fileUrls = fileUrls || question.fileUrls;
         question.is_deleted = is_deleted !== undefined ? is_deleted : question.is_deleted;
         question.up_code = up_code || question.up_code;
-       
+
 
         await question.save();
         res.status(200).json({

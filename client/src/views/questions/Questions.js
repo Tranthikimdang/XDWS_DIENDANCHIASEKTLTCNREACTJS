@@ -2,8 +2,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/img-redundant-alt */
 import { useEffect, useRef, useState } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Chọn style mà bạn thích
 import PageContainer from 'src/components/container/PageContainer';
 import axios from 'axios';
 import {
@@ -30,7 +28,11 @@ import {
     Tooltip,
     Typography,
     InputAdornment,
+    ButtonBase
 } from '@mui/material';
+//thư viện hổ trợ up_code
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 // icon
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
@@ -105,6 +107,10 @@ const Questions = () => {
     const usersPerPage = 10;
     const [filteredMentors, setFilteredMentors] = useState([]);
     const [mentors, setMentors] = useState([]);
+    //up_code
+    const [isExpanded, setIsExpanded] = useState(false);
+    const handleToggle = () => setIsExpanded(!isExpanded);
+
     const handleToggleComments = (questionId) => {
         setVisibleComments((prev) => ({
             ...prev,
@@ -805,6 +811,8 @@ const Questions = () => {
         setDataTemp(data);
     };
 
+
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setDataTemp((prevData) => ({
@@ -819,8 +827,9 @@ const Questions = () => {
     };
 
     const handleCardClick = (questionId) => {
-        navigate(`/question/${questionId}`, { state: { id: questionId } });
+        navigate(`/questions/${questionId}`, { state: { id: questionId } });
     };
+
 
     const handleCodeButtonClick = () => {
         setShowCodeField(true);
@@ -994,29 +1003,38 @@ const Questions = () => {
                                 />
                                 <Typography variant="h6">Đặt câu hỏi</Typography>
                             </Box>
-                            {/* <TextField
+                            <TextField
                                 fullWidth
                                 placeholder="Tiêu đề"
                                 variant="standard"
-                                // {...register('title', { required: 'Bạn chưa đặt câu hỏi', minLength: 3 })}
-                                // InputProps={{
-                                //     disableUnderline: true,
-                                //     style: {
-                                //         fontSize: '2rem',
-                                //         fontWeight: 'bold',
-                                //     },
-                                // }}
-                                // sx={{
-                                //     '& .MuiInputBase-root': {
-                                //         padding: 0,
-                                //     },
-                                // }}
-                                // error={!!errors.title}
-                                // helperText={errors.title && (errors.title.type === 'minLength'
-                                //     ? "Tiêu đề phải dài ít nhất 3 ký tự"
-                                //     : errors.title.message)}
-                            /> */}
-
+                                InputProps={{
+                                    disableUnderline: true,
+                                }}
+                                sx={{
+                                    '& .MuiInputBase-root': {
+                                        padding: '8px 0', // Khoảng cách trên dưới
+                                    },
+                                    marginBottom: 2, // Khoảng cách với phần bên dưới
+                                }}
+                                name="title"
+                            // {...register('title', { required: 'Bạn chưa đặt câu hỏi', minLength: 3 })}
+                            // InputProps={{
+                            //     disableUnderline: true,
+                            //     style: {
+                            //         fontSize: '2rem',
+                            //         fontWeight: 'bold',
+                            //     },
+                            // }}
+                            // sx={{
+                            //     '& .MuiInputBase-root': {
+                            //         padding: 0,
+                            //     },
+                            // }}
+                            // error={!!errors.title}
+                            // helperText={errors.title && (errors.title.type === 'minLength'
+                            //     ? "Tiêu đề phải dài ít nhất 3 ký tự"
+                            //     : errors.title.message)}
+                            />
                             {/* Post Content */}
                             <TextField
                                 label="Hãy đặt câu hỏi hoặc chia sẻ kiến thức ?"
@@ -1351,104 +1369,130 @@ const Questions = () => {
                                             </Box>
                                         ) : (
                                             <>
-                                                {/* Display Question Content */}
-                                                <Box sx={{ mt: 3, mb: 3 }}>
-                                                    <Typography variant="subtitle1">{question?.questions || ''}</Typography>
-                                                    <Divider sx={{ mb: 2 }} />
-                                                    {question?.hashtag && (
-                                                        <Typography
-                                                            variant="h6"
-                                                            sx={{ color: '#007bff', fontSize: '0.8rem' }}
-                                                        >
-                                                            {question.hashtag}
+                                                <ButtonBase
+                                                    sx={{
+                                                        display: 'block',
+                                                        textAlign: 'left',
+                                                        width: '100%',
+                                                    }}
+                                                    onClick={() => handleCardClick(question.id)}
+                                                >
+                                                    {/* Display Question Content */}
+                                                    <Box sx={{ mt: 3, mb: 3 }}>
+                                                        <Typography variant="h5" component="h2" className="article-title">
+                                                            {question?.title.length > 100
+                                                                ? `${question?.title.substring(0, 100)}...`
+                                                                : question?.title}
                                                         </Typography>
+                                                        {question?.hashtag && (
+                                                            <Typography
+                                                                variant="h6"
+                                                                sx={{ color: '#007bff', fontSize: '0.8rem' }}
+                                                            >
+                                                                {question.hashtag}
+                                                            </Typography>
+                                                        )}
+                                                        <Typography variant="subtitle1">
+                                                            {question?.questions
+                                                                ? question.questions.length > 300
+                                                                    ? `${question.questions.substring(0, 300)}...`
+                                                                    : question.questions
+                                                                : 'Người dùng không nhập câu hỏi hoặc bài viết'}
+                                                        </Typography>
+                                                    </Box>
+                                                    {/* Display Images */}
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            flexWrap: 'wrap',
+                                                            justifyContent: 'center',
+                                                            gap: '5px',
+                                                        }}
+                                                    >
+                                                        {listImgUrl.length > 0 &&
+                                                            listImgUrl.map((image, index) => (
+                                                                <Box
+                                                                    key={index}
+                                                                    sx={{
+                                                                        flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
+                                                                        flexGrow: 1,
+                                                                        maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
+                                                                        mb: 2,
+                                                                    }}
+                                                                >
+                                                                    <img
+                                                                        src={image || 'không có hình ảnh'}
+                                                                        alt="hình ảnh"
+                                                                        style={{
+                                                                            width: '100%',
+                                                                            height: 'auto',
+                                                                            borderRadius: '8px',
+                                                                        }}
+                                                                    />
+                                                                </Box>
+                                                            ))}
+                                                    </Box>
+                                                    {listFileUrl && listFileUrl.length > 0 && (
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                padding: '10px',
+                                                                border: '1px solid #e0e0e0',
+                                                                borderRadius: '8px',
+                                                                backgroundColor: '#fff',
+                                                                width: 'fit-content',
+                                                                height: '30px',
+                                                            }}
+                                                        >
+                                                            <IconButton sx={{ color: '#007bff' }}>
+                                                                <DescriptionIcon />
+                                                            </IconButton>
+                                                            <Typography variant="subtitle1">
+                                                                {listFileUrl.map((url, index) => {
+                                                                    const fileName = decodeURIComponent(url)
+                                                                        .split('/')
+                                                                        .pop()
+                                                                        .split('?')[0];
+                                                                    return fileName !== 'uploads' ? (
+                                                                        <a
+                                                                            key={index}
+                                                                            href={url}
+                                                                            target="_blank"
+                                                                            rel="noopener noreferrer"
+                                                                            style={{
+                                                                                color: 'inherit',
+                                                                                textDecoration: 'none',
+                                                                                fontSize: '14px',
+                                                                                marginRight: '10px',
+                                                                            }}
+                                                                        >
+                                                                            {fileName}
+                                                                        </a>
+                                                                    ) : null;
+                                                                })}
+                                                            </Typography>
+                                                        </Box>
                                                     )}
-                                                </Box>
+
+                                                </ButtonBase>
                                                 <Box sx={{ mt: 3, mb: 3 }}>
                                                     {question?.up_code ? (
                                                         <>
                                                             <SyntaxHighlighter language="javascript" style={dracula}>
-                                                                {question.up_code}
+                                                                {isExpanded
+                                                                    ? question.up_code
+                                                                    : question.up_code.length > 500
+                                                                        ? `${question.up_code.substring(0, 500)}...`
+                                                                        : question.up_code}
                                                             </SyntaxHighlighter>
+                                                            <Button size="small" onClick={handleToggle} sx={{ mt: 1 }}>
+                                                                {isExpanded ? 'Rút gọn' : 'Xem thêm'}
+                                                            </Button>
                                                             <Divider sx={{ mb: 2 }} />
                                                         </>
                                                     ) : null}
                                                 </Box>
-
-                                                {/* Display Images */}
-                                                <Box
-                                                    sx={{
-                                                        display: 'flex',
-                                                        flexWrap: 'wrap',
-                                                        justifyContent: 'center',
-                                                        gap: '5px',
-                                                    }}
-                                                >
-                                                    {listImgUrl.length > 0 &&
-                                                        listImgUrl.map((image, index) => (
-                                                            <Box
-                                                                key={index}
-                                                                sx={{
-                                                                    flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
-                                                                    flexGrow: 1,
-                                                                    maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
-                                                                    mb: 2,
-                                                                }}
-                                                            >
-                                                                <img
-                                                                    src={image || 'không có hình ảnh'}
-                                                                    alt="hình ảnh"
-                                                                    style={{
-                                                                        width: '100%',
-                                                                        height: 'auto',
-                                                                        borderRadius: '8px',
-                                                                    }}
-                                                                />
-                                                            </Box>
-                                                        ))}
-                                                </Box>
-                                                {listFileUrl && listFileUrl.length > 0 && (
-                                                    <Box
-                                                        sx={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            padding: '10px',
-                                                            border: '1px solid #e0e0e0',
-                                                            borderRadius: '8px',
-                                                            backgroundColor: '#fff',
-                                                            width: 'fit-content',
-                                                            height: '30px',
-                                                        }}
-                                                    >
-                                                        <IconButton sx={{ color: '#007bff' }}>
-                                                            <DescriptionIcon />
-                                                        </IconButton>
-                                                        <Typography variant="subtitle1">
-                                                            {listFileUrl.map((url, index) => {
-                                                                const fileName = decodeURIComponent(url)
-                                                                    .split('/')
-                                                                    .pop()
-                                                                    .split('?')[0];
-                                                                return fileName !== 'uploads' ? (
-                                                                    <a
-                                                                        key={index}
-                                                                        href={url}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        style={{
-                                                                            color: 'inherit',
-                                                                            textDecoration: 'none',
-                                                                            fontSize: '14px',
-                                                                            marginRight: '10px',
-                                                                        }}
-                                                                    >
-                                                                        {fileName}
-                                                                    </a>
-                                                                ) : null;
-                                                            })}
-                                                        </Typography>
-                                                    </Box>
-                                                )}
                                             </>
                                         )}
 

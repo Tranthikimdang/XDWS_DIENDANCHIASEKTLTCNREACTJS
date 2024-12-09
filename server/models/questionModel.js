@@ -27,8 +27,12 @@ const Questions = sequelize.define('Questions', {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
     },
-    questions: {
+    title: {
         type: DataTypes.STRING,
+        allowNull: false
+    },
+    questions: {
+        type: DataTypes.TEXT('long'),
     },
     hashtag:{
         type: DataTypes.STRING,
