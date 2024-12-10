@@ -147,7 +147,6 @@ function CommentDetail() {
             }));
             localStorage.setItem('comment_question', JSON.stringify(updatedQuestions));
           }
-
           return updatedRows;
         });
 
@@ -166,7 +165,6 @@ function CommentDetail() {
       console.error("Error deleting comment:", error);
     }
   };
-
 
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
