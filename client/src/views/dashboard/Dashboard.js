@@ -12,21 +12,19 @@ import {
   Card,
   CardContent,
   CardMedia,
-  CircularProgress,
-  Link,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { styled } from '@mui/system';
+import { toast } from 'react-toastify';
 
 // Icon
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CourseApi from '../../apis/CourseApI';
-import CateCourseApi from '../../apis/Categories_courseApI';
-import StudyTimeApi from '../../apis/StudyTimeApI';
-// Firebase
-import { db } from '../../config/firebaseconfig';
-import { collection, getDocs } from 'firebase/firestore';
+import CertificateApi from '../../apis/CertificateApI';
+import MentorApi from '../../apis/mentorApi';
 import ChatBox from './chatAI/chatAI';
 
 // Styled components
@@ -70,35 +68,15 @@ const ImageBox = styled(Box)(({ theme }) => ({
 
 const Home = () => {
   const navigate = useNavigate();
-  const [articles, setArticles] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [catesMap, setCatesMap] = useState({});
-
-  const handleCardClick = (articleId) => {
-    navigate(`/article/${articleId}`, { state: { id: articleId } });
-  };
-
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const userLocal = JSON.parse(localStorage.getItem('user'));
+  const userLocalId = userLocal ? userLocal.id : null;
   const handleClick = (productId) => {
     navigate(`/productDetail/${productId}`, { state: { id: productId } });
   };
-
-  // // Fetch products
-  // useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const productsSnapshot = await getDocs(collection(db, 'products'));
-  //       const productsData = productsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-  //       setProducts(productsData);
-  //     } catch (error) {
-  //       console.error('Error fetching products:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchProducts();
-  // }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -145,6 +123,57 @@ const Home = () => {
     }
 
     return updatedAtString;
+  };
+
+  const handleJoinMentorTeam = async (userId) => {
+    try {
+      // Kiểm tra xem user đã là mentor chưa
+      const mentors = await MentorApi.getMentors(); // Gọi API lấy danh sách mentor
+      console.log(mentors);
+      const isAlreadyMentor = mentors.data.mentors.some((mentor) => mentor.user_id === userId);
+
+      if (isAlreadyMentor) {
+        setSnackbarMessage('Bạn đã đăng ký làm mentor trước đó.');
+        setOpenSnackbar(true);
+        return;
+      }
+
+      // Gọi API để lấy danh sách toàn bộ chứng chỉ
+      const allCertificates = await CertificateApi.getCertificatesList();
+
+      // Lọc danh sách chứng chỉ của userId
+      const userCertificates = allCertificates.data.certificates.filter(
+        (cert) => cert.user_id == userId,
+      );
+
+      // Kiểm tra số lượng chứng chỉ
+      if (userCertificates.length < 5) {
+        setSnackbarMessage('Bạn cần có ít nhất 5 chứng chỉ để xét tuyển làm mentor.');
+        setOpenSnackbar(true);
+        return;
+      }
+
+      // Nếu đủ điều kiện, thêm người dùng vào mentor
+      const mentorData = {
+        user_id: userId,
+        bio: 'Bio', // Thay thế bằng dữ liệu thật
+        skills: 'JavaScript, React',
+        experience_years: 0,
+        rating: 0,
+        reviews_count: 0,
+        cv_url: '',
+        certificate_url: '',
+        isApproved: false,
+      };
+
+      const response = await MentorApi.addMentor(mentorData);
+      setSnackbarMessage('Yêu cầu tham gia mentor của bạn đã được gửi thành công!');
+      setOpenSnackbar(true);
+    } catch (error) {
+      console.error(error);
+      setSnackbarMessage('Đã xảy ra lỗi. Vui lòng thử lại sau!');
+      setOpenSnackbar(true);
+    }
   };
 
   return (
@@ -279,7 +308,7 @@ const Home = () => {
                       </SubText>
                       <ActionButton
                         variant="contained"
-                        href="/auth/registerMentor"
+                        onClick={() => handleJoinMentorTeam(userLocalId)}
                         sx={{
                           textTransform: 'none',
                           backgroundColor: '#0057e6',
@@ -440,6 +469,16 @@ const Home = () => {
               </Grid>
             ))}
         </Grid>
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={() => setOpenSnackbar(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Vị trí thông báo
+        >
+          <Alert onClose={() => setOpenSnackbar(false)} sx={{ width: '100%' }}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
       </Box>
       <ChatBox /> {/* Add the ChatBox component */}
     </PageContainer>

@@ -41,7 +41,6 @@ const ToolbarStyled = styled(Toolbar)(({ theme }) => ({
   justifyContent: 'space-between',
 }));
 
-
 const Header = (props) => {
   const { userName, toggleMobileSidebar } = props;
   const navigate = useNavigate();
@@ -56,6 +55,10 @@ const Header = (props) => {
 
   const handleLogin = () => {
     navigate('/auth/login'); // Điều hướng tới trang login
+  };
+
+  const handleRegister = () => {
+    navigate('/auth/register'); // Điều hướng tới trang login
   };
 
   const handleCart = () => {
@@ -106,8 +109,8 @@ const Header = (props) => {
     };
 
     fetchNotificationCount();
-  }, [userId]); 
-  
+  }, [userId]);
+
   return (
     <AppBarStyled position="sticky" color="default">
       <ToolbarStyled>
@@ -156,9 +159,14 @@ const Header = (props) => {
               </Typography>
             </>
           ) : (
-            <Button variant="contained" color="primary" onClick={handleLogin}>
-              Đăng nhập
-            </Button>
+            <>
+              <Button variant="contained" className='mr-2' color="primary" onClick={handleRegister}>
+                Đăng Ký
+              </Button>
+              <Button variant="contained" color="primary" onClick={handleLogin}>
+                Đăng nhập
+              </Button>
+            </>
           )}
 
           <IconButton size="large" aria-label="help" color="inherit">

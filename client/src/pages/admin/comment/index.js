@@ -5,6 +5,7 @@ import VuiBox from "src/components/admin/VuiBox";
 import VuiTypography from "src/components/admin/VuiTypography";
 import DashboardLayout from "src/examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "src/examples/Navbars/DashboardNavbar";
+import Footer from "src/examples/Footer";
 import Table from "src/examples/Tables/Table";
 import { courseColumns, questionColumns } from './data/authorsTableData';
 import { Alert, Snackbar } from "@mui/material";
@@ -21,7 +22,7 @@ function Comment() {
   const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [rowsPerPage] = useState(5);
+  const [rowsPerPage] = useState(4);
   const [tabValue, setTabValue] = useState(0);
   const [courseRows, setCourseRows] = useState([]);
   const [questionRows, setQuestionRows] = useState([]);
@@ -104,7 +105,7 @@ function Comment() {
 
 
   // Rendering the table with data
-  const renderTable = (rows, columns,tabValue) => (
+  const renderTable = (rows, columns, tabValue) => (
     <>
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
@@ -223,7 +224,7 @@ function Comment() {
                 )}
               </>
             )
-            
+
 
           }))}
         />
@@ -256,68 +257,77 @@ function Comment() {
     </>
   );
 
+  // ImageLoader component for image handling
+  function ImageLoader({ src, alt, defaultImageUrl }) {
+    const [imageSrc, setImageSrc] = useState(src.replace(/\\/g, "/"));
+    const [loading, setLoading] = useState(true);
+
+    const handleError = () => {
+      setImageSrc(defaultImageUrl);
+    };
+
+    const handleLoad = () => {
+      setLoading(false);
+    };
+
+    return (
+      <div>
+        {loading && <Skeleton variant="rectangular" width={40} height={40} />}
+        <img
+          src={imageSrc}
+          alt={alt}
+          onLoad={handleLoad}
+          onError={handleError}
+          style={{
+            display: loading ? 'none' : 'block',
+            objectFit: 'cover',
+            width: '100px',
+            height: '100px',
+          }}
+        />
+      </div>
+    );
+  }
   return (
-    <DashboardLayout>
-      <DashboardNavbar />
-      <VuiBox py={3} className="tabs-container" sx={{ padding: 0, margin: 0 }} >
-        <Card>
-          <Tabs value={tabValue} onChange={handleTabChange} aria-label="comment management tabs" >
-            <Tab label=" Khóa học " />
-            <Tab label="Câu hỏi " />
-          </Tabs>
+    <VuiBox
+      display="flex"
+      flexDirection="column"
+      minHeight="100vh" // Chiều cao tối thiểu toàn bộ màn hình
+    >
+      <DashboardLayout>
+        <DashboardNavbar />
+        <VuiBox py={3} className="tabs-container" sx={{ padding: 0, margin: 0 }} >
+          <Card>
+            <Tabs value={tabValue} onChange={handleTabChange} aria-label="comment management tabs" >
+              <Tab label=" Khóa học " />
+              <Tab label="Câu hỏi " />
+            </Tabs>
 
-          <VuiBox>
-            {tabValue === 0 && renderTable(courseRows, courseColumns, tabValue)}
-            {tabValue === 1 && renderTable(questionRows, questionColumns,tabValue)}
-          </VuiBox>
+            <VuiBox>
+              {tabValue === 0 && renderTable(courseRows, courseColumns, tabValue)}
+              {tabValue === 1 && renderTable(questionRows, questionColumns, tabValue)}
+            </VuiBox>
 
-        </Card>
-      </VuiBox>
-      {/* <ConfirmDialog open={openDialog} onClose={() => setOpenDialog(false)} onConfirm={confirmDelete} /> */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </DashboardLayout>
+          </Card>
+        </VuiBox>
+        {/* <ConfirmDialog open={openDialog} onClose={() => setOpenDialog(false)} onConfirm={confirmDelete} /> */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={5000}
+          onClose={() => setSnackbarOpen(false)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </DashboardLayout>
+      {/* Footer cố định */}
+      <Footer />
+    </VuiBox>
   );
 }
 
-// ImageLoader component for image handling
-function ImageLoader({ src, alt, defaultImageUrl }) {
-  const [imageSrc, setImageSrc] = useState(src.replace(/\\/g, "/"));
-  const [loading, setLoading] = useState(true);
 
-  const handleError = () => {
-    setImageSrc(defaultImageUrl);
-  };
-
-  const handleLoad = () => {
-    setLoading(false);
-  };
-
-  return (
-    <div>
-      {loading && <Skeleton variant="rectangular" width={40} height={40} />}
-      <img
-        src={imageSrc}
-        alt={alt}
-        onLoad={handleLoad}
-        onError={handleError}
-        style={{
-          display: loading ? 'none' : 'block',
-          objectFit: 'cover',
-          width: '100px',
-          height: '100px',
-        }}
-      />
-    </div>
-  );
-}
 
 export default Comment;

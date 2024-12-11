@@ -4,6 +4,8 @@ const questionController = require('../controllers/questionController');
 
 // Lấy tất cả câu hỏi
 router.get('/', questionController.getAllQuestions);
+
+// Lấy id câu hỏi
 router.get('/:id', questionController.getQuestionId);
 
 // Tạo câu hỏi mới

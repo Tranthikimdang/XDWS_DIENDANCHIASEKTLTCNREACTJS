@@ -7,7 +7,7 @@ router.get('/', courseDetailController.getAllCourseDetails);
 
 router.post('/',multer.single('video'), courseDetailController.createCourseDetail);
 
-router.put('/:id', courseDetailController.updateCourseDetail);
+router.put('/:id',multer.single('video'), courseDetailController.updateCourseDetail);
 
 router.delete('/:id', courseDetailController.deleteCourseDetail);
 
