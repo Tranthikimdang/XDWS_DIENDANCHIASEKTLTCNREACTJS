@@ -26,7 +26,6 @@ const User = sequelize.define('User', {
     email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true // Đảm bảo rằng email là duy nhất
     },
     imageUrl: {
         type: DataTypes.STRING,
