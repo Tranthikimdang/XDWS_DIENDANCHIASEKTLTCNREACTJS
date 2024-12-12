@@ -139,7 +139,7 @@ if (reason === "clickaway") {
             <Card>
               <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
                 <VuiTypography variant="lg" color="white">
-                  Category product table
+                  Bảng danh mục khóa học
                 </VuiTypography>
                 <Link to="/admin/addCatePro">
                   <button className="text-light btn btn-outline-info" type="button">

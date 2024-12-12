@@ -299,8 +299,8 @@ function Comment() {
         <VuiBox py={3} className="tabs-container" sx={{ padding: 0, margin: 0 }} >
           <Card>
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="comment management tabs" >
-              <Tab label=" Khóa học " />
-              <Tab label="Câu hỏi " />
+              <Tab label=" Bảng bình luận khóa học " />
+              <Tab label="Bảng bình luận câu hỏi " />
             </Tabs>
 
             <VuiBox>

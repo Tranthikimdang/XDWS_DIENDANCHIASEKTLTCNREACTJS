@@ -225,14 +225,9 @@ function Orders() {
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
-                Order Management
+                Bảng đơn hàng 
               </VuiTypography>
-            </VuiBox>
-
-            {/* Search Field */}
-            <VuiBox mb={2} display="flex" justifyContent="flex-end">
-                  {/* Trường tìm kiếm */}
-                <VuiBox mb={1}>
+               <VuiBox mb={1}>
                   <VuiInput
                     placeholder="Nhập vào đây..."
                     icon={{ component: <SearchIcon />, direction: "left" }}
@@ -247,8 +242,7 @@ function Orders() {
                     })}
                   />
                 </VuiBox>
-              </VuiBox>
-
+            </VuiBox>
             {loading ? (
               <Box display="flex" justifyContent="center" alignItems="center" height="100px">
                 <ClipLoader size={50} color={'#123abc'} loading={loading} />

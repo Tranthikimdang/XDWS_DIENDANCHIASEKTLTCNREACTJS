@@ -185,10 +185,7 @@ function Questions() {
                 <VuiTypography variant="lg" color="white">
                   Bảng câu hỏi
                 </VuiTypography>
-              </VuiBox>
-              <VuiBox mb={2} display="flex" justifyContent="flex-end">
-                {/* Trường tìm kiếm */}
-                <VuiBox mb={1}>
+ <VuiBox mb={1}>
                   <VuiInput
                     placeholder="Nhập vào đây..."
                     icon={{ component: <SearchIcon />, direction: "left" }}
