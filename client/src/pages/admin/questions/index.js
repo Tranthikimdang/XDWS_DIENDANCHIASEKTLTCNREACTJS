@@ -16,6 +16,8 @@ import authorsQuestionsData from './data/authorsTableData';
 import ConfirmDialog from './data/formDeleteQuestions';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
+import SearchIcon from '@mui/icons-material/Search';
+import VuiInput from "src/components/admin/VuiInput";
 import './index.css';
 // Images
 import avatardefault from "src/assets/images/profile/user-1.jpg";
@@ -40,6 +42,8 @@ function Questions() {
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(4);
   const [reload, setReload] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Fetch Questionss from Firestore
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -127,6 +131,15 @@ function Questions() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+  //tim kiem
+  const filteredRows = rows.filter((row) =>
+    users.find((u) => u.id === row.user_id)?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.questions?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.hashtag.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.up_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
 
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
@@ -173,6 +186,26 @@ function Questions() {
                   Bảng câu hỏi
                 </VuiTypography>
               </VuiBox>
+              <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
+              </VuiBox>
               {loading ? (
                 <div
                   style={{
@@ -202,7 +235,7 @@ function Questions() {
                   >
                     <Table
                       columns={columns}
-                      rows={rows
+                      rows={filteredRows
                         .sort((a, b) => (a.updatedAt.seconds < b.updatedAt.seconds ? 1 : -1))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {
@@ -265,17 +298,6 @@ function Questions() {
                                   {authorName}
                                 </VuiTypography>
                               </VuiBox>
-                            ),
-                            title: (
-                              <VuiBox>
-                              <VuiTypography
-                                variant="caption"
-                                color="text"
-                                style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
-                              >
-                                {row.title||"Người dùng không nhập tiêu đề"}
-                              </VuiTypography>
-                            </VuiBox>
                             ),
                             questions: (
                               <VuiBox>
@@ -392,7 +414,7 @@ function Questions() {
                   </div>
                 </>
               )}
-                </Card>
+            </Card>
           </VuiBox>
         </VuiBox>
         <ConfirmDialog

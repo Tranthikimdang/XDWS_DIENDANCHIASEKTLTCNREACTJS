@@ -37,6 +37,7 @@ function Mentor() {
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(4);
   const [reload, setReload] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(''); // Thêm state cho từ khóa tìm kiếm
   useEffect(() => {
     const fetchMentor = async () => {
       try {
@@ -115,6 +116,15 @@ function Mentor() {
     setPage(newPage);
   };
 
+  // Lọc dữ liệu theo từ khóa tìm kiếm
+  const filteredRows = rows.filter((row) =>
+    users.find((u) => u.id === row.user_id)?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    users.find((u) => u.id === row.user_id)?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.bio.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.skills.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(row.experience_years).toLowerCase().includes(searchTerm.toLowerCase()) 
+  );
+
   //duyệt
   const handleApprove = async (row) => {
     try {
@@ -180,23 +190,28 @@ function Mentor() {
                 <VuiTypography variant="lg" color="white">
                   Danh sách người hướng dẫn
                 </VuiTypography>
-                <VuiBox pr={1}>
-                  <VuiInput
-                    placeholder="Nhập vào đây..."
-                    icon={{ component: <SearchIcon />, direction: "left" }}
-                    sx={({ breakpoints }) => ({
-                      [breakpoints.down("sm")]: {
-                        maxWidth: "80px",
-                      },
-                      [breakpoints.only("sm")]: {
-                        maxWidth: "80px",
-                      },
-                      backgroundColor: "info.main !important",
-                    })}
-                  />
+                <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                  {/* Trường tìm kiếm */}
+                  <VuiBox mb={1}>
+                    <VuiInput
+                      placeholder="Nhập vào đây..."
+                      icon={{ component: <SearchIcon />, direction: "left" }}
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      sx={({ breakpoints }) => ({
+                        [breakpoints.down("sm")]: {
+                          maxWidth: "80px",
+                        },
+                        [breakpoints.only("sm")]: {
+                          maxWidth: "80px",
+                        },
+                        backgroundColor: "info.main !important",
+                      })}
+                    />
+                  </VuiBox>
                 </VuiBox>
               </VuiBox>
-              
+
               {loading ? (
                 <div
                   style={{
@@ -226,7 +241,7 @@ function Mentor() {
                   >
                     <Table
                       columns={columns}
-                      rows={rows
+                      rows={filteredRows
                         .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {

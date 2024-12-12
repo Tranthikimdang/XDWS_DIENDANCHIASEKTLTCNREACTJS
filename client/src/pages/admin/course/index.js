@@ -13,6 +13,9 @@ import authorsProductData from './data/authors';
 import ConfirmDialog from './data/FormDelete';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
+import SearchIcon from '@mui/icons-material/Search';
+import VuiInput from "src/components/admin/VuiInput";
+
 import './index.css';
 //sql
 import api from '../../../apis/CourseApI';
@@ -34,6 +37,8 @@ function Course() {
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(4);
   const [imageUrl, setImageUrl] = useState('');
+
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -78,6 +83,17 @@ function Course() {
     setDeleteName(name);
     setOpenDialog(true);
   };
+
+  //tim kiem
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredRows = rows.filter((row) =>
+    row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(row.price).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(row.discount).toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const confirmDelete = async () => {
     try {
@@ -201,6 +217,26 @@ function Course() {
                   </button>
                 </Link>
               </VuiBox>
+              <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
+              </VuiBox>
               {loading ? (
                 <div
                   style={{
@@ -230,7 +266,7 @@ function Course() {
                   >
                     <Table
                       columns={columns}
-                      rows={rows
+                      rows={filteredRows
                         .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {

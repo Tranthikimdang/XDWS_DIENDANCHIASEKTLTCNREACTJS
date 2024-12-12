@@ -974,7 +974,6 @@ const Questions = () => {
     useEffect(() => {
         getFilteredQuestions();
     }, [searchTerm, currentPage, usersPerPage, questions]);
-    // const filteredQuestions = getFilteredQuestions();
     return (
         <PageContainer
             title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code"

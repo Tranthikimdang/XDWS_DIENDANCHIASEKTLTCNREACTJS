@@ -14,8 +14,8 @@ import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import VuiInput from "src/components/admin/VuiInput";
 import SearchIcon from '@mui/icons-material/Search';
-
-
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
 //sql
 import UserApI from 'src/apis/UserApI';
 import './index.css';
@@ -24,7 +24,6 @@ function User() {
   const { columns } = authorsTableData;
   const [openDialog, setOpenDialog] = useState(false);
   const [rows, setRows] = useState([]);
-  const [filteredRows, setFilteredRows] = useState([]); // Thêm state cho danh sách đã lọc
   const [deleteId, setDeleteId] = useState(null);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -48,7 +47,6 @@ function User() {
         const filteredUsers = users.data.users.filter(user => !(user.role === 'admin' && user.id === userId));
 
         setRows(filteredUsers); // Cập nhật danh sách người dùng
-        setFilteredRows(filteredUsers); // Cập nhật danh sách đã lọc
         console.log('Filtered users:', filteredUsers);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -61,13 +59,13 @@ function User() {
   }, [userRole, userId]);
 
   // Lọc dữ liệu theo từ khóa tìm kiếm
-  useEffect(() => {
-    const result = rows.filter((row) =>
-      row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredRows(result);
-  }, [searchTerm, rows]);
+  const filteredRows = rows.filter((row) =>
+    row.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.role.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleDelete = (id) => {
     setDeleteId(id);
@@ -78,7 +76,6 @@ function User() {
     try {
       await UserApI.deleteUser(deleteId); // Xóa người dùng từ MySQL
       setRows(rows.filter((user) => user.id !== deleteId));
-      setFilteredRows(filteredRows.filter((user) => user.id !== deleteId)); // Xóa khỏi danh sách đã lọc
       setOpenDialog(false);
       setSnackbarMessage('User deleted successfully.');
       setSnackbarSeverity('success');
@@ -137,7 +134,7 @@ function User() {
                 </Link>
               </VuiBox>
               <VuiBox mb={2} display="flex" justifyContent="flex-end">
-                  {/* Trường tìm kiếm */}
+                {/* Trường tìm kiếm */}
                 <VuiBox mb={1}>
                   <VuiInput
                     placeholder="Nhập vào đây..."
@@ -170,6 +167,27 @@ function User() {
                         .map((row, index) => ({
                           ...row,
                           no: page * rowsPerPage + index + 1,
+                          author: (
+                            <VuiBox style={{ display: 'flex', alignItems: 'center' }}>
+                              <img
+                                src={row?.imageUrl ? row.imageUrl : avatardefault}
+                                alt="Hình ảnh người dùng"
+                                style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                                onError={(e) => {
+                                  e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                }}
+                              />
+
+                              <VuiBox style={{ display: 'flex', flexDirection: 'column' }}>
+                                <VuiTypography variant="button" color="white" fontWeight="medium">
+                                  {row?.name || 'Unknown'}
+                                </VuiTypography>
+                                <VuiTypography variant="caption" color="text" style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                  {row?.email || 'Unknown'}
+                                </VuiTypography>
+                              </VuiBox>
+                            </VuiBox>
+                          ),
                           action: (
                             <div>
                               <Link to={`/admin/editUser/${row.id}`}>
