@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid} from '@mui/material';
+import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import VuiTypography from "src/components/admin/VuiTypography";
 //api
 import QuestionsApis from 'src/apis/QuestionsApis';
 import apiUser from 'src/apis/UserApI';
@@ -64,6 +65,11 @@ const FormViewQuestion = () => {
     // Find user avatar
     const imageUser = users.find((user) => user.id === questionData?.user_id);
 
+    const smallFontStyle = {
+        fontSize: '0.9rem',
+        color: '#ffffff'
+    };
+    
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -97,8 +103,14 @@ const FormViewQuestion = () => {
                                 Xem câu hỏi
                             </Typography>
                         </Box>
-
+                        <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
+                            <strong>Tiêu đề: </strong>{questionData?.question?.title}
+                        </VuiTypography>
                         {/* Display question content */}
+                        <VuiTypography variant="h1" paragraph style={smallFontStyle}>
+                            <strong>Nội dung: </strong>
+                            {questionData?.question?.questions || 'Người dùng không nhập câu hỏi'}
+                        </VuiTypography>
                         <TextField
                             variant="outlined"
                             multiline

@@ -266,6 +266,17 @@ function Questions() {
                                 </VuiTypography>
                               </VuiBox>
                             ),
+                            title: (
+                              <VuiBox>
+                              <VuiTypography
+                                variant="caption"
+                                color="text"
+                                style={{ fontSize: '12px', whiteSpace: 'nowrap' }}
+                              >
+                                {row.title||"Người dùng không nhập tiêu đề"}
+                              </VuiTypography>
+                            </VuiBox>
+                            ),
                             questions: (
                               <VuiBox>
                                 <VuiTypography
@@ -381,7 +392,7 @@ function Questions() {
                   </div>
                 </>
               )}
-            </Card>
+                </Card>
           </VuiBox>
         </VuiBox>
         <ConfirmDialog

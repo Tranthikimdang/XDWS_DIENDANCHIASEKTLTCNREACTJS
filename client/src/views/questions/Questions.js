@@ -1166,7 +1166,9 @@ const Questions = () => {
                                 <CircularProgress />
                             </Box>
                         ) : listQuestion?.length > 0 ? ( // Sử dụng danh sách đã lọc
-                            listQuestion.map((question) => {
+                            listQuestion
+                            .sort((a, b) => (a.updatedAt.seconds < b.updatedAt.seconds ? 1 : -1))
+                            .map((question) => {
                                 const listImgUrl = question.imageUrls;
                                 const listFileUrl = question.fileUrls;
                                 return (
