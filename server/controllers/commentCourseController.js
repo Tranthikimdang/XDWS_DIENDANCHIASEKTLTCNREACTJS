@@ -74,38 +74,43 @@ exports.deleteCommentCourse = async (req, res) => {
 
 // Tạo phản hồi
 exports.createReply = async (req, res) => {
-    const { comment_course_id } = req.params;
-    const { user_id, content, imageUrls} = req.body;
-  
-    try {
-      // Find the comment by ID
-      const comment = await CommentCourse.findByPk(comment_course_id);
-      if (!comment) {
-        return res.status(404).json({ status: 'error', message: 'CommentCourse not found' });
-      }
-  
-      const replies = Array.isArray(comment.replies) ? comment.replies : [];
-  
-      const newReply = {
-        id: Date.now(),
-        user_id,
-        content,
-        imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-  
-      replies.push(newReply);
-      comment.replies = replies;
-  
-      await comment.save();
-      
-      res.status(201).json({ status: 'success', data: { reply: newReply } });
-    } catch (error) {
-      console.error("Error in createReply:", error.message);
-      res.status(500).json({ status: 'error', message: error.message });
+  const { comment_course_id } = req.params;
+  const { user_id, content, imageUrls } = req.body;
+
+  try {
+    // Find the comment by ID
+    const comment = await CommentCourse.findByPk(comment_course_id);
+    if (!comment) {
+      return res.status(404).json({ status: 'error', message: 'CommentCourse not found' });
     }
-  };
+
+    // Initialize the replies array if it doesn't exist
+    const replies = Array.isArray(comment.replies) ? comment.replies : [];
+
+    console.log("Received imageUrls:", imageUrls); // Log received imageUrls
+
+    const newReply = {
+      id: Date.now(),
+      user_id,
+      content,
+      imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+
+    replies.push(newReply);
+    comment.replies = replies;
+
+    await comment.save();
+
+    console.log("New reply added:", newReply); // Log the new reply
+
+    res.status(201).json({ status: 'success', data: { reply: newReply } });
+  } catch (error) {
+    console.error("Error in createReply:", error.message);
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+};
 
   
 // Xóa phản hồi
