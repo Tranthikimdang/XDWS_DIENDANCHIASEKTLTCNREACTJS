@@ -162,26 +162,26 @@ const QuestionDetail = () => {
     const fetchQuestion = async () => {
       setLoading(true);
       try {
+        // Lấy thông tin câu hỏi từ API
         const questionResponse = await QuestionsApis.getQuestionId(questionId);
-        const questionData = questionResponse.data.question;
-  
-        const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
-        const savedQuestion = savedComments.find((item) => item.id === questionId);
-  
-        setQuestion({
-          ...questionData,
-          comments: savedQuestion ? savedQuestion.comments : [],
-        });
+        setQuestion(questionResponse.data.question);
+
+        // Lấy thông tin người dùng dựa trên user_id từ câu hỏi
+        const userId = questionResponse.data.question.user_id;
+        if (userId) {
+          const userResponse = await UsersApis.getUserId(userId);  // Gọi API với user_id
+          setUser(userResponse.data.user);  // Lưu thông tin người dùng (tên, ảnh, v.v.)
+        }
       } catch (error) {
-        console.error('Lỗi khi lấy chi tiết câu hỏi:', error);
+        console.error('Lỗi khi lấy câu hỏi hoặc người dùng:', error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchQuestion();
-  }, [questionId, reload]);
-  
+  }, [questionId]);
+
   // Lấy danh sách người dùng từ Firestore
 
   useEffect(() => {
@@ -344,7 +344,7 @@ const QuestionDetail = () => {
       console.log('newCommentData:', newCommentData);
       if (response.data.status === 'success') {
         const comment = response.data.data.comment;
-  
+
         // Cập nhật localStorage
         const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
         const questionIndex = savedComments.findIndex((item) => item.id === question_id);
@@ -354,7 +354,7 @@ const QuestionDetail = () => {
           savedComments.push({ id: question_id, comments: [comment] });
         }
         localStorage.setItem('comment_question', JSON.stringify(savedComments));
-  
+
         // Cập nhật danh sách câu hỏi
         setListQuestion((prevList) =>
           prevList.map((question) =>
@@ -363,13 +363,13 @@ const QuestionDetail = () => {
               : question
           )
         );
-  
+
         // Cập nhật chi tiết câu hỏi
         setQuestion((prevQuestion) => ({
           ...prevQuestion,
           comments: [...(prevQuestion.comments || []), comment],
         }));
-  
+
 
         // Reset the input fields after success
         setNewComment('');  // Reset comment input
@@ -393,117 +393,134 @@ const QuestionDetail = () => {
 
   const handleAddReply = async (questionId, commentId, parentId = null) => {
     if (!userData?.current?.id) {
-        setSnackbarOpen(false);
-        setTimeout(() => {
-            setSnackbarMessage("Bạn cần đăng nhập để gửi trả lời.");
-            setSnackbarSeverity("warning");
-            setSnackbarOpen(true);
-        }, 100);
-        return;
+      setSnackbarOpen(false);
+      setTimeout(() => {
+        setSnackbarMessage("Bạn cần đăng nhập để gửi trả lời.");
+        setSnackbarSeverity("warning");
+        setSnackbarOpen(true);
+      }, 100);
+      return;
     }
 
     const replyContent = newReplies[parentId || commentId]?.content;
     if (!replyContent || typeof replyContent !== 'string' || replyContent.trim() === '') {
-        setSnackbarMessage("Nội dung phản hồi không được để trống.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        setIsSubmittingReply(false);
-        return;
+      setSnackbarMessage("Nội dung phản hồi không được để trống.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      setIsSubmittingReply(false);
+      return;
     }
 
     if (containsSensitiveWords(replyContent)) {
-        setSnackbarMessage("Nội dung phản hồi không hợp lệ.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        return;
+      setSnackbarMessage("Nội dung phản hồi không hợp lệ.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return;
     }
 
     try {
-        let imageUrls = [];
-        let fileUrls = [];
+      let imageUrls = [];
+      let fileUrls = [];
 
-        // Lấy hình ảnh và tệp từ state
-        if (newReplies[parentId || commentId]?.imageUrls) {
-            imageUrls = newReplies[parentId || commentId].imageUrls;
-        }
-        if (newReplies[parentId || commentId]?.fileUrls) {
-            fileUrls = newReplies[parentId || commentId].fileUrls;
-        }
+      // Lấy hình ảnh và tệp từ state
+      if (newReplies[parentId || commentId]?.imageUrls) {
+        imageUrls = newReplies[parentId || commentId].imageUrls;
+      }
+      if (newReplies[parentId || commentId]?.fileUrls) {
+        fileUrls = newReplies[parentId || commentId].fileUrls;
+      }
 
-        const newReply = {
-            user_id: userData.current.id,
-            content: replyContent,
-            imageUrls: imageUrls,
-            fileUrls: fileUrls,
-            up_code: dataTemp?.up_code || codeSnippet || '',
-            created_at: new Date(),
-        };
+      const newReply = {
+        user_id: userData.current.id,
+        content: replyContent,
+        imageUrls: imageUrls,
+        fileUrls: fileUrls,
+        up_code: dataTemp?.up_code || codeSnippet || '',
+        created_at: new Date(),
+      };
 
-        const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
+      const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
 
-        if (response.data.status === 'success') {
-            const reply = response.data.data.reply;
+      if (response.data.status === 'success') {
+        const reply = response.data.data.reply;
 
-            // Cập nhật localStorage
-            const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
-            const questionIndex = savedComments.findIndex((item) => item.id === questionId);
-            if (questionIndex !== -1) {
-                const comments = savedComments[questionIndex].comments.map((comment) => {
-                    if (comment.id === commentId) {
-                        const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                        return {
-                            ...comment,
-                            replies: [...repliesArray, reply],
-                        };
-                    }
-                    return comment;
-                });
-                savedComments[questionIndex].comments = comments;
+        // Cập nhật localStorage
+        const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
+        const questionIndex = savedComments.findIndex((item) => item.id === questionId);
+        if (questionIndex !== -1) {
+          const comments = savedComments[questionIndex].comments.map((comment) => {
+            if (comment.id === commentId) {
+              const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+              return {
+                ...comment,
+                replies: [...repliesArray, reply],
+              };
             }
-            localStorage.setItem('comment_question', JSON.stringify(savedComments));
-
-            // Cập nhật state hiển thị
-            setListQuestion((prevList) =>
-                prevList.map((item) => {
-                    if (item.id === questionId) {
-                        return {
-                            ...item,
-                            comments: item.comments.map((comment) => {
-                                if (comment.id === commentId) {
-                                    const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                                    return {
-                                        ...comment,
-                                        replies: [...repliesArray, reply],
-                                    };
-                                }
-                                return comment;
-                            }),
-                        };
-                    }
-                    return item;
-                })
-            );
-
-            // Đặt lại trạng thái
-            setNewReplies((prev) => ({ ...prev, [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] } }));
-            setReplyingTo(null);
-            setReplyImageFile(null);
-            setReplyFile(null);
-            setSnackbarMessage("Trả lời của bạn đã được gửi.");
-            setSnackbarSeverity("success");
-            setSnackbarOpen(true);
+            return comment;
+          });
+          savedComments[questionIndex].comments = comments;
         }
-    } catch (error) {
-        console.error("Error adding reply:", error);
-        setSnackbarMessage("Đã xảy ra lỗi khi gửi phản hồi.");
-        setSnackbarSeverity("error");
+        localStorage.setItem('comment_question', JSON.stringify(savedComments));
+
+        // Cập nhật state hiển thị
+        setListQuestion((prevList) =>
+          prevList.map((item) => {
+            if (item.id === questionId) {
+              return {
+                ...item,
+                comments: item.comments.map((comment) => {
+                  if (comment.id === commentId) {
+                    const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+                    return {
+                      ...comment,
+                      replies: [...repliesArray, reply],
+                    };
+                  }
+                  return comment;
+                }),
+              };
+            }
+            return item;
+          })
+        );
+        setQuestion((prevQuestion) => {
+          if (prevQuestion?.id === questionId) {
+            return {
+              ...prevQuestion,
+              comments: prevQuestion.comments.map((comment) => {
+                if (comment.id === commentId) {
+                  const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+                  return {
+                    ...comment,
+                    replies: [...repliesArray, reply],
+                  };
+                }
+                return comment;
+              }),
+            };
+          }
+          return prevQuestion;
+        });
+
+
+        // Đặt lại trạng thái
+        setNewReplies((prev) => ({ ...prev, [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] } }));
+        setReplyingTo(null);
+        setReplyImageFile(null);
+        setReplyFile(null);
+        setSnackbarMessage("Trả lời của bạn đã được gửi.");
+        setSnackbarSeverity("success");
         setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error("Error adding reply:", error);
+      setSnackbarMessage("Đã xảy ra lỗi khi gửi phản hồi.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
     } finally {
-        setIsSubmittingReply(false);
+      setIsSubmittingReply(false);
     }
-};
-
-
+  };
 
   //date
   const formatUpdatedAt = (updatedAt) => {
@@ -749,9 +766,9 @@ const QuestionDetail = () => {
                   justifyContent="center"
                   sx={{
                     width: '100%',
-                    gap: 1,
-                    marginRight: '345px',
-                    marginTop: '-18px',
+                    gap: 0,
+                    marginRight: '660px',
+                    marginTop: '-14px',
                   }}
                 >
                   <IconButton>
@@ -776,7 +793,7 @@ const QuestionDetail = () => {
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
-                  sx={{ width: '100%', marginLeft: ' 80px', marginTop: '-10px' }}
+                  sx={{ width: '100%', marginLeft: ' 80px', marginTop: '-16px' }}
                 >
                   <Box display="flex" gap={1}>
                     {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
@@ -1081,9 +1098,9 @@ const QuestionDetail = () => {
                         justifyContent="center"
                         sx={{
                           width: '100%',
-                          gap: 1,
-                          marginLeft: '-174px',
-                          marginTop: '-2px',
+                          gap: 0,
+                          marginLeft: '-330px',
+                          marginTop: '0px',
                         }}
                       >
                         <IconButton>
