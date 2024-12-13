@@ -289,7 +289,7 @@ function Mentor() {
                             action: (
                               <div className="action-buttons">
                                 <Link to={`/admin/formviewmentor/${row.id}`}>
-                                  <Tooltip title="Xem mentor" placement="top">
+                                  <Tooltip title="Xem người cố vấn" placement="top">
                                     <button
                                       className="text-light btn btn-outline-info me-2"
                                       type="button"
@@ -309,7 +309,7 @@ function Mentor() {
                                     </button>
                                   </Tooltip>
                                 </Link>
-                                <Tooltip title="Xóa mentor" placement="top">
+                                <Tooltip title="Xóa người cố vấn" placement="top">
                                   <button
                                     className="text-light btn btn-outline-danger me-2"
                                     type="button"

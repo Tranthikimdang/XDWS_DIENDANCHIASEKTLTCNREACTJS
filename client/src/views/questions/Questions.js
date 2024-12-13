@@ -2435,7 +2435,7 @@ const Questions = () => {
                                                         sx={{
                                                             display: 'flex', // Để căn chỉnh các phần tử ngang hàng
                                                             alignItems: 'center', // Căn chỉnh dọc cho hình ảnh và tên
-                                                            border: '2px solid #999999', // Thêm viền ngoài với màu #1976d2
+                                                            border: '1px solid #999999', // Thêm viền ngoài với màu #1976d2
                                                             padding: '8px', // Khoảng cách giữa viền và nội dung bên trong
                                                             borderRadius: '10px', // Làm bo góc viền, nếu cần
                                                             backgroundColor: '#fff', // Màu nền bên trong Box

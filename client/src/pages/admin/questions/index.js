@@ -323,7 +323,7 @@ function Questions() {
                             action: (
                               <div className="action-buttons">
                                 <Link to={`/admin/questions/view/${row.id}`} state={{ type: '0' }}>
-                                  <Tooltip title="Xem bài viết" placement="top">
+                                  <Tooltip title="Xem câu hỏi" placement="top">
                                     <button
                                       className="text-light btn btn-outline-info me-2"
                                       type="button"
@@ -344,7 +344,7 @@ function Questions() {
                                   </Tooltip>
                                 </Link>
                                 <Link to={`/admin/questions/edit/${row.id}`} state={{ type: '1' }}>
-                                  <Tooltip title="Sửa bài viết" placement="top">
+                                  <Tooltip title="Sửa câu hỏi" placement="top">
                                     <button
                                       className="text-light btn btn-outline-warning me-2"
                                       type="button"
@@ -363,7 +363,7 @@ function Questions() {
                                     </button>
                                   </Tooltip>
                                 </Link>
-                                <Tooltip title="Xóa bài viết" placement="top">
+                                <Tooltip title="Xóa câu hỏi" placement="top">
                                   <button
                                     className="text-light btn btn-outline-danger me-2"
                                     type="button"
