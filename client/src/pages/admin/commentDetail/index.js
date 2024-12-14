@@ -20,7 +20,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import axios from 'axios';
 import { getQuestionComments } from 'src/apis/CommentApi';
 import { getCourseComments } from 'src/apis/CommentCourseApi';
-import { deleteComment as deleteCourseComment } from 'src/apis/CommentCourseApi'; 
+import { deleteComment as deleteCourseComment } from 'src/apis/CommentCourseApi';
 import { deleteComment as deleteQuestionComment } from 'src/apis/CommentApi';
 function CommentDetail() {
   const { id, type } = useParams();
@@ -49,13 +49,13 @@ function CommentDetail() {
           imageUrls: Array.isArray(comment.imageUrls)
             ? comment.imageUrls
             : comment.imageUrls?.startsWith('[')
-            ? JSON.parse(comment.imageUrls)
-            : [comment.imageUrls], // Wrap single URL in an array
+              ? JSON.parse(comment.imageUrls)
+              : [comment.imageUrls], // Wrap single URL in an array
           fileUrls: Array.isArray(comment.fileUrls)
             ? comment.fileUrls
             : comment.fileUrls?.startsWith('[')
-            ? JSON.parse(comment.fileUrls)
-            : [comment.fileUrls], // Wrap single URL in an array
+              ? JSON.parse(comment.fileUrls)
+              : [comment.fileUrls], // Wrap single URL in an array
         }));
         setRows(parsedComments);
       } else {
@@ -68,7 +68,7 @@ function CommentDetail() {
       setLoading(false);
     }
   };
-  
+
 
   // Fetch course comments
   const fetchCourseComments = async (course_id) => {
@@ -77,7 +77,7 @@ function CommentDetail() {
     try {
       const response = await getCourseComments(course_id);
       console.log('Response from API:', response);
-  
+
       // Kiểm tra xem response có hợp lệ không
       if (response && response.data && Array.isArray(response.data)) {
         const parsedComments = response.data.map(comment => ({
@@ -85,8 +85,8 @@ function CommentDetail() {
           imageUrls: Array.isArray(comment.imageUrls)
             ? comment.imageUrls
             : comment.imageUrls?.startsWith('[')
-            ? JSON.parse(comment.imageUrls)
-            : [comment.imageUrls] // Đảm bảo rằng imageUrls luôn là một mảng
+              ? JSON.parse(comment.imageUrls)
+              : [comment.imageUrls] // Đảm bảo rằng imageUrls luôn là một mảng
         }));
         setRows(parsedComments);
       } else {
@@ -105,7 +105,7 @@ function CommentDetail() {
   useEffect(() => {
     console.log('useEffect triggered with commentType:', commentType);
     setColumns(commentDetails[`${commentType}Columns`]);
-    
+
     // Thay đổi điều kiện để gọi đúng hàm
     if (id && commentType === 'course') {
       console.log('Calling fetchCourseComments with id:', id);
@@ -124,15 +124,15 @@ function CommentDetail() {
   const confirmDelete = async (deleteId) => {
     try {
       const deleteApi = commentType === 'course' ? deleteCourseComment : deleteQuestionComment;
-  
+
       // Gọi API xóa bình luận từ backend
       const response = await deleteApi(deleteId);
-  
+
       if (response.status === 204) {
         // Xóa bình luận khỏi state
         setRows((prevRows) => {
           const updatedRows = prevRows.filter((comment) => comment.id !== deleteId);
-  
+
           // Cập nhật lại localStorage cho từng loại bình luận
           if (commentType === 'course') {
             const storedCourses = JSON.parse(localStorage.getItem('comment_course')) || [];
@@ -146,10 +146,10 @@ function CommentDetail() {
             }));
             localStorage.setItem('comment_question', JSON.stringify(updatedQuestions));
           }
-  
+
           return updatedRows;
         });
-  
+
         setSnackbarMessage("Comment deleted successfully.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -165,8 +165,8 @@ function CommentDetail() {
       console.error("Error deleting comment:", error);
     }
   };
-  
-      
+
+
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
@@ -273,20 +273,49 @@ function CommentDetail() {
                           'Không có hình ảnh'
                         ),
                         files: fileUrls.length > 0 ? (
-                          <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          <Box
+                            sx={{
+                              mt: 1,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '10px',
+                            }}
+                          >
                             {fileUrls.map((fileUrl, fileIndex) => {
                               const fileName = decodeURIComponent(fileUrl)
                                 .split('/')
                                 .pop()
                                 .split('?')[0];
+
                               return (
-                                <Box key={fileIndex} sx={{ display: 'flex', alignItems: 'center' }}>
-                                  <DescriptionIcon />
+                                <Box
+                                  key={fileIndex}
+                                  sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    padding: '8px 16px',
+                                    border: '1px solid rgb(61, 54, 54)',
+                                    borderRadius: '8px',
+                                    backgroundColor: 'rgb(40, 42, 54)',
+                                    width: 'fit-content',
+                                  }}
+                                >
+                                  <IconButton sx={{ color: '#ffffff', padding: '0' }}>
+                                    <DescriptionIcon />
+                                  </IconButton>
                                   <Typography
                                     component="a"
                                     href={fileUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    sx={{
+                                      marginLeft: '8px',
+                                      color: '#ffffff',
+                                      textDecoration: 'none',
+                                      fontSize: '14px',
+                                      fontWeight: '500',
+                                      wordBreak: 'break-all',
+                                    }}
                                   >
                                     {fileName}
                                   </Typography>
@@ -295,8 +324,18 @@ function CommentDetail() {
                             })}
                           </Box>
                         ) : (
-                          'Không có tập tin'
+                          <Typography
+                            sx={{
+                              mt: 1,
+                              fontSize: '14px',
+                              color: '#888',
+                              textAlign: 'left',
+                            }}
+                          >
+                            Không có tập tin
+                          </Typography>
                         ),
+
                         content: row.content || 'Không có nội dung',
                         action: (
                           <button
