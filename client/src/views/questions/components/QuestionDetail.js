@@ -159,31 +159,40 @@ const QuestionDetail = () => {
 
   // Lấy dữ liệu câu hỏi và người dùng
   useEffect(() => {
-    const fetchQuestion = async () => {
+    const fetchQuestionDetails = async () => {
       setLoading(true);
       try {
-        // Lấy thông tin câu hỏi từ API
+        // Fetch câu hỏi và bình luận từ API
         const questionResponse = await QuestionsApis.getQuestionId(questionId);
-        setQuestion(questionResponse.data.question);
+        const fetchedQuestion = questionResponse.data.question;
 
-        // Lấy thông tin người dùng dựa trên user_id từ câu hỏi
-        const userId = questionResponse.data.question.user_id;
+        // Fetch thông tin người dùng nếu cần
+        const userId = fetchedQuestion.user_id;
         if (userId) {
-          const userResponse = await UsersApis.getUserId(userId);  // Gọi API với user_id
-          setUser(userResponse.data.user);  // Lưu thông tin người dùng (tên, ảnh, v.v.)
+          const userResponse = await UsersApis.getUserId(userId);
+          setUser(userResponse.data.user);
         }
+
+        // Cập nhật state câu hỏi
+        setQuestion(fetchedQuestion);
+
+        // Cập nhật danh sách câu hỏi
+        setListQuestion((prevQuestions) => {
+          const updatedQuestions = prevQuestions.map((q) =>
+            q.id === questionId ? fetchedQuestion : q
+          );
+          return updatedQuestions;
+        });
       } catch (error) {
-        console.error('Lỗi khi lấy câu hỏi hoặc người dùng:', error);
+        console.error("Error fetching question or user:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchQuestion();
+    fetchQuestionDetails();
   }, [questionId]);
-
   // Lấy danh sách người dùng từ Firestore
-
   useEffect(() => {
     const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
     userData.current = userDataFromLocalStorage;
@@ -296,20 +305,17 @@ const QuestionDetail = () => {
         setSnackbarMessage("Nội dung bình luận không được để trống.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
-        return; // Ngừng thực hiện hàm nếu bình luận rỗng
+        return;
       }
-
       if (containsSensitiveWords(newComment)) {
         setSnackbarMessage("Nội dung bình luận không hợp lệ.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
-        return; // Stop execution if comment contains sensitive words
+        return;
       }
 
       let imageUrl = [];
       let fileUrl = [];
-
-      // Upload image if available
       if (imageFile) {
         const formDataImage = new FormData();
         formDataImage.append("image", imageFile);
@@ -318,8 +324,6 @@ const QuestionDetail = () => {
           imageUrl = imageResponse.data.imagePath;
         }
       }
-
-      // Upload file if available
       if (file) {
         const formDataFile = new FormData();
         formDataFile.append("file", file);
@@ -332,20 +336,20 @@ const QuestionDetail = () => {
       const newCommentData = {
         question_id,
         user_id: userData.current.id,
-        content: newComment || '',  // Optional content
-        imageUrls: imageUrl,        // Optional image
-        fileUrls: fileUrl,          // Optional file
+        content: newComment || '',
+        imageUrls: imageUrl,
+        fileUrls: fileUrl,
         created_at: new Date(),
         updated_at: new Date(),
-        up_code: dataTemp?.up_code || codeSnippet || '',  // Optional up_code
+        up_code: dataTemp?.up_code || codeSnippet || '',
         replies: []
       };
+
       const response = await axios.post('http://localhost:3000/api/comments', newCommentData);
-      console.log('newCommentData:', newCommentData);
       if (response.data.status === 'success') {
         const comment = response.data.data.comment;
 
-        // Cập nhật localStorage
+        // Cập nhật LocalStorage
         const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
         const questionIndex = savedComments.findIndex((item) => item.id === question_id);
         if (questionIndex !== -1) {
@@ -353,30 +357,33 @@ const QuestionDetail = () => {
         } else {
           savedComments.push({ id: question_id, comments: [comment] });
         }
+
+        // Lưu lại bình luận vào LocalStorage
         localStorage.setItem('comment_question', JSON.stringify(savedComments));
 
-        // Cập nhật danh sách câu hỏi
-        setListQuestion((prevList) =>
-          prevList.map((question) =>
-            question.id === question_id
-              ? { ...question, comments: [...(question.comments || []), comment] }
-              : question
-          )
-        );
+        // Cập nhật setListQuestion đồng bộ với LocalStorage
+        setListQuestion((prevQuestions) => {
+          const updatedQuestions = prevQuestions.map((item) => {
+            return item.id === question_id
+              ? { ...item, comments: item.comments }
+              : item;
+          });
+          return updatedQuestions;
+        });
 
-        // Cập nhật chi tiết câu hỏi
+        // Cập nhật chi tiết câu hỏi (state của câu hỏi đang xem)
         setQuestion((prevQuestion) => ({
           ...prevQuestion,
           comments: [...(prevQuestion.comments || []), comment],
         }));
 
 
-        // Reset the input fields after success
-        setNewComment('');  // Reset comment input
-        setCommentImages([]);  // Reset images
-        setCommentFiles([]);   // Reset files
-        setImageFile(null);     // Reset image file state
-        setFile(null);          // Reset file state
+        setNewComment('');
+        setCommentImages([]);
+        setCommentFiles([]);
+        setImageFile(null);
+        setFile(null);
+
         setSnackbarMessage("Bình luận của bạn đã được gửi.");
         setSnackbarSeverity("success");
         setSnackbarOpen(true);
@@ -401,7 +408,6 @@ const QuestionDetail = () => {
       }, 100);
       return;
     }
-
     const replyContent = newReplies[parentId || commentId]?.content;
     if (!replyContent || typeof replyContent !== 'string' || replyContent.trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
@@ -410,26 +416,21 @@ const QuestionDetail = () => {
       setIsSubmittingReply(false);
       return;
     }
-
     if (containsSensitiveWords(replyContent)) {
       setSnackbarMessage("Nội dung phản hồi không hợp lệ.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
       return;
     }
-
     try {
       let imageUrls = [];
       let fileUrls = [];
-
-      // Lấy hình ảnh và tệp từ state
       if (newReplies[parentId || commentId]?.imageUrls) {
         imageUrls = newReplies[parentId || commentId].imageUrls;
       }
       if (newReplies[parentId || commentId]?.fileUrls) {
         fileUrls = newReplies[parentId || commentId].fileUrls;
       }
-
       const newReply = {
         user_id: userData.current.id,
         content: replyContent,
@@ -438,23 +439,18 @@ const QuestionDetail = () => {
         up_code: dataTemp?.up_code || codeSnippet || '',
         created_at: new Date(),
       };
-
       const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
-
       if (response.data.status === 'success') {
         const reply = response.data.data.reply;
 
-        // Cập nhật localStorage
+        // Update localStorage
         const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
         const questionIndex = savedComments.findIndex((item) => item.id === questionId);
         if (questionIndex !== -1) {
           const comments = savedComments[questionIndex].comments.map((comment) => {
             if (comment.id === commentId) {
               const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-              return {
-                ...comment,
-                replies: [...repliesArray, reply],
-              };
+              return { ...comment, replies: [...repliesArray, reply] };
             }
             return comment;
           });
@@ -462,7 +458,7 @@ const QuestionDetail = () => {
         }
         localStorage.setItem('comment_question', JSON.stringify(savedComments));
 
-        // Cập nhật state hiển thị
+        // Update state in both components
         setListQuestion((prevList) =>
           prevList.map((item) => {
             if (item.id === questionId) {
@@ -471,10 +467,7 @@ const QuestionDetail = () => {
                 comments: item.comments.map((comment) => {
                   if (comment.id === commentId) {
                     const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                    return {
-                      ...comment,
-                      replies: [...repliesArray, reply],
-                    };
+                    return { ...comment, replies: [...repliesArray, reply] };
                   }
                   return comment;
                 }),
@@ -483,28 +476,23 @@ const QuestionDetail = () => {
             return item;
           })
         );
-        setQuestion((prevQuestion) => {
-          if (prevQuestion?.id === questionId) {
-            return {
-              ...prevQuestion,
-              comments: prevQuestion.comments.map((comment) => {
-                if (comment.id === commentId) {
-                  const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                  return {
-                    ...comment,
-                    replies: [...repliesArray, reply],
-                  };
-                }
-                return comment;
-              }),
-            };
-          }
-          return prevQuestion;
-        });
 
+        // Update state in the detail view
+        setQuestion((prevQuestion) => ({
+          ...prevQuestion,
+          comments: prevQuestion.comments.map((comment) => {
+            if (comment.id === commentId) {
+              const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+              return { ...comment, replies: [...repliesArray, reply] };
+            }
+            return comment;
+          }),
+        }));
 
-        // Đặt lại trạng thái
-        setNewReplies((prev) => ({ ...prev, [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] } }));
+        setNewReplies((prev) => ({
+          ...prev,
+          [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] }
+        }));
         setReplyingTo(null);
         setReplyImageFile(null);
         setReplyFile(null);
@@ -521,6 +509,7 @@ const QuestionDetail = () => {
       setIsSubmittingReply(false);
     }
   };
+
 
   //date
   const formatUpdatedAt = (updatedAt) => {
@@ -573,10 +562,13 @@ const QuestionDetail = () => {
             <IconButton aria-label="like">
               <IconHeart />
             </IconButton>
-            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>15</Typography>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>15</Typography>
             <IconButton aria-label="comments" sx={{ marginLeft: '16px' }}>
               <IconMessageCircle />
             </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>
+              ({question.comments?.length || 0})
+            </Typography>
           </Box>
         </Grid>
 
@@ -716,12 +708,12 @@ const QuestionDetail = () => {
             <IconButton aria-label="like" sx={{ color: 'blue' }}>
               <IconHeart />
             </IconButton>
-            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>15</Typography>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>15</Typography>
             <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => handleToggleComments(question.id)} >
               <IconMessageCircle />
             </IconButton>
-            <Typography variant="body2">
-              Bình luận ({question.comments?.length || 0})
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>
+              ({question.comments?.length || 0})
             </Typography>
           </Box>
           {visibleComments[question.id] && (
@@ -1416,9 +1408,9 @@ const QuestionDetail = () => {
                                 justifyContent="center"
                                 sx={{
                                   width: '100%',
-                                  gap: 1,
-                                  marginLeft: '-174px',
-                                  marginTop: '-2px',
+                                  gap: 0,
+                                  marginLeft: '-314px',
+                                  marginTop: '0px',
                                 }}
                               >
                                 <IconButton>

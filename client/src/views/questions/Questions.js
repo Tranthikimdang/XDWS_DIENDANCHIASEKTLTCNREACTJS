@@ -107,6 +107,8 @@ const Questions = () => {
     const usersPerPage = 10;
     const [filteredMentors, setFilteredMentors] = useState([]);
     const [mentors, setMentors] = useState([]);
+    const [question, setQuestion] = useState([]);
+
     //up_code
     const [isExpanded, setIsExpanded] = useState(false);
     const handleToggle = () => setIsExpanded(!isExpanded);
@@ -235,9 +237,9 @@ const Questions = () => {
                 setLoading(false);
             }
         };
-
+    
         fetchQuestions();
-    }, [reload]); // reload để đồng bộ
+    }, [reload]);// reload để đồng bộ
 
 
     const handleSnackbarClose = (event, reason) => {
@@ -600,7 +602,7 @@ const Questions = () => {
             if (response.data.status === 'success') {
                 const comment = response.data.data.comment;
 
-                // Cập nhật localStorage
+                // Update localStorage
                 const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
                 const questionIndex = savedComments.findIndex((item) => item.id === question_id);
                 if (questionIndex !== -1) {
@@ -610,7 +612,7 @@ const Questions = () => {
                 }
                 localStorage.setItem('comment_question', JSON.stringify(savedComments));
 
-                // Cập nhật danh sách câu hỏi
+                // Update state in both components
                 setListQuestion((prevList) =>
                     prevList.map((question) =>
                         question.id === question_id
@@ -618,6 +620,12 @@ const Questions = () => {
                             : question
                     )
                 );
+
+                // Update state in the detail view
+                setQuestion((prevQuestion) => ({
+                    ...prevQuestion,
+                    comments: [...(prevQuestion.comments || []), comment]
+                }));
                 // Reset the input fields after success
                 setNewComment('');  // Reset comment input
                 setCommentImages([]);  // Reset images
@@ -689,26 +697,23 @@ const Questions = () => {
 
             if (response.data.status === 'success') {
                 const reply = response.data.data.reply;
-
-                // Cập nhật localStorage
+        
+                // Update localStorage
                 const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
                 const questionIndex = savedComments.findIndex((item) => item.id === questionId);
                 if (questionIndex !== -1) {
                     const comments = savedComments[questionIndex].comments.map((comment) => {
                         if (comment.id === commentId) {
                             const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                            return {
-                                ...comment,
-                                replies: [...repliesArray, reply],
-                            };
+                            return { ...comment, replies: [...repliesArray, reply] };
                         }
                         return comment;
                     });
                     savedComments[questionIndex].comments = comments;
                 }
                 localStorage.setItem('comment_question', JSON.stringify(savedComments));
-
-                // Cập nhật state hiển thị
+        
+                // Update state in both components
                 setListQuestion((prevList) =>
                     prevList.map((item) => {
                         if (item.id === questionId) {
@@ -717,10 +722,7 @@ const Questions = () => {
                                 comments: item.comments.map((comment) => {
                                     if (comment.id === commentId) {
                                         const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                                        return {
-                                            ...comment,
-                                            replies: [...repliesArray, reply],
-                                        };
+                                        return { ...comment, replies: [...repliesArray, reply] };
                                     }
                                     return comment;
                                 }),
@@ -729,6 +731,18 @@ const Questions = () => {
                         return item;
                     })
                 );
+        
+                // Update state in the detail view
+                setQuestion((prevQuestion) => ({
+                    ...prevQuestion,
+                    comments: prevQuestion.comments.map((comment) => {
+                        if (comment.id === commentId) {
+                            const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+                            return { ...comment, replies: [...repliesArray, reply] };
+                        }
+                        return comment;
+                    }),
+                }));
                 // Đặt lại trạng thái
                 setNewReplies((prev) => ({ ...prev, [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] } }));
                 setReplyingTo(null);
