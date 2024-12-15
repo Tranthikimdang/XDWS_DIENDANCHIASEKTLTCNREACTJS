@@ -18,7 +18,7 @@ import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import UserAPI from 'src/apis/UserApI';
 import api from 'src/apis/mentorApi';
 // Images
-import avatardefault from "src/assets/images/profile/user-1.jpg";
+import avatardefault from 'src/assets/images/profile/user-1.jpg';
 
 const User = () => {
   const [users, setUsers] = useState([]); // Separate state for users
@@ -86,15 +86,19 @@ const User = () => {
     <PageContainer title="Người dùng | Share Code" description="Đây là trang người dùng">
       <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
         <Grid container spacing={4}>
-          <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-            <Typography
-              variant="h4"
-              component="h1"
-              className="heading"
-              sx={{ fontWeight: 'bold', color: '#333' }}
-            >
-              Danh Sách Tài Khoản
-            </Typography>
+          <Grid container spacing={3}>
+            {/* Heading */}
+            <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+              <Typography variant="h4" component="h1" className="heading">
+                Danh sách người dùng
+              </Typography>
+              <Typography variant="body1" paragraph className="typography-body">
+                Tìm kiếm và kết nối với những người dùng hàng đầu trong lĩnh vực lập trình.
+                <br />
+                Người người dùng sẵn sàng hỗ trợ bạn trên hành trình học lập trình và phát triển sự
+                nghiệp.
+              </Typography>
+            </Grid>
           </Grid>
           <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
             <TextField
@@ -169,7 +173,11 @@ const User = () => {
                       <Typography variant="body2" color="#7f8c8d">
                         {user.email}
                       </Typography>
-                      <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '8px' }}>
+                      <Typography
+                        variant="body2"
+                        color="textSecondary"
+                        sx={{ marginBottom: '8px' }}
+                      >
                         {user.location || 'Unknown Location'}
                       </Typography>
                       <Typography variant="body2" color="#16a085">
@@ -185,123 +193,17 @@ const User = () => {
               Không có người dùng nào...
             </Typography>
           )}
-          <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
-            <Grid container spacing={3}>
-              {/* Heading */}
-              <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-                <Typography variant="h4" component="h1" className="heading">
-                  Danh sách người dùng
-                </Typography>
-                <Typography variant="body1" paragraph className="typography-body">
-                  Tìm kiếm và kết nối với những người dùng hàng đầu trong lĩnh vực lập trình.
-                  <br />
-                  Người người dùng sẵn sàng hỗ trợ bạn
-                  trên hành trình học lập trình và phát triển sự nghiệp.
-                </Typography>
-              </Grid>
 
-              <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-                <TextField
-                  label="Tìm kiếm người dùng"
-                  variant="outlined"
-                  fullWidth
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  sx={{
-                    maxWidth: '500px',
-                    margin: 'auto',
-                    borderRadius: '50px',
-                    backgroundColor: '#f7f7f7',
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '50px',
-                    },
-                    '& .MuiInputBase-input': {
-                      padding: '12px 16px',
-                    },
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              {/* User List */}
-              {loading ? (
-                <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
-              ) : currentUsers.length > 0 ? (
-                currentUsers.map((user) => (
-                  <Grid item xs={12} sm={6} md={4} key={user.id}>
-                    <Card
-                      className="user-card"
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                        borderRadius: '12px',
-                        transition: 'transform 0.3s',
-                        '&:hover': { transform: 'translateY(-5px)' },
-                      }}
-                      onClick={() => handleCardClick(user.id)}
-                    >
-                      <Box sx={{ flexShrink: 0 }}>
-                        <CardMedia
-                          component="img"
-                          image={user.imageUrl || avatardefault}
-                          alt={user.name || 'User'}
-                          sx={{
-                            width: '120px',
-                            height: '120px',
-                            objectFit: 'cover',
-                            borderRadius: '50%',
-                            margin: '16px',
-                            border: '4px solid #fff',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-                          }}
-                        />
-                      </Box>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                        <CardContent sx={{ padding: '16px' }}>
-                          <Typography variant="h6" fontWeight="bold" color="#2c3e50">
-                            {user.name}
-                          </Typography>
-                          <Typography variant="body2" color="#7f8c8d">
-                            {user.email}
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            color="textSecondary"
-                            sx={{ marginBottom: '8px' }}
-                          >
-                            {user.location || 'Unknown Location'}
-                          </Typography>
-                          <Typography variant="body2" color="#16a085">
-                            Number of articles: {user.articleCount || 0}
-                          </Typography>
-                        </CardContent>
-                      </Box>
-                    </Card>
-                  </Grid>
-                ))
-              ) : (
-                <Typography sx={{ textAlign: 'center', width: '100%' }}>
-                  Không có người dùng nào...
-                </Typography>
-              )}
-            </Grid>
-          </Box>
           {/* Pagination */}
-          <Box display="flex" justifyContent="center" mt={4} mb={4}>
-            <Pagination
-              count={Math.ceil(filteredUsers.length / usersPerPage)}
-              page={currentPage}
-              onChange={(event, value) => setCurrentPage(value)}
-              color="primary"
-            />
-          </Box>
         </Grid>
+        <Box display="flex" justifyContent="center" mt={4} mb={4}>
+          <Pagination
+            count={Math.ceil(filteredUsers.length / usersPerPage)}
+            page={currentPage}
+            onChange={(event, value) => setCurrentPage(value)}
+            color="primary"
+          />
+        </Box>
       </Box>
     </PageContainer>
   );
