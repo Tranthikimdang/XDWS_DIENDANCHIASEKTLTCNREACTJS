@@ -956,7 +956,6 @@ const Questions = () => {
     useEffect(() => {
         getFilteredQuestions();
     }, [searchTerm, currentPage, usersPerPage, questions]);
-    // const filteredQuestions = getFilteredQuestions();
     return (
         <PageContainer
             title="Hãy đặt câu hỏi hoặc chia sẻ kiến thức | Share Code"
@@ -1192,7 +1191,9 @@ const Questions = () => {
                                 <CircularProgress />
                             </Box>
                         ) : listQuestion?.length > 0 ? ( // Sử dụng danh sách đã lọc
-                            listQuestion.map((question) => {
+                            listQuestion
+                            .sort((a, b) => (a.updatedAt.seconds < b.updatedAt.seconds ? 1 : -1))
+                            .map((question) => {
                                 const listImgUrl = question.imageUrls;
                                 const listFileUrl = question.fileUrls;
                                 return (
@@ -2416,7 +2417,7 @@ const Questions = () => {
                                                         sx={{
                                                             display: 'flex', // Để căn chỉnh các phần tử ngang hàng
                                                             alignItems: 'center', // Căn chỉnh dọc cho hình ảnh và tên
-                                                            border: '2px solid #999999', // Thêm viền ngoài với màu #1976d2
+                                                            border: '1px solid #999999', // Thêm viền ngoài với màu #1976d2
                                                             padding: '8px', // Khoảng cách giữa viền và nội dung bên trong
                                                             borderRadius: '10px', // Làm bo góc viền, nếu cần
                                                             backgroundColor: '#fff', // Màu nền bên trong Box
