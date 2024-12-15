@@ -65,24 +65,19 @@ function EditProductDetail() {
     formData.append('no', data.no);
     formData.append('name', data.name);
   
-    // Log formData trước khi gửi
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
-  
-    // Kiểm tra và thêm video vào formData nếu có
+    // Kiểm tra và thêm video vào formData nếu có URL video (chứ không phải file)
     if (data.video && data.video.length > 0) {
-      formData.append('video', data.video[0]); // Lấy file video từ input (nếu có)
+      formData.append('video', data.video); // Thêm URL video vào formData
     }
   
     formData.append('updated_at', new Date().toISOString()); // Thêm ngày cập nhật
   
-    try {
-      // Log tất cả các entries trong formData
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-      });
+    // Log formData để kiểm tra
+    formData.forEach((value, key) => {
+      console.log(`FormData - ${key}:`, value);
+    });
   
+    try {
       // Gửi dữ liệu cập nhật đến API
       await api.updateCourseDetail(detailId, formData);
   
@@ -97,6 +92,9 @@ function EditProductDetail() {
       setSnackbarOpen(true);
     }
   };
+  
+  
+  
   // Đóng thông báo
   const handleSnackbarClose = () => {
     setSnackbarOpen(false);
