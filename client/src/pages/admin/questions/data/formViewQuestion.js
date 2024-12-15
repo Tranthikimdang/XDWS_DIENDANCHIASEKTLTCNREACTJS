@@ -69,7 +69,7 @@ const FormViewQuestion = () => {
         fontSize: '0.9rem',
         color: '#ffffff'
     };
-    
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -93,7 +93,10 @@ const FormViewQuestion = () => {
                     <Box>
                         <Box display="flex" alignItems="center" mb={2}>
                             <img
-                                src={imageUser?.imageUrl ? imageUser.imageUrl : avatardefault}
+                                src={
+                                    users?.find((u) => questionData?.question?.user_id === u.id)?.imageUrl ||
+                                    avatardefault
+                                }
                                 width="40px"
                                 alt="Hình ảnh người dùng"
                                 style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
@@ -103,14 +106,10 @@ const FormViewQuestion = () => {
                                 Xem câu hỏi
                             </Typography>
                         </Box>
-                        <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
+                        <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
                             <strong>Tiêu đề: </strong>{questionData?.question?.title}
                         </VuiTypography>
                         {/* Display question content */}
-                        <VuiTypography variant="h1" paragraph style={smallFontStyle}>
-                            <strong>Nội dung: </strong>
-                            {questionData?.question?.questions || 'Người dùng không nhập câu hỏi'}
-                        </VuiTypography>
                         <TextField
                             variant="outlined"
                             multiline
@@ -299,7 +298,7 @@ const FormViewQuestion = () => {
                             />
                         </Box>
                         <Grid item xs={12}>
-                            <Box display="flex" justifyContent="flex-end" mt={3}>
+                            <Box display="flex" justifyContent="flex-end" mt={3} alignItems="center">
                                 <button
                                     className="text-light btn btn-outline-secondary"
                                     type="button"

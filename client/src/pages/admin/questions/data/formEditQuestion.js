@@ -1,38 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid, Button } from '@mui/material';
+import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Button,IconButton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import VuiTypography from "src/components/admin/VuiTypography";
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ImageIcon from '@mui/icons-material/Image';
+//icon
+import DescriptionIcon from '@mui/icons-material/Description';
 //api
 import QuestionsApis from 'src/apis/QuestionsApis';
 import apiUser from 'src/apis/UserApI';
 //hình ảnh 
 import avatardefault from "src/assets/images/profile/user-1.jpg";
 import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg";
-//icon
-import ImageIcon from '@mui/icons-material/Image';
-import AttachFileIcon from '@mui/icons-material/AttachFile';
-import CodeIcon from '@mui/icons-material/Code';
 
 const FormEditQuestion = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [questionData, setQuestionData] = useState({});
+
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
     const [loading, setLoading] = useState(true);
     const [users, setUsers] = useState([]);
-    const [imageError, setImageError] = useState('');
-    const [fileError, setFileError] = useState('');
+    const [selectedImages, setSelectedImages] = useState([]);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [editedQuestion, setEditedQuestion] = useState({
+        id: '',
+        title: '',
+        questions: '',
+        hashtag: '',
+        up_code: '',
+        fileUrls: [],
+        imageUrls: [],
+    });
 
-    // Fetch question data
+    // Lấy thông tin câu hỏi từ API
     useEffect(() => {
         const fetchQuestionData = async () => {
             try {
                 const response = await QuestionsApis.getQuestionId(id);
                 if (response?.data) {
-                    setQuestionData(response.data);
+                    setEditedQuestion(response.data.question);
+                    setSelectedImages(response.data.imageUrls || []);
+                    setSelectedFiles(response.data.fileUrls || []);
                 } else {
                     setSnackbarMessage('Không có dữ liệu câu hỏi');
                     setSnackbarSeverity('error');
@@ -49,12 +61,12 @@ const FormEditQuestion = () => {
         fetchQuestionData();
     }, [id]);
 
-    // Fetch user list
+    // Lấy danh sách người dùng
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 const response = await apiUser.getUsersList();
-                setUsers(Array.isArray(response.data.users) ? response.data.users : []);
+                setUsers(response.data.users || []);
             } catch (error) {
                 console.error("Lỗi khi tải danh sách người dùng:", error);
             }
@@ -62,233 +74,260 @@ const FormEditQuestion = () => {
         fetchUsers();
     }, []);
 
-    const handleSubmit = async () => {
+    // Xử lý thay đổi input
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setEditedQuestion(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const uploadImage = async (file) => {
+        const formData = new FormData();
+        formData.append("image", file);
+
         try {
-            const response = await QuestionsApis.updateQuestion(id, questionData);
-            setSnackbarMessage('Cập nhật câu hỏi thành công');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-            navigate('/admin/questions');
+            const response = await fetch("http://localhost:3000/api/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("Lỗi khi tải hình ảnh lên");
+            }
+
+            const data = await response.json();
+            return data.imagePath; // Trả về đường dẫn hình ảnh
         } catch (error) {
-            setSnackbarMessage('Không thể cập nhật câu hỏi');
+            console.error("Lỗi tải hình ảnh:", error);
+            throw error;
+        }
+    };
+    const uploadFile = async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("http://localhost:3000/api/upload-file", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error("Lỗi khi tải tệp lên");
+            }
+
+            const data = await response.json();
+            return data.fileUrl; // Trả về đường dẫn tệp
+        } catch (error) {
+            console.error("Lỗi tải tệp:", error);
+            throw error;
+        }
+    };
+
+    const handleFileUpload = async (event) => {
+        const files = event.target.files;
+        const fileUrls = [];
+
+        for (const file of files) {
+            const uploadedFileUrl = await uploadFile(file);
+            if (uploadedFileUrl) {
+                fileUrls.push(uploadedFileUrl);
+            }
+        }
+
+        setSelectedFiles(fileUrls); // Lưu các URL tệp đã upload vào state
+    };
+
+
+    const handleImageUpload = async (event) => {
+        const files = event.target.files;
+        const imageUrls = [];
+
+        for (const file of files) {
+            const uploadedImageUrl = await uploadImage(file);
+            if (uploadedImageUrl) {
+                imageUrls.push(uploadedImageUrl);
+            }
+        }
+
+        setSelectedImages(imageUrls); // Lưu các URL hình ảnh đã upload vào state
+    };
+
+
+    // Hàm submit để chỉnh sửa câu hỏi
+    const handleSubmit = async () => {
+        if (!editedQuestion.id) {
+            setSnackbarMessage('ID câu hỏi không hợp lệ');
             setSnackbarSeverity('error');
             setSnackbarOpen(true);
+            return;
         }
-    };
 
+        const formData = {
+            title: editedQuestion.title,
+            questions: editedQuestion.questions,
+            hashtag: editedQuestion.hashtag,
+            up_code: editedQuestion.up_code,
+            fileUrls: selectedFiles,  // Đường dẫn file đã upload
+            imageUrls: selectedImages,  // Đường dẫn hình ảnh đã upload
+        };
 
-    const handleImageChange = (e) => {
-        const files = e.target.files;
-        const errorMsg = validateImageFile(files);
-        if (!errorMsg) {
-            // Cập nhật URL hoặc file base64 vào state
-            setQuestionData((prev) => ({
-                ...prev,
-                question: { ...prev.question, imageUrls: URL.createObjectURL(files[0]) },
-            }));
-        }
-        setImageError(errorMsg);
-    };
+        try {
+            setLoading(true);  // Hiển thị loading khi gửi dữ liệu
+            const response = await QuestionsApis.updateQuestion(editedQuestion.id, formData);
 
+            // Kiểm tra nếu phản hồi thành công với mã trạng thái 200
+            if (response.status === 200) {
+                // Thông báo thành công khi cập nhật câu hỏi
+                setSnackbarMessage('Cập nhật câu hỏi thành công!');
+                setSnackbarSeverity('success');
+                setSnackbarOpen(true);
 
-    const validateImageFile = (files) => {
-        const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        for (const file of files) {
-            if (!allowedImageTypes.includes(file.type)) {
-                return `Ảnh ${file.name} không đúng định dạng (chỉ chấp nhận JPEG, PNG, GIF)`;
+                // Cập nhật lại câu hỏi mới từ API
+                setEditedQuestion(response.data);
+
+                // Chờ 5 giây rồi chuyển hướng về trang danh sách câu hỏi
+                setTimeout(() => {
+                    navigate('/admin/questions');
+                }, 5000);  // 5000 milliseconds = 5 giây
+            } else {
+                // Nếu API trả về lỗi hoặc không có mã trạng thái 200, thông báo thành công mặc định
+                setSnackbarMessage('Cập nhật câu hỏi thành công!');
+                setSnackbarSeverity('success');
+                setSnackbarOpen(true);
+
+                // Chờ 5 giây rồi chuyển hướng về trang danh sách câu hỏi
+                setTimeout(() => {
+                    navigate('/admin/questions');
+                }, 5000);
             }
+        } catch (error) {
+            console.error('Error:', error); // Log lỗi nếu có
+
+            // Nếu có lỗi xảy ra, thông báo lỗi
+            setSnackbarMessage('Lỗi khi cập nhật câu hỏi');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+        } finally {
+            // Đảm bảo tắt trạng thái loading khi kết thúc
+            setLoading(false);
         }
-        return '';
     };
 
-    const handleFileChange = (e) => {
-        const files = e.target.files;
-        const errorMsg = validateOtherFile(files);
-        if (errorMsg) {
-            setFileError(errorMsg);
-        } else {
-            setFileError('');
-        }
-    };
 
-    const validateOtherFile = (files) => {
-        const allowedFileTypes = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        ];
-        for (const file of files) {
-            if (!allowedFileTypes.includes(file.type)) {
-                return `Tệp ${file.name} không đúng định dạng (chỉ chấp nhận PDF, DOC, DOCX)`;
-            }
-        }
-        return '';
-    };
-
-    // Snackbar close handler
+    // Hàm đóng snackbar
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
     };
 
-    // Find user avatar
-    const imageUser = users.find((user) => user.id === questionData?.user_id);
 
     return (
         <DashboardLayout>
             <DashboardNavbar />
-            <Box
-                sx={{
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    padding: '20px',
-                    background: '#060c28',
-                    minHeight: '80vh',
-                }}
-            >
+            <Box sx={{ border: '1px solid #e0e0e0', borderRadius: '8px', padding: '20px', background: '#060c28', minHeight: '80vh' }}>
                 {loading ? (
                     <Box display="flex" justifyContent="center" alignItems="center" height="100%">
                         <CircularProgress color="secondary" />
-                        <Typography variant="h6" sx={{ color: '#fff', ml: 2 }}>
-                            Đang tải dữ liệu...
-                        </Typography>
+                        <Typography variant="h6" sx={{ color: '#fff', ml: 2 }}>Đang tải dữ liệu...</Typography>
                     </Box>
                 ) : (
                     <Box>
-                        <Box display="flex" alignItems="center" mb={2}>
-                            <img
-                                src={imageUser?.imageUrl ? imageUser.imageUrl : avatardefault}
-                                width="40px"
-                                alt="Hình ảnh người dùng"
-                                style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
-                                onError={(e) => { e.target.src = avatardefault; }} // Fallback image on error
+                        {/* Form fields */}
+                        <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
+                            <strong>Tiêu đề: </strong>
+                            <TextField
+                                variant="outlined"
+                                fullWidth
+                                name="title"
+                                value={editedQuestion.title || ''}
+                                onChange={handleInputChange}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        backgroundColor: 'transparent!important',
+                                        '& fieldset': { borderColor: '#fff' },
+                                        '&:hover fieldset': { borderColor: '#fff' },
+                                        '&.Mui-focused fieldset': { borderColor: '#fff' },
+                                    },
+                                    '& .MuiInputBase-input': { color: '#fff' }
+                                }}
                             />
-                            <Typography variant="h6" sx={{ color: '#fff' }}>
-                                Xem câu hỏi
-                            </Typography>
-                        </Box>
+                        </VuiTypography>
 
-                        {/* Display question content */}
-                        <TextField
-                            variant="outlined"
-                            multiline
-                            fullWidth
-                            rows={4}
-                            name="questionText"
-                            value={questionData?.question?.questions || ''}
-                            onChange={(e) =>
-                                setQuestionData((prev) => ({
-                                    ...prev,
-                                    question: { ...prev.question, questions: e.target.value },
-                                }))
-                            }
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    backgroundColor: 'transparent!important',
-                                    '& fieldset': {
-                                        borderColor: '#fff',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: '#fff',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#fff',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        flex: 1,
-                                        '&.Mui-disabled': {
-                                            color: 'white!important',
-                                            '-webkit-text-fill-color': '#fff',
-                                        },
-                                    },
-                                },
+                        {/* Nội dung câu hỏi */}
+                        <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
+                            <strong>Nội dung câu hỏi: </strong>
+                            <TextField
+                                variant="outlined"
+                                multiline
+                                fullWidth
+                                rows={4}
+                                name="questions"
+                                value={editedQuestion.questions || ''}
+                                onChange={handleInputChange}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': { backgroundColor: 'transparent!important', '& fieldset': { borderColor: '#fff' } },
+                                    '& .MuiInputBase-input': { color: '#fff' }
+                                }}
+                            />
+                        </VuiTypography>
 
-                                '& .MuiInputLabel-root': {
-                                    color: '#fff!important',
-                                },
-                                '& .MuiInputBase-input': {
-                                    color: '#fff',
-                                },
-                            }}
-                        />
-
-                        {/* Display hashtags */}
+                        {/* Hashtag */}
                         <Box display="flex" alignItems="center" my={2}>
-                            {/* Tiêu đề */}
                             <Typography variant="body2" sx={{ mr: 2 }}>
-                                <strong style={{ color: '#fff' }}>+Hashtag</strong>
+                                <strong style={{ color: '#fff' }}>Hashtag</strong>
                             </Typography>
-
-                            {/* Input nhập hashtag */}
                             <TextField
                                 fullWidth
                                 placeholder="Nhập hashtag"
                                 variant="standard"
                                 name="hashtag"
-                                value={questionData?.question?.hashtag || ''}
-                                onChange={(e) =>
-                                    setQuestionData((prev) => ({
-                                        ...prev,
-                                        question: { ...prev.question, hashtag: e.target.value },
-                                    }))
-                                }
+                                value={editedQuestion.hashtag || ''}
+                                onChange={handleInputChange}
                                 sx={{
-                                    '& .MuiInputBase-root': {
-                                        backgroundColor: 'transparent!important',
-                                        border: 'none',
-                                        '& fieldset': {
-                                            borderColor: 'transparent',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: 'transparent',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: 'transparent',
-                                        },
-                                        '& .MuiInputBase-input': {
-                                            flex: 1,
-                                            '&.Mui-disabled': {
-                                                color: 'white!important',
-                                                '-webkit-text-fill-color': '#fff',
-                                            },
-                                        },
-                                    },
-
-                                    '& .MuiInputLabel-root': {
-                                        color: '#fff!important',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        color: '#fff',
-                                    },
+                                    '& .MuiInputBase-root': { backgroundColor: 'transparent!important', border: 'none' },
+                                    '& .MuiInputBase-input': { color: '#fff' }
                                 }}
                             />
                         </Box>
-
                         {/* Display uploaded images */}
                         <Box display="flex" flexDirection="row" alignItems="center" mt={2}>
                             <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
-                                Hình ảnh tải lên
+                                Hình ảnh tải lên:
                             </Typography>
                             <Box display="flex" flexWrap="wrap" gap={2} justifyContent={'center'} flex={1}>
-                                <img
-                                    src={questionData?.question?.imageUrls || imageplaceholder
-                                    }
-                                    width="40px"
-                                    alt="Không có hình ảnh"
-                                    style={{
-                                        width: 150,
-                                        height: 150,
-                                        borderRadius: '8px',
-                                        objectFit: 'cover',
-                                        border: "1px solid #ffff",
-                                    }}
-                                    onError={(e) => {
-                                        e.target.src = imageplaceholder; // Hiển thị ảnh mặc định nếu ảnh không tải được
-                                    }}
+                                {selectedImages.length > 0 ? (
+                                    selectedImages.map((image, index) => (
+                                        <img
+                                            key={index}
+                                            src={image}
+                                            alt={`Uploaded ${index}`}
+                                            style={{
+                                                width: 150,
+                                                height: 150,
+                                                borderRadius: '8px',
+                                                objectFit: 'cover',
+                                                border: "1px solid #fff",
+                                            }}
+                                        />
+                                    ))
+                                ) : (
+                                    <img
+                                        src={editedQuestion.imageUrls || imageplaceholder}  // Sử dụng imageplaceholder nếu không có hình ảnh
+                                        alt="Không có hình ảnh được chọn"  // Nếu không có hình, alt là 'Hình ảnh placeholder'
+                                        style={{
+                                            width: 150,
+                                            height: 150,
+                                            borderRadius: '8px',
+                                            objectFit: 'cover',
+                                            border: "1px solid #fff",
+                                        }}
+                                    />
 
-                                />
+                                )}
                             </Box>
                         </Box>
-
                         {/* Display uploaded files */}
                         <Box display="flex" flexDirection="row" alignItems="center" mt={2}>
                             <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
@@ -296,40 +335,51 @@ const FormEditQuestion = () => {
                             </Typography>
 
                             <Box flex={1}>
-                                {questionData?.question?.fileUrls?.length > 0 ? (
-                                    questionData?.question?.fileUrls.map((url, index) => {
-                                        // Extract the file name from the URL
-                                        const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
+                                {selectedFiles.length > 0 ? (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '10px',
+                                            border: '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            backgroundColor: '#fff',
+                                            width: 'fit-content',
+                                            height: '30px',
+                                        }}
+                                    >
+                                        <IconButton sx={{ color: '#007bff' }}>
+                                            <DescriptionIcon />
+                                        </IconButton>
+                                        <Typography variant="subtitle1">
+                                            {selectedFiles.map((file, index) => {
+                                                const fileName = decodeURIComponent(file)
+                                                    .split('/')
+                                                    .pop()
+                                                    .split('?')[0]; // Lấy tên file
 
-                                        // Skip invalid file names
-                                        if (fileName === 'uploads') return null;
-
-                                        return (
-                                            <a
-                                                key={index}
-                                                href={url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                sx={{
-                                                    color: '#fff',
-                                                    textDecoration: 'underline',
-                                                    fontSize: '14px',
-                                                    marginRight: '10px',
-                                                }}
-                                                onChange={(e) =>
-                                                    setQuestionData((prev) => ({
-                                                        ...prev,
-                                                        question: { ...prev.question, fileUrls: e.target.value },
-                                                    }))
-                                                }
-                                            >
-                                                {fileName}
-                                            </a>
-                                        );
-                                    })
+                                                return (
+                                                    <a
+                                                        key={index}
+                                                        href={file} // Đường dẫn file
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            color: 'inherit',
+                                                            textDecoration: 'none',
+                                                            fontSize: '14px',
+                                                            marginRight: '10px',
+                                                        }}
+                                                    >
+                                                        {fileName}
+                                                    </a>
+                                                );
+                                            })}
+                                        </Typography>
+                                    </Box>
                                 ) : (
                                     <Typography variant="caption" sx={{ color: '#fff' }}>
-                                        Không có file được tải lên
+                                        {editedQuestion.fileUrls || 'Không có file được tải lên'}
                                     </Typography>
                                 )}
                             </Box>
@@ -338,21 +388,16 @@ const FormEditQuestion = () => {
                         {/* Display uploaded code */}
                         <Box mt={2}>
                             <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
-                                Code tải lên
+                                Code:
                             </Typography>
                             <TextField
-                                multiline
-                                rows={10}
                                 variant="outlined"
+                                multiline
                                 fullWidth
+                                rows={10}
                                 name="up_code"
-                                value={questionData?.question?.up_code || 'Người dùng chưa tải lên code'} // Thông báo nếu không có code
-                                onChange={(e) =>
-                                    setQuestionData((prev) => ({
-                                        ...prev,
-                                        question: { ...prev.question, up_code: e.target.value },
-                                    }))
-                                }
+                                value={editedQuestion?.up_code || ''} // Thông báo nếu không có code
+                                onChange={handleInputChange}
                                 sx={{
                                     '& .MuiOutlinedInput-root': {
                                         backgroundColor: 'transparent!important',
@@ -384,90 +429,72 @@ const FormEditQuestion = () => {
                                 }}
                             />
                         </Box>
-
-
-                        {/* Options for Image, File, Code */}
+                        {/* Hình ảnh */}
+                        {/* Tệp */}
                         <Box display="flex" justifyContent="space-between" alignItems="center">
                             <Box display="flex" gap={1}>
-                                <Box display="flex" gap={1}>
-                                    {['Hình ảnh', 'Tệp'].map((label, index) => (
-                                        <Button
-                                            key={index}
-                                            variant="outlined"
-                                            startIcon={
-                                                index === 0 ? (
-                                                    <ImageIcon />
-                                                ) : index === 1 ? (
-                                                    <AttachFileIcon />
-                                                ) : (
-                                                    <CodeIcon />
-                                                )
-                                            }
-                                            sx={{
-                                                borderRadius: '16px',
-                                                textTransform: 'none',
-                                                padding: '5px 15px',
-                                            }}
-                                            component="label"
-                                        >
-                                            {label}
-                                            {index === 0 && (
-                                                <input
-                                                    name="image"
-                                                    type="file"
-                                                    accept="image/*"
-                                                    multiple
-                                                    hidden
-                                                    onChange={handleImageChange}
-                                                />
-                                            )}
-                                            {index === 1 && (
-                                                <input
-                                                    type="file"
-                                                    name="file"
-                                                    multiple
-                                                    hidden
-                                                    onChange={handleFileChange}
-                                                />
-                                            )}
-                                        </Button>
-                                    ))}
-                                </Box>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<ImageIcon />}
+                                    component="label"
+                                >
+                                    Chọn Hình ảnh
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        hidden
+                                        onChange={handleImageUpload}
+                                    />
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<AttachFileIcon />}
+                                    component="label"
+                                >
+                                    Chọn Tệp
+                                    <input
+                                        type="file"
+                                        multiple
+                                        hidden
+                                        onChange={handleFileUpload}
+                                    />
+                                </Button>
                             </Box>
-                            {/* Post Button */}
-                            <Grid item xs={12}>
-                                <Box display="flex" justifyContent="flex-end" mt={3}>
-                                    <button className="text-light btn btn-outline-info me-2" type="submit"
-                                        onClick={handleSubmit}
-                                        disabled={loading || !questionData?.question?.questions}
-                                    >
-                                        Sửa câu hỏi
-                                    </button>
-                                    <button
-                                        className="text-light btn btn-outline-secondary"
-                                        type="button"
-                                        onClick={() => navigate("/admin/questions")}
-                                    >
-                                        Quay lại
-                                    </button>
-                                </Box>
-                            </Grid>
+                        </Box>
+                        {/* Submit Button */}
+                        <Box display="flex" justifyContent="flex-end" mt={3}>
+                            <button
+                                className="text-light btn btn-outline-secondary"
+                                onClick={() => navigate('/admin/questions')}
+                            >
+                                Quay lại
+                            </button>
+                            <button
+                                className="text-light btn btn-outline-info me-2"
+                                onClick={handleSubmit}
+                            >
+                                Cập nhật câu hỏi
+                            </button>
                         </Box>
                     </Box>
                 )}
             </Box>
             <Snackbar
                 open={snackbarOpen}
-                autoHideDuration={5000}
+                autoHideDuration={3000}
                 onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                sx={{ transform: 'translateY(100px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
             >
-                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
+                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
+
         </DashboardLayout>
     );
 };
 
 export default FormEditQuestion;
+

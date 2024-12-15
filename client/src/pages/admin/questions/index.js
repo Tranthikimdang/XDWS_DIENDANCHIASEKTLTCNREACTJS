@@ -185,7 +185,7 @@ function Questions() {
                 <VuiTypography variant="lg" color="white">
                   Bảng câu hỏi
                 </VuiTypography>
- <VuiBox mb={1}>
+                <VuiBox mb={1}>
                   <VuiInput
                     placeholder="Nhập vào đây..."
                     icon={{ component: <SearchIcon />, direction: "left" }}
@@ -424,7 +424,7 @@ function Questions() {
           open={snackbarOpen}
           autoHideDuration={5000}
           onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           sx={{ transform: 'translateY(100px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
         >
           <Alert
