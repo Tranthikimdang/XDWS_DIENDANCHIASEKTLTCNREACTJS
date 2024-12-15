@@ -1,6 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-  Box, Grid, Typography, Divider, CircularProgress, IconButton, TextField, Alert,
+  Box,
+  Grid,
+  Typography,
+  Divider,
+  CircularProgress,
+  IconButton,
+  TextField,
+  Alert,
   Button,
   Dialog,
   DialogActions,
@@ -16,7 +23,7 @@ import {
   Snackbar,
   Tooltip,
   InputAdornment,
-  ButtonBase
+  ButtonBase,
 } from '@mui/material';
 import { IconHeart, IconMessageCircle } from '@tabler/icons';
 //thư viện hổ trợ up_code
@@ -25,8 +32,8 @@ import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
 //icon upfile
 import DescriptionIcon from '@mui/icons-material/Description';
 //api
-import QuestionsApis from 'src/apis/QuestionsApis';  // API để lấy câu hỏi
-import UsersApis from 'src/apis/UserApI';  // API để lấy thông tin người dùng
+import QuestionsApis from 'src/apis/QuestionsApis'; // API để lấy câu hỏi
+import UsersApis from 'src/apis/UserApI'; // API để lấy thông tin người dùng
 // Images
 import avatardefault from 'src/assets/images/profile/user-1.jpg';
 // icon
@@ -51,7 +58,7 @@ const QuestionDetail = () => {
   const { questionId } = useParams();
   const [loading, setLoading] = useState(true);
   const [question, setQuestion] = useState(null);
-  const [user, setUser] = useState([]);  // Lưu thông tin người dùng
+  const [user, setUser] = useState([]); // Lưu thông tin người dùng
   const [users, setUsers] = useState([]);
   const [visibleComments, setVisibleComments] = useState({});
   const [currentUserImage, setCurrentUserImage] = useState('');
@@ -123,7 +130,6 @@ const QuestionDetail = () => {
     }));
   };
 
-
   const handleAddReplyFile = async (event, commentId) => {
     const files = event.target.files;
     const filesArray = Array.from(files);
@@ -159,31 +165,46 @@ const QuestionDetail = () => {
 
   // Lấy dữ liệu câu hỏi và người dùng
   useEffect(() => {
-    const fetchQuestion = async () => {
+    const fetchQuestionDetails = async () => {
       setLoading(true);
       try {
+        // Fetch câu hỏi và bình luận từ API
         const questionResponse = await QuestionsApis.getQuestionId(questionId);
-        const questionData = questionResponse.data.question;
-  
+        const fetchedQuestion = questionResponse.data.question;
+
+        // Fetch thông tin người dùng nếu cần
+        const userId = fetchedQuestion.user_id;
+        if (userId) {
+          const userResponse = await UsersApis.getUserId(userId);
+          setUser(userResponse.data.user);
+        }
+
         const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
-        const savedQuestion = savedComments.find((item) => item.id === questionId);
-  
-        setQuestion({
-          ...questionData,
-          comments: savedQuestion ? savedQuestion.comments : [],
+        fetchedQuestion.comments = savedComments.find(
+          (item) => item.id === Number(questionId),
+        ).comments;
+        console.log(fetchedQuestion);
+
+        // Cập nhật state câu hỏi
+        setQuestion(fetchedQuestion);
+
+        // Cập nhật danh sách câu hỏi
+        setListQuestion((prevQuestions) => {
+          const updatedQuestions = prevQuestions.map((q) =>
+            q.id === questionId ? fetchedQuestion : q,
+          );
+          return updatedQuestions;
         });
       } catch (error) {
-        console.error('Lỗi khi lấy chi tiết câu hỏi:', error);
+        console.error('Error fetching question or user:', error);
       } finally {
         setLoading(false);
       }
     };
-  
-    fetchQuestion();
-  }, [questionId, reload]);
-  
-  // Lấy danh sách người dùng từ Firestore
 
+    fetchQuestionDetails();
+  }, [questionId]);
+  // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
     const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
     userData.current = userDataFromLocalStorage;
@@ -251,59 +272,152 @@ const QuestionDetail = () => {
   };
   const sensitiveWords = [
     // Xúc phạm trí tuệ
-    "ngu", "ngu ngốc", "ngu si", "dốt", "dốt nát", "đần", "đần độn", "hâm", "khùng", "điên", "đồ ngu",
-    "đồ dốt", "thiểu năng", "chậm hiểu", "đần thối", "hâm hấp", "óc", "con",
+    'ngu',
+    'ngu ngốc',
+    'ngu si',
+    'dốt',
+    'dốt nát',
+    'đần',
+    'đần độn',
+    'hâm',
+    'khùng',
+    'điên',
+    'đồ ngu',
+    'đồ dốt',
+    'thiểu năng',
+    'chậm hiểu',
+    'đần thối',
+    'hâm hấp',
+    'óc',
+    'con',
 
     // Xúc phạm nhân phẩm
-    "mất dạy", "vô học", "đồ chó", "đồ điếm", "con điếm", "lừa đảo", "bẩn thỉu", "rác rưởi",
-    "hèn mọn", "vô liêm sỉ", "mặt dày", "khốn nạn", "đồ khốn", "thất đức", "kẻ thù",
-    "phản bội", "vô dụng", "đáng khinh", "nhục nhã",
+    'mất dạy',
+    'vô học',
+    'đồ chó',
+    'đồ điếm',
+    'con điếm',
+    'lừa đảo',
+    'bẩn thỉu',
+    'rác rưởi',
+    'hèn mọn',
+    'vô liêm sỉ',
+    'mặt dày',
+    'khốn nạn',
+    'đồ khốn',
+    'thất đức',
+    'kẻ thù',
+    'phản bội',
+    'vô dụng',
+    'đáng khinh',
+    'nhục nhã',
 
     // Chửi tục thô lỗ
-    "địt", "đụ", "lồn", "buồi", "chịch", "cặc", "đéo", "vãi lồn", "vãi buồi", "đái", "ỉa",
-    "đéo mẹ", "đéo biết", "mẹ kiếp", "chết mẹ", "chết tiệt", "cái lồn", "cái buồi",
-    "cái đít", "mặt lồn", "mặt c*",
+    'địt',
+    'đụ',
+    'lồn',
+    'buồi',
+    'chịch',
+    'cặc',
+    'đéo',
+    'vãi lồn',
+    'vãi buồi',
+    'đái',
+    'ỉa',
+    'đéo mẹ',
+    'đéo biết',
+    'mẹ kiếp',
+    'chết mẹ',
+    'chết tiệt',
+    'cái lồn',
+    'cái buồi',
+    'cái đít',
+    'mặt lồn',
+    'mặt c*',
 
     // Xúc phạm gia đình
-    "bố mày", "mẹ mày", "ông mày", "bà mày", "con mày", "chó má", "cút mẹ", "xéo mẹ", "bố láo",
-    "đồ mất dạy", "không biết điều", "con hoang", "đồ rẻ rách", "đồ phế thải", "đồ vô ơn",
+    'bố mày',
+    'mẹ mày',
+    'ông mày',
+    'bà mày',
+    'con mày',
+    'chó má',
+    'cút mẹ',
+    'xéo mẹ',
+    'bố láo',
+    'đồ mất dạy',
+    'không biết điều',
+    'con hoang',
+    'đồ rẻ rách',
+    'đồ phế thải',
+    'đồ vô ơn',
 
     // Từ viết tắt thô tục
-    "dm", "vcl", "vkl", "clgt", "vl", "cc", "dcm", "đmm", "dkm", "vãi cả lồn", "vc", "đb",
+    'dm',
+    'vcl',
+    'vkl',
+    'clgt',
+    'vl',
+    'cc',
+    'dcm',
+    'đmm',
+    'dkm',
+    'vãi cả lồn',
+    'vc',
+    'đb',
 
     // Kích động/hạ bệ
-    "đập chết", "cút xéo", "đâm đầu", "tự tử", "biến đi", "mày đi chết đi", "vô giá trị",
-    "không xứng đáng", "đồ thừa", "kẻ vô ơn", "đồ bất tài",
+    'đập chết',
+    'cút xéo',
+    'đâm đầu',
+    'tự tử',
+    'biến đi',
+    'mày đi chết đi',
+    'vô giá trị',
+    'không xứng đáng',
+    'đồ thừa',
+    'kẻ vô ơn',
+    'đồ bất tài',
 
     // Các từ vùng miền hoặc ẩn ý tiêu cực
-    "mất nết", "dơ dáy", "đồ rác", "đồ hèn", "hết thuốc", "chó cắn", "ngu như bò", "câm mồm",
-    "hèn hạ", "ngu xuẩn", "đồ quỷ", "đồ xấu xa", "đồ ác độc"
+    'mất nết',
+    'dơ dáy',
+    'đồ rác',
+    'đồ hèn',
+    'hết thuốc',
+    'chó cắn',
+    'ngu như bò',
+    'câm mồm',
+    'hèn hạ',
+    'ngu xuẩn',
+    'đồ quỷ',
+    'đồ xấu xa',
+    'đồ ác độc',
   ];
 
   const containsSensitiveWords = (text) => {
-    return sensitiveWords.some(word => text.includes(word));
+    return sensitiveWords.some((word) => text.includes(word));
   };
 
   const handleAddComment = async (question_id) => {
     try {
       if (!userData?.current?.id) {
-        setSnackbarMessage("Bạn cần đăng nhập để gửi bình luận.");
-        setSnackbarSeverity("warning");
+        setSnackbarMessage('Bạn cần đăng nhập để gửi bình luận.');
+        setSnackbarSeverity('warning');
         setSnackbarOpen(true);
         return;
       }
       if (!newComment || newComment.trim() === '') {
-        setSnackbarMessage("Nội dung bình luận không được để trống.");
-        setSnackbarSeverity("error");
+        setSnackbarMessage('Nội dung bình luận không được để trống.');
+        setSnackbarSeverity('error');
         setSnackbarOpen(true);
-        return; // Ngừng thực hiện hàm nếu bình luận rỗng
+        return;
       }
-
       if (containsSensitiveWords(newComment)) {
-        setSnackbarMessage("Nội dung bình luận không hợp lệ.");
-        setSnackbarSeverity("error");
+        setSnackbarMessage('Nội dung bình luận không hợp lệ.');
+        setSnackbarSeverity('error');
         setSnackbarOpen(true);
-        return; // Stop execution if comment contains sensitive words
+        return;
       }
 
       let imageUrl = [];
@@ -315,7 +429,7 @@ const QuestionDetail = () => {
         formDataImage.append("image", imageFile);
         const imageResponse = await axios.post("http://localhost:3000/api/upload", formDataImage);
         if (imageResponse.data && imageResponse.data.imagePath) {
-          imageUrl = imageResponse.data.imagePath;
+          imageUrl = [imageResponse.data.imagePath]; // Ensure it's an array
         }
       }
 
@@ -324,28 +438,29 @@ const QuestionDetail = () => {
         const formDataFile = new FormData();
         formDataFile.append("file", file);
         const fileResponse = await axios.post("http://localhost:3000/api/upload-files", formDataFile);
-        if (fileResponse.data && fileResponse.data.filePath) {
-          fileUrl = fileResponse.data.filePath;
+        if (fileResponse.data && fileResponse.data.filePaths) { // Change filePath to filePaths
+          fileUrl = fileResponse.data.filePaths; // Ensure it's an array
         }
       }
 
       const newCommentData = {
         question_id,
         user_id: userData.current.id,
-        content: newComment || '',  // Optional content
-        imageUrls: imageUrl,        // Optional image
-        fileUrls: fileUrl,          // Optional file
+        content: newComment || '', // Optional content
+        imageUrls: imageUrl,        // Optional image, should be an array
+        fileUrls: fileUrl,          // Optional file, should be an array
         created_at: new Date(),
         updated_at: new Date(),
-        up_code: dataTemp?.up_code || codeSnippet || '',  // Optional up_code
+        up_code: dataTemp?.up_code || codeSnippet || '', // Optional up_code
         replies: []
       };
+
+
       const response = await axios.post('http://localhost:3000/api/comments', newCommentData);
-      console.log('newCommentData:', newCommentData);
       if (response.data.status === 'success') {
         const comment = response.data.data.comment;
-  
-        // Cập nhật localStorage
+
+        // Cập nhật LocalStorage
         const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
         const questionIndex = savedComments.findIndex((item) => item.id === question_id);
         if (questionIndex !== -1) {
@@ -353,157 +468,158 @@ const QuestionDetail = () => {
         } else {
           savedComments.push({ id: question_id, comments: [comment] });
         }
+
+        // Lưu lại bình luận vào LocalStorage
         localStorage.setItem('comment_question', JSON.stringify(savedComments));
-  
-        // Cập nhật danh sách câu hỏi
-        setListQuestion((prevList) =>
-          prevList.map((question) =>
-            question.id === question_id
-              ? { ...question, comments: [...(question.comments || []), comment] }
-              : question
-          )
-        );
-  
-        // Cập nhật chi tiết câu hỏi
+
+        // Cập nhật setListQuestion đồng bộ với LocalStorage
+        setListQuestion((prevQuestions) => {
+          const updatedQuestions = prevQuestions.map((item) => {
+            return item.id === question_id ? { ...item, comments: item.comments } : item;
+          });
+          return updatedQuestions;
+        });
+
+        // Cập nhật chi tiết câu hỏi (state của câu hỏi đang xem)
         setQuestion((prevQuestion) => ({
           ...prevQuestion,
           comments: [...(prevQuestion.comments || []), comment],
         }));
-  
 
-        // Reset the input fields after success
-        setNewComment('');  // Reset comment input
-        setCommentImages([]);  // Reset images
-        setCommentFiles([]);   // Reset files
-        setImageFile(null);     // Reset image file state
-        setFile(null);          // Reset file state
-        setSnackbarMessage("Bình luận của bạn đã được gửi.");
-        setSnackbarSeverity("success");
+        setNewComment('');
+        setCommentImages([]);
+        setCommentFiles([]);
+        setImageFile(null);
+        setFile(null);
+
+        setSnackbarMessage('Bình luận của bạn đã được gửi.');
+        setSnackbarSeverity('success');
         setSnackbarOpen(true);
       } else {
-        throw new Error("Failed to add comment");
+        throw new Error('Failed to add comment');
       }
     } catch (error) {
-      console.error("Error adding comment:", error);
-      setSnackbarMessage("Đã xảy ra lỗi khi gửi bình luận.");
-      setSnackbarSeverity("error");
+      console.error('Error adding comment:', error);
+      setSnackbarMessage('Đã xảy ra lỗi khi gửi bình luận.');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   };
 
   const handleAddReply = async (questionId, commentId, parentId = null) => {
     if (!userData?.current?.id) {
-        setSnackbarOpen(false);
-        setTimeout(() => {
-            setSnackbarMessage("Bạn cần đăng nhập để gửi trả lời.");
-            setSnackbarSeverity("warning");
-            setSnackbarOpen(true);
-        }, 100);
-        return;
+      setSnackbarOpen(false);
+      setTimeout(() => {
+        setSnackbarMessage('Bạn cần đăng nhập để gửi trả lời.');
+        setSnackbarSeverity('warning');
+        setSnackbarOpen(true);
+      }, 100);
+      return;
     }
-
     const replyContent = newReplies[parentId || commentId]?.content;
     if (!replyContent || typeof replyContent !== 'string' || replyContent.trim() === '') {
-        setSnackbarMessage("Nội dung phản hồi không được để trống.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        setIsSubmittingReply(false);
-        return;
+      setSnackbarMessage('Nội dung phản hồi không được để trống.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      setIsSubmittingReply(false);
+      return;
     }
-
     if (containsSensitiveWords(replyContent)) {
-        setSnackbarMessage("Nội dung phản hồi không hợp lệ.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
-        return;
+      setSnackbarMessage('Nội dung phản hồi không hợp lệ.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      return;
     }
-
     try {
-        let imageUrls = [];
-        let fileUrls = [];
+      let imageUrls = [];
+      let fileUrls = [];
+      if (newReplies[parentId || commentId]?.imageUrls) {
+        imageUrls = newReplies[parentId || commentId].imageUrls;
+      }
+      if (newReplies[parentId || commentId]?.fileUrls) {
+        fileUrls = newReplies[parentId || commentId].fileUrls;
+      }
+      const newReply = {
+        user_id: userData.current.id,
+        content: replyContent,
+        imageUrls: imageUrls,
+        fileUrls: fileUrls,
+        up_code: dataTemp?.up_code || codeSnippet || '',
+        created_at: new Date(),
+      };
+      const response = await axios.post(
+        `http://localhost:3000/api/comments/${commentId}/replies`,
+        newReply,
+      );
+      if (response.data.status === 'success') {
+        const reply = response.data.data.reply;
 
-        // Lấy hình ảnh và tệp từ state
-        if (newReplies[parentId || commentId]?.imageUrls) {
-            imageUrls = newReplies[parentId || commentId].imageUrls;
-        }
-        if (newReplies[parentId || commentId]?.fileUrls) {
-            fileUrls = newReplies[parentId || commentId].fileUrls;
-        }
-
-        const newReply = {
-            user_id: userData.current.id,
-            content: replyContent,
-            imageUrls: imageUrls,
-            fileUrls: fileUrls,
-            up_code: dataTemp?.up_code || codeSnippet || '',
-            created_at: new Date(),
-        };
-
-        const response = await axios.post(`http://localhost:3000/api/comments/${commentId}/replies`, newReply);
-
-        if (response.data.status === 'success') {
-            const reply = response.data.data.reply;
-
-            // Cập nhật localStorage
-            const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
-            const questionIndex = savedComments.findIndex((item) => item.id === questionId);
-            if (questionIndex !== -1) {
-                const comments = savedComments[questionIndex].comments.map((comment) => {
-                    if (comment.id === commentId) {
-                        const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                        return {
-                            ...comment,
-                            replies: [...repliesArray, reply],
-                        };
-                    }
-                    return comment;
-                });
-                savedComments[questionIndex].comments = comments;
+        // Update localStorage
+        const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
+        const questionIndex = savedComments.findIndex((item) => item.id === questionId);
+        if (questionIndex !== -1) {
+          const comments = savedComments[questionIndex].comments.map((comment) => {
+            if (comment.id === commentId) {
+              const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+              return { ...comment, replies: [...repliesArray, reply] };
             }
-            localStorage.setItem('comment_question', JSON.stringify(savedComments));
-
-            // Cập nhật state hiển thị
-            setListQuestion((prevList) =>
-                prevList.map((item) => {
-                    if (item.id === questionId) {
-                        return {
-                            ...item,
-                            comments: item.comments.map((comment) => {
-                                if (comment.id === commentId) {
-                                    const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
-                                    return {
-                                        ...comment,
-                                        replies: [...repliesArray, reply],
-                                    };
-                                }
-                                return comment;
-                            }),
-                        };
-                    }
-                    return item;
-                })
-            );
-
-            // Đặt lại trạng thái
-            setNewReplies((prev) => ({ ...prev, [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] } }));
-            setReplyingTo(null);
-            setReplyImageFile(null);
-            setReplyFile(null);
-            setSnackbarMessage("Trả lời của bạn đã được gửi.");
-            setSnackbarSeverity("success");
-            setSnackbarOpen(true);
+            return comment;
+          });
+          savedComments[questionIndex].comments = comments;
         }
-    } catch (error) {
-        console.error("Error adding reply:", error);
-        setSnackbarMessage("Đã xảy ra lỗi khi gửi phản hồi.");
-        setSnackbarSeverity("error");
+        localStorage.setItem('comment_question', JSON.stringify(savedComments));
+
+        // Update state in both components
+        setListQuestion((prevList) =>
+          prevList.map((item) => {
+            if (item.id === questionId) {
+              return {
+                ...item,
+                comments: item.comments.map((comment) => {
+                  if (comment.id === commentId) {
+                    const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+                    return { ...comment, replies: [...repliesArray, reply] };
+                  }
+                  return comment;
+                }),
+              };
+            }
+            return item;
+          }),
+        );
+
+        // Update state in the detail view
+        setQuestion((prevQuestion) => ({
+          ...prevQuestion,
+          comments: prevQuestion.comments.map((comment) => {
+            if (comment.id === commentId) {
+              const repliesArray = Array.isArray(comment.replies) ? comment.replies : [];
+              return { ...comment, replies: [...repliesArray, reply] };
+            }
+            return comment;
+          }),
+        }));
+
+        setNewReplies((prev) => ({
+          ...prev,
+          [parentId || commentId]: { content: '', imageUrls: [], fileUrls: [] },
+        }));
+        setReplyingTo(null);
+        setReplyImageFile(null);
+        setReplyFile(null);
+        setSnackbarMessage('Trả lời của bạn đã được gửi.');
+        setSnackbarSeverity('success');
         setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error('Error adding reply:', error);
+      setSnackbarMessage('Đã xảy ra lỗi khi gửi phản hồi.');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
     } finally {
-        setIsSubmittingReply(false);
+      setIsSubmittingReply(false);
     }
-};
-
-
+  };
 
   //date
   const formatUpdatedAt = (updatedAt) => {
@@ -535,7 +651,6 @@ const QuestionDetail = () => {
     return updatedAtString;
   };
 
-
   // Nếu đang tải dữ liệu, hiển thị vòng tròn loading
   if (loading) return <CircularProgress />;
 
@@ -546,7 +661,17 @@ const QuestionDetail = () => {
     <Box sx={{ padding: '20px', maxWidth: '1200px', margin: 'auto' }}>
       <Grid container spacing={3}>
         {/* Cột bên trái: Thông tin người dùng */}
-        <Grid item xs={2} sx={{ position: 'sticky', top: '85px', backgroundColor: 'white', zIndex: 1, padding: '16px' }}>
+        <Grid
+          item
+          xs={2}
+          sx={{
+            position: 'sticky',
+            top: '85px',
+            backgroundColor: 'white',
+            zIndex: 1,
+            padding: '16px',
+          }}
+        >
           <Typography variant="subtitle1">{user?.name || 'Chưa có tên'}</Typography>
           <Typography variant="body2" color="textSecondary">
             Lập trình là đam mê
@@ -556,10 +681,15 @@ const QuestionDetail = () => {
             <IconButton aria-label="like">
               <IconHeart />
             </IconButton>
-            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>15</Typography>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>
+              15
+            </Typography>
             <IconButton aria-label="comments" sx={{ marginLeft: '16px' }}>
               <IconMessageCircle />
             </IconButton>
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>
+              ({question.comments?.length || 0})
+            </Typography>
           </Box>
         </Grid>
 
@@ -573,17 +703,15 @@ const QuestionDetail = () => {
                 style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
               />
             ) : (
-              <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#ccc' }} />
+              <div
+                style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: '#ccc' }}
+              />
             )}
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                <strong>
-                  {user?.name || 'Chưa có tên'}
-                </strong>
+                <strong>{user?.name || 'Chưa có tên'}</strong>
               </Typography>
-              <Typography variant="body2">
-                {formatUpdatedAt(question.updatedAt)}
-              </Typography>
+              <Typography variant="body2">{formatUpdatedAt(question.updatedAt)}</Typography>
             </Box>
           </Box>
 
@@ -614,7 +742,9 @@ const QuestionDetail = () => {
 
           {/* Hiển thị nội dung câu hỏi nếu có */}
           {question.questions && (
-            <Typography variant="body1" paragraph>{question.questions}</Typography>
+            <Typography variant="body1" paragraph>
+              {question.questions}
+            </Typography>
           )}
           {/* Hiển thị up_code nếu có */}
           {question.up_code && (
@@ -644,10 +774,7 @@ const QuestionDetail = () => {
               </IconButton>
               <Typography variant="subtitle1">
                 {question.fileUrls.map((url, index) => {
-                  const fileName = decodeURIComponent(url)
-                    .split('/')
-                    .pop()
-                    .split('?')[0];
+                  const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
                   return fileName !== 'uploads' ? (
                     <a
                       key={index}
@@ -686,7 +813,13 @@ const QuestionDetail = () => {
               <Typography variant="body2" color="textSecondary">
                 Tải xuống tệp:
                 {question.fileUrls.map((url, index) => (
-                  <a key={index} href={url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: '10px' }}>
+                  <a
+                    key={index}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ marginLeft: '10px' }}
+                  >
                     Tệp {index + 1}
                   </a>
                 ))}
@@ -699,12 +832,18 @@ const QuestionDetail = () => {
             <IconButton aria-label="like" sx={{ color: 'blue' }}>
               <IconHeart />
             </IconButton>
-            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '8px' }}>15</Typography>
-            <IconButton aria-label="comments" sx={{ marginLeft: '16px' }} onClick={() => handleToggleComments(question.id)} >
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>
+              15
+            </Typography>
+            <IconButton
+              aria-label="comments"
+              sx={{ marginLeft: '16px' }}
+              onClick={() => handleToggleComments(question.id)}
+            >
               <IconMessageCircle />
             </IconButton>
-            <Typography variant="body2">
-              Bình luận ({question.comments?.length || 0})
+            <Typography variant="body2" sx={{ display: 'inline-block', marginLeft: '-6px' }}>
+              ({question.comments?.length || 0})
             </Typography>
           </Box>
           {visibleComments[question.id] && (
@@ -731,7 +870,10 @@ const QuestionDetail = () => {
                     }}
                   />
                   <TextField
-                    placeholder={`Bình luận dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'} `}
+                    placeholder={`Bình luận dưới tên ${userData.current
+                        ? users.find((user) => user.id === userData.current.id)?.name
+                        : 'Người dùng'
+                      } `}
                     variant="outlined"
                     size="small"
                     fullWidth
@@ -749,9 +891,9 @@ const QuestionDetail = () => {
                   justifyContent="center"
                   sx={{
                     width: '100%',
-                    gap: 1,
-                    marginRight: '345px',
-                    marginTop: '-18px',
+                    gap: 0,
+                    marginRight: '660px',
+                    marginTop: '-14px',
                   }}
                 >
                   <IconButton>
@@ -776,7 +918,7 @@ const QuestionDetail = () => {
                   display="flex"
                   justifyContent="space-between"
                   alignItems="center"
-                  sx={{ width: '100%', marginLeft: ' 80px', marginTop: '-10px' }}
+                  sx={{ width: '100%', marginLeft: ' 80px', marginTop: '-16px' }}
                 >
                   <Box display="flex" gap={1}>
                     {['Hình ảnh', 'Tệp', 'Code'].map((label, index) => (
@@ -843,12 +985,7 @@ const QuestionDetail = () => {
                 </Box>
 
                 {/* Code Dialog */}
-                <Dialog
-                  open={showCodeDialog}
-                  onClose={handleCloseDialog}
-                  maxWidth="sm"
-                  fullWidth
-                >
+                <Dialog open={showCodeDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
                   <DialogTitle>Nhập code của bạn</DialogTitle>
                   <DialogContent>
                     <FormControl fullWidth>
@@ -913,16 +1050,10 @@ const QuestionDetail = () => {
                     </Box>
                   )}
                   {/* Render Images if available */}
-                  {Array.isArray(comment.imageUrls) &&
-                    comment.imageUrls.length > 0 ? (
-                    <Box
-                      sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}
-                    >
+                  {Array.isArray(comment.imageUrls) && comment.imageUrls.length > 0 ? (
+                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                       {comment.imageUrls.map((imageUrl, index) => (
-                        <Box
-                          key={index}
-                          sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}
-                        >
+                        <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                           <img
                             src={imageUrl || 'không có hình ảnh'}
                             alt={`hình ảnh bình luận ${index + 1}`}
@@ -949,7 +1080,7 @@ const QuestionDetail = () => {
                       >
                         <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                           <img
-                            src={comment.imageUrls || "không có hình ảnh"}
+                            src={comment.imageUrls || 'không có hình ảnh'}
                             alt="Hình ảnh bình luận"
                             style={{
                               width: '35%',
@@ -973,10 +1104,7 @@ const QuestionDetail = () => {
                       }}
                     >
                       {comment.fileUrls.map((fileUrl, index) => {
-                        const fileName = decodeURIComponent(fileUrl)
-                          .split('/')
-                          .pop()
-                          .split('?')[0];
+                        const fileName = decodeURIComponent(fileUrl).split('/').pop().split('?')[0];
                         return (
                           <Box
                             key={index}
@@ -1016,16 +1144,9 @@ const QuestionDetail = () => {
                   ) : null}
 
                   {/* Reply Button */}
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    gap="8px"
-                  >
-                    <Typography
-                      component="span"
-                      variant="caption"
-                      sx={{ color: 'text.secondary' }}
-                    >{formatUpdatedAt(comment.created_at)}
+                  <Box display="flex" alignItems="center" gap="8px">
+                    <Typography component="span" variant="caption" sx={{ color: 'text.secondary' }}>
+                      {formatUpdatedAt(comment.created_at)}
                     </Typography>
                     <Button
                       variant="text"
@@ -1040,10 +1161,9 @@ const QuestionDetail = () => {
                         setReplyingTo(
                           replyingTo?.id === comment.id && replyingTo?.type === 'comment'
                             ? null
-                            : { id: comment.id, type: 'comment' }
+                            : { id: comment.id, type: 'comment' },
                         )
                       }
-
                     >
                       {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
                     </Button>
@@ -1062,7 +1182,10 @@ const QuestionDetail = () => {
                           }}
                         />
                         <TextField
-                          placeholder={`Trả lời dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
+                          placeholder={`Trả lời dưới tên ${userData.current
+                              ? users.find((user) => user.id === userData.current.id)?.name
+                              : 'Người dùng'
+                            }`}
                           variant="outlined"
                           size="small"
                           fullWidth
@@ -1070,7 +1193,7 @@ const QuestionDetail = () => {
                           onChange={(e) =>
                             setNewReplies((prev) => ({
                               ...prev,
-                              [comment.id]: { ...prev[comment.id], content: e.target.value, },
+                              [comment.id]: { ...prev[comment.id], content: e.target.value },
                             }))
                           } // Cập nhật nội dung trả lời cho bình luận cụ thể
                         />
@@ -1081,9 +1204,9 @@ const QuestionDetail = () => {
                         justifyContent="center"
                         sx={{
                           width: '100%',
-                          gap: 1,
-                          marginLeft: '-174px',
-                          marginTop: '-2px',
+                          gap: 0,
+                          marginLeft: '-330px',
+                          marginTop: '0px',
                         }}
                       >
                         <IconButton>
@@ -1134,9 +1257,7 @@ const QuestionDetail = () => {
                                 padding: '5px 15px',
                               }}
                               component="label"
-                              onClick={
-                                index === 2 ? handleCodeButtonClick : undefined
-                              }
+                              onClick={index === 2 ? handleCodeButtonClick : undefined}
                             >
                               {label}
                               {index === 0 && (
@@ -1219,12 +1340,9 @@ const QuestionDetail = () => {
                                 e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                               }}
                             />
-                            <Typography
-                              variant="subtitle2"
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              {users.find((user) => user.id === reply.user_id)
-                                ?.name || 'Unknown User'}
+                            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                              {users.find((user) => user.id === reply.user_id)?.name ||
+                                'Unknown User'}
                             </Typography>
                           </Box>
 
@@ -1242,10 +1360,7 @@ const QuestionDetail = () => {
 
                           {reply.up_code && (
                             <Box sx={{ mt: 1 }}>
-                              <SyntaxHighlighter
-                                language="javascript"
-                                style={dracula}
-                              >
+                              <SyntaxHighlighter language="javascript" style={dracula}>
                                 {reply.up_code}
                               </SyntaxHighlighter>
                             </Box>
@@ -1311,9 +1426,7 @@ const QuestionDetail = () => {
                                       width: 'fit-content',
                                     }}
                                   >
-                                    <IconButton
-                                      sx={{ color: '#007bff', padding: '0' }}
-                                    >
+                                    <IconButton sx={{ color: '#007bff', padding: '0' }}>
                                       <DescriptionIcon />
                                     </IconButton>
                                     <Typography
@@ -1338,16 +1451,13 @@ const QuestionDetail = () => {
                             </Box>
                           )}
 
-                          <Box
-                            display="flex"
-                            alignItems="center"
-                            gap="8px"
-                          >
+                          <Box display="flex" alignItems="center" gap="8px">
                             <Typography
                               component="span"
                               variant="caption"
                               sx={{ color: 'text.secondary' }}
-                            >{formatUpdatedAt(comment.created_at)}
+                            >
+                              {formatUpdatedAt(comment.created_at)}
                             </Typography>
                             <Button
                               variant="text"
@@ -1362,10 +1472,9 @@ const QuestionDetail = () => {
                                 setReplyingTo(
                                   replyingTo?.id === reply.id && replyingTo?.type === 'reply'
                                     ? null
-                                    : { id: reply.id, type: 'reply' }
+                                    : { id: reply.id, type: 'reply' },
                                 )
                               }
-
                             >
                               {replyingTo === comment.id ? 'Hủy' : 'Trả lời'}
                             </Button>
@@ -1374,13 +1483,19 @@ const QuestionDetail = () => {
                             <Box sx={{ mt: 2 }}>
                               <Box display="flex" alignItems="center">
                                 <img
-                                  src={currentUserImage || 'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'}
+                                  src={
+                                    currentUserImage ||
+                                    'https://i.pinimg.com/474x/5d/54/46/5d544626add5cbe8dce09b695164633b.jpg'
+                                  }
                                   width="30px"
                                   alt="User  Avatar"
                                   style={{ borderRadius: '50%', marginRight: '10px' }}
                                 />
                                 <TextField
-                                  placeholder={`Trả lời dưới tên ${userData.current ? users.find((user) => user.id === userData.current.id)?.name : 'Người dùng'}`}
+                                  placeholder={`Trả lời dưới tên ${userData.current
+                                      ? users.find((user) => user.id === userData.current.id)?.name
+                                      : 'Người dùng'
+                                    }`}
                                   variant="outlined"
                                   size="small"
                                   fullWidth
@@ -1388,7 +1503,10 @@ const QuestionDetail = () => {
                                   onChange={(e) =>
                                     setNewReplies((prev) => ({
                                       ...prev,
-                                      [comment.id]: { ...prev[comment.id], content: e.target.value, },
+                                      [comment.id]: {
+                                        ...prev[comment.id],
+                                        content: e.target.value,
+                                      },
                                     }))
                                   } // Cập nhật nội dung trả lời cho bình luận cụ thể
                                 />
@@ -1399,9 +1517,9 @@ const QuestionDetail = () => {
                                 justifyContent="center"
                                 sx={{
                                   width: '100%',
-                                  gap: 1,
-                                  marginLeft: '-174px',
-                                  marginTop: '-2px',
+                                  gap: 0,
+                                  marginLeft: '-314px',
+                                  marginTop: '0px',
                                 }}
                               >
                                 <IconButton>
@@ -1452,9 +1570,7 @@ const QuestionDetail = () => {
                                         padding: '5px 15px',
                                       }}
                                       component="label"
-                                      onClick={
-                                        index === 2 ? handleCodeButtonClick : undefined
-                                      }
+                                      onClick={index === 2 ? handleCodeButtonClick : undefined}
                                     >
                                       {label}
                                       {index === 0 && (
