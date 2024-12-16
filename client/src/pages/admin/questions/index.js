@@ -94,9 +94,9 @@ function Questions() {
   };
 
   //xóa
-  const handleDelete = (id, questions) => {
+  const handleDelete = (id, title) => {
     setDeleteId(id);
-    setDeleteQuestions(questions);
+    setDeleteQuestions(title);
     setOpenDialog(true);
   };
 
@@ -178,7 +178,6 @@ function Questions() {
     >
       <DashboardLayout>
         <DashboardNavbar />
-        <VuiBox py={3}>
           <VuiBox mb={3}>
             <Card>
               <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
@@ -367,7 +366,7 @@ function Questions() {
                                   <button
                                     className="text-light btn btn-outline-danger me-2"
                                     type="button"
-                                    onClick={() => handleDelete(row.id, row.questions)}
+                                    onClick={() => handleDelete(row.id, row.title)}
                                   >
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -413,12 +412,11 @@ function Questions() {
               )}
             </Card>
           </VuiBox>
-        </VuiBox>
         <ConfirmDialog
           open={openDialog}
           onClose={cancelDelete}
           onConfirm={confirmDelete}
-          questions={`${deleteQuestions}`}
+          title={`${deleteQuestions}`}
         />
         <Snackbar
           open={snackbarOpen}

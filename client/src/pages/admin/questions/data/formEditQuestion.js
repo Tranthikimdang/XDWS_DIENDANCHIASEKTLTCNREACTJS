@@ -267,8 +267,32 @@ const FormEditQuestion = () => {
                                 value={editedQuestion.questions || ''}
                                 onChange={handleInputChange}
                                 sx={{
-                                    '& .MuiOutlinedInput-root': { backgroundColor: 'transparent!important', '& fieldset': { borderColor: '#fff' } },
-                                    '& .MuiInputBase-input': { color: '#fff' }
+                                    '& .MuiOutlinedInput-root': {
+                                        backgroundColor: 'transparent!important',
+                                        '& fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '& .MuiInputBase-input': {
+                                            flex: 1,
+                                            '&.Mui-disabled': {
+                                                color: 'white!important',
+                                                '-webkit-text-fill-color': '#fff',
+                                            },
+                                        },
+                                    },
+
+                                    '& .MuiInputLabel-root': {
+                                        color: '#fff!important',
+                                    },
+                                    '& .MuiInputBase-input': {
+                                        color: '#fff',
+                                    },
                                 }}
                             />
                         </VuiTypography>
