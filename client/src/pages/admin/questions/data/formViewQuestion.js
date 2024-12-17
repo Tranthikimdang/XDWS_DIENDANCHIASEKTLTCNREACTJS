@@ -4,10 +4,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
 import VuiTypography from "src/components/admin/VuiTypography";
-//api
+// api
 import QuestionsApis from 'src/apis/QuestionsApis';
 import apiUser from 'src/apis/UserApI';
-//hình ảnh 
+// hình ảnh 
 import avatardefault from "src/assets/images/profile/user-1.jpg";
 import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg";
 
@@ -62,14 +62,11 @@ const FormViewQuestion = () => {
         setSnackbarOpen(false);
     };
 
-    // Find user avatar
-    const imageUser = users.find((user) => user.id === questionData?.user_id);
-
     const smallFontStyle = {
         fontSize: '0.9rem',
         color: '#ffffff'
     };
-    
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -93,7 +90,8 @@ const FormViewQuestion = () => {
                     <Box>
                         <Box display="flex" alignItems="center" mb={2}>
                             <img
-                                src={imageUser?.imageUrl ? imageUser.imageUrl : avatardefault}
+                                src={users?.find((u) => questionData?.question?.user_id === u.id)?.imageUrl ||
+                                    avatardefault}
                                 width="40px"
                                 alt="Hình ảnh người dùng"
                                 style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
@@ -103,163 +101,104 @@ const FormViewQuestion = () => {
                                 Xem câu hỏi
                             </Typography>
                         </Box>
-                        <VuiTypography variant="h3" gutterBottom style={smallFontStyle}>
+                        <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
                             <strong>Tiêu đề: </strong>{questionData?.question?.title}
                         </VuiTypography>
-                        {/* Display question content */}
-                        <VuiTypography variant="h1" paragraph style={smallFontStyle}>
-                            <strong>Nội dung: </strong>
-                            {questionData?.question?.questions || 'Người dùng không nhập câu hỏi'}
-                        </VuiTypography>
-                        <TextField
-                            variant="outlined"
-                            multiline
-                            fullWidth
-                            rows={4}
-                            name="questionText"
-                            value={questionData?.question?.questions || 'Người dùng không nhập câu hỏi'} // Correctly access the questions field
-                            disabled={true} // Make it read-only
-                            sx={{
-                                '& .MuiOutlinedInput-root': {
-                                    backgroundColor: 'transparent!important',
-                                    '& fieldset': {
-                                        borderColor: '#fff',
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: '#fff',
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: '#fff',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        flex: 1,
-                                        '&.Mui-disabled': {
-                                            color: 'white!important',
-                                            '-webkit-text-fill-color': '#fff',
-                                        },
-                                    },
-                                },
-
-                                '& .MuiInputLabel-root': {
-                                    color: '#fff!important',
-                                },
-                                '& .MuiInputBase-input': {
-                                    color: '#fff',
-                                },
-                            }}
-                        />
-
-
-                        {/* Display hashtags */}
-                        <Box display="flex" alignItems="center" my={2}>
-                            <Typography variant="body2" sx={{ mr: 2 }}>
-                                <strong style={{ color: '#fff' }}>Hashtag</strong>
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                placeholder="Nhập hashtag"
-                                variant="standard"
-                                name="hashtag"
-                                disabled={true}
-                                // Ensure we're accessing the hashtag correctly, considering structure
-                                value={questionData?.question?.hashtag || 'Người dùng không nhập hashtag'}  // Directly use questionData.hashtag if it's a simple string
+                        <div className="row">
+                            <div className="col-6 mb-3">
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    <strong>Hashtag: </strong>{questionData?.question?.hashtag || 'Người dùng không nhập hashtag'}
+                                </VuiTypography>
+                            </div>
+                            <div className="col-6 mb-3">
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    <strong>File tải lên: </strong>
+                                    {questionData?.question?.fileUrls.length > 0 ? (
+                                        questionData?.question?.fileUrls.map((url, index) => {
+                                            const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
+                                            return fileName !== 'uploads' ? (
+                                                <a
+                                                    key={index}
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{
+                                                        color: '#fff',
+                                                        textDecoration: 'underline',
+                                                        fontSize: '14px',
+                                                        marginRight: '10px',
+                                                    }}
+                                                >
+                                                    {fileName}
+                                                </a>
+                                            ) : null;
+                                        })
+                                    ) : (
+                                        <Typography variant="caption" sx={{ color: '#fff' }}>
+                                            Không có file được tải lên
+                                        </Typography>
+                                    )}
+                                </VuiTypography>
+                            </div>
+                        </div>
+                        <Box mt={2}>
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Hình ảnh tải lên:</strong>
+                            </VuiTypography>
+                            <Box
                                 sx={{
-                                    '& .MuiInputBase-root': {
-                                        backgroundColor: 'transparent!important',
-                                        border: 'none',
-                                        '& fieldset': {
-                                            borderColor: 'transparent',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: 'transparent',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: 'transparent',
-                                        },
-                                        '& .MuiInputBase-input': {
-                                            flex: 1,
-                                            '&.Mui-disabled': {
-                                                color: 'white!important',
-                                                '-webkit-text-fill-color': '#fff',
-                                            },
-                                        },
-                                    },
-
-                                    '& .MuiInputLabel-root': {
-                                        color: '#fff!important',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        color: '#fff',
-                                    },
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
+                                    gap: '10px',  // Khoảng cách giữa các ảnh
+                                    justifyItems: 'center',  // Căn giữa các ảnh
                                 }}
-                            />
-                        </Box>
+                            >
 
-                        {/* Display uploaded images */}
-                        <Box display="flex" flexDirection="row" alignItems="center" mt={2}>
-                            <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
-                                Hình ảnh tải lên
-                            </Typography>
-                            <Box display="flex" flexWrap="wrap" gap={2} justifyContent={'center'} flex={1}>
-                                <img
-                                    src={questionData?.question?.imageUrls || imageplaceholder
-                                    }
-                                    width="40px"
-                                    alt="Không có hình ảnh"
-                                    style={{
-                                        width: 150,
-                                        height: 150,
-                                        borderRadius: '8px',
-                                        objectFit: 'cover',
-                                        border: "1px solid #ffff",
-                                    }}
-                                    onError={(e) => {
-                                        e.target.src = imageplaceholder; // Hiển thị ảnh mặc định nếu ảnh không tải được
-                                    }}
-
-                                />
-                            </Box>
-                        </Box>
-
-                        {/* Display uploaded files */}
-                        <Box display="flex" flexDirection="row" alignItems={'center'} mt={2}>
-                            <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
-                                File tải lên:
-                            </Typography>
-                            <Box flex={1}>
-                                {questionData?.question?.fileUrls.length > 0 ? (
-                                    questionData?.question?.fileUrls.map((url, index) => {
-                                        const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
-                                        return fileName !== 'uploads' ? (
-                                            <a
-                                                key={index}
-                                                href={url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                {questionData?.question?.imageUrls && questionData.question.imageUrls.length > 0 ? (
+                                    questionData.question.imageUrls.map((imageUrl, index) => (
+                                        <Box
+                                            key={index}
+                                            sx={{
+                                                position: 'relative',
+                                                width: '100%',  // Chiều rộng bằng với phần tử chứa
+                                                aspectRatio: '1 / 1',  // Giữ tỉ lệ 1:1 cho ảnh (vuông)
+                                                overflow: 'hidden',
+                                                borderRadius: '8px',
+                                            }}
+                                        >
+                                            <img
+                                                src={imageUrl}
+                                                alt="Hình ảnh"
                                                 style={{
-                                                    color: '#fff',
-                                                    textDecoration: 'underline',
-                                                    fontSize: '14px',
-                                                    marginRight: '10px',
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',  // Giữ tỷ lệ gốc của hình ảnh mà không bị kéo giãn
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  // Đổ bóng cho ảnh
                                                 }}
-                                            >
-                                                {fileName}
-                                            </a>
-                                        ) : null;
-                                    })
+                                            />
+                                        </Box>
+                                    ))
                                 ) : (
-                                    <Typography variant="caption" sx={{ color: '#fff' }}>
-                                        Không có file được tải lên
-                                    </Typography>
+                                    <img
+                                        src={imageplaceholder}
+                                        alt="Không có hình ảnh"
+                                        style={{
+                                            width: '100px',
+                                            height: '100px',
+                                            borderRadius: '8px',
+                                            objectFit: 'cover',
+                                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                        }}
+                                    />
                                 )}
                             </Box>
                         </Box>
-
                         {/* Display uploaded code */}
                         <Box mt={2}>
-                            <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
-                                Code tải lên
-                            </Typography>
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Code tải lên:</strong>
+                            </VuiTypography>
                             <TextField
                                 multiline
                                 rows={10}
@@ -288,7 +227,6 @@ const FormViewQuestion = () => {
                                             },
                                         },
                                     },
-
                                     '& .MuiInputLabel-root': {
                                         color: '#fff!important',
                                     },
@@ -298,8 +236,52 @@ const FormViewQuestion = () => {
                                 }}
                             />
                         </Box>
+
+                        {/* Display question content */}
+                        <Box mt={2}>
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Nội dung câu hỏi: </strong>
+                            </VuiTypography>
+                            <TextField
+                                variant="outlined"
+                                multiline
+                                fullWidth
+                                rows={10}
+                                name="questionText"
+                                value={questionData?.question?.questions || 'Người dùng không nhập câu hỏi'}
+                                disabled={true} // Make it read-only
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        backgroundColor: 'transparent!important',
+                                        '& fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '& .MuiInputBase-input': {
+                                            flex: 1,
+                                            '&.Mui-disabled': {
+                                                color: 'white!important',
+                                                '-webkit-text-fill-color': '#fff',
+                                            },
+                                        },
+                                    },
+                                    '& .MuiInputLabel-root': {
+                                        color: '#fff!important',
+                                    },
+                                    '& .MuiInputBase-input': {
+                                        color: '#fff',
+                                    },
+                                }}
+                            />
+                        </Box>
+
                         <Grid item xs={12}>
-                            <Box display="flex" justifyContent="flex-end" mt={3}>
+                            <Box display="flex" justifyContent="flex-end" mt={3} alignItems="center">
                                 <button
                                     className="text-light btn btn-outline-secondary"
                                     type="button"
@@ -309,20 +291,21 @@ const FormViewQuestion = () => {
                                 </button>
                             </Box>
                         </Grid>
+
+
+                        {/* Snackbar */}
+                        <Snackbar
+                            open={snackbarOpen}
+                            autoHideDuration={3000}
+                            onClose={handleSnackbarClose}
+                        >
+                            <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                                {snackbarMessage}
+                            </Alert>
+                        </Snackbar>
                     </Box>
                 )}
             </Box>
-
-            {/* Snackbar */}
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={3000}
-                onClose={handleSnackbarClose}
-            >
-                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
         </DashboardLayout>
     );
 };

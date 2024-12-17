@@ -98,6 +98,21 @@ app.post("/api/upload", upload.single("image"), (req, res) => {
   }
 });
 
+// Endpoint upload nhiều ảnh
+app.post("/api/upload", upload.array("image", 5), (req, res) => {
+  if (req.files && req.files.length > 0) {
+    // Trả về đường dẫn của tất cả ảnh đã upload
+    const imagePaths = req.files.map((file) => `http://localhost:${port}/uploads/${file.filename}`);
+    res.status(201).json({
+      status: 201,
+      message: "Tải lên thành công!",
+      imagePaths: imagePaths,
+    });
+  } else {
+    res.status(400).json({ message: "Tải lên thất bại!" });
+  }
+});
+
 app.post("/api/upload-file", upload.single("file"), (req, res) => {
   if (!req.file) {
     return res.status(400).send({
