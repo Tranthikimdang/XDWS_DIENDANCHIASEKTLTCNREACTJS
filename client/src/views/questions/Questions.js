@@ -1,7 +1,7 @@
 /* eslint-disable eqeqeq */
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/img-redundant-alt */
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
@@ -107,81 +107,16 @@ const Questions = ({ listImgUrl = [] }) => {
     const [filteredMentors, setFilteredMentors] = useState([]);
     const [mentors, setMentors] = useState([]);
     const [question, setQuestion] = useState([]);
+    // xử lý hình 
+    const [expandedListIndexes, setExpandedListIndexes] = useState([]); // Trạng thái lưu danh sách nào đang mở rộng
     const [imagePreviews, setImagePreviews] = useState([]);
     const [fileNames, setFileNames] = useState([]);
-    //up_code
-    const [isExpanded, setIsExpanded] = useState(false);
-    const handleToggle = () => setIsExpanded(!isExpanded);
-
-    const handleToggleComments = (questionId) => {
-        setVisibleComments((prev) => ({
-            ...prev,
-            [questionId]: !prev[questionId], // Toggle visibility for the specific question
-        }));
-    };
-    const handleAddReplyImage = async (event, commentId) => {
-        const images = event.target.files;
-        const imagesArray = Array.from(images);
-
-        const uploadedImages = [];
-        for (let image of imagesArray) {
-            const formData = new FormData();
-            formData.append('image', image);
-
-            try {
-                const response = await axios.post('http://localhost:3000/api/uploads', formData);
-                console.log('Image upload response:', response.data);
-                uploadedImages.push(response.data.imagePaths[0]); // Ensure the correct path from response
-            } catch (error) {
-                console.error('Error uploading image:', error);
-            }
-        }
-
-        setNewReplies((prev) => ({
-            ...prev,
-            [commentId]: {
-                ...prev[commentId],
-                imageUrls: (prev[commentId]?.imageUrls || []).concat(uploadedImages),
-            },
-        }));
-    };
-
-    console.log(listImgUrl)
-    const handleAddReplyFile = async (event, commentId) => {
-        const files = event.target.files;
-        const filesArray = Array.from(files);
-
-        const uploadedFiles = [];
-        for (let file of filesArray) {
-            const formData = new FormData();
-            formData.append('file', file);
-
-            try {
-                const response = await axios.post('http://localhost:3000/api/upload-files', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-                console.log('File upload response:', response.data);
-                if (response.data && Array.isArray(response.data.filePaths)) {
-                    uploadedFiles.push(...response.data.filePaths);
-                }
-            } catch (error) {
-                console.error('Error uploading file:', error);
-            }
-        }
-
-        setNewReplies((prev) => ({
-            ...prev,
-            [commentId]: {
-                ...prev[commentId],
-                fileUrls: (prev[commentId]?.fileUrls || []).concat(uploadedFiles),
-            },
-        }));
-    };
-
+    // Kiểm tra nếu mã code tồn tại
+    const [showAllImages, setShowAllImages] = useState(false); // Khởi tạo state
     // Lấy danh sách người dùng từ Firestore
     const [currentUserImage, setCurrentUserImage] = useState('');
+    // Tạo state để lưu trạng thái "Xem thêm/Rút gọn" cho từng câu hỏi dựa trên id
+    const [expandedQuestions, setExpandedQuestions] = useState({});
 
     useEffect(() => {
         const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
@@ -231,6 +166,16 @@ const Questions = ({ listImgUrl = [] }) => {
         fetchQuestions();
     }, [reload]);// reload để đồng bộ
 
+    // Hàm để chuyển đổi trạng thái "Xem thêm" hoặc "Rút gọn" cho từng question.id
+    const handleToggle = (questionId) => {
+        setExpandedQuestions((prevState) => ({
+            ...prevState,
+            [questionId]: !prevState[questionId], // Chuyển đổi trạng thái của câu hỏi có id tương ứng
+        }));
+    };
+
+    // Kiểm tra nếu mã code tồn tại
+    const isExpanded = expandedQuestions[question.id] || false; // Lấy trạng thái của câu hỏi dựa trên id, mặc định là false
 
 
     const handleSnackbarClose = (event, reason) => {
@@ -339,8 +284,41 @@ const Questions = ({ listImgUrl = [] }) => {
 
     const handleImageChange = (event) => {
         const files = event.target.files;
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif']; // Các loại hình ảnh hợp lệ
+        const invalidFiles = Array.from(files).filter(file => !validImageTypes.includes(file.type));
+    
+        if (invalidFiles.length > 0) {
+            setImageError('Vui lòng chọn các tệp hình ảnh hợp lệ!');
+            return;
+        }
+    
         if (files.length > 0) {
             handleUploadImages(files); // Gửi các tệp ảnh lên server
+    
+            // Kiểm tra lỗi
+            if (errors) {
+                setImageError(errors);
+            } else {
+                setImageError(''); // Đặt lỗi là rỗng nếu không có lỗi
+                const previews = Array.from(files).map((file) => URL.createObjectURL(file));
+                setImagePreviews(previews); // Tạo các bản xem trước
+            }
+        } else {
+            setImageError('Không có tập tin nào được chọn'); // Hiển thị lỗi nếu không có tệp được chọn
+        }
+    };
+    
+
+
+
+    // Hàm xử lý khi bấm vào dấu + để mở rộng danh sách cụ thể
+    const handleExpandImages = (listIndex) => {
+        if (expandedListIndexes.includes(listIndex)) {
+            // Nếu danh sách đã được mở, khi bấm vào sẽ thu lại
+            setExpandedListIndexes(expandedListIndexes.filter(index => index !== listIndex));
+        } else {
+            // Nếu danh sách chưa được mở, khi bấm vào sẽ mở ra
+            setExpandedListIndexes([...expandedListIndexes, listIndex]);
         }
     };
 
@@ -356,7 +334,72 @@ const Questions = ({ listImgUrl = [] }) => {
             setFileNames(fileList);
         }
     };
+    const handleToggleComments = (questionId) => {
+        setVisibleComments((prev) => ({
+            ...prev,
+            [questionId]: !prev[questionId], // Toggle visibility for the specific question
+        }));
+    };
+    const handleAddReplyImage = async (event, commentId) => {
+        const images = event.target.files;
+        const imagesArray = Array.from(images);
 
+        const uploadedImages = [];
+        for (let image of imagesArray) {
+            const formData = new FormData();
+            formData.append('image', image);
+
+            try {
+                const response = await axios.post('http://localhost:3000/api/uploads', formData);
+                console.log('Image upload response:', response.data);
+                uploadedImages.push(response.data.imagePaths[0]); // Ensure the correct path from response
+            } catch (error) {
+                console.error('Error uploading image:', error);
+            }
+        }
+
+        setNewReplies((prev) => ({
+            ...prev,
+            [commentId]: {
+                ...prev[commentId],
+                imageUrls: (prev[commentId]?.imageUrls || []).concat(uploadedImages),
+            },
+        }));
+    };
+
+    console.log(listImgUrl)
+    const handleAddReplyFile = async (event, commentId) => {
+        const files = event.target.files;
+        const filesArray = Array.from(files);
+
+        const uploadedFiles = [];
+        for (let file of filesArray) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await axios.post('http://localhost:3000/api/upload-files', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                console.log('File upload response:', response.data);
+                if (response.data && Array.isArray(response.data.filePaths)) {
+                    uploadedFiles.push(...response.data.filePaths);
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        }
+
+        setNewReplies((prev) => ({
+            ...prev,
+            [commentId]: {
+                ...prev[commentId],
+                fileUrls: (prev[commentId]?.fileUrls || []).concat(uploadedFiles),
+            },
+        }));
+    };
     const onSubmit = async (data, e) => {
         setLoading(true);
 
@@ -1036,12 +1079,11 @@ const Questions = ({ listImgUrl = [] }) => {
                         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
                             <Box display="flex" alignItems="center" mb={2}>
                                 <Avatar
-                                    // eslint-disable-next-line no-undef
-                                    src={userData?.current?.imageUrl || avatardefault}
+                                    src={userData?.current?.imageUrl || avatardefault}  // Nếu không có imageUrl thì sử dụng avatardefault
                                     alt="Hình ảnh người dùng"
                                     sx={{ width: 48, height: 48, marginRight: 2 }}
                                     onError={(e) => {
-                                        e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                        e.target.src = avatardefault;  // Nếu ảnh tải lỗi, thay thế bằng avatardefault
                                     }}
                                 />
                                 <Typography variant="h6" fontWeight="bold">
@@ -1209,18 +1251,17 @@ const Questions = ({ listImgUrl = [] }) => {
                                         <img
                                             key={index}
                                             src={image}
-                                            alt="Preview"
+                                            alt={`Preview ${index}`}
                                             style={{
-                                                width: '100%',  // Chiếm 100% chiều rộng của phần tử chứa
+                                                width: '100%', // Chiếm 100% chiều rộng của phần tử chứa
                                                 height: 'auto', // Tự động điều chỉnh chiều cao để giữ tỷ lệ
                                                 objectFit: 'cover',
-                                                borderRadius: '8px'
+                                                borderRadius: '8px',
                                             }}
                                         />
                                     ))}
                                 </Box>
                             )}
-
                             {/* Preview Files */}
                             {fileNames.length > 0 && (
                                 <Box
@@ -1521,40 +1562,6 @@ const Questions = ({ listImgUrl = [] }) => {
 
 
                                                         </Box>
-                                                        {/* Hiển thị 2 ảnh trên mỗi hàng */}
-                                                        {listImgUrl && listImgUrl.length > 0 && (
-                                                            <Box
-                                                                sx={{
-                                                                    display: 'flex',
-                                                                    flexWrap: 'wrap',
-                                                                    justifyContent: 'center',
-                                                                    gap: '10px', // Khoảng cách giữa các ảnh
-                                                                }}
-                                                            >
-                                                                {listImgUrl.map((image, index) => (
-                                                                    <Box
-                                                                        key={index}
-                                                                        sx={{
-                                                                            flexBasis: '48%',  // Mỗi ảnh chiếm 48% chiều rộng
-                                                                            maxWidth: '48%',   // Đảm bảo ảnh không vượt quá 48%
-                                                                            mb: 2,             // Khoảng cách phía dưới giữa các ảnh
-                                                                        }}
-                                                                    >
-                                                                        <img
-                                                                            src={image || 'Người dùng không nhập hình ảnh'}
-                                                                            alt="hình ảnh"
-                                                                            style={{
-                                                                                width: '100%',  // Chiếm 100% chiều rộng phần tử chứa
-                                                                                height: 'auto', // Tự động điều chỉnh chiều cao theo tỷ lệ
-                                                                                borderRadius: '8px', // Bo tròn góc
-                                                                                objectFit: 'cover',  // Giữ tỉ lệ và cắt những phần dư không vừa khung
-                                                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Hiệu ứng đổ bóng
-                                                                            }}
-                                                                        />
-                                                                    </Box>
-                                                                ))}
-                                                            </Box>
-                                                        )}
                                                         {/* Hiển thị tệp */}
                                                         {listFileUrl && listFileUrl.length > 0 && (
                                                             <Box
@@ -1573,15 +1580,20 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                     <DescriptionIcon />
                                                                 </IconButton>
                                                                 <Typography variant="subtitle1">
-                                                                    {fileNames.map((url, index) => {
-                                                                        // Mã hóa lại URL và tách tên file
-                                                                        const fileName = decodeURIComponent(url)
-                                                                            .split('/')
-                                                                            .pop()
-                                                                            .split('?')[0]; // Lấy phần tên file từ URL
+                                                                    {listFileUrl.map((url, index) => {
+                                                                        // Mã hóa lại URL và tách tên file, loại bỏ các query params
+                                                                        const fileNameWithExt = decodeURIComponent(url)
+                                                                            .split('/')  // Split the URL by '/'
+                                                                            .pop()        // Get the last part (the file name)
+                                                                            .split('?')[0]; // Remove any query parameters (after ?)
 
-                                                                        // Kiểm tra nếu tên file hợp lệ, rồi hiển thị liên kết
-                                                                        return fileName !== 'uploads' ? (
+                                                                        // Remove leading numbers, underscores, and hyphens from the file name (if any)
+                                                                        const cleanFileName = fileNameWithExt
+                                                                            .replace(/^\d+_*/, '')  // Remove numbers and underscore at the start of the file name
+                                                                            .replace(/-/g, '');     // Remove hyphens
+
+                                                                        // Kiểm tra nếu tên file hợp lệ và hiển thị
+                                                                        return cleanFileName !== 'uploads' ? (
                                                                             <a
                                                                                 key={index}
                                                                                 href={url}
@@ -1594,11 +1606,113 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                     marginRight: '10px',
                                                                                 }}
                                                                             >
-                                                                                {fileName}
+                                                                                {cleanFileName}  {/* Display the cleaned file name */}
                                                                             </a>
                                                                         ) : null;
                                                                     })}
                                                                 </Typography>
+                                                            </Box>
+                                                        )}
+                                                        {/* Hiển thị ảnh */}
+                                                        {listImgUrl && listImgUrl.length > 0 && (
+                                                            <Box
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    flexWrap: 'wrap',
+                                                                    justifyContent: 'center',
+                                                                    gap: '10px', // Khoảng cách giữa các ảnh
+                                                                }}
+                                                            >
+                                                                {listImgUrl.slice(0, Math.min(listImgUrl.length, 4)).map((image, index) => (
+                                                                    <Box
+                                                                        key={index}
+                                                                        sx={{
+                                                                            position: 'relative',  // Để cho phép lớp phủ hiển thị
+                                                                            flexBasis: listImgUrl.length === 1 ? '100%' : (listImgUrl.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
+                                                                            maxWidth: listImgUrl.length === 1 ? '100%' : (listImgUrl.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
+                                                                            mb: 2,  // Khoảng cách phía dưới giữa các ảnh
+                                                                            textAlign: listImgUrl.length === 3 && index === 2 ? 'center' : 'unset',
+                                                                            cursor: index === 3 && listImgUrl.length > 4 ? 'pointer' : 'unset', // Thêm con trỏ chuột trên ảnh thứ 4
+                                                                            overflow: 'hidden', // Giữ cho các thành phần nằm gọn bên trong
+                                                                            borderRadius: '8px',  // Đảm bảo ảnh bo tròn góc
+                                                                        }}
+                                                                        onClick={index === 3 && listImgUrl.length > 4 ? () => setShowAllImages(true) : null} // Khi nhấn vào ảnh thứ 4
+                                                                    >
+                                                                        <img
+                                                                            src={image || 'Người dùng không nhập hình ảnh'}
+                                                                            alt="hình ảnh"
+                                                                            style={{
+                                                                                width: '100%',  // Chiếm 100% chiều rộng phần tử chứa
+                                                                                height: 'auto', // Tự động điều chỉnh chiều cao theo tỷ lệ
+                                                                                borderRadius: '8px', // Bo tròn góc
+                                                                                objectFit: 'cover',  // Giữ tỉ lệ và cắt những phần dư không vừa khung
+                                                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Hiệu ứng đổ bóng
+                                                                            }}
+                                                                        />
+                                                                        {index === 3 && listImgUrl.length > 4 && ( // Hiển thị dấu +x trên ảnh thứ 4
+                                                                            <Box
+                                                                                sx={{
+                                                                                    position: 'absolute',
+                                                                                    top: 0,
+                                                                                    left: 0,
+                                                                                    right: 0,
+                                                                                    bottom: 0,
+                                                                                    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Lớp phủ màu đen trong suốt hơn để hiển thị đẹp hơn
+                                                                                    display: 'flex',
+                                                                                    justifyContent: 'center',
+                                                                                    alignItems: 'center',
+                                                                                    borderRadius: '8px', // Đảm bảo viền của overlay cũng bo tròn
+                                                                                }}
+                                                                            >
+                                                                                <Typography
+                                                                                    variant="h5"
+                                                                                    sx={{
+                                                                                        color: 'white',
+                                                                                        fontWeight: 'bold',  // Đậm hơn để dấu "+" rõ ràng
+                                                                                        fontSize: '1.5rem'   // Giảm kích thước để không quá to
+                                                                                    }}
+                                                                                >
+                                                                                    +{listImgUrl.length - 4}
+                                                                                </Typography>
+                                                                            </Box>
+                                                                        )}
+                                                                    </Box>
+                                                                ))}
+
+                                                                {showAllImages && (
+                                                                    <Box
+                                                                        sx={{
+                                                                            display: 'flex',
+                                                                            flexWrap: 'wrap',
+                                                                            justifyContent: 'center',
+                                                                            gap: '10px', // Khoảng cách giữa các ảnh
+                                                                            mt: 2,  // Khoảng cách phía trên giữa các ảnh
+                                                                        }}
+                                                                    >
+                                                                        {listImgUrl.slice(4).map((image, index) => (
+                                                                            <Box
+                                                                                key={index}
+                                                                                sx={{
+                                                                                    flexBasis: '48%',
+                                                                                    maxWidth: '48%',
+                                                                                    mb: 2,
+                                                                                }}
+                                                                            >
+                                                                                <img
+                                                                                    src={image || 'Người dùng không nhập hình ảnh'}
+                                                                                    alt="hình ảnh"
+                                                                                    style={{
+                                                                                        width: '100%',
+                                                                                        height: 'auto',
+                                                                                        borderRadius: '8px',
+                                                                                        objectFit: 'cover',
+                                                                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                                                                    }}
+                                                                                />
+                                                                            </Box>
+                                                                        ))}
+                                                                    </Box>
+                                                                )}
                                                             </Box>
                                                         )}
                                                     </ButtonBase>
@@ -1606,21 +1720,23 @@ const Questions = ({ listImgUrl = [] }) => {
                                                     {question?.up_code && (
                                                         <Box sx={{ mt: 3, mb: 3 }}>
                                                             <SyntaxHighlighter language="javascript" style={dracula}>
-                                                                {isExpanded
-                                                                    ? question.up_code
+                                                                {expandedQuestions[question.id]
+                                                                    ? question.up_code // Hiển thị toàn bộ code nếu đang trong trạng thái mở rộng
                                                                     : question.up_code.length > 500
-                                                                        ? `${question.up_code.substring(0, 500)}...`
+                                                                        ? `${question.up_code.substring(0, 500)}...` // Hiển thị 500 ký tự đầu tiên nếu chưa mở rộng
                                                                         : question.up_code}
                                                             </SyntaxHighlighter>
 
                                                             {/* Chỉ hiển thị nút "Xem thêm/Rút gọn" nếu độ dài mã code lớn hơn 500 */}
                                                             {question.up_code.length > 500 && (
-                                                                <Button size="small" onClick={handleToggle} sx={{ mt: 1 }}>
-                                                                    {isExpanded ? 'Rút gọn' : 'Xem thêm'}
+                                                                <Button
+                                                                    size="small"
+                                                                    onClick={() => handleToggle(question.id)} // Gọi hàm handleToggle với id của câu hỏi
+                                                                    sx={{ mt: 1 }}
+                                                                >
+                                                                    {expandedQuestions[question.id] ? 'Rút gọn' : 'Xem thêm'}
                                                                 </Button>
                                                             )}
-
-                                                            <Divider sx={{ mb: 2 }} />
                                                         </Box>
                                                     )}
                                                 </>
@@ -1677,34 +1793,6 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                 value={newComment}
                                                                 onChange={(e) => setNewComment(e.target.value)}
                                                             />
-                                                        </Box>
-
-                                                        {/* Hàng biểu tượng cho Emojis, GIFs, Hình ảnh */}
-                                                        <Box
-                                                            display="flex"
-                                                            justifyContent="center"
-                                                            sx={{
-                                                                width: '100%',
-                                                                gap: 0,
-                                                                marginRight: '420px',
-                                                                marginTop: '-17px',
-                                                            }}
-                                                        >
-                                                            <IconButton>
-                                                                <InsertEmoticonIcon fontSize="medium" />
-                                                            </IconButton>
-                                                            <IconButton>
-                                                                <SentimentSatisfiedAltIcon fontSize="medium" />
-                                                            </IconButton>
-                                                            <IconButton>
-                                                                <InsertPhotoIcon fontSize="medium" />
-                                                            </IconButton>
-                                                            <IconButton>
-                                                                <CameraAltIcon fontSize="medium" />
-                                                            </IconButton>
-                                                            <IconButton>
-                                                                <GifBoxIcon fontSize="medium" />
-                                                            </IconButton>
                                                         </Box>
 
                                                         {/* File input cho hình ảnh */}

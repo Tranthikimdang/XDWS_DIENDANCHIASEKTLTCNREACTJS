@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Button,IconButton } from '@mui/material';
+import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Button, IconButton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
@@ -62,11 +62,12 @@ const FormEditQuestion = () => {
     }, [id]);
 
     // Lấy danh sách người dùng
+    // Fetch user list
     useEffect(() => {
         const fetchUsers = async () => {
             try {
                 const response = await apiUser.getUsersList();
-                setUsers(response.data.users || []);
+                setUsers(Array.isArray(response.data.users) ? response.data.users : []);
             } catch (error) {
                 console.error("Lỗi khi tải danh sách người dùng:", error);
             }
@@ -155,6 +156,11 @@ const FormEditQuestion = () => {
         setSelectedImages(imageUrls); // Lưu các URL hình ảnh đã upload vào state
     };
 
+    const smallFontStyle = {
+        fontSize: '0.9rem',
+        color: '#ffffff'
+    };
+
 
     // Hàm submit để chỉnh sửa câu hỏi
     const handleSubmit = async () => {
@@ -234,7 +240,21 @@ const FormEditQuestion = () => {
                     </Box>
                 ) : (
                     <Box>
+                        <Box display="flex" alignItems="center" mb={2}>
+                            <img
+                                src={users?.find((u) => editedQuestion?.user_id === u.id)?.imageUrl ||
+                                    avatardefault}
+                                width="40px"
+                                alt="Hình ảnh người dùng"
+                                style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 8 }}
+                                onError={(e) => { e.target.src = avatardefault; }} // Fallback image on error
+                            />
+                            <Typography variant="h6" sx={{ color: '#fff' }}>
+                                Sửa câu hỏi
+                            </Typography>
+                        </Box>
                         {/* Form fields */}
+
                         <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
                             <strong>Tiêu đề: </strong>
                             <TextField
@@ -255,165 +275,161 @@ const FormEditQuestion = () => {
                             />
                         </VuiTypography>
 
-                        {/* Nội dung câu hỏi */}
-                        <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
-                            <strong>Nội dung câu hỏi: </strong>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                fullWidth
-                                rows={4}
-                                name="questions"
-                                value={editedQuestion.questions || ''}
-                                onChange={handleInputChange}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        backgroundColor: 'transparent!important',
-                                        '& fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '& .MuiInputBase-input': {
-                                            flex: 1,
-                                            '&.Mui-disabled': {
-                                                color: 'white!important',
-                                                '-webkit-text-fill-color': '#fff',
-                                            },
-                                        },
-                                    },
+                        <div className="row">
 
-                                    '& .MuiInputLabel-root': {
-                                        color: '#fff!important',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        color: '#fff',
-                                    },
-                                }}
-                            />
-                        </VuiTypography>
-
-                        {/* Hashtag */}
-                        <Box display="flex" alignItems="center" my={2}>
-                            <Typography variant="body2" sx={{ mr: 2 }}>
-                                <strong style={{ color: '#fff' }}>Hashtag</strong>
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                placeholder="Nhập hashtag"
-                                variant="standard"
-                                name="hashtag"
-                                value={editedQuestion.hashtag || ''}
-                                onChange={handleInputChange}
-                                sx={{
-                                    '& .MuiInputBase-root': { backgroundColor: 'transparent!important', border: 'none' },
-                                    '& .MuiInputBase-input': { color: '#fff' }
-                                }}
-                            />
-                        </Box>
-                        {/* Display uploaded images */}
-                        <Box display="flex" flexDirection="row" alignItems="center" mt={2}>
-                            <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
-                                Hình ảnh tải lên:
-                            </Typography>
-                            <Box display="flex" flexWrap="wrap" gap={2} justifyContent={'center'} flex={1}>
-                                {selectedImages.length > 0 ? (
-                                    selectedImages.map((image, index) => (
-                                        <img
-                                            key={index}
-                                            src={image}
-                                            alt={`Uploaded ${index}`}
-                                            style={{
-                                                width: 150,
-                                                height: 150,
-                                                borderRadius: '8px',
-                                                objectFit: 'cover',
-                                                border: "1px solid #fff",
-                                            }}
-                                        />
-                                    ))
-                                ) : (
-                                    <img
-                                        src={editedQuestion.imageUrls || imageplaceholder}  // Sử dụng imageplaceholder nếu không có hình ảnh
-                                        alt="Không có hình ảnh được chọn"  // Nếu không có hình, alt là 'Hình ảnh placeholder'
-                                        style={{
-                                            width: 150,
-                                            height: 150,
-                                            borderRadius: '8px',
-                                            objectFit: 'cover',
-                                            border: "1px solid #fff",
+                            <div className="col-6 mb-3">
+                                {/* Hashtag */}
+                                <Box display="flex" alignItems="center" my={2}>
+                                    <Typography variant="body2" sx={{ mr: 2 }}>
+                                        <strong style={{ color: '#fff' }}>Hashtag</strong>
+                                    </Typography>
+                                    <TextField
+                                        fullWidth
+                                        placeholder="Nhập hashtag"
+                                        variant="standard"
+                                        name="hashtag"
+                                        value={editedQuestion.hashtag || ''}
+                                        onChange={handleInputChange}
+                                        sx={{
+                                            '& .MuiInputBase-root': { backgroundColor: 'transparent!important', border: 'none' },
+                                            '& .MuiInputBase-input': { color: '#fff' }
                                         }}
                                     />
+                                </Box>
 
-                                )}
-                            </Box>
-                        </Box>
-                        {/* Display uploaded files */}
-                        <Box display="flex" flexDirection="row" alignItems="center" mt={2}>
-                            <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
-                                File tải lên:
-                            </Typography>
+                            </div>
+                            <div className="col-6 mb-3">
+                                {/* Display uploaded files */}
+                                <Box display="flex" flexDirection="row" alignItems="center" mt={2}>
+                                    <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
+                                        File tải lên:
+                                    </Typography>
 
-                            <Box flex={1}>
-                                {selectedFiles.length > 0 ? (
+                                    <Box flex={1}>
+                                        {selectedFiles.length > 0 ? (
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    padding: '10px',
+                                                    border: '1px solid #e0e0e0',
+                                                    borderRadius: '8px',
+                                                    backgroundColor: '#fff',
+                                                    width: 'fit-content',
+                                                    height: '30px',
+                                                }}
+                                            >
+                                                <IconButton sx={{ color: '#007bff' }}>
+                                                    <DescriptionIcon />
+                                                </IconButton>
+                                                <Typography variant="subtitle1">
+                                                    {selectedFiles.map((file, index) => {
+                                                        const fileName = decodeURIComponent(file)
+                                                            .split('/')
+                                                            .pop()
+                                                            .split('?')[0]; // Lấy tên file
+
+                                                        return (
+                                                            <a
+                                                                key={index}
+                                                                href={file} // Đường dẫn file
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                style={{
+                                                                    color: 'inherit',
+                                                                    textDecoration: 'none',
+                                                                    fontSize: '14px',
+                                                                    marginRight: '10px',
+                                                                }}
+                                                            >
+                                                                {fileName}
+                                                            </a>
+                                                        );
+                                                    })}
+                                                </Typography>
+                                            </Box>
+                                        ) : (
+                                            <Typography variant="caption" sx={{ color: '#fff' }}>
+                                                {editedQuestion.fileUrls || 'Không có file được tải lên'}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                </Box>
+                            </div>
+                        </div>
+
+                        <Box mt={2}>
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Hình ảnh tải lên:</strong>
+                            </VuiTypography>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
+                                    gap: '10px',  // Khoảng cách giữa các ảnh
+                                    justifyItems: 'center',  // Căn giữa các ảnh
+                                }}
+                            >
+                                {selectedImages.length > 0 ? (
+                                    selectedImages.map((image, index) => (
+                                        <Box
+                                            key={index}
+                                            sx={{
+                                                position: 'relative',
+                                                width: '100%',  // Căn chỉnh kích thước ảnh để không bị kéo giãn
+                                                aspectRatio: '1 / 1',  // Đảm bảo ảnh vuông
+                                                overflow: 'hidden',
+                                                borderRadius: '8px',
+                                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                                transition: 'transform 0.3s ease',
+                                                '&:hover': {
+                                                    transform: 'scale(1.05)',  // Thêm hiệu ứng hover cho ảnh
+                                                }
+                                            }}
+                                        >
+                                            <img
+                                                src={image}
+                                                alt={`Uploaded ${index}`}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                }}
+                                            />
+                                        </Box>
+                                    ))
+                                ) : (
                                     <Box
                                         sx={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            padding: '10px',
-                                            border: '1px solid #e0e0e0',
+                                            position: 'relative',
+                                            width: '100%',
+                                            aspectRatio: '1 / 1',
+                                            overflow: 'hidden',
                                             borderRadius: '8px',
-                                            backgroundColor: '#fff',
-                                            width: 'fit-content',
-                                            height: '30px',
+                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                                         }}
                                     >
-                                        <IconButton sx={{ color: '#007bff' }}>
-                                            <DescriptionIcon />
-                                        </IconButton>
-                                        <Typography variant="subtitle1">
-                                            {selectedFiles.map((file, index) => {
-                                                const fileName = decodeURIComponent(file)
-                                                    .split('/')
-                                                    .pop()
-                                                    .split('?')[0]; // Lấy tên file
-
-                                                return (
-                                                    <a
-                                                        key={index}
-                                                        href={file} // Đường dẫn file
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        style={{
-                                                            color: 'inherit',
-                                                            textDecoration: 'none',
-                                                            fontSize: '14px',
-                                                            marginRight: '10px',
-                                                        }}
-                                                    >
-                                                        {fileName}
-                                                    </a>
-                                                );
-                                            })}
-                                        </Typography>
+                                        <img
+                                            src={imageplaceholder}
+                                            alt="Không có hình ảnh được chọn"
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                                borderRadius: '8px',
+                                            }}
+                                        />
                                     </Box>
-                                ) : (
-                                    <Typography variant="caption" sx={{ color: '#fff' }}>
-                                        {editedQuestion.fileUrls || 'Không có file được tải lên'}
-                                    </Typography>
                                 )}
                             </Box>
                         </Box>
 
                         {/* Display uploaded code */}
                         <Box mt={2}>
-                            <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
-                                Code:
-                            </Typography>
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Code tải lên:</strong>
+                            </VuiTypography>
                             <TextField
                                 variant="outlined"
                                 multiline
@@ -453,6 +469,52 @@ const FormEditQuestion = () => {
                                 }}
                             />
                         </Box>
+
+                        {/* Nội dung câu hỏi */}
+                        <Box mt={2}>
+                            <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
+                                <strong>Nội dung câu hỏi: </strong>
+                            </VuiTypography>
+                            <TextField
+                                variant="outlined"
+                                multiline
+                                fullWidth
+                                rows={4}
+                                name="questions"
+                                value={editedQuestion.questions || ''}
+                                onChange={handleInputChange}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        backgroundColor: 'transparent!important',
+                                        '& fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: '#fff',
+                                        },
+                                        '& .MuiInputBase-input': {
+                                            flex: 1,
+                                            '&.Mui-disabled': {
+                                                color: 'white!important',
+                                                '-webkit-text-fill-color': '#fff',
+                                            },
+                                        },
+                                    },
+
+                                    '& .MuiInputLabel-root': {
+                                        color: '#fff!important',
+                                    },
+                                    '& .MuiInputBase-input': {
+                                        color: '#fff',
+                                    },
+                                }}
+                            />
+
+                        </Box>
+
                         {/* Hình ảnh */}
                         {/* Tệp */}
                         <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -486,6 +548,8 @@ const FormEditQuestion = () => {
                                 </Button>
                             </Box>
                         </Box>
+
+
                         {/* Submit Button */}
                         <Box display="flex" justifyContent="flex-end" mt={3}>
                             <button
