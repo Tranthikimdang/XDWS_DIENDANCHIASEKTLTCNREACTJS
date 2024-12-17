@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Button, IconButton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
+import { saveAs } from 'file-saver';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
 import VuiTypography from "src/components/admin/VuiTypography";
@@ -316,43 +317,141 @@ const FormEditQuestion = () => {
                                                     borderRadius: '8px',
                                                     backgroundColor: '#fff',
                                                     width: 'fit-content',
-                                                    height: '30px',
+                                                    height: 'auto',
+                                                    flexWrap: 'wrap', // Cho phép các file nằm trên nhiều dòng nếu cần
                                                 }}
                                             >
-                                                <IconButton sx={{ color: '#007bff' }}>
-                                                    <DescriptionIcon />
-                                                </IconButton>
-                                                <Typography variant="subtitle1">
-                                                    {selectedFiles.map((file, index) => {
-                                                        const fileName = decodeURIComponent(file)
-                                                            .split('/')
-                                                            .pop()
-                                                            .split('?')[0]; // Lấy tên file
+                                                {selectedFiles.map((file, index) => {
+                                                    const fileName = decodeURIComponent(file)
+                                                        .split('/')
+                                                        .pop()
+                                                        .split('?')[0]; // Lấy tên file từ URL
 
-                                                        return (
-                                                            <a
-                                                                key={index}
-                                                                href={file} // Đường dẫn file
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
+                                                    const fullUrl = 'http://localhost:3000' + file; // Đảm bảo URL đầy đủ để tải tệp
+
+                                                    return (
+                                                        <Box
+                                                            key={index}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                marginRight: '10px',
+                                                                marginBottom: '10px', // Thêm khoảng cách dưới giữa các file
+                                                            }}
+                                                        >
+                                                            <IconButton
+                                                                sx={{
+                                                                    color: '#007bff', // Màu của biểu tượng tải về
+                                                                    '&:hover': { color: '#0056b3' }, // Hiệu ứng hover cho biểu tượng
+                                                                }}
+                                                                onClick={() => saveAs(fullUrl, fileName)} // Sử dụng FileSaver.js để tải về
+                                                            >
+                                                                <DescriptionIcon />
+                                                            </IconButton>
+                                                            <span
                                                                 style={{
-                                                                    color: 'inherit',
-                                                                    textDecoration: 'none',
+                                                                    color: '#007bff',
                                                                     fontSize: '14px',
-                                                                    marginRight: '10px',
+                                                                    marginLeft: '8px',
+                                                                    cursor: 'pointer',
+                                                                    '&:hover': {
+                                                                        textDecoration: 'underline', // Gạch dưới khi hover vào tên file
+                                                                    },
                                                                 }}
                                                             >
                                                                 {fileName}
-                                                            </a>
-                                                        );
-                                                    })}
-                                                </Typography>
+                                                            </span>
+                                                        </Box>
+                                                    );
+                                                })}
                                             </Box>
                                         ) : (
                                             <Typography variant="caption" sx={{ color: '#fff' }}>
-                                                {editedQuestion.fileUrls || 'Không có file được tải lên'}
+                                                {/* Hiển thị file nếu có */}
+                                                {editedQuestion.fileUrls.length > 0 ? (
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            padding: '10px',
+                                                            border: '1px solid #e0e0e0',
+                                                            borderRadius: '8px',
+                                                            backgroundColor: '#fff',
+                                                            width: 'fit-content',
+                                                            height: 'auto',
+                                                            flexWrap: 'wrap', // Cho phép các file nằm trên nhiều dòng nếu cần
+                                                        }}
+                                                    >
+                                                        {editedQuestion.fileUrls.map((url, index) => {
+                                                            const fileName = decodeURIComponent(url)
+                                                                .split('/')
+                                                                .pop()
+                                                                .split('?')[0]; // Lấy tên file từ URL
+
+                                                            // Kiểm tra nếu file là hợp lệ và không phải là tên 'uploads'
+                                                            if (fileName !== 'uploads') {
+                                                                const fullUrl = 'http://localhost:3000' + url; // Đảm bảo URL đầy đủ để tải tệp
+
+                                                                return (
+                                                                    <Box
+                                                                        key={index}
+                                                                        sx={{
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            marginRight: '10px',
+                                                                            marginBottom: '10px', // Khoảng cách giữa các file
+                                                                        }}
+                                                                    >
+                                                                        <IconButton
+                                                                            sx={{
+                                                                                color: '#007bff', // Màu biểu tượng tải về
+                                                                                '&:hover': { color: '#0056b3' }, // Hiệu ứng hover cho biểu tượng
+                                                                            }}
+                                                                            onClick={() => saveAs(fullUrl, fileName)} // Dùng saveAs để tải file
+                                                                        >
+                                                                            <DescriptionIcon />
+                                                                        </IconButton>
+                                                                        <span
+                                                                            style={{
+                                                                                color: '#007bff',
+                                                                                fontSize: '14px',
+                                                                                marginLeft: '8px',
+                                                                                cursor: 'pointer',
+                                                                                '&:hover': {
+                                                                                    textDecoration: 'underline', // Gạch dưới khi hover vào tên file
+                                                                                },
+                                                                            }}
+                                                                        >
+                                                                            {fileName} {/* Hiển thị tên file */}
+                                                                        </span>
+                                                                    </Box>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })}
+                                                    </Box>
+                                                ) : (
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            padding: '10px',
+                                                            border: '1px solid #e0e0e0',
+                                                            borderRadius: '8px',
+                                                            backgroundColor: '#fff',
+                                                            width: 'fit-content',
+                                                        }}
+                                                    >
+                                                        <DescriptionIcon sx={{ color: '#e0e0e0' }} /> {/* Biểu tượng khi không có file */}
+                                                        <Typography variant="caption" sx={{ color: '#e0e0e0', marginLeft: '8px' }}>
+                                                            Không có file được tải lên
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+
                                             </Typography>
                                         )}
+
                                     </Box>
                                 </Box>
                             </div>
