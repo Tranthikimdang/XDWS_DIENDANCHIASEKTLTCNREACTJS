@@ -16,6 +16,8 @@ import authorsQuestionsData from './data/authorsTableData';
 import ConfirmDialog from './data/formDeleteQuestions';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
+import SearchIcon from '@mui/icons-material/Search';
+import VuiInput from "src/components/admin/VuiInput";
 import './index.css';
 // Images
 import avatardefault from "src/assets/images/profile/user-1.jpg";
@@ -40,6 +42,8 @@ function Questions() {
   const [page, setPage] = useState(0);
   const [rowsPerPage] = useState(4);
   const [reload, setReload] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Fetch Questionss from Firestore
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -127,6 +131,12 @@ function Questions() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+  //tim kiem
+  const filteredRows = rows.filter((row) =>
+    row.questions?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    users.find((u) => u.id === row.user_id)?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+);
+
 
   const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
@@ -172,6 +182,26 @@ function Questions() {
                 <VuiTypography variant="lg" color="white">
                   Bảng câu hỏi
                 </VuiTypography>
+              </VuiBox>
+              <VuiBox mb={2} display="flex" justifyContent="flex-end">
+                {/* Trường tìm kiếm */}
+                <VuiBox mb={1}>
+                  <VuiInput
+                    placeholder="Nhập vào đây..."
+                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    sx={({ breakpoints }) => ({
+                      [breakpoints.down("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      [breakpoints.only("sm")]: {
+                        maxWidth: "80px",
+                      },
+                      backgroundColor: "info.main !important",
+                    })}
+                  />
+                </VuiBox>
               </VuiBox>
               {loading ? (
                 <div
