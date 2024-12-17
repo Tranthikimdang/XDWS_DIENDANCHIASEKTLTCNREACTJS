@@ -10,6 +10,7 @@ import Table from "../../../examples/Tables/Table";
 import authorsTableData from "./data/authorsTableData";
 import ConfirmDialog from "./data/FormDeleteCate";
 import { Alert, Snackbar, TextField } from "@mui/material";
+
 import { ClipLoader } from "react-spinners";
 import VuiInput from "src/components/admin/VuiInput";
 
@@ -81,7 +82,7 @@ function Category() {
   };
 
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
+if (reason === "clickaway") {
       return;
     }
     setSnackbarOpen(false);
@@ -169,6 +170,7 @@ function Category() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     sx={({ breakpoints }) => ({
+
                       [breakpoints.down("sm")]: {
                         maxWidth: "80px",
                       },
@@ -229,7 +231,7 @@ function Category() {
                               </Link>
                               <button
                                 className="text-light btn btn-outline-danger"
-                                type="button"
+
                                 onClick={() => handleDelete(row.id)}
                               >
                                 <svg

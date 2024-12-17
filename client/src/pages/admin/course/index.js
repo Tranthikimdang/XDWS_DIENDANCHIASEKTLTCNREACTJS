@@ -16,6 +16,7 @@ import { ClipLoader } from 'react-spinners';
 import SearchIcon from '@mui/icons-material/Search';
 import VuiInput from "src/components/admin/VuiInput";
 
+
 import './index.css';
 //sql
 import api from '../../../apis/CourseApI';
@@ -39,6 +40,7 @@ function Course() {
   const [imageUrl, setImageUrl] = useState('');
 
   const [searchTerm, setSearchTerm] = useState('');
+
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -84,6 +86,7 @@ function Course() {
     setOpenDialog(true);
   };
 
+
   //tim kiem
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -92,6 +95,7 @@ function Course() {
   const filteredRows = rows.filter((row) =>
     row.name.toLowerCase().includes(searchTerm.toLowerCase()) // Tìm kiếm không phân biệt chữ hoa/thường
   );
+
 
   const confirmDelete = async () => {
     try {
@@ -215,6 +219,7 @@ function Course() {
                   </button>
                 </Link>
               </VuiBox>
+
               <VuiBox mb={2} display="flex" justifyContent="flex-end">
                 {/* Trường tìm kiếm */}
                 <VuiBox mb={1}>
@@ -235,6 +240,7 @@ function Course() {
                   />
                 </VuiBox>
               </VuiBox>
+
               {loading ? (
                 <div
                   style={{

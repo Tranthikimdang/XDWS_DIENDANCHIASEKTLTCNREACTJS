@@ -3,6 +3,9 @@ import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid, Bu
 import { useParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+
+//api
+
 import QuestionsApis from 'src/apis/QuestionsApis';
 import apiUser from 'src/apis/UserApI';
 //hình ảnh 
@@ -215,6 +218,7 @@ const FormEditQuestion = () => {
                             {/* Tiêu đề */}
                             <Typography variant="body2" sx={{ mr: 2 }}>
                                 <strong style={{ color: '#fff' }}>+ Hashtag</strong>
+
                             </Typography>
 
                             {/* Input nhập hashtag */}

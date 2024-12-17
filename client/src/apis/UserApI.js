@@ -20,6 +20,7 @@ const apiRequest = async (method, url, data) => {
 // Users API
 const addUser = async (user) => apiRequest('post', USERS_URL, user);
 const getUsersList = async () => apiRequest('get', USERS_URL);
+const getUserId = async (id) => apiRequest('get', `${USERS_URL}/${id}`);
 const updateUser = async (id, updatedData) => apiRequest('put', `${USERS_URL}/${id}`, updatedData);
 const deleteUser = async (id) => apiRequest('delete', `${USERS_URL}/${id}`);
 const checkEmail = async (email) => apiRequest('post', `${USERS_URL}/checkEmail`, { email });
@@ -42,9 +43,11 @@ const uploadImage = async (file) => {
 };
 
 // Xuất các hàm API
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   addUser,
   getUsersList,
+  getUserId,
   updateUser,
   deleteUser,
   uploadImage,

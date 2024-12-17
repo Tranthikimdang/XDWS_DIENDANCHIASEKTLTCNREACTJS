@@ -19,13 +19,13 @@ exports.getAllCourses = async (req, res) => {
 };
 
 exports.createCourse = async (req, res) => {
-    const { cate_course_id, image, video_demo, name, price, discount, description } = req.body;
+    const { cate_course_id, image, video_demo, name, price, discount, description, userId } = req.body;
     if (!cate_course_id) {
         return res.status(400).json({ error: 'cate_course_id is required' });
     }
     try {
         const newCourse = await Course.create({
-            cate_course_id, image, video_demo, name, price, discount, description
+            cate_course_id, image, video_demo, name, price, discount, description, userId
         });
         res.status(201).json({
             status: 'success',

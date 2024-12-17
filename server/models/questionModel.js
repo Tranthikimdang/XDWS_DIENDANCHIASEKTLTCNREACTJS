@@ -27,8 +27,12 @@ const Questions = sequelize.define('Questions', {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
     },
-    questions: {
+    title: {
         type: DataTypes.STRING,
+        allowNull: false
+    },
+    questions: {
+        type: DataTypes.TEXT('long'),
     },
     hashtag:{
         type: DataTypes.STRING,
@@ -47,14 +51,6 @@ const Questions = sequelize.define('Questions', {
     },
     up_code: {
         type: DataTypes.TEXT('long'),
-    },
-    comments: {
-        type: DataTypes.JSON,
-        defaultValue: [], // Mặc định là mảng trống
-    },
-    replies: {
-        type: DataTypes.JSON,
-        defaultValue: [], // Mặc định là mảng trống
     }
 }, {
     tableName: 'questions',

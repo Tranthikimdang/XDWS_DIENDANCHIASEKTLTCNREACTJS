@@ -7,7 +7,7 @@
 }
 
 /* Thanh điều hướng */
-.navbar {
+.navbars {
   display: flex;
   align-items: center;
   background-color: #ff5722;
@@ -106,14 +106,6 @@
 }
 
 /* Chân trang */
-.footer {
-  text-align: center;
-  margin-top: 30px;
-  padding: 20px;
-  background-color: #333;
-  color: white;
-  border-radius: 10px;
-}
 
 .community-links ul {
   list-style-type: none;

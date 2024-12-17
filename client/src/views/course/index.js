@@ -19,7 +19,7 @@ import CourseApi from '../../apis/CourseApI';
 import CateCourseApi from '../../apis/Categories_courseApI';
 import StudyTimeApi from '../../apis/StudyTimeApI';
 import './index.css';
-
+import UserAPI from '../../apis/UserApI';
 // Tạo Alert để hiển thị snackbar
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -38,7 +38,7 @@ const Course = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-
+  const [users, setUsers] = useState({});
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
 
@@ -49,16 +49,27 @@ const Course = () => {
       try {
         const response = await CourseApi.getCoursesList();
         const course = response.data.courses;
+        
+        // Lấy danh sách người dùng
+        const responseuse = await UserAPI.getUsersList();
+        const usersData = responseuse.data.users;
 
-        setProducts(course);
+        // Lấy thông tin người dùng cho mỗi khóa học
+        const coursesWithUsers = course.map((courseItem) => {
+          const matchingUser = usersData.find((user) => user.id == courseItem.userId);
+          return { ...courseItem, user: matchingUser }; // Gắn người dùng vào khóa học
+        });
+
+        setProducts(coursesWithUsers); // Cập nhật khóa học với người dùng tương ứng
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
+    
     fetchProducts();
-  }, []);
+  }, []); 
 
   useEffect(() => {
     const fetchStudyTime = async () => {
@@ -262,18 +273,25 @@ const Course = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4">
                               <h5>{product.name}</h5>
                               <div className="d-flex flex-row">
-                                <span>Số lượng {product.quality}</span>
+                                <span>
+                                  Người đăng: {product.user?.name || 'Không có thông tin'}
+                                </span>{' '}
+                                {/* Hiển thị tên người đăng */}
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Giá gốc: {product.price}{' '}
-                                  VND
+                                  <span className="text-primary"> • </span>Giá gốc:
+                                  {product.price + ' VND'
+                                    ? product.price.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
                                   <span className="text-primary"> • </span>Giảm giá còn:{' '}
-                                  {product.discount} VND
+                                  {product.discount + ' VND'
+                                    ? product.discount.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small d-flex justify-content-start">
@@ -300,14 +318,15 @@ const Course = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
                               <div className="align-items-center mb-1">
                                 <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
-                                  {product.discount +" VND"
-                                    ? product.discount.toLocaleString('vi-VN') +" VND"
+                                  {product.discount + ' VND'
+                                    ? product.discount.toLocaleString('vi-VN') + ' VND'
                                     : 'Miễn phí'}{' '}
                                 </h6>
                                 <span className="text-danger" style={{ fontSize: '0.7rem' }}>
                                   <s>
-                                    {product.price +" VND" ? product.price.toLocaleString('vi-VN')+" VND"  : 'Miễn phí'}{' '}
-                                    
+                                    {product.price + ' VND'
+                                      ? product.price.toLocaleString('vi-VN') + ' VND'
+                                      : 'Miễn phí'}{' '}
                                   </s>
                                 </span>
                               </div>

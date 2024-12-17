@@ -473,31 +473,7 @@ const ProductsDetail = () => {
               <div className="nav-buttons mt-5">
                 <h4>Bình luận</h4>
               </div>
-              <ListItem alignItems="flex-start">
-                <Avatar
-                  alt="User"
-                  src={'https://i.pinimg.com/474x/4a/ab/e2/4aabe24a11fd091690d9f5037169ba6e.jpg'}
-                />
-                <Box ml={1}>
-                  <Typography variant="body1" color="textPrimary">
-                    User
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    Comment here
-                  </Typography>
-                  <Box display="flex" alignItems="center" mt={1}>
-                    <IconButton aria-label="reply">
-                      <ReplyIcon fontSize="small" />
-                      <Typography variant="body2" color="textSecondary">
-                        Reply
-                      </Typography>
-                    </IconButton>
-                    <Button variant="outlined" color="inherit" sx={{ marginLeft: 1 }}>
-                      Hủy
-                    </Button>
-                  </Box>
-                </Box>
-              </ListItem>
+             
             </Grid>
 
             <Grid item md={4}>

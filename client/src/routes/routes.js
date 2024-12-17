@@ -332,7 +332,7 @@ const routes = [
   },
   {
     key: 'EditProDetaill',
-    route: '/admin/editProDetaill/:detailId',
+    route: '/admin/editProDetaill/:course_id/:detailId',
     component: EditProDetaill,
     hidden: true, // Ẩn mục này
   },
