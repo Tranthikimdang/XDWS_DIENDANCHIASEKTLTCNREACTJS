@@ -368,30 +368,30 @@ function CommentDetail() {
               </VuiBox>
             )
             }
+            <div className="d-flex justify-content-center p-2 custom-pagination">
+          <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+            <button
+              className="btn btn-light"
+              onClick={() => handleChangePage(null, page - 1)}
+              disabled={page === 0}
+            >
+              &laquo;
+            </button>
+            <span className="btn btn-light disabled">
+              Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
+            </span>
+            <button
+              className="btn btn-light"
+              onClick={() => handleChangePage(null, page + 1)}
+              disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
+            >
+              &raquo;
+            </button>
+          </div>
+        </div>
           </Card>
         </VuiBox>
       </VuiBox>
-      <div className="d-flex justify-content-center p-2 custom-pagination">
-        <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
-          <button
-            className="btn btn-light"
-            onClick={() => handleChangePage(null, page - 1)}
-            disabled={page === 0}
-          >
-            &laquo;
-          </button>
-          <span className="btn btn-light disabled">
-            Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
-          </span>
-          <button
-            className="btn btn-light"
-            onClick={() => handleChangePage(null, page + 1)}
-            disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
-          >
-            &raquo;
-          </button>
-        </div>
-      </div>
       <ConfirmDialog
         open={openDialog}
         onConfirm={() => confirmDelete(deleteId)}

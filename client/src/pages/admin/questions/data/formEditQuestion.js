@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Button, IconButton } from '@mui/material';
+import { Box, Grid, Typography, TextField, Snackbar, Alert, CircularProgress, Button, IconButton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useForm } from "react-hook-form";
 import { saveAs } from 'file-saver';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
@@ -19,7 +20,7 @@ import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg
 const FormEditQuestion = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -63,7 +64,6 @@ const FormEditQuestion = () => {
     }, [id]);
 
     // Lấy danh sách người dùng
-    // Fetch user list
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -142,7 +142,6 @@ const FormEditQuestion = () => {
         setSelectedFiles(fileUrls); // Lưu các URL tệp đã upload vào state
     };
 
-
     const handleImageUpload = async (event) => {
         const files = event.target.files;
         const imageUrls = [];
@@ -157,14 +156,31 @@ const FormEditQuestion = () => {
         setSelectedImages(imageUrls); // Lưu các URL hình ảnh đã upload vào state
     };
 
+    // Danh sách các từ khóa bị cấm (quảng cáo, bán hàng)
+    const blockedKeywords = [
+        "mua ngay", "giá rẻ", "khuyến mãi", "bán hàng", "liên hệ", "tuyển dụng", "marketing", "mua bán", "đặt hàng", "ship hàng", "công ty"
+    ];
+
+    // Biểu thức chính quy để kiểm tra từ khóa bán hàng/quảng cáo
+    const createKeywordRegex = (keywords) => {
+        return new RegExp(keywords.join("|"), "i"); // "i" là để không phân biệt chữ hoa chữ thường
+    };
+
+    // Hàm kiểm tra từ khóa bị cấm (bán hàng/quảng cáo)
+    const checkForBlockedKeywords = (value) => {
+        const blockedRegex = createKeywordRegex(blockedKeywords);
+        return !blockedRegex.test(value) || "Tiêu đề chứa từ khóa không được phép! (Bán hàng, quảng cáo, mua bán)";
+    };
+
+
     const smallFontStyle = {
         fontSize: '0.9rem',
         color: '#ffffff'
     };
 
 
-    // Hàm submit để chỉnh sửa câu hỏi
-    const handleSubmit = async () => {
+    const onSubmit = async () => {
+        // Kiểm tra xem câu hỏi có ID hợp lệ không
         if (!editedQuestion.id) {
             setSnackbarMessage('ID câu hỏi không hợp lệ');
             setSnackbarSeverity('error');
@@ -172,6 +188,7 @@ const FormEditQuestion = () => {
             return;
         }
 
+        // Chuẩn bị dữ liệu cần gửi đi
         const formData = {
             title: editedQuestion.title,
             questions: editedQuestion.questions,
@@ -223,6 +240,13 @@ const FormEditQuestion = () => {
         }
     };
 
+    // Hàm quay lại mà không làm reset dữ liệu
+    const handleCancel = () => {
+        // Quay lại mà không reset dữ liệu đã thay đổi
+        navigate('/admin/questions');
+    };
+
+
 
     // Hàm đóng snackbar
     const handleSnackbarClose = () => {
@@ -240,7 +264,7 @@ const FormEditQuestion = () => {
                         <Typography variant="h6" sx={{ color: '#fff', ml: 2 }}>Đang tải dữ liệu...</Typography>
                     </Box>
                 ) : (
-                    <Box>
+                    <Box component="form" onSubmit={handleSubmit(onSubmit)}>
                         <Box display="flex" alignItems="center" mb={2}>
                             <img
                                 src={users?.find((u) => editedQuestion?.user_id === u.id)?.imageUrl ||
@@ -255,29 +279,46 @@ const FormEditQuestion = () => {
                             </Typography>
                         </Box>
                         {/* Form fields */}
-
-                        <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
-                            <strong>Tiêu đề: </strong>
-                            <TextField
-                                variant="outlined"
-                                fullWidth
-                                name="title"
-                                value={editedQuestion.title || ''}
-                                onChange={handleInputChange}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        backgroundColor: 'transparent!important',
-                                        '& fieldset': { borderColor: '#fff' },
-                                        '&:hover fieldset': { borderColor: '#fff' },
-                                        '&.Mui-focused fieldset': { borderColor: '#fff' },
-                                    },
-                                    '& .MuiInputBase-input': { color: '#fff' }
-                                }}
-                            />
-                        </VuiTypography>
-
                         <div className="row">
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Tiêu đề: </strong>
+                                <Grid container>
+                                    <Grid item xs={12}>
+                                        <input
+                                            variant="outlined"
+                                            type="text"
+                                            name="title"
+                                            value={editedQuestion.title || ''}
+                                            onChange={handleInputChange}
+                                            {...register("title", {
+                                                required: "Tiêu đề là bắt buộc",
+                                                minLength: {
+                                                    value: 10,
+                                                    message: "Tiêu đề phải có ít nhất 10 ký tự"
+                                                },
+                                                maxLength: {
+                                                    value: 150,
+                                                    message: "Tiêu đề không được vượt quá 150 ký tự"
+                                                },
+                                                validate: {
+                                                    noBlockedKeywords: (value) => checkForBlockedKeywords(value),
+                                                    noUppercase: (value) => value !== value.toUpperCase() || "Không sử dụng toàn chữ in hoa"
+                                                }
+                                            })}
+                                            style={{
+                                                width: '100%',
+                                                backgroundColor: 'transparent',
+                                                borderColor: errors.title ? 'red' : '#fff',
+                                                color: '#fff',
+                                                padding: '10px',
+                                                borderRadius: '4px'
+                                            }}
+                                        />
+                                        {errors.title && <span style={{ color: 'red' }}>{errors.title.message}</span>}
+                                    </Grid>
+                                </Grid>
 
+                            </VuiTypography>
                             <div className="col-6 mb-3">
                                 {/* Hashtag */}
                                 <Box display="flex" alignItems="center" my={2}>
@@ -456,7 +497,6 @@ const FormEditQuestion = () => {
                                 </Box>
                             </div>
                         </div>
-
                         <Box mt={2}>
                             <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
                                 <strong>Hình ảnh tải lên:</strong>
@@ -523,99 +563,102 @@ const FormEditQuestion = () => {
                                 )}
                             </Box>
                         </Box>
-
-                        {/* Display uploaded code */}
-                        <Box mt={2}>
-                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                <strong>Code tải lên:</strong>
-                            </VuiTypography>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                fullWidth
-                                rows={10}
-                                name="up_code"
-                                value={editedQuestion?.up_code || ''} // Thông báo nếu không có code
-                                onChange={handleInputChange}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        backgroundColor: 'transparent!important',
-                                        '& fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '& .MuiInputBase-input': {
-                                            flex: 1,
-                                            '&.Mui-disabled': {
-                                                color: 'white!important',
-                                                '-webkit-text-fill-color': '#fff',
+                        <div className="row">
+                            <div className="col-6 mb-3">
+                                {/* Display uploaded code */}
+                                <Box mt={2}>
+                                    <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                        <strong>Code tải lên:</strong>
+                                    </VuiTypography>
+                                    <TextField
+                                        variant="outlined"
+                                        multiline
+                                        fullWidth
+                                        rows={10}
+                                        name="up_code"
+                                        value={editedQuestion?.up_code || ''} // Thông báo nếu không có code
+                                        onChange={handleInputChange}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                backgroundColor: 'transparent!important',
+                                                '& fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '& .MuiInputBase-input': {
+                                                    flex: 1,
+                                                    '&.Mui-disabled': {
+                                                        color: 'white!important',
+                                                        '-webkit-text-fill-color': '#fff',
+                                                    },
+                                                },
                                             },
-                                        },
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                        color: '#fff!important',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        color: '#fff',
-                                        whiteSpace: 'pre-wrap', // Đảm bảo đoạn code xuống dòng khi cần
-                                        wordBreak: 'break-word', // Ngắt từ khi cần thiết
-                                    },
-                                }}
-                            />
-                        </Box>
-
-                        {/* Nội dung câu hỏi */}
-                        <Box mt={2}>
-                            <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
-                                <strong>Nội dung câu hỏi: </strong>
-                            </VuiTypography>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                fullWidth
-                                rows={4}
-                                name="questions"
-                                value={editedQuestion.questions || ''}
-                                onChange={handleInputChange}
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        backgroundColor: 'transparent!important',
-                                        '& fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '& .MuiInputBase-input': {
-                                            flex: 1,
-                                            '&.Mui-disabled': {
-                                                color: 'white!important',
-                                                '-webkit-text-fill-color': '#fff',
+                                            '& .MuiInputLabel-root': {
+                                                color: '#fff!important',
                                             },
-                                        },
-                                    },
+                                            '& .MuiInputBase-input': {
+                                                color: '#fff',
+                                                whiteSpace: 'pre-wrap', // Đảm bảo đoạn code xuống dòng khi cần
+                                                wordBreak: 'break-word', // Ngắt từ khi cần thiết
+                                            },
+                                        }}
+                                    />
+                                </Box>
+                            </div>
+                            <div className="col-6 mb-3">
+                                {/* Nội dung câu hỏi */}
+                                <Box mt={2}>
+                                    <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
+                                        <strong>Nội dung câu hỏi: </strong>
+                                    </VuiTypography>
+                                    <TextField
+                                        variant="outlined"
+                                        multiline
+                                        fullWidth
+                                        rows={10}
+                                        name="questions"
+                                        value={editedQuestion.questions || ''}
+                                        onChange={handleInputChange}
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                backgroundColor: 'transparent!important',
+                                                '& fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '& .MuiInputBase-input': {
+                                                    flex: 1,
+                                                    '&.Mui-disabled': {
+                                                        color: 'white!important',
+                                                        '-webkit-text-fill-color': '#fff',
+                                                    },
+                                                },
+                                            },
 
-                                    '& .MuiInputLabel-root': {
-                                        color: '#fff!important',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        color: '#fff',
-                                    },
-                                }}
-                            />
+                                            '& .MuiInputLabel-root': {
+                                                color: '#fff!important',
+                                            },
+                                            '& .MuiInputBase-input': {
+                                                color: '#fff',
+                                            },
+                                        }}
+                                    />
 
-                        </Box>
+                                </Box>
+                            </div>
+                        </div>
 
                         {/* Hình ảnh */}
-                        {/* Tệp */}
                         <Box display="flex" justifyContent="space-between" alignItems="center">
                             <Box display="flex" gap={1}>
                                 <Button
@@ -653,13 +696,13 @@ const FormEditQuestion = () => {
                         <Box display="flex" justifyContent="flex-end" mt={3}>
                             <button
                                 className="text-light btn btn-outline-secondary"
-                                onClick={() => navigate('/admin/questions')}
+                                onClick={handleCancel}  // Gọi hàm handleCancel khi nhấn nút Quay lại
                             >
                                 Quay lại
                             </button>
                             <button
                                 className="text-light btn btn-outline-info me-2"
-                                onClick={handleSubmit}
+                                type="submit"
                             >
                                 Cập nhật câu hỏi
                             </button>

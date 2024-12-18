@@ -107,78 +107,204 @@ const FormViewQuestion = () => {
                                 Xem câu hỏi
                             </Typography>
                         </Box>
-                        <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                            <strong>Tiêu đề: </strong>{questionData?.question?.title}
-                        </VuiTypography>
                         <div className="row">
-                            <div className="col-6 mb-3">
-                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                    <strong>Hashtag: </strong>{questionData?.question?.hashtag || 'Người dùng không nhập hashtag'}
-                                </VuiTypography>
-                            </div>
-                            <div className="col-6 mb-3">
-                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                    <strong>File tải lên: </strong>
-                                    {questionData?.question?.fileUrls.length > 0 ? (
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Tiêu đề: </strong>
+                                <Grid container>
+                                    <Grid item xs={12}>
                                         <Box
                                             sx={{
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 border: '1px solid grey',
                                                 borderRadius: '12px',
-                                                width: 'fit-content',
+                                                width: '100%', // Đảm bảo rằng Box chiếm toàn bộ chiều rộng của phần tử chứa
+                                                padding: '10px 8px',
                                             }}
                                         >
-                                            {questionData?.question?.fileUrls.map((url, index) => {
-                                                let fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
-                                                fileName = fileName.replace(/[0-9-]/g, '');
-
-                                                const fullUrl = 'http://localhost:3000' + url;
-
-                                                return fileName !== 'uploads' ? (
-                                                    <Box
-                                                        key={index}
-                                                        sx={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            marginRight: '10px',
-                                                        }}
-                                                    >
-                                                        <IconButton
-                                                            sx={{
-                                                                color: '#fff',
-                                                                '&:hover': { color: 'grey' },
-                                                            }}
-                                                            onClick={() => saveAs(fullUrl, fileName)}
-                                                        >
-                                                            <DescriptionIcon />
-                                                        </IconButton>
-                                                        <span
-                                                            style={{
-                                                                color: '#fff',
-                                                                fontSize: '14px',
-                                                                marginLeft: '8px',
-                                                                cursor: 'pointer',
-                                                                '&:hover': {
-                                                                    textDecoration: 'underline',
-                                                                },
-                                                            }}
-                                                        >
-                                                            {fileName}
-                                                        </span>
-                                                    </Box>
-                                                ) : null;
-                                            })}
+                                            {questionData?.question?.title}
                                         </Box>
+                                    </Grid>
+                                </Grid>
+                            </VuiTypography>
+                        </div>
+                        <div className="row">
+                            <div className="col-6 mb-3">
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    <strong>Hashtag: </strong>
+                                    <Grid container>
+                                        <Grid item xs={12}>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    border: '1px solid grey',
+                                                    borderRadius: '12px',
+                                                    width: '100%', // Đảm bảo rằng Box chiếm toàn bộ chiều rộng của phần tử chứa
+                                                    padding: '10px 8px',
+                                                }}
+                                            >
+                                                {questionData?.question?.hashtag || 'Người dùng không nhập hashtag'}
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </VuiTypography>
+                            </div>
+                            <div className="col-6 mb-3">
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    <strong>File tải lên: </strong>
+                                    {questionData?.question?.fileUrls.length > 0 ? (
+                                        <Grid container>
+                                            <Grid item xs={12}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        border: '1px solid grey',
+                                                        borderRadius: '12px',
+                                                        width: '100%', // Đảm bảo rằng Box chiếm toàn bộ chiều rộng của phần tử chứa
+                                                    }}
+                                                >
+                                                    {questionData?.question?.fileUrls.map((url, index) => {
+                                                        let fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
+                                                        fileName = fileName.replace(/[0-9-]/g, ''); // Loại bỏ các ký tự không cần thiết
+
+                                                        const fullUrl = 'http://localhost:3000' + url;
+
+                                                        return fileName !== 'uploads' ? (
+                                                            <Box
+                                                                key={index}
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+
+                                                                }}
+                                                            >
+                                                                <IconButton
+                                                                    sx={{
+                                                                        color: '#fff',
+                                                                        '&:hover': { color: 'grey' },
+                                                                    }}
+                                                                    onClick={() => saveAs(fullUrl, fileName)}
+                                                                >
+                                                                    <DescriptionIcon />
+                                                                </IconButton>
+                                                                <span
+                                                                    style={{
+                                                                        color: '#fff',
+                                                                        fontSize: '14px',
+                                                                        marginLeft: '8px',
+                                                                        cursor: 'pointer',
+                                                                        '&:hover': {
+                                                                            textDecoration: 'underline',
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    {fileName}
+                                                                </span>
+                                                            </Box>
+                                                        ) : null;
+                                                    })}
+                                                </Box>
+                                            </Grid>
+                                        </Grid>
                                     ) : (
                                         <Typography variant="caption" sx={{ color: '#fff' }}>
                                             Không có file được tải lên
                                         </Typography>
                                     )}
-
                                 </VuiTypography>
                             </div>
-
+                        </div>
+                        <div className="row">
+                            <div className="col-6 mb-3">
+                                {/* Display uploaded code */}
+                                <Box mt={2}>
+                                    <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                        <strong>Code tải lên:</strong>
+                                    </VuiTypography>
+                                    <TextField
+                                        multiline
+                                        rows={10}
+                                        variant="outlined"
+                                        fullWidth
+                                        name="up_code"
+                                        value={questionData?.question?.up_code || 'Người dùng không nhập code'}
+                                        disabled={true} // Make it read-only
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                backgroundColor: 'transparent!important',
+                                                '& fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '& .MuiInputBase-input': {
+                                                    flex: 1,
+                                                    '&.Mui-disabled': {
+                                                        color: 'white!important',
+                                                        '-webkit-text-fill-color': '#fff',
+                                                    },
+                                                },
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: '#fff!important',
+                                            },
+                                            '& .MuiInputBase-input': {
+                                                color: '#fff',
+                                            },
+                                        }}
+                                    />
+                                </Box>
+                            </div>
+                            <div className="col-6 mb-3">
+                                {/* Display question content */}
+                                <Box mt={2}>
+                                    <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                        <strong>Nội dung câu hỏi: </strong>
+                                    </VuiTypography>
+                                    <TextField
+                                        variant="outlined"
+                                        multiline
+                                        fullWidth
+                                        rows={10}
+                                        name="questionText"
+                                        value={questionData?.question?.questions || 'Người dùng không nhập câu hỏi'}
+                                        disabled={true} // Make it read-only
+                                        sx={{
+                                            '& .MuiOutlinedInput-root': {
+                                                backgroundColor: 'transparent!important',
+                                                '& fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&:hover fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '&.Mui-focused fieldset': {
+                                                    borderColor: '#fff',
+                                                },
+                                                '& .MuiInputBase-input': {
+                                                    flex: 1,
+                                                    '&.Mui-disabled': {
+                                                        color: 'white!important',
+                                                        '-webkit-text-fill-color': '#fff',
+                                                    },
+                                                },
+                                            },
+                                            '& .MuiInputLabel-root': {
+                                                color: '#fff!important',
+                                            },
+                                            '& .MuiInputBase-input': {
+                                                color: '#fff',
+                                            },
+                                        }}
+                                    />
+                                </Box>
+                            </div>
                         </div>
                         <Box mt={2}>
                             <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
@@ -190,6 +316,9 @@ const FormViewQuestion = () => {
                                     gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
                                     gap: '10px',  // Khoảng cách giữa các ảnh
                                     justifyItems: 'center',  // Căn giữa các ảnh
+                                    border: '1px solid grey',
+                                    borderRadius: '12px',
+                                    padding: '10px 8px',
                                 }}
                             >
 
@@ -233,92 +362,6 @@ const FormViewQuestion = () => {
                                 )}
                             </Box>
                         </Box>
-                        {/* Display uploaded code */}
-                        <Box mt={2}>
-                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                <strong>Code tải lên:</strong>
-                            </VuiTypography>
-                            <TextField
-                                multiline
-                                rows={10}
-                                variant="outlined"
-                                fullWidth
-                                name="up_code"
-                                value={questionData?.question?.up_code || 'Người dùng không nhập code'}
-                                disabled={true} // Make it read-only
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        backgroundColor: 'transparent!important',
-                                        '& fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '& .MuiInputBase-input': {
-                                            flex: 1,
-                                            '&.Mui-disabled': {
-                                                color: 'white!important',
-                                                '-webkit-text-fill-color': '#fff',
-                                            },
-                                        },
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                        color: '#fff!important',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        color: '#fff',
-                                    },
-                                }}
-                            />
-                        </Box>
-
-                        {/* Display question content */}
-                        <Box mt={2}>
-                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                <strong>Nội dung câu hỏi: </strong>
-                            </VuiTypography>
-                            <TextField
-                                variant="outlined"
-                                multiline
-                                fullWidth
-                                rows={10}
-                                name="questionText"
-                                value={questionData?.question?.questions || 'Người dùng không nhập câu hỏi'}
-                                disabled={true} // Make it read-only
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        backgroundColor: 'transparent!important',
-                                        '& fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&:hover fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '&.Mui-focused fieldset': {
-                                            borderColor: '#fff',
-                                        },
-                                        '& .MuiInputBase-input': {
-                                            flex: 1,
-                                            '&.Mui-disabled': {
-                                                color: 'white!important',
-                                                '-webkit-text-fill-color': '#fff',
-                                            },
-                                        },
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                        color: '#fff!important',
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        color: '#fff',
-                                    },
-                                }}
-                            />
-                        </Box>
-
                         <Grid item xs={12}>
                             <Box display="flex" justifyContent="flex-end" mt={3} alignItems="center">
                                 <button
