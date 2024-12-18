@@ -61,8 +61,7 @@ export default function Footer() {
           </Grid>
 
           {/* Sản Phẩm */}
-
-          <Grid item xs={12} md={2}>
+<Grid item xs={12} md={2}>
             <Typography variant="h6" gutterBottom>
               Sản phẩm
             </Typography>

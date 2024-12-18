@@ -147,22 +147,6 @@ function CommentDetail() {
             localStorage.setItem('comment_question', JSON.stringify(updatedQuestions));
           }
 
-        // Cập nhật lại giao diện nếu xóa thành công
-        setRows(prevRows => {
-          const updatedRows = prevRows.filter(comment => comment.id !== deleteId);
-  
-          // Cập nhật local storage mà không xóa toàn bộ danh sách câu hỏi
-          const storedQuestions = JSON.parse(localStorage.getItem('comment_question')) || [];
-          const updatedQuestions = storedQuestions.map(question => {
-            return {
-              ...question,
-              comments: question.comments.filter(comment => comment.id !== deleteId)
-            };
-          });
-  
-          // Lưu danh sách cập nhật vào local storage
-          localStorage.setItem('comment_question', JSON.stringify(updatedQuestions));
-  
           return updatedRows;
         });
 
@@ -181,7 +165,6 @@ function CommentDetail() {
       console.error("Error deleting comment:", error);
     }
   };
-
 
 
   const handleSnackbarClose = () => {

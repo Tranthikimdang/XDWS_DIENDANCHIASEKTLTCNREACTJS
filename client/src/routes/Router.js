@@ -21,7 +21,6 @@ const CateArticleDetail = Loadable(
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail')));
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post')));
 const Questions = Loadable(lazy(() => import('../views/questions/Questions')));
-
 const QuestionDetail = Loadable(lazy(() => import('../views/questions/components/QuestionDetail')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
@@ -90,7 +89,8 @@ const HasgtagAdmin = Loadable(lazy(() => import('../pages/admin/hashtag/')));
 const AddHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormAddHashtag')));
 const EditHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormEditHashtag')));
  
-
+const AddExercise = Loadable(lazy(() => import('../pages/admin/exercise/data/FormAdd')));
+const EditExercise = Loadable(lazy(() => import('../pages/admin/exercise/data/FormEdit')));
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
@@ -189,6 +189,8 @@ const renderRoutes = (role) => {
         { path: 'hashtag', exact: true, element: <HasgtagAdmin/> },
         { path: 'addhashtag', exact: true, element: <AddHasgtag /> },
         { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
+        { path: 'addExercise/:course_id', exact: true, element: <AddExercise /> },
+        { path: 'editExercise/:course_id/:exercise_id', exact: true, element: <EditExercise /> }, 
         // { path: '*', element: <Navigate to="/auth/404" /> },
 
       ],

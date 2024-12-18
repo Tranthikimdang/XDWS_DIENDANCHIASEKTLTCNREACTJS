@@ -32,6 +32,9 @@ import HashtagAdmin from 'src/pages/admin/hashtag';
 import AddHashtag from "../pages/admin/hashtag/data/FormAddHashtag"
 import EditHashtag from "../pages/admin/hashtag/data/FormEditHashtag"
 
+import AddExercise from "../pages/admin/exercise/data/FormAdd"
+import EditExercise from "../pages/admin/exercise/data/FormEdit"
+
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -356,6 +359,18 @@ const routes = [
     key: 'EditHashTag',
     route: '/admin/edithashtag/:id',
     component: EditHashtag,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'AddExercise',
+    route: '/admin/addExercise/:course_id',
+    component: AddExercise,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'EditExercise',
+    route: '/admin/editExercise/:course_id/:exercise_id',
+    component: EditExercise,
     hidden: true, // Ẩn mục này
   },
 ];
