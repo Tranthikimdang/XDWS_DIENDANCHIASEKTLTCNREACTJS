@@ -49,7 +49,7 @@ const Course = () => {
       try {
         const response = await CourseApi.getCoursesList();
         const course = response.data.courses;
-        
+
         // Lấy danh sách người dùng
         const responseuse = await UserAPI.getUsersList();
         const usersData = responseuse.data.users;
@@ -67,9 +67,9 @@ const Course = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProducts();
-  }, []); 
+  }, []);
 
   useEffect(() => {
     const fetchStudyTime = async () => {
@@ -177,8 +177,13 @@ const Course = () => {
     >
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading">
+          <Grid item xs={8} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+            <Typography
+              variant="h4"
+              component="h1"
+              className="heading"
+              sx={{ fontWeight: 'bold', fontFamily: 'Roboto, sans-serif' }}
+            >
               Các khóa học của chúng tôi
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">

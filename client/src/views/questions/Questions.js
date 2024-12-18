@@ -1,6 +1,3 @@
-/* eslint-disable eqeqeq */
-/* eslint-disable no-unused-vars */
-/* eslint-disable jsx-a11y/img-redundant-alt */
 import React, { useEffect, useRef, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
 import axios from 'axios';
@@ -31,10 +28,8 @@ import {
     List,
     Avatar
 } from '@mui/material';
-//thư viện hổ trợ up_code
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
-// icon
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import CodeIcon from '@mui/icons-material/Code';
@@ -47,19 +42,15 @@ import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import { IconMessageCircle } from '@tabler/icons-react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { addQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
 import SearchIcon from '@mui/icons-material/Search';
-
-// Images
 import avatardefault from 'src/assets/images/profile/user-1.jpg';
-//api
 import userApis from 'src/apis/UserApI';
 import memtorApis from 'src/apis/mentorApi';
 import HashtagApi from 'src/apis/HashtagApI';
 import QuestionHashtags from '../../apis/QuestionHashtagsApI';
 import { getStorage } from 'firebase/storage';
-
 
 const Questions = ({ listImgUrl = [] }) => {
     const navigate = useNavigate();
@@ -79,22 +70,16 @@ const Questions = ({ listImgUrl = [] }) => {
     const [edit, setEdit] = useState(false);
     const [dataTemp, setDataTemp] = useState(null);
     const [users, setUsers] = useState([]);
-    const [userss, setUserss] = useState([]);
-    const listUser = useRef([]);
     const [showCodeDialog, setShowCodeDialog] = useState(false);
     const [newComment, setNewComment] = useState('');
     const [replyingTo, setReplyingTo] = useState(null);
     const [commentImages, setCommentImages] = useState([]);
     const [commentFiles, setCommentFiles] = useState([]);
-    const [newReplies, setNewReplies] = useState({}); // Quản lý phản hồi theo ID bình luận
-    const [replyImages, setReplyImages] = useState([]); // Quản lý hình ảnh cho phản hồi
-    const [replyFiles, setReplyFiles] = useState([]);
+    const [newReplies, setNewReplies] = useState({});
     const storage = getStorage();
-    const [replyingToUsername, setReplyingToUsername] = useState('');
     const [visibleComments, setVisibleComments] = useState({});
     const location = useLocation();
     const { id } = location.state || {};
-    const { id: question_id } = useParams();
     const [imageFile, setImageFile] = useState('');
     const [file, setFile] = useState('');
     const [replyImageFile, setReplyImageFile] = useState('');
@@ -107,15 +92,11 @@ const Questions = ({ listImgUrl = [] }) => {
     const [filteredMentors, setFilteredMentors] = useState([]);
     const [mentors, setMentors] = useState([]);
     const [question, setQuestion] = useState([]);
-    // xử lý hình 
-    const [expandedListIndexes, setExpandedListIndexes] = useState([]); // Trạng thái lưu danh sách nào đang mở rộng
+    const [expandedListIndexes, setExpandedListIndexes] = useState([]);
     const [imagePreviews, setImagePreviews] = useState([]);
     const [fileNames, setFileNames] = useState([]);
-    // Kiểm tra nếu mã code tồn tại
-    const [showAllImages, setShowAllImages] = useState(false); // Khởi tạo state
-    // Lấy danh sách người dùng từ Firestore
+    const [showAllImages, setShowAllImages] = useState(false);
     const [currentUserImage, setCurrentUserImage] = useState('');
-    // Tạo state để lưu trạng thái "Xem thêm/Rút gọn" cho từng câu hỏi dựa trên id
     const [expandedQuestions, setExpandedQuestions] = useState({});
 
     useEffect(() => {
@@ -132,11 +113,11 @@ const Questions = ({ listImgUrl = [] }) => {
             } catch (error) {
                 console.error('Lỗi khi lấy người dùng:', error);
             } finally {
-                setLoading(false); // Kết thúc trạng thái loading
+                setLoading(false);
             }
         };
 
-        fetchUsers(); // Gọi hàm lấy người dùng khi component mount
+        fetchUsers();
     }, []);
 
     useEffect(() => {
@@ -164,18 +145,17 @@ const Questions = ({ listImgUrl = [] }) => {
         };
 
         fetchQuestions();
-    }, [reload]);// reload để đồng bộ
+    }, [reload]);
 
-    // Hàm để chuyển đổi trạng thái "Xem thêm" hoặc "Rút gọn" cho từng question.id
+
     const handleToggle = (questionId) => {
         setExpandedQuestions((prevState) => ({
             ...prevState,
-            [questionId]: !prevState[questionId], // Chuyển đổi trạng thái của câu hỏi có id tương ứng
+            [questionId]: !prevState[questionId],
         }));
     };
 
-    // Kiểm tra nếu mã code tồn tại
-    const isExpanded = expandedQuestions[question.id] || false; // Lấy trạng thái của câu hỏi dựa trên id, mặc định là false
+    const isExpanded = expandedQuestions[question.id] || false;
 
 
     const handleSnackbarClose = (event, reason) => {
@@ -185,31 +165,25 @@ const Questions = ({ listImgUrl = [] }) => {
     const getMentorsAndUsers = async () => {
         setLoading(true);
         try {
-            // Lấy danh sách users
             const userResponse = await userApis.getUsersList();
             const users = Array.isArray(userResponse.data.users) ? userResponse.data.users : [];
-
-            // Lấy danh sách mentors
             const mentorResponse = await memtorApis.getMentors();
             const mentorsList = Array.isArray(mentorResponse.data.mentors)
                 ? mentorResponse.data.mentors
                 : [];
-
-            // Kết hợp mentors với users
             const combinedData = mentorsList
                 .map((mentor) => {
-                    const user = users.find((u) => u.id == mentor.user_id); // Tìm user theo user_id của mentor
+                    const user = users.find((u) => u.id == mentor.user_id);
                     if (user) {
-                        return { user }; // Kết hợp mentor với user
+                        return { user };
                     }
-                    return null; // Nếu không tìm thấy user, trả về null
+                    return null;
                 })
-                .filter((mentor) => mentor !== null); // Loại bỏ các giá trị null nếu không tìm thấy user
+                .filter((mentor) => mentor !== null);
 
-            // Cập nhật state
             setMentors(mentorsList);
-            setUserss(users);
-            setFilteredMentors(combinedData); // Set kết quả cuối cùng vào state filteredMentors
+            setUsers(users);
+            setFilteredMentors(combinedData);
         } catch (error) {
             console.error('Error fetching users or mentors:', error);
         } finally {
@@ -217,16 +191,11 @@ const Questions = ({ listImgUrl = [] }) => {
         }
     };
 
-    // useEffect để gọi hàm getMentorsAndUsers khi component mount
     useEffect(() => {
         getMentorsAndUsers();
     }, []);
 
-    console.log(filteredMentors);
-
-    // Tìm kiếm tất cả trong bảng questions
     const filteredQuestions = questions.filter((question) => {
-        // Chuyển đổi tất cả các trường cần tìm kiếm thành chuỗi và kiểm tra nếu có chứa searchTerm
         return (
             question.hashtag.toLowerCase().includes(searchTerm.toLowerCase()) ||
             question.up_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -234,7 +203,6 @@ const Questions = ({ listImgUrl = [] }) => {
         );
     });
 
-    // Pagination logic
     const indexOfLastQuestion = currentPage * usersPerPage;
     const indexOfFirstQuestion = indexOfLastQuestion - usersPerPage;
     const listQuestion = filteredQuestions.slice(indexOfFirstQuestion, indexOfLastQuestion);
@@ -262,7 +230,7 @@ const Questions = ({ listImgUrl = [] }) => {
             if (!allowedFileTypes.includes(file.type)) {
                 const errorMessage = `Tệp ${file.name} không đúng định dạng (chỉ chấp nhận PDF, DOC, DOCX)`;
                 setSnackbarMessage(errorMessage);
-                setSnackbarSeverity('error'); // Hiển thị lỗi với mức độ nghiêm trọng là "error"
+                setSnackbarSeverity('error');
                 setSnackbarOpen(true);
                 return errorMessage;
             }
@@ -270,54 +238,23 @@ const Questions = ({ listImgUrl = [] }) => {
         return '';
     };
 
-    // const handleImageChange = (e) => {
-    //     const files = e.target.files;
-    //     const errorMsg = validateImageFile(files);
-    //     if (errorMsg) {
-    //         setImageError(errorMsg);
-    //     } else {
-    //         setImageError('');
-    //         const previews = Array.from(files).map((file) => URL.createObjectURL(file));
-    //         setImagePreviews(previews);
-    //     }
-    // };
+    const handleImageChange = (e) => {
+        const files = e.target.files;
+        const errorMsg = validateImageFile(files);
 
-    const handleImageChange = (event) => {
-        const files = event.target.files;
-        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif']; // Các loại hình ảnh hợp lệ
-        const invalidFiles = Array.from(files).filter(file => !validImageTypes.includes(file.type));
-    
-        if (invalidFiles.length > 0) {
-            setImageError('Vui lòng chọn các tệp hình ảnh hợp lệ!');
-            return;
-        }
-    
-        if (files.length > 0) {
-            handleUploadImages(files); // Gửi các tệp ảnh lên server
-    
-            // Kiểm tra lỗi
-            if (errors) {
-                setImageError(errors);
-            } else {
-                setImageError(''); // Đặt lỗi là rỗng nếu không có lỗi
-                const previews = Array.from(files).map((file) => URL.createObjectURL(file));
-                setImagePreviews(previews); // Tạo các bản xem trước
-            }
+        if (errorMsg) {
+            setImageError(errorMsg);
         } else {
-            setImageError('Không có tập tin nào được chọn'); // Hiển thị lỗi nếu không có tệp được chọn
+            setImageError('');
+            const newPreviews = Array.from(files).map((file) => URL.createObjectURL(file));
+            setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
         }
     };
-    
 
-
-
-    // Hàm xử lý khi bấm vào dấu + để mở rộng danh sách cụ thể
     const handleExpandImages = (listIndex) => {
         if (expandedListIndexes.includes(listIndex)) {
-            // Nếu danh sách đã được mở, khi bấm vào sẽ thu lại
             setExpandedListIndexes(expandedListIndexes.filter(index => index !== listIndex));
         } else {
-            // Nếu danh sách chưa được mở, khi bấm vào sẽ mở ra
             setExpandedListIndexes([...expandedListIndexes, listIndex]);
         }
     };
@@ -329,7 +266,7 @@ const Questions = ({ listImgUrl = [] }) => {
         if (errorMsg) {
             setFileError(errorMsg);
         } else {
-            setFileError(''); // Xóa lỗi nếu hợp lệ
+            setFileError('');
             const fileList = Array.from(files).map((file) => file.name);
             setFileNames(fileList);
         }
@@ -337,7 +274,7 @@ const Questions = ({ listImgUrl = [] }) => {
     const handleToggleComments = (questionId) => {
         setVisibleComments((prev) => ({
             ...prev,
-            [questionId]: !prev[questionId], // Toggle visibility for the specific question
+            [questionId]: !prev[questionId],
         }));
     };
     const handleAddReplyImage = async (event, commentId) => {
@@ -352,7 +289,7 @@ const Questions = ({ listImgUrl = [] }) => {
             try {
                 const response = await axios.post('http://localhost:3000/api/uploads', formData);
                 console.log('Image upload response:', response.data);
-                uploadedImages.push(response.data.imagePaths[0]); // Ensure the correct path from response
+                uploadedImages.push(response.data.imagePaths[0]);
             } catch (error) {
                 console.error('Error uploading image:', error);
             }
@@ -367,7 +304,6 @@ const Questions = ({ listImgUrl = [] }) => {
         }));
     };
 
-    console.log(listImgUrl)
     const handleAddReplyFile = async (event, commentId) => {
         const files = event.target.files;
         const filesArray = Array.from(files);
@@ -402,15 +338,10 @@ const Questions = ({ listImgUrl = [] }) => {
     };
     const onSubmit = async (data, e) => {
         setLoading(true);
-
-        // Sử dụng formData để lấy các tệp ảnh và file từ e.target
         const formData = new FormData(e.target);
         const imageFiles = formData.getAll('image');
         const otherFiles = formData.getAll('file');
-
-        // Kiểm tra hashtag
         const hashtag = data.hashtag?.trim();
-
         if (!hashtag) {
             setLoading(false);
             setSnackbarOpen(true);
@@ -418,7 +349,6 @@ const Questions = ({ listImgUrl = [] }) => {
             setSnackbarSeverity('error');
             return;
         }
-
         if (!hashtag.startsWith('#')) {
             setLoading(false);
             setSnackbarOpen(true);
@@ -426,13 +356,11 @@ const Questions = ({ listImgUrl = [] }) => {
             setSnackbarSeverity('error');
             return;
         }
-
         try {
-            // Upload ảnh nếu có
             let imageUrls = [];
             if (imageFiles.length > 0) {
                 const uploadImagePromises = imageFiles
-                    .filter((file) => file.size > 0)  // Kiểm tra nếu tệp có kích thước lớn hơn 0
+                    .filter((file) => file.size > 0)
                     .map((imageFile) => handleUploadImage(imageFile));
                 const allImageUrls = await Promise.all(uploadImagePromises);
                 imageUrls = allImageUrls
@@ -440,7 +368,6 @@ const Questions = ({ listImgUrl = [] }) => {
                     .map((imgUrl) => imgUrl.imagePath);
             }
 
-            // Upload file khác nếu có
             let fileUrls = [];
             if (otherFiles.length > 0) {
                 const uploadFilePromises = otherFiles
@@ -448,11 +375,8 @@ const Questions = ({ listImgUrl = [] }) => {
                     .map((file) => handleUploadFile(file));
                 fileUrls = await Promise.all(uploadFilePromises);
             }
-
-            // Xóa các trường image và file khỏi dữ liệu gốc
             delete data.file;
             delete data.image;
-
             const dataToSubmit = {
                 ...data,
                 user_id: userData.current.id,
@@ -465,13 +389,10 @@ const Questions = ({ listImgUrl = [] }) => {
                 replies: [],
             };
 
-            // Gọi API tạo câu hỏi
             const res = await addQuestion(dataToSubmit);
-
             if (res?.status === 'success' && res?.data?.question?.id) {
                 const questionId = res.data.question.id;
 
-                // Xử lý hashtag
                 const existingHashtag = await HashtagApi.getHashtags();
                 const existingHashtagData = existingHashtag.data.hashtags.find((h) => h.name === hashtag);
 
@@ -494,12 +415,11 @@ const Questions = ({ listImgUrl = [] }) => {
                 setSnackbarOpen(true);
                 setSnackbarMessage('Câu hỏi của bạn đã được đặt thành công.');
                 setSnackbarSeverity('success');
-
-                e.target.reset();  // Reset form sau khi gửi thành công
-                setImagePreviews([]);  // Reset các preview hình ảnh
-                setFileNames([]);  // Reset file names preview
-                setCodeSnippet('');  // Reset code snippet
-                setReload((reload) => !reload);  // Reload lại component
+                e.target.reset();
+                setImagePreviews([]);
+                setFileNames([]);
+                setCodeSnippet('');
+                setReload((reload) => !reload);
             } else {
                 setLoading(false);
                 setSnackbarOpen(true);
@@ -531,34 +451,6 @@ const Questions = ({ listImgUrl = [] }) => {
         }
     };
 
-    const handleUploadImages = async (files) => {
-        const formData = new FormData();
-
-        // Thêm tất cả các ảnh vào formData
-        for (let i = 0; i < files.length; i++) {
-            formData.append('image', files[i]);
-        }
-
-        try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            const result = await response.json();
-
-            if (result.status === 201) {
-                console.log('Tải lên thành công:', result.imagePaths);
-            } else {
-                console.error('Tải lên thất bại:', result.message);
-            }
-        } catch (error) {
-            console.error('Có lỗi xảy ra:', error);
-        }
-    };
-
-
-
     const handleUploadFile = async (file) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -567,7 +459,7 @@ const Questions = ({ listImgUrl = [] }) => {
             const response = await axios.post('http://localhost:3000/api/upload-file', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
-            return response.data.fileUrl; // Đường dẫn tệp trả về từ server
+            return response.data.fileUrl;
         } catch (error) {
             console.error('Lỗi khi tải tệp lên server:', error);
             throw new Error('Lỗi khi tải tệp lên server');
@@ -622,48 +514,46 @@ const Questions = ({ listImgUrl = [] }) => {
                 setSnackbarMessage("Nội dung bình luận không được để trống.");
                 setSnackbarSeverity("error");
                 setSnackbarOpen(true);
-                return; // Ngừng thực hiện hàm nếu bình luận rỗng
+                return;
             }
 
             if (containsSensitiveWords(newComment)) {
                 setSnackbarMessage("Nội dung bình luận không hợp lệ.");
                 setSnackbarSeverity("error");
                 setSnackbarOpen(true);
-                return; // Stop execution if comment contains sensitive words
+                return;
             }
 
             let imageUrl = [];
             let fileUrl = [];
 
-            // Upload image if available
             if (imageFile) {
                 const formDataImage = new FormData();
                 formDataImage.append("image", imageFile);
                 const imageResponse = await axios.post("http://localhost:3000/api/upload", formDataImage);
                 if (imageResponse.data && imageResponse.data.imagePath) {
-                    imageUrl = [imageResponse.data.imagePath]; // Ensure it's an array
+                    imageUrl = [imageResponse.data.imagePath];
                 }
             }
 
-            // Upload file if available
             if (file) {
                 const formDataFile = new FormData();
                 formDataFile.append("file", file);
                 const fileResponse = await axios.post("http://localhost:3000/api/upload-files", formDataFile);
-                if (fileResponse.data && fileResponse.data.filePaths) { // Change filePath to filePaths
-                    fileUrl = fileResponse.data.filePaths; // Ensure it's an array
+                if (fileResponse.data && fileResponse.data.filePaths) {
+                    fileUrl = fileResponse.data.filePaths;
                 }
             }
 
             const newCommentData = {
                 question_id,
                 user_id: userData.current.id,
-                content: newComment || '', // Optional content
-                imageUrls: imageUrl,        // Optional image, should be an array
-                fileUrls: fileUrl,          // Optional file, should be an array
+                content: newComment || '',
+                imageUrls: imageUrl,
+                fileUrls: fileUrl,
                 created_at: new Date(),
                 updated_at: new Date(),
-                up_code: dataTemp?.up_code || codeSnippet || '', // Optional up_code
+                up_code: dataTemp?.up_code || codeSnippet || '',
                 replies: []
             };
             const response = await axios.post('http://localhost:3000/api/comments', newCommentData);
@@ -681,17 +571,14 @@ const Questions = ({ listImgUrl = [] }) => {
                         return question;
                     });
 
-                    // Persist updated list in localStorage
                     localStorage.setItem('comment_question', JSON.stringify(newList));
                     return newList;
                 });
-
-                // Reset the input fields after success
-                setNewComment('');  // Reset comment input
-                setCommentImages([]);  // Reset images
-                setCommentFiles([]);   // Reset files
-                setImageFile(null);     // Reset image file state
-                setFile(null);          // Reset file state
+                setNewComment('');
+                setCommentImages([]);
+                setCommentFiles([]);
+                setImageFile(null);
+                setFile(null);
                 setSnackbarMessage("Bình luận của bạn đã được gửi.");
                 setSnackbarSeverity("success");
                 setSnackbarOpen(true);
@@ -730,19 +617,17 @@ const Questions = ({ listImgUrl = [] }) => {
             setSnackbarMessage("Nội dung phản hồi không hợp lệ.");
             setSnackbarSeverity("error");
             setSnackbarOpen(true);
-            return; // Stop execution if reply contains sensitive words
+            return;
         }
 
         try {
             let imageUrls = [];
             let fileUrls = [];
 
-            // Handle image URLs from state
             if (newReplies[parentId || commentId]?.imageUrls) {
                 imageUrls = newReplies[parentId || commentId].imageUrls;
             }
 
-            // Handle file URLs from state
             if (newReplies[parentId || commentId]?.fileUrls) {
                 fileUrls = newReplies[parentId || commentId].fileUrls;
             }
@@ -826,8 +711,6 @@ const Questions = ({ listImgUrl = [] }) => {
 
         const formData = new FormData(e.target);
         const data = Object.fromEntries(formData.entries());
-
-        // Lấy các tệp ảnh và tệp khác
         const imageFiles = formData.getAll('image');
         const otherFiles = formData.getAll('file');
 
@@ -863,12 +746,8 @@ const Questions = ({ listImgUrl = [] }) => {
                     is_deleted: data.is_deleted || false,
                     up_code: dataTemp?.up_code || codeSnippet,
                 };
-
-                // Gọi API cập nhật câu hỏi
                 const res = await updateQuestion(dataTemp.id, dataToSubmit);
-
                 if (res.status === 'success') {
-                    // Thông báo khi cập nhật thành công
                     setLoading(false);
                     setSnackbarOpen(true);
                     setSnackbarMessage('Câu hỏi đã được cập nhật thành công.');
@@ -877,7 +756,6 @@ const Questions = ({ listImgUrl = [] }) => {
                     setEdit(false);
                     reset();
                 } else {
-                    // Xử lý lỗi khi API trả về mã lỗi 400
                     setLoading(false);
                     setSnackbarOpen(true);
                     setSnackbarMessage(res.data?.message || 'Có lỗi khi cập nhật câu hỏi. Vui lòng thử lại.');
@@ -906,8 +784,6 @@ const Questions = ({ listImgUrl = [] }) => {
         setDataTemp(data);
     };
 
-
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setDataTemp((prevData) => ({
@@ -925,7 +801,6 @@ const Questions = ({ listImgUrl = [] }) => {
         navigate(`/questions/${questionId}`, { state: { id: questionId } });
     };
 
-
     const handleCodeButtonClick = () => {
         setShowCodeDialog(true);
     };
@@ -941,18 +816,15 @@ const Questions = ({ listImgUrl = [] }) => {
         } else {
             setError('');
 
-            // Lưu codeSnippet vào dataTemp mà không làm thay đổi codeSnippet
             setDataTemp((prevData) => ({
                 ...prevData,
-                up_code: codeSnippet, // Lưu giá trị codeSnippet vào dataTemp
+                up_code: codeSnippet,
             }));
 
-            // Đóng dialog mà không thay đổi giá trị codeSnippet
-            handleCloseDialog(); // Đóng dialog sau khi lưu
+            handleCloseDialog();
         }
     };
 
-    //date
     const formatUpdatedAt = (updatedAt) => {
         let updatedAtString = '';
 
@@ -983,39 +855,30 @@ const Questions = ({ listImgUrl = [] }) => {
     };
 
     const getFilteredQuestions = () => {
-        // Lấy danh sách hashtag được lưu từ localStorage
         const savedHashtags = JSON.parse(localStorage.getItem('selectedHashtags')) || [];
         const hashtagNames = savedHashtags
-            .map((hashtag) => hashtag.name?.toLowerCase() || '') // Kiểm tra `hashtag.name`
-            .filter((name) => name); // Loại bỏ các giá trị rỗng
-
+            .map((hashtag) => hashtag.name?.toLowerCase() || '')
+            .filter((name) => name);
         const strippedHashtagNames = hashtagNames.map((name) =>
             name.startsWith('#') ? name.slice(1) : name,
         );
 
-        // Lọc các câu hỏi liên quan đến hashtag
         const relevantQuestions = listQuestion.filter((question) => {
-            // Kiểm tra hashtag liên quan
             const isHashtagRelevant = question.hashtag?.split(',').some(
                 (tag) =>
                     hashtagNames.includes(tag.toLowerCase()) ||
                     strippedHashtagNames.includes(tag.toLowerCase()),
             );
-
-            // Kiểm tra nội dung câu hỏi có chứa từ khóa từ hashtag không
             const isQuestionRelevant = hashtagNames.some((tag) =>
-                question.questions?.toLowerCase().includes(tag), // Kiểm tra `question.questions`
+                question.questions?.toLowerCase().includes(tag),
             );
-
             return isHashtagRelevant || isQuestionRelevant;
         });
 
-        // Lọc các câu hỏi không liên quan
         const irrelevantQuestions = listQuestion.filter(
             (question) => !relevantQuestions.includes(question),
         );
 
-        // Kết hợp các câu hỏi liên quan và không liên quan
         return [...relevantQuestions, ...irrelevantQuestions];
     };
 
@@ -1028,13 +891,18 @@ const Questions = ({ listImgUrl = [] }) => {
             description="Đây là trang đặt câu hỏi"
         >
             <Grid container spacing={2}>
-                <Grid item xs={12} sx={{ marginTop: '30px' }}>
-                    <Typography variant="h4" component="h1" className="heading">
-                        <strong>Tất cả câu hỏi</strong>
+                <Grid item xs={8} sx={{ marginTop: '30px' }}>
+                    <Typography
+                        variant="h4"
+                        component="h1"
+                        className="heading"
+                        sx={{ fontWeight: 'bold', fontFamily: 'Roboto, sans-serif' }}
+                    >
+                        Hỏi và chia sẻ lập trình
                     </Typography>
                     <Typography variant="body1" paragraph className="typography-body">
-                        Tổng hợp các câu hỏi và bài viết chia sẻ về kinh nghiệm tự học lập trình online và các
-                        kỹ thuật lập trình web.
+                        Tổng hợp các bài viết chia sẻ về kinh nghiệm tự học lập trình online
+                        và các kỹ thuật lập trình web, nơi tôi có thể hỏi và chia sẻ kiến thức lập trình.
                     </Typography>
                 </Grid>
                 <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
@@ -1079,11 +947,11 @@ const Questions = ({ listImgUrl = [] }) => {
                         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
                             <Box display="flex" alignItems="center" mb={2}>
                                 <Avatar
-                                    src={userData?.current?.imageUrl || avatardefault}  // Nếu không có imageUrl thì sử dụng avatardefault
+                                    src={userData?.current?.imageUrl || avatardefault}
                                     alt="Hình ảnh người dùng"
                                     sx={{ width: 48, height: 48, marginRight: 2 }}
                                     onError={(e) => {
-                                        e.target.src = avatardefault;  // Nếu ảnh tải lỗi, thay thế bằng avatardefault
+                                        e.target.src = avatardefault;
                                     }}
                                 />
                                 <Typography variant="h6" fontWeight="bold">
@@ -1120,8 +988,8 @@ const Questions = ({ listImgUrl = [] }) => {
                                 sx={{
                                     marginBottom: 2,
                                     borderRadius: '8px',
-                                    '& .MuiInputBase-input': { color: 'grey' },  // Thay đổi màu chữ trong input
-                                    '& .MuiFormLabel-root': { color: 'grey' },   // Thay đổi màu chữ trong label
+                                    '& .MuiInputBase-input': { color: 'grey' },
+                                    '& .MuiFormLabel-root': { color: 'grey' },
                                 }}
                                 {...register("questions", {
                                     required: "Nội dung câu hỏi là bắt buộc",
@@ -1144,8 +1012,8 @@ const Questions = ({ listImgUrl = [] }) => {
                                         {...register("hashtag", {
                                             required: "Hashtag là bắt buộc",
                                         })}
-                                        error={!!errors.hashtag}  // Hiển thị lỗi nếu có
-                                        helperText={errors.hashtag ? errors.hashtag.message : null}  // Hiển thị thông báo lỗi
+                                        error={!!errors.hashtag}
+                                        helperText={errors.hashtag ? errors.hashtag.message : null}
                                     />
                                 </Box>
                             </Box>
@@ -1172,7 +1040,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                 padding: '5px 15px',
                                             }}
                                             component="label"
-                                            onClick={index === 2 ? handleCodeButtonClick : undefined} // Chỉ mở dialog khi nhấn vào icon Code
+                                            onClick={index === 2 ? handleCodeButtonClick : undefined}
                                         >
                                             {label}
                                             {index === 0 && (
@@ -1210,8 +1078,8 @@ const Questions = ({ listImgUrl = [] }) => {
                                                     rows={4}
                                                     name="up_code"
                                                     variant="outlined"
-                                                    value={codeSnippet} // Gắn giá trị codeSnippet vào trường TextField
-                                                    onChange={(e) => setCodeSnippet(e.target.value)} // Cập nhật giá trị khi thay đổi
+                                                    value={codeSnippet}
+                                                    onChange={(e) => setCodeSnippet(e.target.value)}
                                                     error={!!error}
                                                 />
                                                 {error && <FormHelperText error>{error}</FormHelperText>}
@@ -1243,80 +1111,77 @@ const Questions = ({ listImgUrl = [] }) => {
                                     Đăng
                                 </Button>
                             </Box>
-                            <Divider sx={{ mb: 2 }} />
-                            {/* Preview Images */}
-                            {imagePreviews.length > 0 && (
-                                <Box display="flex" gap={2} flexWrap="wrap" mb={2}>
-                                    {imagePreviews.map((image, index) => (
-                                        <img
-                                            key={index}
-                                            src={image}
-                                            alt={`Preview ${index}`}
-                                            style={{
-                                                width: '100%', // Chiếm 100% chiều rộng của phần tử chứa
-                                                height: 'auto', // Tự động điều chỉnh chiều cao để giữ tỷ lệ
-                                                objectFit: 'cover',
-                                                borderRadius: '8px',
-                                            }}
-                                        />
-                                    ))}
-                                </Box>
-                            )}
-                            {/* Preview Files */}
-                            {fileNames.length > 0 && (
-                                <Box
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: '10px',
-                                        border: '1px solid #e0e0e0',
-                                        borderRadius: '8px',
-                                        backgroundColor: '#fff',
-                                        width: 'fit-content',
-                                        height: '30px',
-                                    }}
-                                >
-                                    <IconButton sx={{ color: '#007bff' }}>
-                                        <DescriptionIcon />
-                                    </IconButton>
-                                    <Typography variant="subtitle1">
-                                        {fileNames.map((url, index) => {
-                                            // Mã hóa lại URL và tách tên file
-                                            const fileName = decodeURIComponent(url)
-                                                .split('/')
-                                                .pop()
-                                                .split('?')[0]; // Lấy phần tên file từ URL
-
-                                            // Kiểm tra nếu tên file hợp lệ, rồi hiển thị liên kết
-                                            return fileName !== 'uploads' ? (
-                                                <a
-                                                    key={index}
-                                                    href={url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    style={{
-                                                        color: 'inherit',
-                                                        textDecoration: 'none',
-                                                        fontSize: '14px',
-                                                        marginRight: '10px',
-                                                    }}
-                                                >
-                                                    {fileName}
-                                                </a>
-                                            ) : null;
-                                        })}
-                                    </Typography>
-                                </Box>
-                            )}
-                            {/* Code */}
-                            {codeSnippet && (
-                                <Box mt={2}>
-                                    <SyntaxHighlighter language="javascript" style={dracula}>
-                                        {codeSnippet}
-                                    </SyntaxHighlighter>
-                                </Box>
-                            )}
-                            <Divider sx={{ mt: 2 }} />
+                            <Box>
+                                {/* Preview Images */}
+                                {imagePreviews.length > 0 && (
+                                    <Box display="flex" gap={2} flexWrap="wrap" mb={2}>
+                                        {imagePreviews.map((image, index) => (
+                                            <img
+                                                key={index}
+                                                src={image}
+                                                alt={`Preview ${index}`}
+                                                style={{
+                                                    width: '100%',
+                                                    height: 'auto',
+                                                    objectFit: 'cover',
+                                                    borderRadius: '8px',
+                                                }}
+                                            />
+                                        ))}
+                                    </Box>
+                                )}
+                                {/* Preview Files */}
+                                {fileNames.length > 0 && (
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '10px',
+                                            border: '1px solid #e0e0e0',
+                                            borderRadius: '8px',
+                                            backgroundColor: '#fff',
+                                            width: 'fit-content',
+                                            height: '30px',
+                                        }}
+                                    >
+                                        <IconButton sx={{ color: '#007bff' }}>
+                                            <DescriptionIcon />
+                                        </IconButton>
+                                        <Typography variant="subtitle1">
+                                            {fileNames.map((url, index) => {
+                                                const fileName = decodeURIComponent(url)
+                                                    .split('/')
+                                                    .pop()
+                                                    .split('?')[0];
+                                                return fileName !== 'uploads' ? (
+                                                    <a
+                                                        key={index}
+                                                        href={url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{
+                                                            color: 'inherit',
+                                                            textDecoration: 'none',
+                                                            fontSize: '14px',
+                                                            marginRight: '10px',
+                                                        }}
+                                                    >
+                                                        {fileName}
+                                                    </a>
+                                                ) : null;
+                                            })}
+                                        </Typography>
+                                    </Box>
+                                )}
+                                {/* Code */}
+                                {codeSnippet && (
+                                    <Box mt={2}>
+                                        <SyntaxHighlighter language="javascript" style={dracula}>
+                                            {codeSnippet}
+                                        </SyntaxHighlighter>
+                                    </Box>
+                                )}
+                            </Box>
                         </Box>
 
                         {/* Loading Spinner */}
@@ -1324,7 +1189,7 @@ const Questions = ({ listImgUrl = [] }) => {
                             <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
                                 <CircularProgress />
                             </Box>
-                        ) : listQuestion?.length > 0 ? ( // Sử dụng danh sách đã lọc
+                        ) : listQuestion?.length > 0 ? (
                             listQuestion
                                 .sort((a, b) => (a.updatedAt.seconds < b.updatedAt.seconds ? 1 : -1))
                                 .map((question) => {
@@ -1362,7 +1227,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                             marginRight: 8,
                                                         }}
                                                         onError={(e) => {
-                                                            e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                                            e.target.src = avatardefault;
                                                         }}
                                                     />
                                                     <Box>
@@ -1393,7 +1258,6 @@ const Questions = ({ listImgUrl = [] }) => {
                                                     </>
                                                 )}
                                             </Box>
-
                                             {/* Content Section */}
                                             {edit ? (
                                                 <Box component="form" mt={2} onSubmit={handleEdit}>
@@ -1581,18 +1445,13 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                 </IconButton>
                                                                 <Typography variant="subtitle1">
                                                                     {listFileUrl.map((url, index) => {
-                                                                        // Mã hóa lại URL và tách tên file, loại bỏ các query params
                                                                         const fileNameWithExt = decodeURIComponent(url)
-                                                                            .split('/')  // Split the URL by '/'
-                                                                            .pop()        // Get the last part (the file name)
-                                                                            .split('?')[0]; // Remove any query parameters (after ?)
-
-                                                                        // Remove leading numbers, underscores, and hyphens from the file name (if any)
+                                                                            .split('/')
+                                                                            .pop()
+                                                                            .split('?')[0];
                                                                         const cleanFileName = fileNameWithExt
-                                                                            .replace(/^\d+_*/, '')  // Remove numbers and underscore at the start of the file name
-                                                                            .replace(/-/g, '');     // Remove hyphens
-
-                                                                        // Kiểm tra nếu tên file hợp lệ và hiển thị
+                                                                            .replace(/^\d+_*/, '')
+                                                                            .replace(/-/g, '');
                                                                         return cleanFileName !== 'uploads' ? (
                                                                             <a
                                                                                 key={index}
@@ -1620,36 +1479,36 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                     display: 'flex',
                                                                     flexWrap: 'wrap',
                                                                     justifyContent: 'center',
-                                                                    gap: '10px', // Khoảng cách giữa các ảnh
+                                                                    gap: '10px',
                                                                 }}
                                                             >
                                                                 {listImgUrl.slice(0, Math.min(listImgUrl.length, 4)).map((image, index) => (
                                                                     <Box
                                                                         key={index}
                                                                         sx={{
-                                                                            position: 'relative',  // Để cho phép lớp phủ hiển thị
+                                                                            position: 'relative',
                                                                             flexBasis: listImgUrl.length === 1 ? '100%' : (listImgUrl.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
                                                                             maxWidth: listImgUrl.length === 1 ? '100%' : (listImgUrl.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
-                                                                            mb: 2,  // Khoảng cách phía dưới giữa các ảnh
+                                                                            mb: 2,
                                                                             textAlign: listImgUrl.length === 3 && index === 2 ? 'center' : 'unset',
-                                                                            cursor: index === 3 && listImgUrl.length > 4 ? 'pointer' : 'unset', // Thêm con trỏ chuột trên ảnh thứ 4
-                                                                            overflow: 'hidden', // Giữ cho các thành phần nằm gọn bên trong
-                                                                            borderRadius: '8px',  // Đảm bảo ảnh bo tròn góc
+                                                                            cursor: index === 3 && listImgUrl.length > 4 ? 'pointer' : 'unset',
+                                                                            overflow: 'hidden',
+                                                                            borderRadius: '8px',
                                                                         }}
-                                                                        onClick={index === 3 && listImgUrl.length > 4 ? () => setShowAllImages(true) : null} // Khi nhấn vào ảnh thứ 4
+                                                                        onClick={index === 3 && listImgUrl.length > 4 ? () => setShowAllImages(true) : null}
                                                                     >
                                                                         <img
                                                                             src={image || 'Người dùng không nhập hình ảnh'}
                                                                             alt="hình ảnh"
                                                                             style={{
-                                                                                width: '100%',  // Chiếm 100% chiều rộng phần tử chứa
-                                                                                height: 'auto', // Tự động điều chỉnh chiều cao theo tỷ lệ
-                                                                                borderRadius: '8px', // Bo tròn góc
-                                                                                objectFit: 'cover',  // Giữ tỉ lệ và cắt những phần dư không vừa khung
-                                                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Hiệu ứng đổ bóng
+                                                                                width: '100%',
+                                                                                height: 'auto',
+                                                                                borderRadius: '8px',
+                                                                                objectFit: 'cover',
+                                                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
                                                                             }}
                                                                         />
-                                                                        {index === 3 && listImgUrl.length > 4 && ( // Hiển thị dấu +x trên ảnh thứ 4
+                                                                        {index === 3 && listImgUrl.length > 4 && (
                                                                             <Box
                                                                                 sx={{
                                                                                     position: 'absolute',
@@ -1657,19 +1516,19 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                     left: 0,
                                                                                     right: 0,
                                                                                     bottom: 0,
-                                                                                    backgroundColor: 'rgba(0, 0, 0, 0.6)', // Lớp phủ màu đen trong suốt hơn để hiển thị đẹp hơn
+                                                                                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
                                                                                     display: 'flex',
                                                                                     justifyContent: 'center',
                                                                                     alignItems: 'center',
-                                                                                    borderRadius: '8px', // Đảm bảo viền của overlay cũng bo tròn
+                                                                                    borderRadius: '8px',
                                                                                 }}
                                                                             >
                                                                                 <Typography
                                                                                     variant="h5"
                                                                                     sx={{
                                                                                         color: 'white',
-                                                                                        fontWeight: 'bold',  // Đậm hơn để dấu "+" rõ ràng
-                                                                                        fontSize: '1.5rem'   // Giảm kích thước để không quá to
+                                                                                        fontWeight: 'bold',
+                                                                                        fontSize: '1.5rem'
                                                                                     }}
                                                                                 >
                                                                                     +{listImgUrl.length - 4}
@@ -1685,8 +1544,8 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                             display: 'flex',
                                                                             flexWrap: 'wrap',
                                                                             justifyContent: 'center',
-                                                                            gap: '10px', // Khoảng cách giữa các ảnh
-                                                                            mt: 2,  // Khoảng cách phía trên giữa các ảnh
+                                                                            gap: '10px',
+                                                                            mt: 2,
                                                                         }}
                                                                     >
                                                                         {listImgUrl.slice(4).map((image, index) => (
@@ -1721,9 +1580,9 @@ const Questions = ({ listImgUrl = [] }) => {
                                                         <Box sx={{ mt: 3, mb: 3 }}>
                                                             <SyntaxHighlighter language="javascript" style={dracula}>
                                                                 {expandedQuestions[question.id]
-                                                                    ? question.up_code // Hiển thị toàn bộ code nếu đang trong trạng thái mở rộng
+                                                                    ? question.up_code
                                                                     : question.up_code.length > 500
-                                                                        ? `${question.up_code.substring(0, 500)}...` // Hiển thị 500 ký tự đầu tiên nếu chưa mở rộng
+                                                                        ? `${question.up_code.substring(0, 500)}...`
                                                                         : question.up_code}
                                                             </SyntaxHighlighter>
 
@@ -1731,7 +1590,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                             {question.up_code.length > 500 && (
                                                                 <Button
                                                                     size="small"
-                                                                    onClick={() => handleToggle(question.id)} // Gọi hàm handleToggle với id của câu hỏi
+                                                                    onClick={() => handleToggle(question.id)}
                                                                     sx={{ mt: 1 }}
                                                                 >
                                                                     {expandedQuestions[question.id] ? 'Rút gọn' : 'Xem thêm'}
@@ -1779,7 +1638,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                 width="30px"
                                                                 style={{ borderRadius: '50%', marginRight: '10px' }}
                                                                 onError={(e) => {
-                                                                    e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                                                    e.target.src = avatardefault;
                                                                 }}
                                                             />
                                                             <TextField
@@ -1910,7 +1769,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                     style={{ borderRadius: '50%', marginRight: '10px' }}
                                                                     width="30px"
                                                                     onError={(e) => {
-                                                                        e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                                                        e.target.src = avatardefault;
                                                                     }}
                                                                 />
                                                                 <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -1962,7 +1821,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                 </Box>
                                                             ) : (
                                                                 comment.imageUrls &&
-                                                                typeof comment.imageUrls === 'string' && ( // Ensure it's a string before rendering
+                                                                typeof comment.imageUrls === 'string' && (
                                                                     <Box
                                                                         sx={{
                                                                             mt: 1,
@@ -2082,7 +1941,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                             width="30px"
                                                                             style={{ borderRadius: '50%', marginRight: '10px' }}
                                                                             onError={(e) => {
-                                                                                e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                                                                e.target.src = avatardefault;
                                                                             }}
                                                                         />
                                                                         <TextField
@@ -2090,13 +1949,13 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                             variant="outlined"
                                                                             size="small"
                                                                             fullWidth
-                                                                            value={newReplies[comment.id]?.content || ''} // Lấy nội dung trả lời cho bình luận cụ thể
+                                                                            value={newReplies[comment.id]?.content || ''}
                                                                             onChange={(e) =>
                                                                                 setNewReplies((prev) => ({
                                                                                     ...prev,
                                                                                     [comment.id]: { ...prev[comment.id], content: e.target.value, },
                                                                                 }))
-                                                                            } // Cập nhật nội dung trả lời cho bình luận cụ thể
+                                                                            }
                                                                         />
                                                                     </Box>
 
@@ -2170,7 +2029,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                             accept="image/*"
                                                                                             multiple
                                                                                             hidden
-                                                                                            onChange={(e) => handleAddReplyImage(e, comment.id)} // Xử lý hình ảnh đính kèm cho phản hồi
+                                                                                            onChange={(e) => handleAddReplyImage(e, comment.id)}
                                                                                         />
                                                                                     )}
                                                                                     {index === 1 && (
@@ -2179,17 +2038,16 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                             name="file"
                                                                                             multiple
                                                                                             hidden
-                                                                                            onChange={(e) => handleAddReplyFile(e, comment.id)} // Xử lý tệp đính kèm cho phản hồi
+                                                                                            onChange={(e) => handleAddReplyFile(e, comment.id)}
                                                                                         />
                                                                                     )}
                                                                                 </Button>
                                                                             ))}
                                                                         </Box>
-
                                                                         <Button
                                                                             variant="contained"
                                                                             color="primary"
-                                                                            onClick={() => handleAddReply(question.id, comment.id)} // Gửi phản hồi
+                                                                            onClick={() => handleAddReply(question.id, comment.id)}
                                                                             sx={{ marginRight: '40px' }}
                                                                         >
                                                                             Gửi
@@ -2240,7 +2098,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                     style={{ borderRadius: '50%', marginRight: '10px' }}
                                                                                     width="20px"
                                                                                     onError={(e) => {
-                                                                                        e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                                                                                        e.target.src = avatardefault;
                                                                                     }}
                                                                                 />
                                                                                 <Typography
@@ -2408,13 +2266,13 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                             variant="outlined"
                                                                                             size="small"
                                                                                             fullWidth
-                                                                                            value={newReplies[comment.id]?.content || ''} // Lấy nội dung trả lời cho bình luận cụ thể
+                                                                                            value={newReplies[comment.id]?.content || ''}
                                                                                             onChange={(e) =>
                                                                                                 setNewReplies((prev) => ({
                                                                                                     ...prev,
                                                                                                     [comment.id]: { ...prev[comment.id], content: e.target.value, },
                                                                                                 }))
-                                                                                            } // Cập nhật nội dung trả lời cho bình luận cụ thể
+                                                                                            }
                                                                                         />
                                                                                     </Box>
 
@@ -2488,7 +2346,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                                             accept="image/*"
                                                                                                             multiple
                                                                                                             hidden
-                                                                                                            onChange={(e) => handleAddReplyImage(e, comment.id)} // Xử lý hình ảnh đính kèm cho phản hồi
+                                                                                                            onChange={(e) => handleAddReplyImage(e, comment.id)}
                                                                                                         />
                                                                                                     )}
                                                                                                     {index === 1 && (
@@ -2497,17 +2355,16 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                                             name="file"
                                                                                                             multiple
                                                                                                             hidden
-                                                                                                            onChange={(e) => handleAddReplyFile(e, comment.id)} // Xử lý tệp đính kèm cho phản hồi
+                                                                                                            onChange={(e) => handleAddReplyFile(e, comment.id)}
                                                                                                         />
                                                                                                     )}
                                                                                                 </Button>
                                                                                             ))}
                                                                                         </Box>
-
                                                                                         <Button
                                                                                             variant="contained"
                                                                                             color="primary"
-                                                                                            onClick={() => handleAddReply(question.id, comment.id)} // Gửi phản hồi
+                                                                                            onClick={() => handleAddReply(question.id, comment.id)}
                                                                                             sx={{ marginRight: '40px' }}
                                                                                         >
                                                                                             Gửi
@@ -2591,7 +2448,7 @@ const Questions = ({ listImgUrl = [] }) => {
                         {/* Danh sách mentor */}
                         <>
                             {loading ? (
-                                <CircularProgress /> // Hiển thị spinner khi đang tải
+                                <CircularProgress />
                             ) : (
                                 <List>
                                     {filteredMentors.length > 0 ? (
@@ -2605,12 +2462,12 @@ const Questions = ({ listImgUrl = [] }) => {
                                                     <Box
                                                         className="mb-1"
                                                         sx={{
-                                                            display: 'flex', // Để căn chỉnh các phần tử ngang hàng
-                                                            alignItems: 'center', // Căn chỉnh dọc cho hình ảnh và tên
-                                                            border: '1px solid #999999', // Thêm viền ngoài với màu #1976d2
-                                                            padding: '8px', // Khoảng cách giữa viền và nội dung bên trong
-                                                            borderRadius: '10px', // Làm bo góc viền, nếu cần
-                                                            backgroundColor: '#fff', // Màu nền bên trong Box
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            border: '1px solid #999999',
+                                                            padding: '8px',
+                                                            borderRadius: '10px',
+                                                            backgroundColor: '#fff',
                                                             width: '100%',
                                                         }}
                                                     >
@@ -2674,7 +2531,7 @@ const Questions = ({ listImgUrl = [] }) => {
                         {/* Danh sách Hashtags */}
                         <>
                             {loading ? (
-                                <CircularProgress /> // Hiển thị spinner khi đang tải
+                                <CircularProgress />
                             ) : (
                                 <List>
                                     {hashtag.length > 0 ? (
@@ -2718,14 +2575,14 @@ const Questions = ({ listImgUrl = [] }) => {
                 autoHideDuration={5000}
                 onClose={handleSnackbarClose}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                sx={{ transform: 'translateY(50px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
+                sx={{ transform: 'translateY(50px)' }}
             >
                 <Alert
                     onClose={handleSnackbarClose}
                     severity={snackbarSeverity}
                     sx={{
                         width: '100%',
-                        border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+                        border: '1px solid #ccc',
                     }}
                 >
                     {snackbarMessage}
