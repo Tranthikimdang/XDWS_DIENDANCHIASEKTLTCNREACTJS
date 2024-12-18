@@ -20,7 +20,7 @@ function Chatbox() {
                 const response = await UserAPI.getUsersList();
                 setUsers(response.data.users);
             } catch (error) {
-                console.error("Error fetching user data:", error);
+                console.error("Lỗi khi lấy dữ liệu người dùng:", error);
             }
         };
 
@@ -54,12 +54,13 @@ function Chatbox() {
 
     return (
         <div className="chat-container">
-            <div >
-                <h3>Chats</h3>
+            <div>
+                <h3>Trò chuyện </h3>
+                <p>Xin chào, {loggedInUser ? loggedInUser.name : 'Khách'}</p>
                 <div className="user-cards">
                     {users.map(user => (
                         <div key={user.id} className="user-card" onClick={() => onSelectUser(user)}>
-                            <img className="user-avatar" src={user.imageUrl} alt={`${user.name}'s avatar`} />
+                            <img className="user-avatar" src={user.imageUrl} alt={`Ảnh đại diện của ${user.name}`} />
                             <div className="user-info">
                                 <p className="user-name">{user.name}</p>
                                 <p className="user-last-message">{user.email}</p>
