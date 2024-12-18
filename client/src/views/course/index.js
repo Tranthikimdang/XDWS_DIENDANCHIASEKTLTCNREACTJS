@@ -171,10 +171,7 @@ const Course = () => {
   };
 
   return (
-    <PageContainer
-      title="Danh sách khóa học | Share Code"
-      description="Đây là trang danh sách khóa học"
-    >
+    <PageContainer title="Danh sách khóa học | Share Code" description="Đây là trang danh sách khóa học">
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
@@ -327,6 +324,15 @@ const Course = () => {
                                     {product.price + ' VND'
                                       ? product.price.toLocaleString('vi-VN') + ' VND'
                                       : 'Miễn phí'}{' '}
+                                  {product.discount
+                                    ? product.discount.toLocaleString('vi-VN')
+                                    : 'N/A'}{' '}
+                                  VND
+                                </h6>
+                                <span className="text-danger" style={{ fontSize: '0.7rem' }}>
+                                  <s>
+                                    {product.price ? product.price.toLocaleString('vi-VN') : 'N/A'}{' '}
+                                    VND
                                   </s>
                                 </span>
                               </div>
@@ -334,41 +340,41 @@ const Course = () => {
                                 <b>Giảm giá sốc</b>
                               </h6>
                               <div className="d-flex flex-column mt-4">
-                                {/* Kiểm tra quyền truy cập để hiển thị nút */}
-                                {hasStudyAccess(product.id) ? (
-                                  <button
-                                    className="btn btn-success btn-sm"
-                                    type="button"
-                                    onClick={() => navigate(`/productDetailUser/${product.id}`)}
-                                  >
-                                    Bắt đầu học
-                                  </button>
-                                ) : (
-                                  <>
-                                    <button
-                                      className="btn btn-primary btn-sm"
-                                      type="button"
-                                      onClick={() => navigate('/cart')}
-                                    >
-                                      Mua ngay
-                                    </button>
-                                    <button
-                                      className="btn btn-outline-primary btn-sm mt-2"
-                                      type="button"
-                                      onClick={() => navigate(`/productDetail/${product.id}`)}
-                                    >
-                                      Xem thêm
-                                    </button>
-                                    {/* <button
+  {/* Kiểm tra quyền truy cập để hiển thị nút */}
+  {hasStudyAccess(product.id) ? (
+    <button
+      className="btn btn-success btn-sm"
+      type="button"
+      onClick={() => navigate(`/productDetailUser/${product.id}`)}
+    >
+      Bắt đầu học
+    </button>
+  ) : (
+    <>
+      <button 
+        className="btn btn-primary btn-sm" 
+        type="button"
+        onClick={() => navigate('/cart')}
+      >
+        Mua ngay
+      </button>
+      <button
+        className="btn btn-outline-primary btn-sm mt-2"
+        type="button" 
+        onClick={() => navigate(`/productDetail/${product.id}`)}
+      >
+        Xem thêm
+      </button>
+      {/* <button
         className="btn btn-outline-primary btn-sm mt-2"
         type="button"
         onClick={() => addToCart(product)}
       >
         Thêm vào giỏ hàng
       </button> */}
-                                  </>
-                                )}
-                              </div>
+    </>
+  )}
+</div>
                             </div>
                           </div>
                         </div>

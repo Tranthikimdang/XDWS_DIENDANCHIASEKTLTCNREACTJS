@@ -230,18 +230,27 @@ const ProductsDetail = () => {
     };
 
     const storedComments = localStorage.getItem(`comment_course_${id}`);
+
     if (storedComments) {
-      const parsedComments = JSON.parse(storedComments);
-      if (Array.isArray(parsedComments)) {
-        setDataTemp(parsedComments);
-      } else {
-        console.error("Stored comments are not an array. Clearing localStorage.");
-        localStorage.removeItem(`comment_course_${id}`);
-      }
+      setDataTemp(JSON.parse(storedComments));
+    } else {
+      const fetchComments = async () => {
+        try {
+          const response = await getCourseComments(id);
+          console.log('Comments:', response.data);
+          setDataTemp(response.data); // Assuming this includes replies
+          localStorage.setItem('comments', JSON.stringify(response.data)); // Store to localStorage
+        } catch (error) {
+          console.error("Error fetching comments:", error);
+        }
+      };
+
+      if (id) fetchComments();
     }
 
     fetchComments();
   }, [id]);
+
 
 
   // Save comments to localStorage after adding a new comment or reply
@@ -282,12 +291,6 @@ const ProductsDetail = () => {
   };
   
   const handleAddComment = async (course_id) => {
-    if (!userData?.current?.id) {
-      setSnackbarMessage("Bạn cần đăng nhập để gửi bình luận.");
-      setSnackbarSeverity("warning");
-      setSnackbarOpen(true);
-      return;
-    }
     try {
       if (!newComment || newComment.trim() === '') {
         setSnackbarMessage("Nội dung bình luận không được để trống.");
@@ -362,9 +365,27 @@ const ProductsDetail = () => {
     const replyContent = newReplies[parentId || commentId];
   
     if (!replyContent || replyContent.trim() === '') {
+    }}
+
+  // // Hàm định dạng ngày
+  // const formatDate = (createdAt) => {
+  //   if (!createdAt) return 'N/A';
+
+  //   const date = new Date(createdAt);
+  //   if (isNaN(date)) return 'Invalid date';
+
+  //   return formatDistanceToNow(date, { addSuffix: true });
+  // };
+
+  const handleAddReply = async (course_id, commentId, parentId = null) => {
+    if (isSubmittingReply) return;
+    setIsSubmittingReply(true);
+
+    if (!newReplies[parentId || commentId] || newReplies[parentId || commentId].trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
+      setIsSubmittingReply(false);
       return;
     }
   
@@ -375,6 +396,7 @@ const ProductsDetail = () => {
       return; // Stop execution if reply contains sensitive words
     }
   
+
     try {
       let imageUrls = [];
       if (replyImageFile && replyImageFile.length > 0) {
@@ -408,11 +430,16 @@ const ProductsDetail = () => {
         user_id: userData.current.id,
         content: replyContent || '',
         imageUrls: imageUrls,
+
+      const newReply = {
+        user_id: userData.current.id,
+        content: newReplies[parentId || commentId] || '',
+        imageUrls: imageUrls,  // No need to stringify
         created_at: new Date(),
       };
-  
+
       const response = await axios.post(`http://localhost:3000/api/commentCourse/${commentId}/replies`, newReply);
-  
+
       if (response.data.status === 'success') {
         setDataTemp((prevComments) => {
           const updatedComments = prevComments.map((item) => {
@@ -420,13 +447,7 @@ const ProductsDetail = () => {
               const repliesArray = Array.isArray(item.replies) ? item.replies : [];
               return {
                 ...item,
-                replies: [
-                  ...repliesArray,
-                  {
-                    ...newReply,
-                    id: response.data.data.reply.id, // Thêm id từ API
-                  },
-                ],
+                replies: [...repliesArray, { ...newReply, id: response.data.data.reply.id }],
               };
             }
             return item;
@@ -437,6 +458,10 @@ const ProductsDetail = () => {
           return updatedComments;
         });
   
+          localStorage.setItem('comment_course', JSON.stringify(updatedComments)); // Save updated comments
+          return updatedComments;
+        });
+
         setNewReplies((prev) => ({ ...prev, [parentId || commentId]: '' }));
         setReplyingTo(null);
         setReplyImageFile(null);
@@ -453,7 +478,8 @@ const ProductsDetail = () => {
       setIsSubmittingReply(false);
     }
   };
-  
+
+
 
   const formatDate = (createdAt) => {
     if (!createdAt) return 'Không rõ thời gian'; // Nếu giá trị không hợp lệ, trả về mặc định
@@ -739,7 +765,7 @@ const ProductsDetail = () => {
                     size="small"
                     color="primary"
                     sx={{ textTransform: 'none', marginRight: '950px' }}
-                    onClick={() => setReplyingTo(replyingTo?.id === comment.id && replyingTo?.type === 'comment' ? null : { id: comment.id, type: 'comment' })}
+                    onClick={() => setReplyingTo(replyingTo?.id === comment.id && replyingTo?.type === 'comment' ? null : { id: comment.id, type: 'comment'})}
                   >
                     Trả lời
                   </Button>
@@ -830,8 +856,20 @@ const ProductsDetail = () => {
                               </Box>
                             ))}
                           </Box>
-                        )}
 
+                        ) : (
+                          reply.imageUrls && typeof reply.imageUrls === 'string' && ( // Ensure it's a string before rendering
+                            <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                              <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                                <img
+                                  src={reply.imageUrls}
+                                  alt="Comment image"
+                                  style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
+                                />
+                              </Box>
+                            </Box>
+                          )
+                        )}
                         <Typography
                           variant="caption"
                           color="textSecondary"

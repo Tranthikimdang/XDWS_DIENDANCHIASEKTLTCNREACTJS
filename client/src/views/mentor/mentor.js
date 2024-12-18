@@ -17,6 +17,7 @@ import { Search as SearchIcon } from '@mui/icons-material';
 import { IconUser, IconHeart } from '@tabler/icons-react';
 // Image
 import avatardefault from 'src/assets/images/profile/user-1.jpg';
+
 // API
 import apiUser from 'src/apis/UserApI';
 import api from 'src/apis/mentorApi';
@@ -199,6 +200,30 @@ const Mentor = () => {
                   return (
                     <Grid item xs={6} sm={4} md={3} key={mentor.id}>
                       <Card
+              currentMentors.map((mentor) => {
+                const userInfo = users.find((u) => u.id === mentor.user_id);
+                return (
+                  <Grid item xs={6} sm={4} md={3} key={mentor.id}>
+                    <Card
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        height: '100%',
+                        cursor: 'pointer',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                        padding: '16px',
+                        textAlign: 'center',
+                        transition: 'transform 0.3s',
+                        '&:hover': { transform: 'translateY(-5px)' },
+                      }}
+                      onClick={() => handleCardClick(mentor.user_id)}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={userInfo?.imageUrl || avatar}
+                        alt={userInfo?.name || 'Không có hình ảnh'}
                         sx={{
                           display: 'flex',
                           flexDirection: 'column',
@@ -235,6 +260,12 @@ const Mentor = () => {
                           <Typography variant="body2" color="#7f8c8d" sx={{ marginBottom: '8px' }}>
                             {mentor.skills || 'Chưa có thông tin'}
                           </Typography>
+                      />
+                      <CardContent>
+                        <Typography variant="h6">{userInfo?.name || 'Không rõ tên'}</Typography>
+                        <Typography variant="body2" color="#7f8c8d" sx={{ marginBottom: '8px' }}>
+                          {mentor.skills || 'Chưa có thông tin'}
+                        </Typography>
 
                           {/* Availability Time */}
                           <Box
