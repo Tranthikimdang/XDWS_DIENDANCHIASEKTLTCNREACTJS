@@ -15,17 +15,10 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  Link,
-  List,
-  ListItem,
-  Menu,
-  MenuItem,
-  Snackbar,
-  Tooltip,
-  InputAdornment,
-  ButtonBase,
+  Snackbar
 } from '@mui/material';
 import { IconHeart, IconMessageCircle } from '@tabler/icons';
+import { saveAs } from 'file-saver';
 //thư viện hổ trợ up_code
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -39,19 +32,14 @@ import avatardefault from 'src/assets/images/profile/user-1.jpg';
 // icon
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CodeIcon from '@mui/icons-material/Code';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import GifBoxIcon from '@mui/icons-material/GifBox';
 import ImageIcon from '@mui/icons-material/Image';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { addQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
-import SearchIcon from '@mui/icons-material/Search';
-import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { useLocation, useParams } from 'react-router-dom';
+import {  getStorage } from 'firebase/storage';
 import axios from 'axios';
 
 const QuestionDetail = () => {
@@ -766,35 +754,61 @@ const QuestionDetail = () => {
                 borderRadius: '8px',
                 backgroundColor: '#fff',
                 width: 'fit-content',
-                height: '30px',
+                height: 'auto',
+                flexWrap: 'wrap', // Cho phép các file nằm trên nhiều dòng nếu cần
               }}
             >
-              <IconButton sx={{ color: '#007bff' }}>
-                <DescriptionIcon />
-              </IconButton>
-              <Typography variant="subtitle1">
-                {question.fileUrls.map((url, index) => {
-                  const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
-                  return fileName !== 'uploads' ? (
-                    <a
+              {question.fileUrls.map((url, index) => {
+                // Lấy tên file từ URL
+                const fileName = decodeURIComponent(url)
+                  .split('/')
+                  .pop()
+                  .split('?')[0]; // Lấy tên file sau dấu '/' và loại bỏ tham số nếu có
+
+                // Kiểm tra nếu file là hợp lệ và không phải là tên 'uploads'
+                if (fileName !== 'uploads') {
+                  const fullUrl = 'http://localhost:3000' + url; // Đảm bảo URL đầy đủ để tải tệp
+
+                  return (
+                    <Box
                       key={index}
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: 'inherit',
-                        textDecoration: 'none',
-                        fontSize: '14px',
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
                         marginRight: '10px',
+                        marginBottom: '10px', // Khoảng cách giữa các file
                       }}
                     >
-                      {fileName}
-                    </a>
-                  ) : null;
-                })}
-              </Typography>
+                      <IconButton
+                        sx={{
+                          color: '#007bff', // Màu biểu tượng tải về
+                          '&:hover': { color: '#0056b3' }, // Hiệu ứng hover cho biểu tượng
+                        }}
+                        onClick={() => saveAs(fullUrl, fileName)} // Dùng saveAs để tải file
+                      >
+                        <DescriptionIcon />
+                      </IconButton>
+                      <span
+                        style={{
+                          color: '#007bff',
+                          fontSize: '14px',
+                          marginLeft: '8px',
+                          cursor: 'pointer',
+                          '&:hover': {
+                            textDecoration: 'underline', // Gạch dưới khi hover vào tên file
+                          },
+                        }}
+                      >
+                        {fileName} {/* Hiển thị tên file */}
+                      </span>
+                    </Box>
+                  );
+                }
+                return null;
+              })}
             </Box>
           )}
+
 
           {/* Hiển thị hình ảnh câu hỏi nếu có */}
           {question.imageUrls?.length > 0 && (
@@ -871,8 +885,8 @@ const QuestionDetail = () => {
                   />
                   <TextField
                     placeholder={`Bình luận dưới tên ${userData.current
-                        ? users.find((user) => user.id === userData.current.id)?.name
-                        : 'Người dùng'
+                      ? users.find((user) => user.id === userData.current.id)?.name
+                      : 'Người dùng'
                       } `}
                     variant="outlined"
                     size="small"
@@ -1183,8 +1197,8 @@ const QuestionDetail = () => {
                         />
                         <TextField
                           placeholder={`Trả lời dưới tên ${userData.current
-                              ? users.find((user) => user.id === userData.current.id)?.name
-                              : 'Người dùng'
+                            ? users.find((user) => user.id === userData.current.id)?.name
+                            : 'Người dùng'
                             }`}
                           variant="outlined"
                           size="small"
@@ -1493,8 +1507,8 @@ const QuestionDetail = () => {
                                 />
                                 <TextField
                                   placeholder={`Trả lời dưới tên ${userData.current
-                                      ? users.find((user) => user.id === userData.current.id)?.name
-                                      : 'Người dùng'
+                                    ? users.find((user) => user.id === userData.current.id)?.name
+                                    : 'Người dùng'
                                     }`}
                                   variant="outlined"
                                   size="small"

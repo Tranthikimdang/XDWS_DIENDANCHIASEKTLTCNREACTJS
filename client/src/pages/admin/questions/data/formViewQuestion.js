@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid } from '@mui/material';
+import { Box, Typography, TextField, Snackbar, Alert, CircularProgress, Grid, IconButton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
+import { saveAs } from 'file-saver';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
 import VuiTypography from "src/components/admin/VuiTypography";
+//icon
+import DescriptionIcon from '@mui/icons-material/Description';
 // api
 import QuestionsApis from 'src/apis/QuestionsApis';
 import apiUser from 'src/apis/UserApI';
@@ -67,6 +70,9 @@ const FormViewQuestion = () => {
         color: '#ffffff'
     };
 
+    console.log(questionData?.question?.fileUrls);
+
+
     return (
         <DashboardLayout>
             <DashboardNavbar />
@@ -114,32 +120,65 @@ const FormViewQuestion = () => {
                                 <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
                                     <strong>File tải lên: </strong>
                                     {questionData?.question?.fileUrls.length > 0 ? (
-                                        questionData?.question?.fileUrls.map((url, index) => {
-                                            const fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
-                                            return fileName !== 'uploads' ? (
-                                                <a
-                                                    key={index}
-                                                    href={url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    style={{
-                                                        color: '#fff',
-                                                        textDecoration: 'underline',
-                                                        fontSize: '14px',
-                                                        marginRight: '10px',
-                                                    }}
-                                                >
-                                                    {fileName}
-                                                </a>
-                                            ) : null;
-                                        })
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                border: '1px solid grey',
+                                                borderRadius: '12px',
+                                                width: 'fit-content',
+                                            }}
+                                        >
+                                            {questionData?.question?.fileUrls.map((url, index) => {
+                                                let fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
+                                                fileName = fileName.replace(/[0-9-]/g, '');
+
+                                                const fullUrl = 'http://localhost:3000' + url;
+
+                                                return fileName !== 'uploads' ? (
+                                                    <Box
+                                                        key={index}
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            marginRight: '10px',
+                                                        }}
+                                                    >
+                                                        <IconButton
+                                                            sx={{
+                                                                color: '#fff',
+                                                                '&:hover': { color: 'grey' },
+                                                            }}
+                                                            onClick={() => saveAs(fullUrl, fileName)}
+                                                        >
+                                                            <DescriptionIcon />
+                                                        </IconButton>
+                                                        <span
+                                                            style={{
+                                                                color: '#fff',
+                                                                fontSize: '14px',
+                                                                marginLeft: '8px',
+                                                                cursor: 'pointer',
+                                                                '&:hover': {
+                                                                    textDecoration: 'underline',
+                                                                },
+                                                            }}
+                                                        >
+                                                            {fileName}
+                                                        </span>
+                                                    </Box>
+                                                ) : null;
+                                            })}
+                                        </Box>
                                     ) : (
                                         <Typography variant="caption" sx={{ color: '#fff' }}>
                                             Không có file được tải lên
                                         </Typography>
                                     )}
+
                                 </VuiTypography>
                             </div>
+
                         </div>
                         <Box mt={2}>
                             <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>

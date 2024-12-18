@@ -86,7 +86,12 @@ const Mentor = () => {
         <Grid container spacing={3}>
           {/* Heading */}
           <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading">
+            <Typography
+              variant="h4"
+              component="h1"
+              className="heading"
+              sx={{ fontWeight: 'bold', fontFamily: 'Roboto, sans-serif' }}
+            >
               Cố vấn
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
@@ -197,7 +202,7 @@ const Mentor = () => {
                 .map((mentor) => {
                   const userInfo = users.find((u) => u.id === mentor.user_id);
                   return (
-                    <Grid item xs={6} sm={4} md={3} key={mentor.id}>
+                    <Grid item xs={3} sm={3} md={3} key={mentor.id}>
                       <Card
                         sx={{
                           display: 'flex',
