@@ -9,16 +9,17 @@ const BASE_URL = "http://localhost:3000/api";
 const ORDERS_URL = `${BASE_URL}/orders`;
 
 // General API request handler
+// Enhanced error logging in apiRequest
 const apiRequest = async (method, url, data = null) => {
   try {
-    const response = await axios({
-      method,
-      url,
-      data,
-    });
+    const response = await axios({ method, url, data });
     return response.data;
   } catch (error) {
-    console.error(`Error in ${method.toUpperCase()} request to ${url}:`, error);
+    if (error.response) {
+      console.error(`Error ${error.response.status}:`, error.response.data);
+    } else {
+      console.error('Error:', error.message);
+    }
     throw error;
   }
 };
