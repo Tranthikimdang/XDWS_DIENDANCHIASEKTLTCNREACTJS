@@ -21,42 +21,38 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PageContainer from 'src/components/container/PageContainer';
-import cartApi from '../../apis/cartsApi'; // Adjust the path as needed
-import courseApi from '../../apis/CourseApI'; // Import courseApi
-import orderApi from '../../apis/OrderApI'; // Import orderApi
+import cartApi from '../../apis/cartsApi';
+import courseApi from '../../apis/CourseApI';
+import orderApi from '../../apis/OrderApI';
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [products, setProducts] = useState({});
-  const [loadingCheckout, setLoadingCheckout] = useState(false);
-  const [loadingBuy, setLoadingBuy] = useState(false);
-  const [showQRCodeDialog, setShowQRCodeDialog] = useState(false);
-  const [qrCodeUrl, setQRCodeUrl] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [nameError, setNameError] = useState(false);
-  const [emailError, setEmailError] = useState(false);
-
-  // State for card details
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiryDate, setExpiryDate] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [cardError, setCardError] = useState({
-    cardNumber: false,
-    expiryDate: false,
-    cvv: false,
-    cardName: false,
+  const [state, setState] = useState({
+    cartItems: [],
+    products: {},
+    loadingCheckout: false,
+    loadingBuy: false,
+    showQRCodeDialog: false,
+    qrCodeUrl: '',
+    name: '',
+    email: '',
+    nameError: false,
+    emailError: false,
+    cardDetails: {
+      cardNumber: '',
+      expiryDate: '',
+      cvv: '',
+      cardName: '',
+      errors: { cardNumber: false, expiryDate: false, cvv: false, cardName: false },
+    },
+    snackbar: { open: false, message: '', severity: 'success' },
   });
 
-  // Snackbar state for success messages
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const { cartItems, products, loadingCheckout, loadingBuy, showQRCodeDialog, qrCodeUrl, name, email, nameError, emailError, cardDetails, snackbar } = state;
+  const { cardNumber, expiryDate, cvv, cardName, errors } = cardDetails;
 
   const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user ? user.id : null;
+  const userId = user?.id || null;
 
-  // Calculate totalAmount and courseNames
   const totalAmount = cartItems.reduce((total, item) => {
     const price = products[item.course_id]?.price || 0;
     const discount = products[item.course_id]?.discount || 0;
@@ -65,70 +61,70 @@ const Cart = () => {
 
   const courseNames = cartItems.map(item => products[item.course_id]?.name).join(', ');
 
-  // Update qrCodeUrl whenever cartItems or products change
   useEffect(() => {
     if (cartItems.length === 0) {
-      setQRCodeUrl('');
+      setState(prev => ({ ...prev, qrCodeUrl: '' }));
       return;
     }
-
-    const qrCodeContent = `Số tài khoản: 1907 1740 7060 18\nSố tiền: ${formatNumber(
-      totalAmount
-    )} VND\nNội dung: ${courseNames}`;
-    setQRCodeUrl(qrCodeContent);
+    const qrCodeContent = `Số tài khoản: 1907 1740 7060 18\nSố tiền: ${formatNumber(totalAmount)} VND\nNội dung: ${courseNames}`;
+    setState(prev => ({ ...prev, qrCodeUrl: qrCodeContent }));
   }, [cartItems, products, totalAmount, courseNames]);
 
   useEffect(() => {
     const fetchCartItems = async () => {
       if (userId) {
         try {
-          const data = await cartApi.getCartsList();
-          const userCarts = data.data.carts.filter(cart => cart.user_id === userId);
-          setCartItems(userCarts);
+          const { data } = await cartApi.getCartsList();
+          const userCarts = data.carts.filter(cart => cart.user_id === userId);
+          setState(prev => ({ ...prev, cartItems: userCarts }));
         } catch (error) {
           console.error('Error fetching carts:', error);
-          alert('Đã xảy ra lỗi khi lấy dữ liệu giỏ hàng.');
+          setState(prev => ({
+            ...prev,
+            snackbar: { open: true, message: 'Đã xảy ra lỗi khi lấy dữ liệu giỏ hàng.', severity: 'error' },
+          }));
         }
       }
     };
-
     fetchCartItems();
   }, [userId]);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const data = await courseApi.getCoursesList();
-        const courseData = {};
-        data.data.courses.forEach(course => {
-          courseData[course.id] = course;
-        });
-        setProducts(courseData);
-
-        // Log the course data to verify the image field
+        const { data } = await courseApi.getCoursesList();
+        const courseData = data.courses.reduce((acc, course) => ({ ...acc, [course.id]: course }), {});
+        setState(prev => ({ ...prev, products: courseData }));
         console.log('Fetched Courses:', courseData);
       } catch (error) {
         console.error('Error fetching courses:', error);
-        alert('Đã xảy ra lỗi khi lấy dữ liệu khóa học.');
+        setState(prev => ({
+          ...prev,
+          snackbar: { open: true, message: 'Đã xảy ra lỗi khi lấy dữ liệu khóa học.', severity: 'error' },
+        }));
       }
     };
-
     fetchCourses();
   }, []);
 
   const handleRemove = async (id) => {
     try {
       await cartApi.deleteCart(id);
-      setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      setState(prev => ({
+        ...prev,
+        cartItems: prev.cartItems.filter(item => item.id !== id),
+        snackbar: { open: true, message: 'Sản phẩm đã được xóa khỏi giỏ hàng.', severity: 'success' },
+      }));
     } catch (error) {
       console.error('Error removing item:', error);
-      alert('Đã xảy ra lỗi khi xóa sản phẩm khỏi giỏ hàng. Vui lòng thử lại.');
+      setState(prev => ({
+        ...prev,
+        snackbar: { open: true, message: 'Đã xảy ra lỗi khi xóa sản phẩm khỏi giỏ hàng. Vui lòng thử lại.', severity: 'error' },
+      }));
     }
   };
 
-  const formatNumber = (number) => {
-    return new Intl.NumberFormat('vi-VN').format(number);
-  };
+  const formatNumber = (number) => new Intl.NumberFormat('vi-VN').format(number);
 
   const validateCardDetails = () => {
     const errors = {
@@ -137,37 +133,44 @@ const Cart = () => {
       cvv: cvv.length !== 3,
       cardName: cardName.trim() === '',
     };
-    setCardError(errors);
+    setState(prev => ({
+      ...prev,
+      cardDetails: { ...prev.cardDetails, errors },
+    }));
     return !Object.values(errors).some(error => error);
   };
 
   const handleCheckout = async (paymentMethod) => {
     if (cartItems.length === 0) {
-      alert('Giỏ hàng của bạn trống.');
+      setState(prev => ({
+        ...prev,
+        snackbar: { open: true, message: 'Giỏ hàng của bạn trống.', severity: 'warning' },
+      }));
       return;
     }
-
     if (!name || !email) {
-      setNameError(!name);
-      setEmailError(!email);
+      setState(prev => ({ ...prev, nameError: !name, emailError: !email }));
+      setState(prev => ({
+        ...prev,
+        snackbar: { open: true, message: 'Vui lòng nhập đầy đủ thông tin.', severity: 'warning' },
+      }));
       return;
     }
-
     if (paymentMethod === 'card' && !validateCardDetails()) {
-      alert('Vui lòng nhập đầy đủ thông tin thẻ tín dụng.');
+      setState(prev => ({
+        ...prev,
+        snackbar: { open: true, message: 'Vui lòng nhập đầy đủ thông tin thẻ tín dụng.', severity: 'error' },
+      }));
       return;
     }
-
     try {
-      setLoadingCheckout(true);
-
-      const cartId = cartItems[0]?.id; // Updated to use 'id' instead of 'cart_id'
-
+      setState(prev => ({ ...prev, loadingCheckout: true }));
+      const cartId = cartItems[0]?.id;
       const orderData = {
         user_id: userId,
         username: name,
         user_email: email,
-        item: cartItems.map((item) => ({
+        item: cartItems.map(item => ({
           course_id: item.course_id,
           quantity: item.quantity || 1,
           price: products[item.course_id]?.price || 0,
@@ -175,90 +178,54 @@ const Cart = () => {
         })),
         totalAmount,
         payment: paymentMethod,
-        // Include card details if payment method is card
         ...(paymentMethod === 'card' && {
           card_details: {
             card_number: cardNumber,
             expiry_date: expiryDate,
-            cvv: cvv,
+            cvv,
             cardholder_name: cardName,
           },
         }),
-        cart_id: cartId, // Updated to use 'id'
+        cart_id: cartId,
       };
-
-      const response = await orderApi.createOrder(orderData); // Use createOrder as per controller
+      const response = await orderApi.createOrder(orderData);
       if (response.status === 'success') {
-        setCartItems([]);
-        setSnackbarMessage('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
-        setOpenSnackbar(true);
-
-        if (paymentMethod === 'e_wallet') {
-          setShowQRCodeDialog(true);
-        }
+        setState(prev => ({
+          ...prev,
+          cartItems: [],
+          snackbar: { open: true, message: 'Thanh toán thành công! Đơn hàng của bạn đã được tạo.', severity: 'success' },
+          showQRCodeDialog: paymentMethod === 'e_wallet',
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          snackbar: { open: true, message: 'Thanh toán không thành công.', severity: 'error' },
+        }));
       }
     } catch (error) {
       console.error('Error during checkout:', error);
-      alert('Đã xảy ra lỗi khi thanh toán. Vui lòng thử lại.');
+      setState(prev => ({
+        ...prev,
+        snackbar: { open: true, message: 'Đã xảy ra lỗi khi thanh toán. Vui lòng thử lại.', severity: 'error' },
+      }));
     } finally {
-      setLoadingCheckout(false);
+      setState(prev => ({ ...prev, loadingCheckout: false }));
     }
   };
 
-  // Updated handleBuy function
-  const handleBuy = async () => {
-    if (cartItems.length === 0) {
-      alert('Giỏ hàng của bạn trống.');
-      return;
-    }
+  const handleBuy = () => handleCheckout('addOrder');
 
-    if (!name || !email) {
-      setNameError(!name);
-      setEmailError(!email);
-      return;
-    }
+  const handleCloseSnackbar = () => setState(prev => ({ ...prev, snackbar: { ...prev.snackbar, open: false } }));
 
-    const cartId = cartItems[0]?.id; // Updated to use 'id' instead of 'cart_id'
-    if (!cartId) {
-      alert('Không tìm thấy ID giỏ hàng.');
-      return;
-    }
-
-    try {
-      setLoadingBuy(true);
-
-      const orderData = {
-        user_id: userId,
-        username: name,
-        user_email: email,
-        item: cartItems.map((item) => ({
-          course_id: item.course_id,
-          quantity: item.quantity || 1,
-          price: products[item.course_id]?.price || 0,
-          discount: products[item.course_id]?.discount || 0,
-        })),
-        totalAmount,
-        payment: 'addOrder', // Define the appropriate payment method
-        cart_id: cartId, // Updated to use 'id'
-      };
-
-      const response = await orderApi.createOrder(orderData); // Use createOrder as per controller
-      if (response.status === 'success') {
-        setCartItems([]);
-        setSnackbarMessage('Đơn hàng đã được gửi đi thành công!');
-        setOpenSnackbar(true);
-      }
-    } catch (error) {
-      console.error('Error during buying:', error);
-      alert('Đã xảy ra lỗi khi gửi đơn hàng. Vui lòng thử lại.');
-    } finally {
-      setLoadingBuy(false);
-    }
+  const handleInputChange = (field, value) => {
+    setState(prev => ({ ...prev, [field]: value, [`${field}Error`]: false }));
   };
 
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-    setSnackbarMessage('');
+  const handleCardInputChange = (field, value) => {
+    setState(prev => ({
+      ...prev,
+      cardDetails: { ...prev.cardDetails, [field]: value, errors: { ...prev.cardDetails.errors, [field]: false } },
+    }));
   };
 
   return (
@@ -266,68 +233,65 @@ const Cart = () => {
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={3}>
           <Grid item md={8}>
-            <div className="course-content">
-              <div className="container py-5 h-100">
-                <div className="row d-flex justify-content-center align-items-center h-100">
-                  <div className="col">
-                    <div className="p-4">
+            <Box className="course-content">
+              <Box className="container py-5 h-100">
+                <Box className="row d-flex justify-content-center align-items-center h-100">
+                  <Box className="col">
+                    <Box className="p-4">
                       <Typography variant="h4" component="h1" className="heading">
                         Giỏ hàng của bạn
                       </Typography>
                       <Typography variant="body1" paragraph className="typography-body">
                         Bạn có {cartItems.length} sản phẩm trong giỏ hàng
                       </Typography>
-
                       {cartItems.map((item) => (
-                        <div className="card mb-3" key={item.id}>
-                          <div className="card-body">
-                            <div className="d-flex justify-content-between">
-                              <div className="d-flex flex-row align-items-center">
+                        <Box className="card mb-3" key={item.id}>
+                          <Box className="card-body">
+                            <Box className="d-flex justify-content-between">
+                              <Box className="d-flex flex-row align-items-center">
                                 {products[item.course_id]?.image && (
                                   <img
-                                    src={products[item.course_id].image} // Ensure this field is correct
+                                    src={products[item.course_id].image}
                                     className="img-fluid rounded-3"
                                     alt={products[item.course_id]?.name || 'Course Image'}
                                     style={{ width: '65px' }}
                                     onError={(e) => {
                                       e.target.onerror = null;
-                                      e.target.src = '/uploads/placeholder.png'; // Path to your placeholder image
+                                      e.target.src = '/uploads/placeholder.png';
                                     }}
                                   />
                                 )}
-                                <div className="ms-3">
-                                  <h5>{products[item.course_id]?.name || ''}</h5>
-                                  <p className="small mb-0">ID sản phẩm: {item.course_id}</p>
-                                </div>
-                              </div>
-                              <div className="d-flex flex-row align-items-center">
-                                <h6 className="mb-0">
+                                <Box className="ms-3">
+                                  <Typography variant="h5">{products[item.course_id]?.name || ''}</Typography>
+                                  <Typography variant="body2">ID sản phẩm: {item.course_id}</Typography>
+                                </Box>
+                              </Box>
+                              <Box className="d-flex flex-row align-items-center">
+                                <Typography variant="h6" className="mb-0">
                                   <span style={{ textDecoration: 'line-through', marginRight: '5px', color: 'red' }}>
                                     {formatNumber(products[item.course_id]?.price || 0)} VND
                                   </span>
                                   <span style={{ color: 'green', fontWeight: 'bold' }}>
-                                    {formatNumber(
-                                      (products[item.course_id]?.price - (products[item.course_id]?.discount || 0))
-                                    )} VND
+                                    {formatNumber(products[item.course_id]?.price - (products[item.course_id]?.discount || 0))} VND
                                   </span>
-                                </h6>
+                                </Typography>
                                 <DeleteIcon
                                   onClick={() => handleRemove(item.id)}
                                   style={{ color: '#cecece', cursor: 'pointer' }}
                                 />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Box>
                       ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
           </Grid>
           <Grid item md={4}>
-            <div className="course-content pt-5 mt-5">
+            <Box className="course-content pt-5 mt-5">
               <Card sx={{ backgroundColor: '#f5f5f5', color: '#333', borderRadius: '10px' }}>
                 <CardContent>
                   <Typography variant="h5" className="mb-4" align="center">
@@ -337,21 +301,21 @@ const Cart = () => {
 
                   {/* Credit/Debit Card Payment */}
                   <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="card-payment-content"
-                      id="card-payment-header"
-                    >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="card-payment-content" id="card-payment-header">
                       <CreditCardIcon sx={{ mr: 1 }} />
                       <Typography variant="h6">Thẻ tín dụng / Thẻ ghi nợ</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/visa.png" alt="visa"/>
-                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/mastercard.png" alt="mastercard"/>
-                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/amex.png" alt="amex"/>
-                        <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/credit-card-front.png" alt="credit-card-front"/>
-                        {/* Add more card logos as needed */}
+                        {['visa', 'mastercard', 'amex', 'credit-card-front'].map((icon) => (
+                          <img
+                            key={icon}
+                            width="50"
+                            height="50"
+                            src={`https://img.icons8.com/ios-filled/50/${icon}.png`}
+                            alt={icon}
+                          />
+                        ))}
                       </Box>
                       {/* Card Information Inputs */}
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -360,21 +324,12 @@ const Cart = () => {
                           variant="outlined"
                           fullWidth
                           value={cardName}
-                          onChange={(e) => {
-                            setCardName(e.target.value);
-                            setCardError(prev => ({ ...prev, cardName: false }));
-                          }}
-                          error={cardError.cardName}
-                          helperText={cardError.cardName ? 'Vui lòng nhập tên chủ thẻ' : ''}
-                          InputLabelProps={{
-                            style: { color: '#333' }, // Label color
-                          }}
-                          InputProps={{
-                            style: { color: '#333' }, // Input text color
-                          }}
-                          FormHelperTextProps={{
-                            style: { color: '#f44336' }, // Helper text color
-                          }}
+                          onChange={(e) => handleCardInputChange('cardName', e.target.value)}
+                          error={errors.cardName}
+                          helperText={errors.cardName && 'Vui lòng nhập tên chủ thẻ'}
+                          InputLabelProps={{ style: { color: '#333' } }}
+                          InputProps={{ style: { color: '#333' } }}
+                          FormHelperTextProps={{ style: { color: '#f44336' } }}
                         />
                         <TextField
                           label="Số thẻ"
@@ -383,13 +338,10 @@ const Cart = () => {
                           value={cardNumber}
                           onChange={(e) => {
                             const value = e.target.value.replace(/\D/g, '');
-                            if (value.length <= 16) {
-                              setCardNumber(value);
-                              setCardError(prev => ({ ...prev, cardNumber: false }));
-                            }
+                            if (value.length <= 16) handleCardInputChange('cardNumber', value);
                           }}
-                          error={cardError.cardNumber}
-                          helperText={cardError.cardNumber ? 'Số thẻ không hợp lệ' : ''}
+                          error={errors.cardNumber}
+                          helperText={errors.cardNumber && 'Số thẻ không hợp lệ'}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -398,12 +350,8 @@ const Cart = () => {
                             ),
                             style: { color: '#333' },
                           }}
-                          InputLabelProps={{
-                            style: { color: '#333' },
-                          }}
-                          FormHelperTextProps={{
-                            style: { color: '#f44336' },
-                          }}
+                          InputLabelProps={{ style: { color: '#333' } }}
+                          FormHelperTextProps={{ style: { color: '#f44336' } }}
                         />
                         <Box sx={{ display: 'flex', gap: 2 }}>
                           <TextField
@@ -413,22 +361,13 @@ const Cart = () => {
                             value={expiryDate}
                             onChange={(e) => {
                               const value = e.target.value;
-                              if (value.length <= 5) {
-                                setExpiryDate(value);
-                                setCardError(prev => ({ ...prev, expiryDate: false }));
-                              }
+                              if (value.length <= 5) handleCardInputChange('expiryDate', value);
                             }}
-                            error={cardError.expiryDate}
-                            helperText={cardError.expiryDate ? 'Ngày hết hạn không hợp lệ' : ''}
-                            InputProps={{
-                              style: { color: '#333' },
-                            }}
-                            InputLabelProps={{
-                              style: { color: '#333' },
-                            }}
-                            FormHelperTextProps={{
-                              style: { color: '#f44336' },
-                            }}
+                            error={errors.expiryDate}
+                            helperText={errors.expiryDate && 'Ngày hết hạn không hợp lệ'}
+                            InputProps={{ style: { color: '#333' } }}
+                            InputLabelProps={{ style: { color: '#333' } }}
+                            FormHelperTextProps={{ style: { color: '#f44336' } }}
                           />
                           <TextField
                             label="CVV"
@@ -437,22 +376,13 @@ const Cart = () => {
                             value={cvv}
                             onChange={(e) => {
                               const value = e.target.value.replace(/\D/g, '');
-                              if (value.length <= 3) {
-                                setCvv(value);
-                                setCardError(prev => ({ ...prev, cvv: false }));
-                              }
+                              if (value.length <= 3) handleCardInputChange('cvv', value);
                             }}
-                            error={cardError.cvv}
-                            helperText={cardError.cvv ? 'CVV không hợp lệ' : ''}
-                            InputProps={{
-                              style: { color: '#333' },
-                            }}
-                            InputLabelProps={{
-                              style: { color: '#333' },
-                            }}
-                            FormHelperTextProps={{
-                              style: { color: '#f44336' },
-                            }}
+                            error={errors.cvv}
+                            helperText={errors.cvv && 'CVV không hợp lệ'}
+                            InputProps={{ style: { color: '#333' } }}
+                            InputLabelProps={{ style: { color: '#333' } }}
+                            FormHelperTextProps={{ style: { color: '#f44336' } }}
                           />
                         </Box>
                         <Button
@@ -472,36 +402,28 @@ const Cart = () => {
 
                   {/* QR Code Banking */}
                   <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="qr-code-payment-content"
-                      id="qr-code-payment-header"
-                    >
+                    <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="qr-code-payment-content" id="qr-code-payment-header">
                       <AccountBalanceWalletIcon sx={{ mr: 1 }} />
                       <Typography variant="h6">Thanh toán qua ngân hàng</Typography>
                     </AccordionSummary>
                     <AccordionDetails>
                       <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="body1" gutterBottom>
-                          Số tài khoản: 1907 1740 7060 18
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          Số tiền: {formatNumber(totalAmount)} VND
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          Nội dung: {courseNames}
-                        </Typography>
-                        <Box sx={{ mt: 2 }}>
-                          <img
-                            src={`https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(qrCodeUrl)}`}
-                            alt="QR Code"
-                            style={{ width: '200px', height: '200px' }}
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '/uploads/qr-code.jpg'; // Ensure fallback image exists
-                            }}
-                          />
-                        </Box>
+                        <Typography variant="body1" gutterBottom>Số tài khoản: 1907 1740 7060 18</Typography>
+                        <Typography variant="body1" gutterBottom>Số tiền: {formatNumber(totalAmount)} VND</Typography>
+                        <Typography variant="body1" gutterBottom>Nội dung: {courseNames}</Typography>
+                        {qrCodeUrl && (
+                          <Box sx={{ mt: 2 }}>
+                            <img
+                              src={`https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(qrCodeUrl)}`}
+                              alt="QR Code"
+                              style={{ width: '200px', height: '200px' }}
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = '/uploads/qr-code.jpg';
+                              }}
+                            />
+                          </Box>
+                        )}
                       </Box>
                     </AccordionDetails>
                   </Accordion>
@@ -527,55 +449,35 @@ const Cart = () => {
                       fullWidth
                       margin="normal"
                       value={name}
-                      onChange={(e) => {
-                        setName(e.target.value);
-                        setNameError(false);
-                      }}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
                       error={nameError}
-                      helperText={nameError ? 'Vui lòng nhập tên của bạn' : ''}
-                      InputLabelProps={{
-                        style: { color: '#333' }, // Label color
-                      }}
-                      InputProps={{
-                        style: { color: '#333' }, // Input text color
-                      }}
-                      FormHelperTextProps={{
-                        style: { color: '#f44336' }, // Helper text color
-                      }}
+                      helperText={nameError && 'Vui lòng nhập tên của bạn'}
+                      InputLabelProps={{ style: { color: '#333' } }}
+                      InputProps={{ style: { color: '#333' } }}
+                      FormHelperTextProps={{ style: { color: '#f44336' } }}
                     />
-
                     <TextField
                       label="Email"
                       variant="outlined"
                       fullWidth
                       margin="normal"
                       value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setEmailError(false);
-                      }}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
                       error={emailError}
-                      helperText={emailError ? 'Vui lòng nhập email của bạn' : ''}
-                      InputLabelProps={{
-                        style: { color: '#333' }, // Label color
-                      }}
-                      InputProps={{
-                        style: { color: '#333' }, // Input text color
-                      }}
-                      FormHelperTextProps={{
-                        style: { color: '#f44336' }, // Helper text color
-                      }}
+                      helperText={emailError && 'Vui lòng nhập email của bạn'}
+                      InputLabelProps={{ style: { color: '#333' } }}
+                      InputProps={{ style: { color: '#333' } }}
+                      FormHelperTextProps={{ style: { color: '#f44336' } }}
                     />
                   </Box>
-
                 </CardContent>
               </Card>
-            </div>
+            </Box>
           </Grid>
         </Grid>
 
         {/* QR Code Modal */}
-        <Modal open={showQRCodeDialog} onClose={() => setShowQRCodeDialog(false)}>
+        <Modal open={showQRCodeDialog} onClose={() => setState(prev => ({ ...prev, showQRCodeDialog: false }))}>
           <Box
             sx={{
               padding: '20px',
@@ -587,44 +489,38 @@ const Cart = () => {
               textAlign: 'center',
             }}
           >
-            <Typography variant="h6" className="mb-4">
-              Thanh toán bằng Ví điện tử
-            </Typography>
+            <Typography variant="h6" className="mb-4">Thanh toán bằng Ví điện tử</Typography>
             <img
               src={`https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=${encodeURIComponent(qrCodeUrl)}`}
               alt="QR Code"
               style={{ width: '200px', height: '200px' }}
               onError={(e) => {
                 e.target.onerror = null;
-                e.target.src = '/uploads/qr-code.jpg'; // Ensure fallback image exists
+                e.target.src = '/uploads/qr-code.jpg';
               }}
             />
-            <Typography variant="body1" className="mt-3">
-              Số tiền: {formatNumber(totalAmount)} VND
-            </Typography>
-            <Typography variant="body1" className="mt-1">
-              Nội dung: {courseNames}
-            </Typography>
+            <Typography variant="body1" className="mt-3">Số tiền: {formatNumber(totalAmount)} VND</Typography>
+            <Typography variant="body1" className="mt-1">Nội dung: {courseNames}</Typography>
             <Button
               variant="contained"
               color="secondary"
               sx={{ mt: 3 }}
-              onClick={() => setShowQRCodeDialog(false)}
+              onClick={() => setState(prev => ({ ...prev, showQRCodeDialog: false }))}
             >
               Đóng
             </Button>
           </Box>
         </Modal>
 
-        {/* Success Snackbar */}
+        {/* Success and Error Snackbar */}
         <Snackbar
-          open={openSnackbar}
+          open={snackbar.open}
           autoHideDuration={6000}
           onClose={handleCloseSnackbar}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
-          <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-            {snackbarMessage}
+          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+            {snackbar.message}
           </Alert>
         </Snackbar>
       </Box>

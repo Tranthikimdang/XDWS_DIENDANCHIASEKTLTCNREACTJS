@@ -19,13 +19,14 @@ const apiRequest = async (method, url, data) => {
 
 // Orders API
 const addOrder = async (order) => apiRequest('post', ORDERS_URL, order);
-const getOrdersList = async () => apiRequest('get', ORDERS_URL);
+const createOrder = addOrder;const getOrdersList = async () => apiRequest('get', ORDERS_URL);
 const updateOrder = async (id, updatedData) => apiRequest('put', `${ORDERS_URL}/${id}`, updatedData);
 const deleteOrder = async (id) => apiRequest('delete', `${ORDERS_URL}/${id}`);
 
 // Xuất các hàm API
 export default {
   addOrder,
+  createOrder,
   getOrdersList,
   updateOrder,
   deleteOrder,
