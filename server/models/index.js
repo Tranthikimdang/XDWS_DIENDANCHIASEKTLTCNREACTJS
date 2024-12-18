@@ -12,21 +12,6 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT,
   }
 );
-const Order = require('./orderModel');
-const User = require('./userModel');
-const Cart = require('./cartsModel');
-
-// Khởi tạo quan hệ (nếu cần)
-Order.belongsTo(User, { foreignKey: 'user_id' });
-Order.belongsTo(Cart, { foreignKey: 'cart_id' });
-User.hasMany(Order, { foreignKey: 'user_id' });
-Cart.hasOne(Order, { foreignKey: 'cart_id' });
-
-module.exports = {
-  Order,
-  User,
-  Cart,
-};
 
 sequelize
   .authenticate()

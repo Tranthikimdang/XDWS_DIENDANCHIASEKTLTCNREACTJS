@@ -1,27 +1,17 @@
-// orderRoutes.js
-
 const express = require('express');
 const router = express.Router();
+const orderController = require('../controllers/orderController'); // Đảm bảo rằng bạn đã tạo orderController
 
-// Import the OrderController
-const OrderController = require('../controllers/orderController'); // Adjust the path if necessary
+// Lấy tất cả đơn hàng
+router.get('/', orderController.getAllOrders);
 
+// Tạo đơn hàng mới
+router.post('/', orderController.createOrder);
 
-// Define routes and associate them with controller methods
+// Cập nhật thông tin đơn hàng theo ID
+router.put('/:id', orderController.updateOrder);
 
-// Create a new order
-router.post('/', OrderController.createOrder);
-
-// Get all orders
-router.get('/', OrderController.getOrders);
-
-// Get a specific order by ID
-router.get('/:id', OrderController.getOrderById);
-
-// Update an existing order
-router.put('/:id', OrderController.updateOrder);
-
-// Delete an order
-router.delete('/:id', OrderController.deleteOrder);
+// Xóa đơn hàng theo ID
+router.delete('/:id', orderController.deleteOrder);
 
 module.exports = router;

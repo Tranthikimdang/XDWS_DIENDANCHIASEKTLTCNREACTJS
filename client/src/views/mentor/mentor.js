@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon } from '@mui/icons-material';
 import { IconUser, IconHeart } from '@tabler/icons-react';
 // Image
-import avatardefault from "src/assets/images/profile/user-1.jpg";
+import avatar from 'src/assets/images/profile/user-1.jpg';
 // API
 import apiUser from 'src/apis/UserApI';
 import api from 'src/apis/mentorApi';
@@ -214,7 +214,7 @@ const Mentor = () => {
                     >
                       <CardMedia
                         component="img"
-                        image={userInfo?.imageUrl ||  avatardefault}
+                        image={userInfo?.imageUrl || avatar}
                         alt={userInfo?.name || 'Không có hình ảnh'}
                         sx={{
                           width: '120px',
@@ -223,9 +223,6 @@ const Mentor = () => {
                           borderRadius: '50%',
                           border: '4px solid #fff',
                           marginBottom: '16px',
-                        }}
-                        onError={(e) => {
-                          e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                         }}
                       />
                       <CardContent>

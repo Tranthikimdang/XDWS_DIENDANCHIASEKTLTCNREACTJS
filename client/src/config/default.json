@@ -1,7 +1,0 @@
-{
-    "vnp_TmnCode": "NXBS9TFA",
-    "vnp_HashSecret": "4BW12SCK2PN2Q0Q75T2R1SSQDFZ2XRWR",
-    "vnp_Url": "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
-    "vnp_Api": "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
-    "vnp_ReturnUrl": "http://localhost:3000/order/vnpay_return"
-}

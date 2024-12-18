@@ -21,7 +21,7 @@ export default function Footer() {
         <Grid container justifyContent="space-between" alignItems="center">
           <Grid item>
             <Typography variant="h6">
-              Kết nối với chúng tôi trên các mạng xã hội
+              Kết nối với chúng tôi trên các mạng xã hội:
             </Typography>
           </Grid>
           <Grid item className='social-icons'>
@@ -48,24 +48,20 @@ export default function Footer() {
       </Box>
 
       {/* Nội Dung Footer */}
-      <Box className='content-section'>
-        {/* Left Section */}
-        <Box className='left-section'>
-          <Typography variant="h6" gutterBottom>
-            ShareCode
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            ShareCode là diễn đàn chia sẻ kiến thức lập trình, nơi bạn có thể
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            trao đổi và học hỏi từ cộng đồng.
-          </Typography>
-        </Box>
+      <Box className='content-section' sx={{ py: 4 }}>
+        <Grid container spacing={4}>
+          {/* Giới Thiệu Công Ty */}
+          <Grid item xs={12} md={3}>
+            <Typography variant="h6" gutterBottom>
+              ShareCode
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              ShareCode là diễn đàn chia sẻ kiến thức lập trình, nơi bạn có thể trao đổi và học hỏi từ cộng đồng.
+            </Typography>
+          </Grid>
 
-        {/* Right Section */}
-        <Box className='right-section'>
           {/* Sản Phẩm */}
-          <Box>
+          <Grid item xs={12} md={2}>
             <Typography variant="h6" gutterBottom>
               Sản phẩm
             </Typography>
@@ -89,10 +85,10 @@ export default function Footer() {
                 Laravel
               </Link>
             </Typography>
-          </Box>
+          </Grid>
 
           {/* Liên Kết Hữu Ích */}
-          <Box>
+          <Grid item xs={12} md={2}>
             <Typography variant="h6" gutterBottom>
               Liên kết hữu ích
             </Typography>
@@ -116,10 +112,10 @@ export default function Footer() {
                 Trợ giúp
               </Link>
             </Typography>
-          </Box>
+          </Grid>
 
           {/* Thông Tin Liên Hệ */}
-          <Box>
+          <Grid item xs={12} md={3}>
             <Typography variant="h6" gutterBottom>
               Liên hệ
             </Typography>
@@ -135,8 +131,8 @@ export default function Footer() {
             <Typography variant="body2" display="flex" alignItems="center">
               <PrintIcon sx={{ mr: 1 }} /> + 84 987 654 321
             </Typography>
-          </Box>
-        </Box>
+          </Grid>
+        </Grid>
       </Box>
 
       {/* Bản Quyền */}

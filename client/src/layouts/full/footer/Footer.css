@@ -1,36 +1,17 @@
 /* Footer.css */
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-main {
-  flex: 1;
-}
-
 .footer {
-  background-color: #f0f0f0;
-  color: #333;
-  font-size: 16px;
-  line-height: 1.6;
-  border: 0.01px solid #dfdfdf;
-  padding: 20px;
-  border-radius: 8px;
+  background-color: #f0f0f0; /* Màu xám nhạt */
+  color: #333; /* Văn bản màu đậm */
+  font-size: 16px; /* Tăng kích thước chữ cơ bản */
+  line-height: 1.6; /* Tăng khoảng cách giữa các dòng */
 }
 
 .footer a {
   color: #333;
   text-decoration: none;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 16px; /* Tăng kích thước chữ cho liên kết */
+  line-height: 1.6; /* Tăng khoảng cách giữa các dòng cho liên kết */
 }
 
 .footer a:hover {
@@ -39,9 +20,9 @@ main {
 }
 
 .footer .social-section {
-  background-color: #f0f0f0;
-  font-size: 18px;
-  line-height: 1.6;
+  background-color: #e0e0e0;
+  font-size: 18px; /* Tăng kích thước chữ cho phần mạng xã hội */
+  line-height: 1.6; /* Tăng khoảng cách giữa các dòng */
 }
 
 .footer .social-icons {
@@ -50,10 +31,10 @@ main {
 }
 
 .footer .social-icons a {
-  margin-right: 1px; /* Decrease the margin to bring the icons closer */
+  margin-right: 15px;
   color: #333;
-  font-size: 20px;
-  line-height: 1.6;
+  font-size: 20px; /* Tăng kích thước icon */
+  line-height: 1.6; /* Tăng khoảng cách giữa các dòng cho icon */
 }
 
 .footer .social-icons a:hover {
@@ -61,42 +42,30 @@ main {
 }
 
 .footer .content-section {
-  display: flex;
-  justify-content: space-between;
   padding: 20px 0;
-  font-size: 16px;
-  line-height: 1.8;
-}
-
-.footer .left-section {
-  flex: 1;
-}
-
-.footer .right-section {
-  display: flex;
-  flex: 1;
-  gap: 60px; /* Add gap between columns */
+  font-size: 16px; /* Tăng kích thước chữ cho nội dung */
+  line-height: 1.8; /* Tăng khoảng cách giữa các dòng cho nội dung */
 }
 
 .footer .content-section h6 {
-  font-size: 20px;
-  line-height: 1.4;
+  font-size: 20px; /* Tăng kích thước chữ cho tiêu đề */
+  line-height: 1.4; /* Khoảng cách giữa các dòng cho tiêu đề */
 }
 
 .footer .content-section p,
 .footer .content-section a {
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 16px; /* Tăng kích thước chữ cho đoạn văn và liên kết */
+  line-height: 1.6; /* Tăng khoảng cách giữa các dòng */
 }
 
 .footer .content-section .MuiTypography-body2 {
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 16px; /* Đảm bảo Typography của MUI cũng có kích thước chữ phù hợp */
+  line-height: 1.6; /* Tăng khoảng cách giữa các dòng */
 }
 
 .footer .copyright {
-  background-color: rgba(227, 221, 221, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
   padding: 10px 0;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 14px; /* Tăng kích thước chữ nếu cần */
+  line-height: 1.6; /* Tăng khoảng cách giữa các dòng */
 }

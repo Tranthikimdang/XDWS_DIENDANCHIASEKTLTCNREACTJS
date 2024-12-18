@@ -1,41 +1,56 @@
-// models/order.js
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/db');
 
-const { Model, DataTypes } = require('sequelize');
-const sequelize = require('../config/db'); // Adjust the path as needed
-
-class Order extends Model {}
-
-Order.init({
-  // Define your attributes here
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  cart_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  total_amount: {
-    type: DataTypes.FLOAT,
-    allowNull: false,
-  },
-  payment_method: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  order_status: {
-    type: DataTypes.STRING,
-    defaultValue: 'pending',
-  },
-  payment_status: {
-    type: DataTypes.STRING,
-    defaultValue: 'unpaid',
-  },
+const Order = sequelize.define('Order', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'users',
+            key: 'id'
+        }
+    },
+    cart_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'carts',
+            key: 'id'
+        }
+    },
+    item: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    payment: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: 'pending'
+    },
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    create_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+    update_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    }
 }, {
-  sequelize,
-  modelName: 'Order',
-  tableName: 'orders',
-  timestamps: true, // If using createdAt and updatedAt
+    tableName: 'orders',
+    timestamps: false
 });
 
 module.exports = Order;
