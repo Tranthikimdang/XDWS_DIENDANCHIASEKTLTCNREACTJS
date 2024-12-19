@@ -285,11 +285,9 @@ const FormEditQuestion = () => {
                                 <Grid container>
                                     <Grid item xs={12}>
                                         <input
-                                            variant="outlined"
+
                                             type="text"
                                             name="title"
-                                            value={editedQuestion.title || ''}
-                                            onChange={handleInputChange}
                                             {...register("title", {
                                                 required: "Tiêu đề là bắt buộc",
                                                 minLength: {
@@ -305,6 +303,8 @@ const FormEditQuestion = () => {
                                                     noUppercase: (value) => value !== value.toUpperCase() || "Không sử dụng toàn chữ in hoa"
                                                 }
                                             })}
+                                            value={editedQuestion.title || ''}
+                                            onChange={handleInputChange}
                                             style={{
                                                 width: '100%',
                                                 backgroundColor: 'transparent',
@@ -321,248 +321,182 @@ const FormEditQuestion = () => {
                             </VuiTypography>
                             <div className="col-6 mb-3">
                                 {/* Hashtag */}
-                                <Box display="flex" alignItems="center" my={2}>
-                                    <Typography variant="body2" sx={{ mr: 2 }}>
-                                        <strong style={{ color: '#fff' }}>Hashtag</strong>
-                                    </Typography>
-                                    <TextField
-                                        fullWidth
-                                        placeholder="Nhập hashtag"
-                                        variant="standard"
-                                        name="hashtag"
-                                        value={editedQuestion.hashtag || ''}
-                                        onChange={handleInputChange}
-                                        sx={{
-                                            '& .MuiInputBase-root': { backgroundColor: 'transparent!important', border: 'none' },
-                                            '& .MuiInputBase-input': { color: '#fff' }
-                                        }}
-                                    />
-                                </Box>
-
-                            </div>
-                            <div className="col-6 mb-3">
-                                {/* Display uploaded files */}
-                                <Box display="flex" flexDirection="row" alignItems="center" mt={2}>
-                                    <Typography variant="h6" sx={{ color: '#fff', marginRight: '10px' }}>
-                                        File tải lên:
-                                    </Typography>
-
-                                    <Box flex={1}>
-                                        {selectedFiles.length > 0 ? (
-                                            <Box
-                                                sx={{
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    <strong style={{ color: '#fff' }}>Hashtag</strong>
+                                    <Grid container>
+                                        <Grid item xs={12}>
+                                            <input
+                                                type="text"
+                                                name="hashtag"
+                                                placeholder="Nhập hashtag"
+                                                {...register("hashtag", {
+                                                    required: "Hashtag là bắt buộc",
+                                                    validate: (value) =>
+                                                        value.startsWith('#') || "Hashtag phải bắt đầu bằng dấu #",
+                                                })}
+                                                value={editedQuestion.hashtag || ''}
+                                                onChange={handleInputChange}
+                                                style={{
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     padding: '10px',
                                                     border: '1px solid #e0e0e0',
                                                     borderRadius: '8px',
-                                                    backgroundColor: '#fff',
-                                                    width: 'fit-content',
-                                                    height: 'auto',
-                                                    flexWrap: 'wrap', // Cho phép các file nằm trên nhiều dòng nếu cần
+                                                    width: '100%',
+                                                    backgroundColor: 'transparent',
+                                                    borderColor: errors.title ? 'red' : '#fff',
+                                                    color: '#fff',
                                                 }}
-                                            >
-                                                {selectedFiles.map((file, index) => {
-                                                    const fileName = decodeURIComponent(file)
-                                                        .split('/')
-                                                        .pop()
-                                                        .split('?')[0]; // Lấy tên file từ URL
+                                            />
+                                            {errors.hashtag && <span style={{ color: 'red' }}>{errors.hashtag.message}</span>}
+                                        </Grid>
+                                    </Grid>
+                                </VuiTypography>
+                            </div>
+                            <div className="col-6 mb-3">
+                                {/* Display uploaded files */}
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    File tải lên:
+                                    <Grid container>
+                                        <Grid item xs={12}>
+                                            {selectedFiles.length > 0 ? (
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        border: '1px solid grey',
+                                                        borderRadius: '12px',
+                                                        width: '100%', // Đảm bảo rằng Box chiếm toàn bộ chiều rộng của phần tử chứa
+                                                    }}
+                                                >
+                                                    {selectedFiles.map((file, index) => {
+                                                        const fileName = decodeURIComponent(file)
+                                                            .split('/')
+                                                            .pop()
+                                                            .split('?')[0]; // Lấy tên file từ URL
 
-                                                    const fullUrl = 'http://localhost:3000' + file; // Đảm bảo URL đầy đủ để tải tệp
+                                                        const fullUrl = 'http://localhost:3000' + file; // Đảm bảo URL đầy đủ để tải tệp
 
-                                                    return (
+                                                        return (
+                                                            <Box
+                                                                key={index}
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                }}
+                                                            >
+                                                                <IconButton
+                                                                    sx={{
+                                                                        color: '#fff',
+                                                                        '&:hover': { color: 'grey' },
+                                                                    }}
+                                                                    onClick={() => saveAs(fullUrl, fileName)}
+                                                                >
+                                                                    <DescriptionIcon />
+                                                                </IconButton>
+                                                                <span
+                                                                    style={{
+                                                                        color: '#fff',
+                                                                        fontSize: '14px',
+                                                                        marginLeft: '8px',
+                                                                        cursor: 'pointer',
+                                                                        '&:hover': {
+                                                                            textDecoration: 'underline',
+                                                                        },
+                                                                    }}
+                                                                >
+                                                                    {fileName}
+                                                                </span>
+                                                            </Box>
+                                                        );
+                                                    })}
+                                                </Box>
+                                            ) : (
+                                                <Typography variant="caption" sx={{ color: '#fff' }}>
+                                                    {/* Hiển thị file nếu có */}
+                                                    {editedQuestion.fileUrls.length > 0 ? (
                                                         <Box
-                                                            key={index}
                                                             sx={{
                                                                 display: 'flex',
                                                                 alignItems: 'center',
-                                                                marginRight: '10px',
-                                                                marginBottom: '10px', // Thêm khoảng cách dưới giữa các file
+                                                                border: '1px solid grey',
+                                                                borderRadius: '12px',
+                                                                width: '100%', // Đảm bảo rằng Box chiếm toàn bộ chiều rộng của phần tử chứa
                                                             }}
                                                         >
-                                                            <IconButton
-                                                                sx={{
-                                                                    color: '#007bff', // Màu của biểu tượng tải về
-                                                                    '&:hover': { color: '#0056b3' }, // Hiệu ứng hover cho biểu tượng
-                                                                }}
-                                                                onClick={() => saveAs(fullUrl, fileName)} // Sử dụng FileSaver.js để tải về
-                                                            >
-                                                                <DescriptionIcon />
-                                                            </IconButton>
-                                                            <span
-                                                                style={{
-                                                                    color: '#007bff',
-                                                                    fontSize: '14px',
-                                                                    marginLeft: '8px',
-                                                                    cursor: 'pointer',
-                                                                    '&:hover': {
-                                                                        textDecoration: 'underline', // Gạch dưới khi hover vào tên file
-                                                                    },
-                                                                }}
-                                                            >
-                                                                {fileName}
-                                                            </span>
-                                                        </Box>
-                                                    );
-                                                })}
-                                            </Box>
-                                        ) : (
-                                            <Typography variant="caption" sx={{ color: '#fff' }}>
-                                                {/* Hiển thị file nếu có */}
-                                                {editedQuestion.fileUrls.length > 0 ? (
-                                                    <Box
-                                                        sx={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            padding: '10px',
-                                                            border: '1px solid #e0e0e0',
-                                                            borderRadius: '8px',
-                                                            backgroundColor: '#fff',
-                                                            width: 'fit-content',
-                                                            height: 'auto',
-                                                            flexWrap: 'wrap', // Cho phép các file nằm trên nhiều dòng nếu cần
-                                                        }}
-                                                    >
-                                                        {editedQuestion.fileUrls.map((url, index) => {
-                                                            const fileName = decodeURIComponent(url)
-                                                                .split('/')
-                                                                .pop()
-                                                                .split('?')[0]; // Lấy tên file từ URL
+                                                            {editedQuestion.fileUrls.map((url, index) => {
+                                                                const fileName = decodeURIComponent(url)
+                                                                    .split('/')
+                                                                    .pop()
+                                                                    .split('?')[0]; // Lấy tên file từ URL
 
-                                                            // Kiểm tra nếu file là hợp lệ và không phải là tên 'uploads'
-                                                            if (fileName !== 'uploads') {
-                                                                const fullUrl = 'http://localhost:3000' + url; // Đảm bảo URL đầy đủ để tải tệp
+                                                                // Kiểm tra nếu file là hợp lệ và không phải là tên 'uploads'
+                                                                if (fileName !== 'uploads') {
+                                                                    const fullUrl = 'http://localhost:3000' + url; // Đảm bảo URL đầy đủ để tải tệp
 
-                                                                return (
-                                                                    <Box
-                                                                        key={index}
-                                                                        sx={{
-                                                                            display: 'flex',
-                                                                            alignItems: 'center',
-                                                                            marginRight: '10px',
-                                                                            marginBottom: '10px', // Khoảng cách giữa các file
-                                                                        }}
-                                                                    >
-                                                                        <IconButton
+                                                                    return (
+                                                                        <Box
+                                                                            key={index}
                                                                             sx={{
-                                                                                color: '#007bff', // Màu biểu tượng tải về
-                                                                                '&:hover': { color: '#0056b3' }, // Hiệu ứng hover cho biểu tượng
-                                                                            }}
-                                                                            onClick={() => saveAs(fullUrl, fileName)} // Dùng saveAs để tải file
-                                                                        >
-                                                                            <DescriptionIcon />
-                                                                        </IconButton>
-                                                                        <span
-                                                                            style={{
-                                                                                color: '#007bff',
-                                                                                fontSize: '14px',
-                                                                                marginLeft: '8px',
-                                                                                cursor: 'pointer',
-                                                                                '&:hover': {
-                                                                                    textDecoration: 'underline', // Gạch dưới khi hover vào tên file
-                                                                                },
+                                                                                display: 'flex',
+                                                                                alignItems: 'center',
                                                                             }}
                                                                         >
-                                                                            {fileName} {/* Hiển thị tên file */}
-                                                                        </span>
-                                                                    </Box>
-                                                                );
-                                                            }
-                                                            return null;
-                                                        })}
-                                                    </Box>
-                                                ) : (
-                                                    <Box
-                                                        sx={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            padding: '10px',
-                                                            border: '1px solid #e0e0e0',
-                                                            borderRadius: '8px',
-                                                            backgroundColor: '#fff',
-                                                            width: 'fit-content',
-                                                        }}
-                                                    >
-                                                        <DescriptionIcon sx={{ color: '#e0e0e0' }} /> {/* Biểu tượng khi không có file */}
-                                                        <Typography variant="caption" sx={{ color: '#e0e0e0', marginLeft: '8px' }}>
-                                                            Không có file được tải lên
-                                                        </Typography>
-                                                    </Box>
-                                                )}
+                                                                            <IconButton
+                                                                                sx={{
+                                                                                    color: '#fff',
+                                                                                    '&:hover': { color: 'grey' },
+                                                                                }}
+                                                                                onClick={() => saveAs(fullUrl, fileName)}
+                                                                            >
+                                                                                <DescriptionIcon />
+                                                                            </IconButton>
+                                                                            <span
+                                                                                style={{
+                                                                                    color: '#007bff',
+                                                                                    fontSize: '14px',
+                                                                                    marginLeft: '8px',
+                                                                                    cursor: 'pointer',
+                                                                                    '&:hover': {
+                                                                                        textDecoration: 'underline', // Gạch dưới khi hover vào tên file
+                                                                                    },
+                                                                                }}
+                                                                            >
+                                                                                {fileName} {/* Hiển thị tên file */}
+                                                                            </span>
+                                                                        </Box>
+                                                                    );
+                                                                }
+                                                                return null;
+                                                            })}
+                                                        </Box>
+                                                    ) : (
+                                                        <Box
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                padding: '10px',
+                                                                border: '1px solid #e0e0e0',
+                                                                borderRadius: '8px',
+                                                                width: '100%',
+                                                            }}
+                                                        >
+                                                            <DescriptionIcon sx={{ color: '#e0e0e0' }} /> {/* Biểu tượng khi không có file */}
+                                                            <Typography variant="caption" sx={{ color: '#e0e0e0', marginLeft: '8px' }}>
+                                                                Không có file được tải lên
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
 
-                                            </Typography>
-                                        )}
+                                                </Typography>
+                                            )}
 
-                                    </Box>
-                                </Box>
+                                        </Grid>
+                                    </Grid>
+                                </VuiTypography>
                             </div>
                         </div>
-                        <Box mt={2}>
-                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                <strong>Hình ảnh tải lên:</strong>
-                            </VuiTypography>
-                            <Box
-                                sx={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
-                                    gap: '10px',  // Khoảng cách giữa các ảnh
-                                    justifyItems: 'center',  // Căn giữa các ảnh
-                                }}
-                            >
-                                {selectedImages.length > 0 ? (
-                                    selectedImages.map((image, index) => (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                position: 'relative',
-                                                width: '100%',  // Căn chỉnh kích thước ảnh để không bị kéo giãn
-                                                aspectRatio: '1 / 1',  // Đảm bảo ảnh vuông
-                                                overflow: 'hidden',
-                                                borderRadius: '8px',
-                                                boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                                transition: 'transform 0.3s ease',
-                                                '&:hover': {
-                                                    transform: 'scale(1.05)',  // Thêm hiệu ứng hover cho ảnh
-                                                }
-                                            }}
-                                        >
-                                            <img
-                                                src={image}
-                                                alt={`Uploaded ${index}`}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'cover',
-                                                    borderRadius: '8px',
-                                                }}
-                                            />
-                                        </Box>
-                                    ))
-                                ) : (
-                                    <Box
-                                        sx={{
-                                            position: 'relative',
-                                            width: '100%',
-                                            aspectRatio: '1 / 1',
-                                            overflow: 'hidden',
-                                            borderRadius: '8px',
-                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                        }}
-                                    >
-                                        <img
-                                            src={imageplaceholder}
-                                            alt="Không có hình ảnh được chọn"
-                                            style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'cover',
-                                                borderRadius: '8px',
-                                            }}
-                                        />
-                                    </Box>
-                                )}
-                            </Box>
-                        </Box>
+
                         <div className="row">
                             <div className="col-6 mb-3">
                                 {/* Display uploaded code */}
@@ -657,37 +591,103 @@ const FormEditQuestion = () => {
                                 </Box>
                             </div>
                         </div>
-
-                        {/* Hình ảnh */}
-                        <Box display="flex" justifyContent="space-between" alignItems="center">
-                            <Box display="flex" gap={1}>
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<ImageIcon />}
-                                    component="label"
-                                >
-                                    Chọn Hình ảnh
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        multiple
-                                        hidden
-                                        onChange={handleImageUpload}
-                                    />
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<AttachFileIcon />}
-                                    component="label"
-                                >
-                                    Chọn Tệp
-                                    <input
-                                        type="file"
-                                        multiple
-                                        hidden
-                                        onChange={handleFileUpload}
-                                    />
-                                </Button>
+                        <Box mt={2}>
+                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                <strong>Hình ảnh tải lên:</strong>
+                            </VuiTypography>
+                            <Box
+                                sx={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
+                                    gap: '10px',  // Khoảng cách giữa các ảnh
+                                    justifyItems: 'center',  // Căn giữa các ảnh
+                                    border: '1px solid grey',
+                                    borderRadius: '12px',
+                                    padding: '10px 8px',
+                                }}
+                            >
+                                {selectedImages.length > 0 ? (
+                                    selectedImages.map((image, index) => (
+                                        <Box
+                                            key={index}
+                                            sx={{
+                                                position: 'relative',
+                                                width: '100%',  // Chiều rộng bằng với phần tử chứa
+                                                aspectRatio: '1 / 1',  // Giữ tỉ lệ 1:1 cho ảnh (vuông)
+                                                overflow: 'hidden',
+                                                borderRadius: '8px',
+                                            }}
+                                        >
+                                            <img
+                                                src={image}
+                                                alt={`Uploaded ${index}`}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover',  // Giữ tỷ lệ gốc của hình ảnh mà không bị kéo giãn
+                                                    borderRadius: '8px',
+                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  // Đổ bóng cho ảnh
+                                                }}
+                                            />
+                                        </Box>
+                                    ))
+                                ) : (
+                                    <Box
+                                        sx={{
+                                            position: 'relative',
+                                            width: '100%',
+                                            aspectRatio: '1 / 1',
+                                            overflow: 'hidden',
+                                            borderRadius: '8px',
+                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                        }}
+                                    >
+                                        <img
+                                            src={imageplaceholder}
+                                            alt="Không có hình ảnh được chọn"
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                                borderRadius: '8px',
+                                            }}
+                                        />
+                                    </Box>
+                                )}
+                            </Box>
+                        </Box>
+                        {/*Button Tệp Hình ảnh */}
+                        <Box mt={2}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                                <Box display="flex" gap={1}>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<ImageIcon />}
+                                        component="label"
+                                    >
+                                        Chọn Hình ảnh
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            hidden
+                                            onChange={handleImageUpload}
+                                        />
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<AttachFileIcon />}
+                                        component="label"
+                                    >
+                                        Chọn Tệp
+                                        <input
+                                            type="file"
+                                            multiple
+                                            hidden
+                                            onChange={handleFileUpload}
+                                        />
+                                    </Button>
+                                </Box>
                             </Box>
                         </Box>
 
@@ -722,7 +722,7 @@ const FormEditQuestion = () => {
                 </Alert>
             </Snackbar>
 
-        </DashboardLayout>
+        </DashboardLayout >
     );
 };
 

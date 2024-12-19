@@ -1014,10 +1014,13 @@ const Questions = ({ listImgUrl = [] }) => {
                                             InputProps={{ disableUnderline: true }}
                                             {...register("hashtag", {
                                                 required: "Hashtag là bắt buộc",
+                                                validate: (value) =>
+                                                    value.startsWith('#') || "Hashtag phải bắt đầu bằng dấu #",
                                             })}
                                             error={!!errors.hashtag}
                                             helperText={errors.hashtag ? errors.hashtag.message : null}
                                         />
+
                                     </Box>
                                 </Box>
 
