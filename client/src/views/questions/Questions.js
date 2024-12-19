@@ -2536,13 +2536,16 @@ const Questions = ({ listImgUrl = [] }) => {
                                                             }}
                                                         >
                                                             <img
-                                                                src={mentor.user.imageUrl || '../../assets/images/profile/user-1.jpg'}
+                                                                src={mentor.user.imageUrl || avatardefault}
                                                                 alt="User Avatar"
                                                                 style={{
                                                                     width: 40,
                                                                     height: 40,
                                                                     borderRadius: '50%',
                                                                     marginRight: 8,
+                                                                }}
+                                                                onError={(e) => {
+                                                                    e.target.src = avatardefault;
                                                                 }}
                                                             />
                                                             <Typography variant="button" color="textPrimary" fontWeight="medium">
