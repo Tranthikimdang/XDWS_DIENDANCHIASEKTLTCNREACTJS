@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Grid, Box, Typography, CircularProgress, Button, IconButton } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Button, IconButtonIconButton, Container} from '@mui/material';
 import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'; // Lấy id từ URL
 import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore'; // Sử dụng để lấy dữ liệu cụ thể từ Firestore
 
@@ -636,6 +636,7 @@ const ProductsDetail = () => {
             </Typography>
           ) : (
             <>
+            
               <textarea
                 rows={4}
                 value={newComment}
