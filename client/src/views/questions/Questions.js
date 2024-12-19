@@ -1696,7 +1696,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                             </Typography>
                                                         ) : (
                                                             <>
-                                                                <Box sx={{ mt: 3, mb: 3 }}>
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                                                     {/* Comment Input */}
                                                                     <Box
                                                                         sx={{
@@ -1708,7 +1708,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                         }}
                                                                     >
                                                                         {/* Avatar và Text Input */}
-                                                                        <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
+                                                                        
                                                                             <img
                                                                                 src={currentUserImage || avatardefault}
                                                                                 alt="Hình ảnh người dùng"
@@ -1729,35 +1729,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                 value={newComment}
                                                                                 onChange={(e) => setNewComment(e.target.value)}
                                                                             />
-                                                                        </Box>
-
-                                                                        {/* Hàng biểu tượng cho Emojis, GIFs, Hình ảnh */}
-                                                                        <Box
-                                                                            display="flex"
-                                                                            justifyContent="center"
-                                                                            sx={{
-                                                                                width: '100%',
-                                                                                gap: 0,
-                                                                                marginRight: '420px',
-                                                                                marginTop: '-17px',
-                                                                            }}
-                                                                        >
-                                                                            <IconButton>
-                                                                                <InsertEmoticonIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <SentimentSatisfiedAltIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <InsertPhotoIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <CameraAltIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <GifBoxIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                        </Box>
+                                                                      
 
                                                                         {/* File input cho hình ảnh */}
                                                                         <Box
@@ -2062,33 +2034,6 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                                 }))
                                                                                             } // Cập nhật nội dung trả lời cho bình luận cụ thể
                                                                                         />
-                                                                                    </Box>
-
-                                                                                    <Box
-                                                                                        display="flex"
-                                                                                        justifyContent="center"
-                                                                                        sx={{
-                                                                                            width: '100%',
-                                                                                            gap: 0,
-                                                                                            marginLeft: '-210px',
-                                                                                            marginTop: '-2px',
-                                                                                        }}
-                                                                                    >
-                                                                                        <IconButton>
-                                                                                            <InsertEmoticonIcon fontSize="medium" />
-                                                                                        </IconButton>
-                                                                                        <IconButton>
-                                                                                            <SentimentSatisfiedAltIcon fontSize="medium" />
-                                                                                        </IconButton>
-                                                                                        <IconButton>
-                                                                                            <InsertPhotoIcon fontSize="medium" />
-                                                                                        </IconButton>
-                                                                                        <IconButton>
-                                                                                            <CameraAltIcon fontSize="medium" />
-                                                                                        </IconButton>
-                                                                                        <IconButton>
-                                                                                            <GifBoxIcon fontSize="medium" />
-                                                                                        </IconButton>
                                                                                     </Box>
 
                                                                                     {/* Options for Image, File, Code */}
