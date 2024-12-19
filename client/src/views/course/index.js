@@ -15,7 +15,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-
+import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg";
 import CourseApi from '../../apis/CourseApI';
 import CateCourseApi from '../../apis/Categories_courseApI';
 import StudyTimeApi from '../../apis/StudyTimeApI';
@@ -252,7 +252,7 @@ const Course = () => {
                                   }}
                                 >
                                   <img
-                                    src={product.image}
+                                    src={product.image || imageplaceholder}
                                     className="w-100"
                                     alt={product.name}
                                     style={{
@@ -261,6 +261,9 @@ const Course = () => {
                                       borderRadius: '10px',
                                       transition: 'all 0.3s ease',
                                       cursor: 'pointer',
+                                    }}
+                                    onError={(e) => {
+                                      e.target.src = imageplaceholder; // Hiển thị ảnh mặc định nếu ảnh không tải được
                                     }}
                                   />
                                   <a href="#!">

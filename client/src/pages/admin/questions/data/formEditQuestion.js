@@ -216,7 +216,7 @@ const FormEditQuestion = () => {
                 // Chờ 5 giây rồi chuyển hướng về trang danh sách câu hỏi
                 setTimeout(() => {
                     navigate('/admin/questions');
-                }, 5000);  // 5000 milliseconds = 5 giây
+                }, 3000);  // 5000 milliseconds = 5 giây
             } else {
                 // Nếu API trả về lỗi hoặc không có mã trạng thái 200, thông báo thành công mặc định
                 setSnackbarMessage('Cập nhật câu hỏi thành công!');
@@ -335,7 +335,7 @@ const FormEditQuestion = () => {
                                                     validate: (value) =>
                                                         value.startsWith('#') || "Hashtag phải bắt đầu bằng dấu #",
                                                 })}
-                                                value={editedQuestion.hashtag || ''}
+                                                value={editedQuestion.hashtag || 'Người dùng không nhập hashtag'}
                                                 onChange={handleInputChange}
                                                 style={{
                                                     display: 'flex',
@@ -505,7 +505,7 @@ const FormEditQuestion = () => {
                                     fullWidth
                                     rows={10}
                                     name="up_code"
-                                    value={editedQuestion?.up_code || ''} // Thông báo nếu không có code
+                                    value={editedQuestion?.up_code || 'Người dùng không nhập code'} // Thông báo nếu không có code
                                     onChange={handleInputChange}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
@@ -551,7 +551,7 @@ const FormEditQuestion = () => {
                                     fullWidth
                                     rows={10}
                                     name="questions"
-                                    value={editedQuestion.questions || ''}
+                                    value={editedQuestion?.questions || 'Người dùng không nhập câu hỏi'}
                                     onChange={handleInputChange}
                                     sx={{
                                         '& .MuiOutlinedInput-root': {
@@ -624,7 +624,7 @@ const FormEditQuestion = () => {
                                         />
                                     </Box>
                                 ))
-                            ) : (
+                            ) : editedQuestion?.imageUrls ? (
                                 <Box
                                     sx={{
                                         position: 'relative',
@@ -636,18 +636,32 @@ const FormEditQuestion = () => {
                                     }}
                                 >
                                     <img
-                                        src={imageplaceholder}
-                                        alt="Không có hình ảnh được chọn"
+                                        src={editedQuestion?.imageUrls}
+                                        alt="Hình ảnh"
                                         style={{
                                             width: '100%',
                                             height: '100%',
-                                            objectFit: 'cover',
+                                            objectFit: 'cover',  // Giữ tỷ lệ gốc của hình ảnh mà không bị kéo giãn
                                             borderRadius: '8px',
+                                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  // Đổ bóng cho ảnh
                                         }}
                                     />
                                 </Box>
+                            ) : (
+                                <img
+                                    src={imageplaceholder}
+                                    alt="Không có hình ảnh"
+                                    style={{
+                                        width: '100px',
+                                        height: '100px',
+                                        borderRadius: '8px',
+                                        objectFit: 'cover',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                    }}
+                                />
                             )}
                         </Box>
+
 
                         {/*Button Tệp Hình ảnh */}
                         <Box mt={2}>
@@ -687,18 +701,20 @@ const FormEditQuestion = () => {
 
                         {/* Submit Button */}
                         <Box display="flex" justifyContent="flex-end" mt={3}>
-                            <button
+                            <Box display="flex" gap={1}> <button
                                 className="text-light btn btn-outline-secondary"
                                 onClick={handleCancel}  // Gọi hàm handleCancel khi nhấn nút Quay lại
                             >
                                 Quay lại
                             </button>
-                            <button
-                                className="text-light btn btn-outline-info me-2"
-                                type="submit"
-                            >
-                                Cập nhật câu hỏi
-                            </button>
+                                <button
+                                    className="text-light btn btn-outline-info me-2"
+                                    type="submit"
+                                >
+                                    Cập nhật câu hỏi
+                                </button>
+
+                            </Box>
                         </Box>
                     </Box>
                 )}

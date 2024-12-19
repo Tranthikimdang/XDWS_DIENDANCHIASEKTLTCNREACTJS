@@ -1135,20 +1135,67 @@ const Questions = ({ listImgUrl = [] }) => {
                                 </Box>
                                 <Box>
                                     {/* Preview Images */}
-                                    {imagePreviews.length > 0 && (
-                                        <Box display="flex" gap={2} flexWrap="wrap" mb={2}>
-                                            {imagePreviews.map((image, index) => (
-                                                <img
+                                    {imagePreviews && imagePreviews.length > 0 && (
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                justifyContent: 'center',
+                                                gap: '10px',
+                                            }}
+                                        >
+                                            {imagePreviews.slice(0, Math.min(imagePreviews.length, 4)).map((image, index) => (
+                                                <Box
                                                     key={index}
-                                                    src={image}
-                                                    alt={`Preview ${index}`}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: 'auto',
-                                                        objectFit: 'cover',
+                                                    sx={{
+                                                        position: 'relative',
+                                                        flexBasis: imagePreviews.length === 1 ? '100%' : (imagePreviews.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
+                                                        maxWidth: imagePreviews.length === 1 ? '100%' : (imagePreviews.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
+                                                        mb: 2,
+                                                        textAlign: imagePreviews.length === 3 && index === 2 ? 'center' : 'unset',
+                                                        cursor: index === 3 && imagePreviews.length > 4 ? 'pointer' : 'unset',
+                                                        overflow: 'hidden',
                                                         borderRadius: '8px',
                                                     }}
-                                                />
+                                                >
+                                                    <img
+                                                        src={image || 'Người dùng không nhập hình ảnh'}
+                                                        alt={`Preview ${index}`}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: 'auto',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                        }}
+                                                    />
+                                                    {index === 3 && imagePreviews.length > 4 && (
+                                                        <Box
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: 0,
+                                                                left: 0,
+                                                                right: 0,
+                                                                bottom: 0,
+                                                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                                                display: 'flex',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                borderRadius: '8px',
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                variant="h5"
+                                                                sx={{
+                                                                    color: 'white',
+                                                                    fontWeight: 'bold',
+                                                                    fontSize: '1.5rem'
+                                                                }}
+                                                            >
+                                                                +{imagePreviews.length - 4}
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
+                                                </Box>
                                             ))}
                                         </Box>
                                     )}
