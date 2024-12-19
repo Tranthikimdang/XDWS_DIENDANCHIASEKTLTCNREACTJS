@@ -70,8 +70,6 @@ const FormViewQuestion = () => {
         color: '#ffffff'
     };
 
-    console.log(questionData?.question?.fileUrls);
-
 
     return (
         <DashboardLayout>
@@ -210,7 +208,20 @@ const FormViewQuestion = () => {
                                         </Grid>
                                     ) : (
                                         <Typography variant="caption" sx={{ color: '#fff' }}>
-                                            Không có file được tải lên
+                                            <Grid container>
+                                                <Grid item xs={12}>
+                                                    <Box
+                                                        sx={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            border: '1px solid grey',
+                                                            borderRadius: '12px',
+                                                            width: '100%', // Đảm bảo rằng Box chiếm toàn bộ chiều rộng của phần tử chứa
+                                                            padding: '10px 8px',
+                                                        }}
+                                                    >Không có file được tải lên </Box>
+                                                </Grid>
+                                            </Grid>
                                         </Typography>
                                     )}
                                 </VuiTypography>
@@ -306,62 +317,65 @@ const FormViewQuestion = () => {
                                 </Box>
                             </div>
                         </div>
-                        <Box mt={2}>
-                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                <strong>Hình ảnh tải lên:</strong>
-                            </VuiTypography>
-                            <Box
-                                sx={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
-                                    gap: '10px',  // Khoảng cách giữa các ảnh
-                                    justifyItems: 'center',  // Căn giữa các ảnh
-                                    border: '1px solid grey',
-                                    borderRadius: '12px',
-                                    padding: '10px 8px',
-                                }}
-                            >
+                        <div className="row">
+                            <Box mt={2}>
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    <strong>Hình ảnh tải lên:</strong>
+                                </VuiTypography>
 
-                                {questionData?.question?.imageUrls && questionData.question.imageUrls.length > 0 ? (
-                                    questionData.question.imageUrls.map((imageUrl, index) => (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                position: 'relative',
-                                                width: '100%',  // Chiều rộng bằng với phần tử chứa
-                                                aspectRatio: '1 / 1',  // Giữ tỉ lệ 1:1 cho ảnh (vuông)
-                                                overflow: 'hidden',
-                                                borderRadius: '8px',
-                                            }}
-                                        >
-                                            <img
-                                                src={imageUrl}
-                                                alt="Hình ảnh"
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'cover',  // Giữ tỷ lệ gốc của hình ảnh mà không bị kéo giãn
+                                <Box
+                                    sx={{
+                                        display: 'grid',
+                                        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
+                                        gap: '10px',  // Khoảng cách giữa các ảnh
+                                        justifyItems: 'center',  // Căn giữa các ảnh
+                                        border: '1px solid grey',
+                                        borderRadius: '12px',
+                                        padding: '10px 8px',
+                                    }}
+                                >
+
+                                    {questionData?.question?.imageUrls && questionData.question.imageUrls.length > 0 ? (
+                                        questionData.question.imageUrls.map((imageUrl, index) => (
+                                            <Box
+                                                key={index}
+                                                sx={{
+                                                    position: 'relative',
+                                                    width: '100%',  // Chiều rộng bằng với phần tử chứa
+                                                    aspectRatio: '1 / 1',  // Giữ tỉ lệ 1:1 cho ảnh (vuông)
+                                                    overflow: 'hidden',
                                                     borderRadius: '8px',
-                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  // Đổ bóng cho ảnh
                                                 }}
-                                            />
-                                        </Box>
-                                    ))
-                                ) : (
-                                    <img
-                                        src={imageplaceholder}
-                                        alt="Không có hình ảnh"
-                                        style={{
-                                            width: '100px',
-                                            height: '100px',
-                                            borderRadius: '8px',
-                                            objectFit: 'cover',
-                                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                                        }}
-                                    />
-                                )}
+                                            >
+                                                <img
+                                                    src={imageUrl}
+                                                    alt="Hình ảnh"
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        objectFit: 'cover',  // Giữ tỷ lệ gốc của hình ảnh mà không bị kéo giãn
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  // Đổ bóng cho ảnh
+                                                    }}
+                                                />
+                                            </Box>
+                                        ))
+                                    ) : (
+                                        <img
+                                            src={imageplaceholder}
+                                            alt="Không có hình ảnh"
+                                            style={{
+                                                width: '100px',
+                                                height: '100px',
+                                                borderRadius: '8px',
+                                                objectFit: 'cover',
+                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                            }}
+                                        />
+                                    )}
+                                </Box>
                             </Box>
-                        </Box>
+                        </div>
                         <Grid item xs={12}>
                             <Box display="flex" justifyContent="flex-end" mt={3} alignItems="center">
                                 <button
