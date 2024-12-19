@@ -1,3 +1,4 @@
+/* eslint-disable no-const-assign */
 import React, { useState, useEffect } from 'react';
 import { Box, Grid, Typography, TextField, Snackbar, Alert, CircularProgress, Button, IconButton } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -370,11 +371,8 @@ const FormEditQuestion = () => {
                                                     }}
                                                 >
                                                     {selectedFiles.map((file, index) => {
-                                                        const fileName = decodeURIComponent(file)
-                                                            .split('/')
-                                                            .pop()
-                                                            .split('?')[0]; // Lấy tên file từ URL
-
+                                                        let fileName = decodeURIComponent(file).split('/').pop().split('?')[0]; // Lấy tên file từ URL
+                                                        fileName = fileName.replace(/[0-9-]/g, ''); // Loại bỏ các ký tự không cần thiết
                                                         const fullUrl = 'http://localhost:3000' + file; // Đảm bảo URL đầy đủ để tải tệp
 
                                                         return (
@@ -425,10 +423,9 @@ const FormEditQuestion = () => {
                                                             }}
                                                         >
                                                             {editedQuestion.fileUrls.map((url, index) => {
-                                                                const fileName = decodeURIComponent(url)
-                                                                    .split('/')
-                                                                    .pop()
-                                                                    .split('?')[0]; // Lấy tên file từ URL
+                                                                let fileName = decodeURIComponent(url).split('/').pop().split('?')[0];
+                                                                fileName = fileName.replace(/[0-9-]/g, ''); // Loại bỏ các ký tự không cần thiết
+
 
                                                                 // Kiểm tra nếu file là hợp lệ và không phải là tên 'uploads'
                                                                 if (fileName !== 'uploads') {
@@ -453,12 +450,12 @@ const FormEditQuestion = () => {
                                                                             </IconButton>
                                                                             <span
                                                                                 style={{
-                                                                                    color: '#007bff',
+                                                                                    color: '#fff',
                                                                                     fontSize: '14px',
                                                                                     marginLeft: '8px',
                                                                                     cursor: 'pointer',
                                                                                     '&:hover': {
-                                                                                        textDecoration: 'underline', // Gạch dưới khi hover vào tên file
+                                                                                        textDecoration: 'underline',
                                                                                     },
                                                                                 }}
                                                                             >
@@ -481,7 +478,6 @@ const FormEditQuestion = () => {
                                                                 width: '100%',
                                                             }}
                                                         >
-                                                            <DescriptionIcon sx={{ color: '#e0e0e0' }} /> {/* Biểu tượng khi không có file */}
                                                             <Typography variant="caption" sx={{ color: '#e0e0e0', marginLeft: '8px' }}>
                                                                 Không có file được tải lên
                                                             </Typography>

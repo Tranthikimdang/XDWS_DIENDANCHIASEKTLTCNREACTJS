@@ -70,8 +70,6 @@ const FormViewQuestion = () => {
         color: '#ffffff'
     };
 
-    console.log(questionData?.question?.fileUrls);
-
 
     return (
         <DashboardLayout>
@@ -324,7 +322,7 @@ const FormViewQuestion = () => {
                                 <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
                                     <strong>Hình ảnh tải lên:</strong>
                                 </VuiTypography>
-                                
+
                                 <Box
                                     sx={{
                                         display: 'grid',
