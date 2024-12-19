@@ -43,6 +43,12 @@ const Menuitems = [
     href: '/user',
   },
   {
+    id: uniqueId(),
+    title: 'Chat',
+    icon: IconUserCircle,
+    href: '/chat',
+  },
+  {
   id: uniqueId(),
   title: 'Liên hệ',
   icon: IconFilePhone,

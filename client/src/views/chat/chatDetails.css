@@ -1,0 +1,116 @@
+.chat-details-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    max-width: 1500px;
+    margin: auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.chat-messages {
+    width: 100%;
+    height: 600px;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.message {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    word-wrap: break-word;
+}
+
+.sent {
+    align-self: flex-end;
+    background: #dcf8c6;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.received {
+    align-self: flex-start;
+    background: #f1f0f0;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.input-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.input-icons img {
+    cursor: pointer;
+}
+
+.chat-input input[type="text"],
+.chat-input textarea {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.chat-input input[type="text"]:focus,
+.chat-input textarea:focus {
+    border-color: #007bff;
+}
+
+.chat-input button {
+    padding: 12px 20px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.chat-input button:hover {
+    background: #0056b3;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-timestamp {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
