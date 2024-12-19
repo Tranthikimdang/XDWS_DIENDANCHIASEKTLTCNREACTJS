@@ -356,7 +356,7 @@ const FormEditQuestion = () => {
                             <div className="col-6 mb-3">
                                 {/* Display uploaded files */}
                                 <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                    File tải lên:
+                                    <strong>File tải lên:</strong>
                                     <Grid container>
                                         <Grid item xs={12}>
                                             {selectedFiles.length > 0 ? (
@@ -496,166 +496,163 @@ const FormEditQuestion = () => {
                                 </VuiTypography>
                             </div>
                         </div>
-
                         <div className="row">
                             <div className="col-6 mb-3">
                                 {/* Display uploaded code */}
-                                <Box mt={2}>
-                                    <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                        <strong>Code tải lên:</strong>
-                                    </VuiTypography>
-                                    <TextField
-                                        variant="outlined"
-                                        multiline
-                                        fullWidth
-                                        rows={10}
-                                        name="up_code"
-                                        value={editedQuestion?.up_code || ''} // Thông báo nếu không có code
-                                        onChange={handleInputChange}
-                                        sx={{
-                                            '& .MuiOutlinedInput-root': {
-                                                backgroundColor: 'transparent!important',
-                                                '& fieldset': {
-                                                    borderColor: '#fff',
-                                                },
-                                                '&:hover fieldset': {
-                                                    borderColor: '#fff',
-                                                },
-                                                '&.Mui-focused fieldset': {
-                                                    borderColor: '#fff',
-                                                },
-                                                '& .MuiInputBase-input': {
-                                                    flex: 1,
-                                                    '&.Mui-disabled': {
-                                                        color: 'white!important',
-                                                        '-webkit-text-fill-color': '#fff',
-                                                    },
-                                                },
+
+                                <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                                    <strong>Code tải lên:</strong>
+                                </VuiTypography>
+                                <TextField
+                                    variant="outlined"
+                                    multiline
+                                    fullWidth
+                                    rows={10}
+                                    name="up_code"
+                                    value={editedQuestion?.up_code || ''} // Thông báo nếu không có code
+                                    onChange={handleInputChange}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            backgroundColor: 'transparent!important',
+                                            '& fieldset': {
+                                                borderColor: '#fff',
                                             },
-                                            '& .MuiInputLabel-root': {
-                                                color: '#fff!important',
+                                            '&:hover fieldset': {
+                                                borderColor: '#fff',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                borderColor: '#fff',
                                             },
                                             '& .MuiInputBase-input': {
-                                                color: '#fff',
-                                                whiteSpace: 'pre-wrap', // Đảm bảo đoạn code xuống dòng khi cần
-                                                wordBreak: 'break-word', // Ngắt từ khi cần thiết
+                                                flex: 1,
+                                                '&.Mui-disabled': {
+                                                    color: 'white!important',
+                                                    '-webkit-text-fill-color': '#fff',
+                                                },
                                             },
-                                        }}
-                                    />
-                                </Box>
+                                        },
+                                        '& .MuiInputLabel-root': {
+                                            color: '#fff!important',
+                                        },
+                                        '& .MuiInputBase-input': {
+                                            color: '#fff',
+                                            whiteSpace: 'pre-wrap', // Đảm bảo đoạn code xuống dòng khi cần
+                                            wordBreak: 'break-word', // Ngắt từ khi cần thiết
+                                        },
+                                    }}
+                                />
+
                             </div>
                             <div className="col-6 mb-3">
                                 {/* Nội dung câu hỏi */}
-                                <Box mt={2}>
-                                    <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
-                                        <strong>Nội dung câu hỏi: </strong>
-                                    </VuiTypography>
-                                    <TextField
-                                        variant="outlined"
-                                        multiline
-                                        fullWidth
-                                        rows={10}
-                                        name="questions"
-                                        value={editedQuestion.questions || ''}
-                                        onChange={handleInputChange}
-                                        sx={{
-                                            '& .MuiOutlinedInput-root': {
-                                                backgroundColor: 'transparent!important',
-                                                '& fieldset': {
-                                                    borderColor: '#fff',
-                                                },
-                                                '&:hover fieldset': {
-                                                    borderColor: '#fff',
-                                                },
-                                                '&.Mui-focused fieldset': {
-                                                    borderColor: '#fff',
-                                                },
-                                                '& .MuiInputBase-input': {
-                                                    flex: 1,
-                                                    '&.Mui-disabled': {
-                                                        color: 'white!important',
-                                                        '-webkit-text-fill-color': '#fff',
-                                                    },
-                                                },
-                                            },
 
-                                            '& .MuiInputLabel-root': {
-                                                color: '#fff!important',
+                                <VuiTypography variant="subtitle1" gutterBottom style={{ fontSize: '0.9rem', color: '#ffffff' }}>
+                                    <strong>Nội dung câu hỏi: </strong>
+                                </VuiTypography>
+                                <TextField
+                                    variant="outlined"
+                                    multiline
+                                    fullWidth
+                                    rows={10}
+                                    name="questions"
+                                    value={editedQuestion.questions || ''}
+                                    onChange={handleInputChange}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            backgroundColor: 'transparent!important',
+                                            '& fieldset': {
+                                                borderColor: '#fff',
+                                            },
+                                            '&:hover fieldset': {
+                                                borderColor: '#fff',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                borderColor: '#fff',
                                             },
                                             '& .MuiInputBase-input': {
-                                                color: '#fff',
+                                                flex: 1,
+                                                '&.Mui-disabled': {
+                                                    color: 'white!important',
+                                                    '-webkit-text-fill-color': '#fff',
+                                                },
                                             },
-                                        }}
-                                    />
+                                        },
 
-                                </Box>
+                                        '& .MuiInputLabel-root': {
+                                            color: '#fff!important',
+                                        },
+                                        '& .MuiInputBase-input': {
+                                            color: '#fff',
+                                        },
+                                    }}
+                                />
                             </div>
                         </div>
-                        <Box mt={2}>
-                            <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
-                                <strong>Hình ảnh tải lên:</strong>
-                            </VuiTypography>
-                            <Box
-                                sx={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
-                                    gap: '10px',  // Khoảng cách giữa các ảnh
-                                    justifyItems: 'center',  // Căn giữa các ảnh
-                                    border: '1px solid grey',
-                                    borderRadius: '12px',
-                                    padding: '10px 8px',
-                                }}
-                            >
-                                {selectedImages.length > 0 ? (
-                                    selectedImages.map((image, index) => (
-                                        <Box
-                                            key={index}
-                                            sx={{
-                                                position: 'relative',
-                                                width: '100%',  // Chiều rộng bằng với phần tử chứa
-                                                aspectRatio: '1 / 1',  // Giữ tỉ lệ 1:1 cho ảnh (vuông)
-                                                overflow: 'hidden',
-                                                borderRadius: '8px',
-                                            }}
-                                        >
-                                            <img
-                                                src={image}
-                                                alt={`Uploaded ${index}`}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    objectFit: 'cover',  // Giữ tỷ lệ gốc của hình ảnh mà không bị kéo giãn
-                                                    borderRadius: '8px',
-                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  // Đổ bóng cho ảnh
-                                                }}
-                                            />
-                                        </Box>
-                                    ))
-                                ) : (
+
+                        <VuiTypography variant="subtitle1" gutterBottom style={smallFontStyle}>
+                            <strong>Hình ảnh tải lên:</strong>
+                        </VuiTypography>
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',  // Tự động tạo các cột với kích thước tối thiểu là 200px
+                                gap: '10px',  // Khoảng cách giữa các ảnh
+                                justifyItems: 'center',  // Căn giữa các ảnh
+                                border: '1px solid grey',
+                                borderRadius: '12px',
+                                padding: '10px 8px',
+                            }}
+                        >
+                            {selectedImages.length > 0 ? (
+                                selectedImages.map((image, index) => (
                                     <Box
+                                        key={index}
                                         sx={{
                                             position: 'relative',
-                                            width: '100%',
-                                            aspectRatio: '1 / 1',
+                                            width: '100%',  // Chiều rộng bằng với phần tử chứa
+                                            aspectRatio: '1 / 1',  // Giữ tỉ lệ 1:1 cho ảnh (vuông)
                                             overflow: 'hidden',
                                             borderRadius: '8px',
-                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                                         }}
                                     >
                                         <img
-                                            src={imageplaceholder}
-                                            alt="Không có hình ảnh được chọn"
+                                            src={image}
+                                            alt={`Uploaded ${index}`}
                                             style={{
                                                 width: '100%',
                                                 height: '100%',
-                                                objectFit: 'cover',
+                                                objectFit: 'cover',  // Giữ tỷ lệ gốc của hình ảnh mà không bị kéo giãn
                                                 borderRadius: '8px',
+                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',  // Đổ bóng cho ảnh
                                             }}
                                         />
                                     </Box>
-                                )}
-                            </Box>
+                                ))
+                            ) : (
+                                <Box
+                                    sx={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        aspectRatio: '1 / 1',
+                                        overflow: 'hidden',
+                                        borderRadius: '8px',
+                                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                    }}
+                                >
+                                    <img
+                                        src={imageplaceholder}
+                                        alt="Không có hình ảnh được chọn"
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
+                                            borderRadius: '8px',
+                                        }}
+                                    />
+                                </Box>
+                            )}
                         </Box>
+
                         {/*Button Tệp Hình ảnh */}
                         <Box mt={2}>
                             <Box display="flex" justifyContent="space-between" alignItems="center">
