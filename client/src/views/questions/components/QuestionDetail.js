@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Box,
@@ -38,8 +39,8 @@ import ImageIcon from '@mui/icons-material/Image';
 import InsertEmoticonIcon from '@mui/icons-material/InsertEmoticon';
 import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
-import { useLocation, useParams , Link } from 'react-router-dom';
-import {  getStorage } from 'firebase/storage';
+import { useLocation, useParams, Link } from 'react-router-dom';
+import { getStorage } from 'firebase/storage';
 import axios from 'axios';
 
 const QuestionDetail = () => {

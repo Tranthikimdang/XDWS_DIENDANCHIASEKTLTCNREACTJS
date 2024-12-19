@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import PageContainer from 'src/components/container/PageContainer';
@@ -16,7 +17,7 @@ import {
   Alert,
 } from '@mui/material';
 import { styled } from '@mui/system';
-import { toast } from 'react-toastify';
+import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg";
 
 // Icon
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -389,8 +390,11 @@ const Home = () => {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={product.image}
+                    image={product.image || imageplaceholder}
                     alt={product.name}
+                    onError={(e) => {
+                      e.target.src = imageplaceholder; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                    }}
                   />
                   <CardContent>
                     <Typography variant="h6" component="div" fontWeight="bold">
