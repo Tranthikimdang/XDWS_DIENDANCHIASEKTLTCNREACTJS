@@ -10,7 +10,8 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-
+// Images
+import avatardefault from 'src/assets/images/profile/user-1.jpg';
 import {
   IconMail,
   IconUser,
@@ -31,7 +32,7 @@ const Profile = () => {
     setAnchorEl2(null);
   };
   const user = JSON.parse(localStorage.getItem('user'));
-  const ProfileImg = user ? user.imageUrl : 'src/assets/images/profile/user-1.jpg';
+
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -54,8 +55,8 @@ const Profile = () => {
         onClick={handleClick2}
       >
         <Avatar
-          src={ProfileImg}
-          alt={ProfileImg}
+          src={user ? user.imageUrl : avatardefault}
+          alt="Hình ảnh người dùng"
           sx={{
             width: 35,
             height: 35,

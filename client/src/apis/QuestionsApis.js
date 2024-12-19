@@ -9,14 +9,21 @@ const QUESTIONS_URL = `${BASE_URL}/questions`;
 // Hàm API chung để xử lý các yêu cầu
 const apiRequest = async (method, url, data) => {
   try {
-    const response = await axios({ method, url, data });
+    const response = await axios({
+      method,
+      url,
+      data,
+      headers: {
+        'Content-Type': 'application/json',  // Đảm bảo gửi dữ liệu dưới dạng JSON
+      },
+    });
     return response.data; // Trả về data từ response
   } catch (error) {
     // Nếu lỗi xảy ra, xử lý lỗi chi tiết hơn
     let errorMessage = 'Request failed. Please try again.';
 
     if (error.response) {
-      console.log(error);
+      console.error(error);
 
       // Nếu backend trả về lỗi với status code, lấy message từ response
       errorMessage = error.response?.data?.message || errorMessage;
@@ -42,14 +49,14 @@ const updateQuestion = async (id, updatedData) =>
 const deleteQuestion = async (id) => apiRequest('delete', `${QUESTIONS_URL}/${id}`);
 
 // Xuất các hàm API
-export { addQuestion, getQuestionsList, updateQuestion, deleteQuestion, getQuestionId };
+export { addQuestion, getQuestionsList, getQuestionId, updateQuestion, deleteQuestion };
 
 const QuestionsApis = {
   addQuestion,
   getQuestionsList,
   getQuestionId,
   updateQuestion,
-  deleteQuestion
+  deleteQuestion,
 };
 
 export default QuestionsApis;

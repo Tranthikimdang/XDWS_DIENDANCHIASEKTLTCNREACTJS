@@ -3,8 +3,7 @@ import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
+import { Box, Snackbar, Alert } from '@mui/material';
 import '../index.css';
 import UserApi from 'src/apis/UserApI';
 import axios from 'axios';
@@ -59,11 +58,11 @@ function FormEditUser() {
     const fetchUserData = async () => {
       try {
         const response = await UserApi.getUsersList();
-        
+
         const userData = response.data.users.find((user) => user.id == id);
 
         console.log(userData);
-        
+
         if (userData) {
           setData(userData);
           setValue('name', userData.name);
@@ -296,10 +295,7 @@ function FormEditUser() {
               />
             )}
           </div>
-          <div className="d-flex justify-content mt-3">
-            <button className="text-light btn btn-outline-info me-2" type="submit">
-              Sửa
-            </button>
+          <Box display="flex" justifyContent="flex-end" mt={3} alignItems="center">
             <button
               className="text-light btn btn-outline-secondary"
               type="button"
@@ -307,7 +303,10 @@ function FormEditUser() {
             >
               Quay lại
             </button>
-          </div>
+            <button className="text-light btn btn-outline-info me-2" type="submit">
+              Cập nhật người dùng
+            </button>
+          </Box>
         </form>
       </div>
 
