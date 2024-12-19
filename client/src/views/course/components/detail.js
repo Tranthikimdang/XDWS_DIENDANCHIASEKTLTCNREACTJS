@@ -632,7 +632,7 @@ const ProductsDetail = () => {
         <Box mt={2} display="flex" flexDirection="column" gap={2}>
           {!isLoggedIn ? ( // Kiểm tra xem người dùng đã đăng nhập hay chưa
             <Typography variant="body2" color="text.secondary">
-              Vui lòng <Link to="/auth/login" style={{ color: '#007bff', textDecoration: 'underline' }}>đăng nhập</Link> để bình luận.
+              Vui lòng <Link to="/auth/login" style={{ color: '#007bff', textDecoration: 'underline' }}>đăng nhập</Link> để xem và bình luận.
             </Typography>
           ) : (
             <>
