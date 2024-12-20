@@ -238,10 +238,11 @@ const ProductsDetail = () => {
       alert(`🎉 Chúc mừng bạn đã hoàn thành khóa học!
       - Số câu trả lời đúng: ${correctAnswers}/${totalQuestions}
       - Tỷ lệ chính xác: ${(successRate * 100).toFixed(2)}%
+      - Nhận chứng chỉ ngay!
       `);
 
       try {
-        // Gửi yêu cầu cấp chứng chỉ
+
         await CertificateApi.addCertificate({
           user_id: userId, // ID người dùng
           course_id: id, // ID khóa học
@@ -249,10 +250,9 @@ const ProductsDetail = () => {
           issue_date: new Date().toISOString(), // Ngày cấp chứng chỉ
         });
 
-        navigate('/products'); // Điều hướng về danh sách sản phẩm
+        navigate('/certificate'); // Điều hướng về danh sách sản phẩm
       } catch (error) {
         console.error('Lỗi khi cập nhật trạng thái hoặc cấp chứng chỉ:', error);
-        alert('Đã xảy ra lỗi khi xử lý khóa học. Vui lòng thử lại.');
       }
     } else {
       alert(`Bạn cần xem hết video và trả lời ít nhất 80% câu hỏi đúng! 
@@ -516,14 +516,14 @@ const ProductsDetail = () => {
                               ? 'green' // Đúng: viền xanh
                               : 'red' // Sai: viền đỏ
                             : option.toLowerCase() === questionData.correct_answer
-                            ? 'green' // Đáp án đúng: viền xanh
+                            ? 'grey' // Đáp án đúng: viền xanh
                             : 'grey' // Đáp án khác: viền xám
                           : selectedAnswer === option.toLowerCase()
                           ? 'blue' // Khi chọn: viền xanh
                           : 'grey', // Chưa chọn: viền xám
                         backgroundColor: isSubmitted
                           ? option.toLowerCase() === questionData.correct_answer
-                            ? 'rgba(0, 255, 0, 0.2)' // Đúng: nền xanh nhạt
+                            ? 'transparent' // Đúng: nền xanh nhạt
                             : option.toLowerCase() === selectedAnswer && !isCorrect
                             ? 'rgba(255, 0, 0, 0.2)' // Sai: nền đỏ nhạt
                             : 'transparent' // Nền trong suốt
@@ -542,8 +542,7 @@ const ProductsDetail = () => {
                 </Box>
                 {isSubmitted && !isCorrect && (
                   <Typography variant="body1" color="error" sx={{ marginTop: 2 }}>
-                    Sai! Đáp án đúng là{' '}
-                    {questionData.correct_answer + ':' + questionData.explanation}:
+                    { questionData.explanation}:
                     {questionData[`option_${questionData.correct_answer.toLowerCase()}`]}.
                   </Typography>
                 )}
@@ -596,10 +595,10 @@ const ProductsDetail = () => {
             <div className="course-content">
               <div className="course-progress mb-4">
                 <span className="text-success font-weight-bold">
-                  Số câu hỏi đúng: {correctAnswers}
+                  Số câu hỏi đúng: {correctAnswers} / {questions.length}
                 </span>
                 <span className="text-danger font-weight-bold ml-3">
-                  Số câu hỏi sai: {incorrectAnswers}
+                  Số câu hỏi sai: {incorrectAnswers} / {questions.length}
                 </span>
               </div>
 

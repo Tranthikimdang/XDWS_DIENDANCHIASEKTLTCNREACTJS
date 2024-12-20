@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination, TextField, InputAdornment, } from '@mui/material';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import SearchIcon from '@mui/icons-material/Search';
 // Firebase
 import '../index.css';
 import CourseApi from '../../../apis/CourseApI';
@@ -32,6 +33,7 @@ const Products = () => {
   const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
   });
+
 
   useEffect(() => {
     const fetchStudyTime = async () => {
@@ -132,7 +134,7 @@ const Products = () => {
   const hasStudyAccess = (productId) => {
     return StudyTime.some((study) => study.user_id == userId && study.course_id == productId);
   };
-
+  
   const currentProducts = filteredProducts.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
@@ -166,12 +168,30 @@ const Products = () => {
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-            <TextField
-              label="Tìm kiếm sản phẩn"
+          <TextField
+              label="Tìm kiếm khóa học"
               variant="outlined"
               fullWidth
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                margin: 'auto',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
 
@@ -277,31 +297,31 @@ const Products = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
                               <div className="align-items-center mb-1">
                                 <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
-                                  {product.discount + ' VND'
-                                    ? product.discount.toLocaleString('vi-VN') + ' VND'
-                                    : 'Miễn phí'}{' '}
+                                  {product.discount
+                                    ? product.discount.toLocaleString('vi-VN')
+                                    : 'N/A'}{' '}
+                                  VND
                                 </h6>
                                 <span className="text-danger" style={{ fontSize: '0.7rem' }}>
                                   <s>
-                                    {product.price + ' VND'
-                                      ? product.price.toLocaleString('vi-VN') + ' VND'
-                                      : 'Miễn phí'}{' '}
+                                    {product.price ? product.price.toLocaleString('vi-VN') : 'N/A'}{' '}
+                                    VND
                                   </s>
                                 </span>
                               </div>
                               <h6 className="text-success">
                                 <b>Giảm giá sốc</b>
                               </h6>
-                              <div className="d-flex flex-column mt-4">
+                               <div className="d-flex flex-column mt-4">
                                 {/* Kiểm tra quyền truy cập để hiển thị nút */}
                                 {hasStudyAccess(product.id) ? (
-                                  <button
-                                    className="btn btn-success btn-sm"
-                                    type="button"
-                                    onClick={() => navigate(`/productDetailUser/${product.id}`)}
-                                  >
-                                    Bắt đầu học
-                                  </button>
+                                   <button
+                                   className="btn btn-success btn-sm"
+                                   type="button"
+                                   onClick={() => navigate(`/productDetailUser/${product.id}`)}
+                                 >
+                                   Bắt đầu học
+                                 </button>
                                 ) : (
                                   <>
                                     <button className="btn btn-primary btn-sm" type="button">

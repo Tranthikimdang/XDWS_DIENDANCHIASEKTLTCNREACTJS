@@ -40,7 +40,7 @@ const ForgotPassword = () => {
         sendEmail({
           name: user.name || 'Người dùng',
           email,
-          message: `Mã token của bạn là: ${token}. Bạn cũng có thể nhấp vào liên kết này: ${resetLink}`,
+          message: `Mã token của bạn là: ${token}.`,
         });
 
         setSnackbarMessage('Mã token đã được gửi đến email của bạn.');

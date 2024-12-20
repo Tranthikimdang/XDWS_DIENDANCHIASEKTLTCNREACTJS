@@ -2,7 +2,7 @@ import {
   IconHome, IconBrandYoutube
 } from '@tabler/icons';
 import { IconUser } from '@tabler/icons-react';
-import { IconInfoSquareRounded, IconFilePhone, IconUserCode  } from '@tabler/icons-react';
+import { IconInfoSquareRounded, IconFilePhone, IconUserCode, IconUserCircle  } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
 const Menuitems = [
@@ -41,6 +41,12 @@ const Menuitems = [
     title: 'Người dùng',
     icon: IconUser,
     href: '/user',
+  },
+  {
+    id: uniqueId(),
+    title: 'Chat',
+    icon: IconUserCircle,
+    href: '/chat',
   },
   {
   id: uniqueId(),

@@ -5,6 +5,7 @@ import Profile from 'src/views/profile/Profile';
 import ForgotPassword from '../views/authentication/ForgotPassword';
 import ResetPassword from '../views/authentication/ResetPassword';
 import CommentDetail from '../pages/admin/commentDetail';
+import ChatDetails from '../views/chat/ChatDetails'; // Import the ChatDetails component
 
 /* ***Layouts**** */
 const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
@@ -18,6 +19,7 @@ const Contact = Loadable(lazy(() => import('../views/contact/Contact')));
 const CateArticleDetail = Loadable(
   lazy(() => import('../views/article/components/CateArticleDetail')),
 );
+const Chatbox = Loadable(lazy(() => import('../views/Chatbox/chatbox')));
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail')));
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post')));
 const Questions = Loadable(lazy(() => import('../views/questions/Questions')));
@@ -94,6 +96,8 @@ const EditExercise = Loadable(lazy(() => import('../pages/admin/exercise/data/Fo
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
+const StudyTime = Loadable(lazy(() => import('../pages/admin/studyTime')));
+const AddStudyTime = Loadable(lazy(() => import('../pages/admin/studyTime/data/FormAdd')));
 
 
 const renderRoutes = (role) => {
@@ -121,6 +125,8 @@ const renderRoutes = (role) => {
       element: <FullLayout />,
       children: [
         { path: '/', element: <Navigate to="/home" /> },
+        { path: '/chat', exact: true, element: <Chatbox /> },
+        { path: '/chat/:userId', exact: true, element: <ChatDetails /> },
         { path: '/home', exact: true, element: <Dashboard /> },
         { path: '/article', exact: true, element: <Article /> },
         { path: '/contact', exact: true, element: <Contact /> },
@@ -189,6 +195,8 @@ const renderRoutes = (role) => {
         { path: 'hashtag', exact: true, element: <HasgtagAdmin/> },
         { path: 'addhashtag', exact: true, element: <AddHasgtag /> },
         { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
+        { path: 'studyTime', exact: true, element: <StudyTime /> },
+        { path: 'addStudyTime', exact: true, element: <AddStudyTime /> },
         { path: 'addExercise/:course_id', exact: true, element: <AddExercise /> },
         { path: 'editExercise/:course_id/:exercise_id', exact: true, element: <EditExercise /> }, 
         // { path: '*', element: <Navigate to="/auth/404" /> },
@@ -202,6 +210,7 @@ const renderRoutes = (role) => {
       children: [
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
+        { path: '/chat', exact: true, element: <Chatbox /> },
         { path: '/article', exact: true, element: <Article /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
@@ -236,6 +245,7 @@ const renderRoutes = (role) => {
       children: [
         { path: '/', element: <Navigate to="/home" /> },
         { path: '/home', exact: true, element: <Dashboard /> },
+        { path: '/chat', exact: true, element: <Chatbox /> },
         { path: '/article', exact: true, element: <Article /> },
         { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },

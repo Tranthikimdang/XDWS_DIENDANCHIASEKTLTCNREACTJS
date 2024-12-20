@@ -30,7 +30,8 @@ import {
     InputAdornment,
     ButtonBase,
     List,
-    Avatar
+    Avatar, 
+    Container 
 } from '@mui/material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -1696,7 +1697,8 @@ const Questions = ({ listImgUrl = [] }) => {
                                                             </Typography>
                                                         ) : (
                                                             <>
-                                                                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                                            <Container maxWidth="xl" sx={{ padding: 2 }}>
+                                                                <Box sx={{ mt: 3, mb: 3 }}>
                                                                     {/* Comment Input */}
                                                                     <Box
                                                                         sx={{
@@ -1708,7 +1710,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                         }}
                                                                     >
                                                                         {/* Avatar và Text Input */}
-                                                                        
+                                                                        <Box display="flex" alignItems="center" sx={{ width: '100%' }}>
                                                                             <img
                                                                                 src={currentUserImage || avatardefault}
                                                                                 alt="Hình ảnh người dùng"
@@ -1729,7 +1731,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                 value={newComment}
                                                                                 onChange={(e) => setNewComment(e.target.value)}
                                                                             />
-                                                                      
+                                                                        </Box>
 
                                                                         {/* File input cho hình ảnh */}
                                                                         <Box
@@ -2327,33 +2329,6 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                                         />
                                                                                                     </Box>
 
-                                                                                                    <Box
-                                                                                                        display="flex"
-                                                                                                        justifyContent="center"
-                                                                                                        sx={{
-                                                                                                            width: '100%',
-                                                                                                            gap: 1,
-                                                                                                            marginLeft: '-174px',
-                                                                                                            marginTop: '-2px',
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        <IconButton>
-                                                                                                            <InsertEmoticonIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <SentimentSatisfiedAltIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <InsertPhotoIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <CameraAltIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <GifBoxIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                    </Box>
-
                                                                                                     {/* Options for Image, File, Code */}
                                                                                                     <Box
                                                                                                         display="flex"
@@ -2461,6 +2436,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                         </Box>
                                                                     ))}
                                                                 </Box>
+                                                                </Container>
                                                             </>
                                                         )}
                                                     </Box>

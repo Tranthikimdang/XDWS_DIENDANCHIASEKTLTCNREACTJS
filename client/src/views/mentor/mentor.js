@@ -85,7 +85,7 @@ const Mentor = () => {
       <Box sx={{ padding: { xs: '16px', md: '24px' } }}>
         <Grid container spacing={3}>
           {/* Heading */}
-          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '30px' }, marginTop: '10px' }}>
             <Typography
               variant="h4"
               component="h1"
@@ -105,7 +105,7 @@ const Mentor = () => {
           {/* Search Section */}
           <Grid
             item
-            xs={12}
+            xs={8}
             sx={{
               display: 'flex',
               flexWrap: 'wrap',
@@ -141,7 +141,7 @@ const Mentor = () => {
             />
 
             {/* Lĩnh vực quan tâm */}
-            <TextField
+            {/* <TextField
               select
               label="Từ khóa quan tâm"
               variant="outlined"
@@ -168,10 +168,10 @@ const Mentor = () => {
               <option value="backend">Backend</option>
               <option value="fullstack">Fullstack</option>
               <option value="data-science">Data Science</option>
-            </TextField>
+            </TextField> */}
 
             {/* Bộ lọc */}
-            <button
+            {/* <button
               style={{
                 padding: '10px 16px',
                 border: '1px solid #ddd',
@@ -187,7 +187,7 @@ const Mentor = () => {
             >
               <FilterAltOutlinedIcon style={{ fontSize: '20px' }} />
               Bộ lọc tìm kiếm
-            </button>
+            </button> */}
           </Grid>
 
           {/* Mentor List */}

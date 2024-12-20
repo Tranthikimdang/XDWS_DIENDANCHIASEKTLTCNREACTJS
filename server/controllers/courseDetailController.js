@@ -136,7 +136,6 @@ exports.createCourseDetail = async (req, res) => {
 exports.updateCourseDetail = async (req, res) => {
   const { course_id, name, no, video, updated_at } = req.body;
   const detailId = req.params.id; // Lấy ID từ params
-  const videoFile = req.file; // Lấy file video từ request
 
   if (!detailId) {
     return res.status(400).json({
@@ -146,90 +145,43 @@ exports.updateCourseDetail = async (req, res) => {
   }
 
   try {
-    // Nếu có video mới, tải lên Vimeo
-    let embedUrl = video; // Giữ nguyên URL nếu video đã có
+    // Giữ URL video nếu có, nếu không có video mới, giữ video cũ
+    let embedUrl = video || ''; // video là URL từ frontend
 
-    if (videoFile) {
-      const filePath = videoFile.path;
-
-      // Tải video lên Vimeo
-      await new Promise((resolve, reject) => {
-        vimeoClient.upload(
-          filePath,
-          {
-            name: name || "Updated Video",
-            description: `Updated video for course detail ID: ${detailId}`,
-          },
-          async (uri) => {
-            console.log(`Video uploaded successfully: ${uri}`);
-            const videoId = uri.split("/").pop();
-            embedUrl = `https://player.vimeo.com/video/${videoId}`;
-
-            try {
-              // Cập nhật quyền riêng tư của video thành public
-              await vimeoClient.request({
-                method: "PATCH",
-                path: `/videos/${videoId}`,
-                body: {
-                  privacy: {
-                    view: "anybody", // Cho phép tất cả mọi người xem video
-                  },
-                },
-              });
-              console.log("Video privacy updated to public.");
-              // Xóa file tạm sau khi upload
-              fs.unlinkSync(filePath);
-              resolve();
-            } catch (privacyError) {
-              console.error("Error updating video privacy:", privacyError);
-              reject(privacyError);
-            }
-          },
-          (bytesUploaded, bytesTotal) => {
-            const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-            console.log(`Upload progress: ${percentage}%`);
-          },
-          (error) => {
-            console.error("Error uploading video:", error);
-            reject(error);
-          }
-        );
-      });
-    }
-
-    // Tạo đối tượng cập nhật
-    const updatedFields = {
+    // Cập nhật chi tiết khóa học trong cơ sở dữ liệu
+    const updatedCourseDetail = {
       course_id,
       name,
       no,
-      ...(embedUrl && { video: embedUrl }), // Nếu có video mới, thêm vào đối tượng cập nhật
-      updated_at, // Cập nhật ngày
+      video: embedUrl,
+      updated_at,
     };
 
-    // Cập nhật vào cơ sở dữ liệu
-    const [rowsUpdated] = await CourseDetail.update(updatedFields, {
+    // Tiến hành cập nhật dữ liệu vào cơ sở dữ liệu
+    const result = await CourseDetail.update(updatedCourseDetail, {
       where: { id: detailId },
     });
 
-    if (rowsUpdated === 0) {
+    if (result[0] > 0) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'Course detail updated successfully.',
+      });
+    } else {
       return res.status(404).json({
-        status: "error",
-        message: "Course detail not found.",
+        status: 'error',
+        message: 'Course detail not found.',
       });
     }
-
-    res.status(200).json({
-      status: "success",
-      message: "Course detail updated successfully.",
-    });
-  } catch (err) {
-    console.error("Error updating course detail:", err);
-    res.status(500).send({
-      status: "error",
-      message: err.message || "An error occurred while updating the course detail.",
+  } catch (error) {
+    console.error('Error updating course detail:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'An error occurred while updating the course detail.',
     });
   }
 };
+
 
 // Xóa thông tin chi tiết khóa học
 exports.deleteCourseDetail = async (req, res) => {

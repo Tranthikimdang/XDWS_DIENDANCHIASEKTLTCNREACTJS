@@ -193,3 +193,33 @@ exports.deleteExercise = async (req, res) => {
     });
   }
 };
+
+exports.getExercisesByCourseDetailId = async (req, res) => {
+  const { id } = req.params;
+  console.log(id);
+  try {
+    // Tìm các câu hỏi liên kết với `course_detail_id`
+    const questions = await Exercise.findAll({
+      where: { course_detail_id: id },
+    });
+
+    if (!questions || questions.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No questions found for this course detail.",
+      });
+    }
+
+    // Trả về kết quả
+    res.status(200).json({
+      status: "success",
+      results: questions.length,
+      data: { questions },
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: "error",
+      message: err.message || "Some error occurred while retrieving questions.",
+    });
+  }
+};

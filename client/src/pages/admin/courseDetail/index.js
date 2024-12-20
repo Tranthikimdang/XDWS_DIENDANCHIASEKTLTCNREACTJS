@@ -442,7 +442,6 @@ function ProductDetail() {
                       ]}
                       rows={row
                         .sort((a, b) => (a.no > b.no ? 1 : -1))
-                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                         .map((row, index) => {
                           const authorName =
                             users.find((u) => u.id === row.user_id)?.name || 'Unknown';
@@ -509,28 +508,6 @@ function ProductDetail() {
                         })}
                     />
                   </VuiBox>
-
-                  <div className="d-flex justify-content-center p-2 custom-pagination">
-                    <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
-                      <button
-                        className="btn btn-light"
-                        onClick={() => handleChangePage(null, page - 1)}
-                        disabled={page === 0}
-                      >
-                        &laquo;
-                      </button>
-                      <span className="btn btn-light disabled">
-                        Page {page + 1} of {Math.ceil(rows.length / rowsPerPage)}
-                      </span>
-                      <button
-                        className="btn btn-light"
-                        onClick={() => handleChangePage(null, page + 1)}
-                        disabled={page >= Math.ceil(rows.length / rowsPerPage) - 1}
-                      >
-                        &raquo;
-                      </button>
-                    </div>
-                  </div>
                 </>
               )}
             </Card>

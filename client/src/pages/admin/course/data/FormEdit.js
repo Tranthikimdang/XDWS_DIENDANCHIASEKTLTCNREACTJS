@@ -20,6 +20,8 @@ function FormEditCourse() {
   const [loading, setLoading] = useState(false);
   const [productData, setProductData] = useState(null); // Dữ liệu sản phẩm
   const [categories, setCategories] = useState([]); // Dữ liệu danh mục
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -100,6 +102,8 @@ function FormEditCourse() {
         imageName = await uploadImage(file); // Cập nhật tên tệp với ảnh mới
       }
 
+      console.log(data.cate_course_id, data.name, data.description);
+      
       // Gọi API để cập nhật dữ liệu khóa học
       await api.updateCourse(id, {
         cate_course_id: data.cate_course_id, // Sử dụng đúng tên khóa ngoại
