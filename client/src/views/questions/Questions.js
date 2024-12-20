@@ -89,6 +89,7 @@ const Questions = ({ listImgUrl = [] }) => {
     const [file, setFile] = useState('');
     const [replyImageFile, setReplyImageFile] = useState('');
     const [replyFile, setReplyFile] = useState('');
+    const [replyCode,setReplyCode] = useState('');
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
     const [hashtag, setHashtag] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -104,6 +105,9 @@ const Questions = ({ listImgUrl = [] }) => {
     const [currentUserImage, setCurrentUserImage] = useState('');
     const [expandedQuestions, setExpandedQuestions] = useState({});
     const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái để theo dõi xem người dùng đã đăng nhập hay chưa
+    const [imageUploaded, setImageUploaded] = useState(false);
+    const [fileUploaded, setFileUploaded] = useState(false);
+    const [codeUploaded, setCodeUploaded] = useState(false);
 
     useEffect(() => {
         const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
@@ -261,6 +265,9 @@ const Questions = ({ listImgUrl = [] }) => {
             setImageError('');
             const newPreviews = Array.from(files).map((file) => URL.createObjectURL(file));
             setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
+            setSnackbarMessage('Bạn đã nhập ảnh thành công.');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
         }
     };
 
@@ -282,6 +289,9 @@ const Questions = ({ listImgUrl = [] }) => {
             setFileError('');
             const fileList = Array.from(files).map((file) => file.name);
             setFileNames(fileList);
+            setSnackbarMessage('Bạn đã nhập file thành công.');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
         }
     };
     const handleToggleComments = (questionId) => {
@@ -596,6 +606,7 @@ const Questions = ({ listImgUrl = [] }) => {
                 setNewComment('');
                 setCommentImages([]);
                 setCommentFiles([]);
+                setCodeSnippet(null)
                 setImageFile(null);
                 setFile(null);
                 setSnackbarMessage("Bình luận của bạn đã được gửi.");
@@ -691,6 +702,7 @@ const Questions = ({ listImgUrl = [] }) => {
                 setReplyingTo(null);
                 setReplyImageFile(null);
                 setReplyFile(null);
+                setCodeSnippet(null)
                 setSnackbarMessage("Trả lời của bạn đã được gửi.");
                 setSnackbarSeverity("success");
                 setSnackbarOpen(true);
@@ -704,8 +716,6 @@ const Questions = ({ listImgUrl = [] }) => {
             setIsSubmittingReply(false);
         }
     };
-
-
 
     useEffect(() => {
         const fetchHashtags = async () => {
@@ -813,7 +823,7 @@ const Questions = ({ listImgUrl = [] }) => {
 
     const handleCodeChange = (event) => {
         setCodeSnippet(event.target.value);
-        setError('');
+        setError('');        
     };
 
     const handleCardClick = (questionId) => {
@@ -839,7 +849,9 @@ const Questions = ({ listImgUrl = [] }) => {
                 ...prevData,
                 up_code: codeSnippet,
             }));
-
+            setSnackbarMessage('Code của bạn đã được lưu thành công.');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
             handleCloseDialog();
         }
     };
