@@ -100,13 +100,13 @@ function Orders() {
             response.data.orders.map(async (order) => ({
               id: order.id,
               user_id: order.user_id,
-              user_name: order.username || 'Unknown User',
-              user_email: order.user_email || 'unknown@example.com',
-              paymentMethod: order.payment,
-              totalAmount: await fetchTotalAmount(order.id),
-              items: order.item || 'No items',
-              order_day: formatOrderDay(order.create_at),
+              cart_id: order.cart_id,
+              item: order.item || 'No items',
+              payment: order.payment || 'No payment method',
               status: order.status || 'Pending',
+              username: order.username || 'Unknown User',
+              create_at: order.create_at ? formatOrderDay(order.create_at) : 'Unknown time',
+              update_at: order.update_at ? formatOrderDay(order.update_at) : 'Unknown time',
             }))
           );
           setRows(ordersData);
@@ -195,8 +195,8 @@ function Orders() {
 
   const filteredRows = rows.filter(
     (row) =>
-      row.user_name &&
-      row.user_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      row.username &&
+      row.username.toLowerCase().includes(searchTerm.toLowerCase()) &&
       !hiddenRows.includes(row.id)
   );
 
@@ -258,8 +258,8 @@ function Orders() {
                           ...row,
                           no: indexOfFirstUser + index + 1,
                           items: row.items,
-                          order_day: row.order_day,
-                          paymentMethod: row.paymentMethod,
+                          order_day: row.create_at,
+                          paymentMethod: row.payment,
                           totalAmount: `$${row.totalAmount}`, // Display total amount with currency
                           status: row.status,
                           actions: (

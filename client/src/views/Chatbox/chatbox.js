@@ -55,10 +55,19 @@ function Chatbox() {
     return (
         <div className="chat-container">
             <div>
-                <h3>Trò chuyện </h3>
+                <h3>Trao Đổi và Thảo luận </h3>
                 <p>Xin chào, {loggedInUser ? loggedInUser.name : 'Khách'}</p>
+                {loggedInUser && (
+                    <div className="logged-in-user">
+                        <img className="user-avatar" src={loggedInUser.imageUrl} alt={`Ảnh đại diện của ${loggedInUser.name}`} />
+                        <div className="user-info">
+                            <p className="user-name">{loggedInUser.name}</p>
+                            <p className="user-email">{loggedInUser.email}</p>
+                        </div>
+                    </div>
+                )}
                 <div className="user-cards">
-                    {users.map(user => (
+                    {users.filter(user => user.id !== userId).map(user => (
                         <div key={user.id} className="user-card" onClick={() => onSelectUser(user)}>
                             <img className="user-avatar" src={user.imageUrl} alt={`Ảnh đại diện của ${user.name}`} />
                             <div className="user-info">
