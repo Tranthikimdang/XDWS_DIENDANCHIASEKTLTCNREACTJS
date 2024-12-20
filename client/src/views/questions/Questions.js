@@ -30,8 +30,8 @@ import {
     InputAdornment,
     ButtonBase,
     List,
-    Avatar ,
-    Container
+    Avatar, 
+    Container 
 } from '@mui/material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -89,6 +89,7 @@ const Questions = ({ listImgUrl = [] }) => {
     const [file, setFile] = useState('');
     const [replyImageFile, setReplyImageFile] = useState('');
     const [replyFile, setReplyFile] = useState('');
+    const [replyCode,setReplyCode] = useState('');
     const [isSubmittingReply, setIsSubmittingReply] = useState(false);
     const [hashtag, setHashtag] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -104,6 +105,9 @@ const Questions = ({ listImgUrl = [] }) => {
     const [currentUserImage, setCurrentUserImage] = useState('');
     const [expandedQuestions, setExpandedQuestions] = useState({});
     const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái để theo dõi xem người dùng đã đăng nhập hay chưa
+    const [imageUploaded, setImageUploaded] = useState(false);
+    const [fileUploaded, setFileUploaded] = useState(false);
+    const [codeUploaded, setCodeUploaded] = useState(false);
 
     useEffect(() => {
         const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
@@ -261,6 +265,9 @@ const Questions = ({ listImgUrl = [] }) => {
             setImageError('');
             const newPreviews = Array.from(files).map((file) => URL.createObjectURL(file));
             setImagePreviews((prevPreviews) => [...prevPreviews, ...newPreviews]);
+            setSnackbarMessage('Bạn đã nhập ảnh thành công.');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
         }
     };
 
@@ -282,6 +289,9 @@ const Questions = ({ listImgUrl = [] }) => {
             setFileError('');
             const fileList = Array.from(files).map((file) => file.name);
             setFileNames(fileList);
+            setSnackbarMessage('Bạn đã nhập file thành công.');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
         }
     };
     const handleToggleComments = (questionId) => {
@@ -596,6 +606,7 @@ const Questions = ({ listImgUrl = [] }) => {
                 setNewComment('');
                 setCommentImages([]);
                 setCommentFiles([]);
+                setCodeSnippet(null)
                 setImageFile(null);
                 setFile(null);
                 setSnackbarMessage("Bình luận của bạn đã được gửi.");
@@ -691,6 +702,7 @@ const Questions = ({ listImgUrl = [] }) => {
                 setReplyingTo(null);
                 setReplyImageFile(null);
                 setReplyFile(null);
+                setCodeSnippet(null)
                 setSnackbarMessage("Trả lời của bạn đã được gửi.");
                 setSnackbarSeverity("success");
                 setSnackbarOpen(true);
@@ -704,8 +716,6 @@ const Questions = ({ listImgUrl = [] }) => {
             setIsSubmittingReply(false);
         }
     };
-
-
 
     useEffect(() => {
         const fetchHashtags = async () => {
@@ -813,7 +823,7 @@ const Questions = ({ listImgUrl = [] }) => {
 
     const handleCodeChange = (event) => {
         setCodeSnippet(event.target.value);
-        setError('');
+        setError('');        
     };
 
     const handleCardClick = (questionId) => {
@@ -839,7 +849,9 @@ const Questions = ({ listImgUrl = [] }) => {
                 ...prevData,
                 up_code: codeSnippet,
             }));
-
+            setSnackbarMessage('Code của bạn đã được lưu thành công.');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
             handleCloseDialog();
         }
     };
@@ -1031,10 +1043,13 @@ const Questions = ({ listImgUrl = [] }) => {
                                             InputProps={{ disableUnderline: true }}
                                             {...register("hashtag", {
                                                 required: "Hashtag là bắt buộc",
+                                                validate: (value) =>
+                                                    value.startsWith('#') || "Hashtag phải bắt đầu bằng dấu #",
                                             })}
                                             error={!!errors.hashtag}
                                             helperText={errors.hashtag ? errors.hashtag.message : null}
                                         />
+
                                     </Box>
                                 </Box>
 
@@ -1133,20 +1148,67 @@ const Questions = ({ listImgUrl = [] }) => {
                                 </Box>
                                 <Box>
                                     {/* Preview Images */}
-                                    {imagePreviews.length > 0 && (
-                                        <Box display="flex" gap={2} flexWrap="wrap" mb={2}>
-                                            {imagePreviews.map((image, index) => (
-                                                <img
+                                    {imagePreviews && imagePreviews.length > 0 && (
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexWrap: 'wrap',
+                                                justifyContent: 'center',
+                                                gap: '10px',
+                                            }}
+                                        >
+                                            {imagePreviews.slice(0, Math.min(imagePreviews.length, 4)).map((image, index) => (
+                                                <Box
                                                     key={index}
-                                                    src={image}
-                                                    alt={`Preview ${index}`}
-                                                    style={{
-                                                        width: '100%',
-                                                        height: 'auto',
-                                                        objectFit: 'cover',
+                                                    sx={{
+                                                        position: 'relative',
+                                                        flexBasis: imagePreviews.length === 1 ? '100%' : (imagePreviews.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
+                                                        maxWidth: imagePreviews.length === 1 ? '100%' : (imagePreviews.length === 3 && index === 2 ? '100%' : 'calc(50% - 10px)'),
+                                                        mb: 2,
+                                                        textAlign: imagePreviews.length === 3 && index === 2 ? 'center' : 'unset',
+                                                        cursor: index === 3 && imagePreviews.length > 4 ? 'pointer' : 'unset',
+                                                        overflow: 'hidden',
                                                         borderRadius: '8px',
                                                     }}
-                                                />
+                                                >
+                                                    <img
+                                                        src={image || 'Người dùng không nhập hình ảnh'}
+                                                        alt={`Preview ${index}`}
+                                                        style={{
+                                                            width: '100%',
+                                                            height: 'auto',
+                                                            objectFit: 'cover',
+                                                            borderRadius: '8px',
+                                                        }}
+                                                    />
+                                                    {index === 3 && imagePreviews.length > 4 && (
+                                                        <Box
+                                                            sx={{
+                                                                position: 'absolute',
+                                                                top: 0,
+                                                                left: 0,
+                                                                right: 0,
+                                                                bottom: 0,
+                                                                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                                                                display: 'flex',
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                borderRadius: '8px',
+                                                            }}
+                                                        >
+                                                            <Typography
+                                                                variant="h5"
+                                                                sx={{
+                                                                    color: 'white',
+                                                                    fontWeight: 'bold',
+                                                                    fontSize: '1.5rem'
+                                                                }}
+                                                            >
+                                                                +{imagePreviews.length - 4}
+                                                            </Typography>
+                                                        </Box>
+                                                    )}
+                                                </Box>
                                             ))}
                                         </Box>
                                     )}
@@ -2454,13 +2516,16 @@ const Questions = ({ listImgUrl = [] }) => {
                                                             }}
                                                         >
                                                             <img
-                                                                src={mentor.user.imageUrl || '../../assets/images/profile/user-1.jpg'}
+                                                                src={mentor.user.imageUrl || avatardefault}
                                                                 alt="User Avatar"
                                                                 style={{
                                                                     width: 40,
                                                                     height: 40,
                                                                     borderRadius: '50%',
                                                                     marginRight: 8,
+                                                                }}
+                                                                onError={(e) => {
+                                                                    e.target.src = avatardefault;
                                                                 }}
                                                             />
                                                             <Typography variant="button" color="textPrimary" fontWeight="medium">

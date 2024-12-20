@@ -336,7 +336,7 @@ function CommentDetail() {
                           </Typography>
                         ),
 
-                        content: row.content || 'Không có nội dung',
+                        content: row.content ? (row.content.length > 10 ? row.content.substring(0, 10) + '...' : row.content) : 'Không có nội dung',
                         action: (
                           <button
                             className="text-light btn btn-outline-danger"

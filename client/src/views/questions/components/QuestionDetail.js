@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import {
   Box,
@@ -259,6 +260,9 @@ const QuestionDetail = () => {
         ...prevData,
         up_code: codeSnippet, // Lưu code vào dataTemp
       }));
+      setSnackbarMessage('Code của bạn đã được lưu thành công.');
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
       handleCloseDialog(); // Đóng dialog
 
       // Nếu cần, bạn có thể reset giá trị codeSnippet sau khi lưu
@@ -493,6 +497,7 @@ const QuestionDetail = () => {
         setNewComment('');
         setCommentImages([]);
         setCommentFiles([]);
+        setCodeSnippet([])
         setImageFile(null);
         setFile(null);
 
@@ -611,6 +616,7 @@ const QuestionDetail = () => {
         setReplyingTo(null);
         setReplyImageFile(null);
         setReplyFile(null);
+        setCodeSnippet(null)
         setSnackbarMessage('Trả lời của bạn đã được gửi.');
         setSnackbarSeverity('success');
         setSnackbarOpen(true);
