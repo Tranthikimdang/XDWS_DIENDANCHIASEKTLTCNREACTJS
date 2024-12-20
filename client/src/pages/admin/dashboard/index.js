@@ -24,26 +24,32 @@ import { FaShoppingCart } from "react-icons/fa";
 
 function Dashboard() {
   return (
-    <DashboardLayout>
-      <DashboardNavbar />
-      <VuiBox py={3}>
-       
-        <VuiBox mb={3}>
-          <Grid container spacing="18px">
-            <Grid item xs={12} lg={12} xl={5}>
-              <WelcomeMark />
+    <VuiBox
+      display="flex"
+      flexDirection="column"
+      minHeight="100vh"
+    >
+      <DashboardLayout>
+        <DashboardNavbar />
+        <VuiBox py={3}>
+
+          <VuiBox mb={3}>
+            <Grid container spacing="18px">
+              <Grid item xs={12} lg={12} xl={5}>
+                <WelcomeMark />
+              </Grid>
+              <Grid item xs={12} lg={6} xl={3}>
+                <SatisfactionRate />
+              </Grid>
+              <Grid item xs={12} lg={6} xl={4}>
+                <ReferralTracking />
+              </Grid>
             </Grid>
-            <Grid item xs={12} lg={6} xl={3}>
-              <SatisfactionRate />
-            </Grid>
-            <Grid item xs={12} lg={6} xl={4}>
-              <ReferralTracking />
-            </Grid>
-          </Grid>
+          </VuiBox>
         </VuiBox>
-      </VuiBox>
+      </DashboardLayout>
       <Footer />
-    </DashboardLayout>
+    </VuiBox >
   );
 }
 
