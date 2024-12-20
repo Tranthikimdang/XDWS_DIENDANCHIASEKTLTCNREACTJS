@@ -32,6 +32,8 @@ import HashtagAdmin from 'src/pages/admin/hashtag';
 import AddHashtag from "../pages/admin/hashtag/data/FormAddHashtag"
 import EditHashtag from "../pages/admin/hashtag/data/FormEditHashtag"
 
+import StudyTime from "../pages/admin/studyTime/index"
+import AddStudyTime from "../pages/admin/studyTime/data/FormAdd"
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
 import { BsFillPersonFill } from "react-icons/bs";
@@ -40,7 +42,7 @@ import { BsFillPersonPlusFill, BsList } from "react-icons/bs";
 import { BsFillFileEarmarkTextFill, BsHash } from "react-icons/bs";
 import { BsFillPencilFill } from "react-icons/bs";
 import { BsJournals } from "react-icons/bs";
-import { FaQuestionCircle, FaYoutube } from "react-icons/fa";
+import { FaQuestionCircle, FaYoutube, FaRegClock } from "react-icons/fa";
 const routes = [
 
   {
@@ -92,6 +94,15 @@ const routes = [
   },
   {
     type: "collapse",
+    name: "Danh mục khóa học",
+    key: "categoryPro",
+    route: "/admin/categoryPro",
+    icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
+    component: Products,
+    noCollapse: true,
+  },
+  {
+    type: "collapse",
     name: "Quản lý khóa học",
     key: "products",
     route: "/admin/products",
@@ -101,11 +112,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Danh mục khóa học",
-    key: "categoryPro",
-    route: "/admin/categoryPro",
-    icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
-    component: Products,
+    name: "Thời gian học",
+    key: "studyTime",
+    route: "/admin/studyTime",
+    icon: <FaRegClock size="15px" color="inherit" />,
+    component: StudyTime,
     noCollapse: true,
   },
   {
@@ -358,6 +369,13 @@ const routes = [
     component: EditHashtag,
     hidden: true, // Ẩn mục này
   },
+  {
+    key: 'AddStudyTime',
+    route: '/admin/addStudyTime',
+    component: AddStudyTime,
+    hidden: true, // Ẩn mục này
+  },
+  
 ];
 
 export default routes;

@@ -86,17 +86,32 @@ const User = () => {
     <PageContainer title="Người dùng | Share Code" description="Đây là trang người dùng">
       <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
         <Grid container spacing={4}>
-          <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+        <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '30px' }, marginTop: '10px' }}>
             <Typography
               variant="h4"
               component="h1"
               className="heading"
               sx={{ fontWeight: 'bold', fontFamily: 'Roboto, sans-serif' }}
             >
-              Danh Sách Người Dùng
+              Người dùng
+            </Typography>
+            <Typography variant="body1" paragraph className="typography-body">
+              Tìm kiếm và kết nối với những người dùng trong lĩnh vực lập trình.
+              <br />
+              Những người kinh nghiệm, sẵn sàng hỗ trợ bạn
+              trên hành trình học lập trình và phát triển sự nghiệp.
             </Typography>
           </Grid>
-          <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
+          <Grid
+            item
+            xs={8}
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '16px',
+              justifyContent: 'flex-start',
+            }}
+          >
             <TextField
               label="Tìm kiếm người dùng"
               variant="outlined"
@@ -104,8 +119,7 @@ const User = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               sx={{
-                maxWidth: '500px',
-                margin: 'auto',
+                flex: '1 1 300px',
                 borderRadius: '50px',
                 backgroundColor: '#f7f7f7',
                 '& .MuiOutlinedInput-root': {
@@ -126,9 +140,9 @@ const User = () => {
           </Grid>
           {/* User List */}
           {loading ? (
-            <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
+            <Typography sx={{ textAlign: 'center', width: '100%'}}>Loading...</Typography>
           ) : currentUsers.length > 0 ? (
-            <Grid container spacing={3} justifyContent="center">
+            <Grid container spacing={3} justifyContent="center" className='mt-3'>
               {currentUsers.map((user) => (
                 <Grid item xs={12} sm={6} md={3} key={user.id}>
                   <Card

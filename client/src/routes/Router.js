@@ -92,9 +92,10 @@ const AddHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormA
 const EditHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormEditHashtag')));
  
 
-
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
+const StudyTime = Loadable(lazy(() => import('../pages/admin/studyTime')));
+const AddStudyTime = Loadable(lazy(() => import('../pages/admin/studyTime/data/FormAdd')));
 
 
 const renderRoutes = (role) => {
@@ -192,6 +193,8 @@ const renderRoutes = (role) => {
         { path: 'hashtag', exact: true, element: <HasgtagAdmin/> },
         { path: 'addhashtag', exact: true, element: <AddHasgtag /> },
         { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
+        { path: 'studyTime', exact: true, element: <StudyTime /> },
+        { path: 'addStudyTime', exact: true, element: <AddStudyTime /> },
         // { path: '*', element: <Navigate to="/auth/404" /> },
 
       ],
