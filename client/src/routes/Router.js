@@ -91,6 +91,8 @@ const HasgtagAdmin = Loadable(lazy(() => import('../pages/admin/hashtag/')));
 const AddHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormAddHashtag')));
 const EditHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormEditHashtag')));
  
+const AddExercise = Loadable(lazy(() => import('../pages/admin/exercise/data/FormAdd')));
+const EditExercise = Loadable(lazy(() => import('../pages/admin/exercise/data/FormEdit')));
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
@@ -195,6 +197,8 @@ const renderRoutes = (role) => {
         { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
         { path: 'studyTime', exact: true, element: <StudyTime /> },
         { path: 'addStudyTime', exact: true, element: <AddStudyTime /> },
+        { path: 'addExercise/:course_id', exact: true, element: <AddExercise /> },
+        { path: 'editExercise/:course_id/:exercise_id', exact: true, element: <EditExercise /> }, 
         // { path: '*', element: <Navigate to="/auth/404" /> },
 
       ],

@@ -20,8 +20,7 @@ const apiRequest = async (method, url, data) => {
 // Categories API
 const addExercise = async (exercise) => apiRequest('post', Exercise_URL, exercise);
 const getExercise = async () => apiRequest('get', Exercise_URL);
-const getExerciseByIdCourseDetail = async (id) =>
-  apiRequest('get', Exercise_URL + '/course-detail/' + id);
+
 const getExerciseByIdCourse = async (id) => apiRequest('get', Exercise_URL + '/course/' + id);
 const updateExercise = async (id, updatedData) =>
   apiRequest('put', `${Exercise_URL}/${id}`, updatedData);
@@ -32,6 +31,5 @@ export {
   getExercise,
   updateExercise,
   deleteExercise,
-  getExerciseByIdCourseDetail,
   getExerciseByIdCourse,
 };

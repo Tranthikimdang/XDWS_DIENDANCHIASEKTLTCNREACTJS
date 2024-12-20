@@ -30,7 +30,8 @@ import {
     InputAdornment,
     ButtonBase,
     List,
-    Avatar
+    Avatar, 
+    Container 
 } from '@mui/material';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -1696,6 +1697,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                             </Typography>
                                                         ) : (
                                                             <>
+                                                            <Container maxWidth="xl" sx={{ padding: 2 }}>
                                                                 <Box sx={{ mt: 3, mb: 3 }}>
                                                                     {/* Comment Input */}
                                                                     <Box
@@ -1731,33 +1733,6 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                             />
                                                                         </Box>
 
-                                                                        {/* Hàng biểu tượng cho Emojis, GIFs, Hình ảnh */}
-                                                                        <Box
-                                                                            display="flex"
-                                                                            justifyContent="center"
-                                                                            sx={{
-                                                                                width: '100%',
-                                                                                gap: 0,
-                                                                                marginRight: '420px',
-                                                                                marginTop: '-17px',
-                                                                            }}
-                                                                        >
-                                                                            <IconButton>
-                                                                                <InsertEmoticonIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <SentimentSatisfiedAltIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <InsertPhotoIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <CameraAltIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                            <IconButton>
-                                                                                <GifBoxIcon fontSize="medium" />
-                                                                            </IconButton>
-                                                                        </Box>
                                                                         {/* File input cho hình ảnh */}
                                                                         <Box
                                                                             display="flex"
@@ -2354,33 +2329,6 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                                                         />
                                                                                                     </Box>
 
-                                                                                                    <Box
-                                                                                                        display="flex"
-                                                                                                        justifyContent="center"
-                                                                                                        sx={{
-                                                                                                            width: '100%',
-                                                                                                            gap: 1,
-                                                                                                            marginLeft: '-174px',
-                                                                                                            marginTop: '-2px',
-                                                                                                        }}
-                                                                                                    >
-                                                                                                        <IconButton>
-                                                                                                            <InsertEmoticonIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <SentimentSatisfiedAltIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <InsertPhotoIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <CameraAltIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                        <IconButton>
-                                                                                                            <GifBoxIcon fontSize="medium" />
-                                                                                                        </IconButton>
-                                                                                                    </Box>
-
                                                                                                     {/* Options for Image, File, Code */}
                                                                                                     <Box
                                                                                                         display="flex"
@@ -2488,6 +2436,7 @@ const Questions = ({ listImgUrl = [] }) => {
                                                                         </Box>
                                                                     ))}
                                                                 </Box>
+                                                                </Container>
                                                             </>
                                                         )}
                                                     </Box>
