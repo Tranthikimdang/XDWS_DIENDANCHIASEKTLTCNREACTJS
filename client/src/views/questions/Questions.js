@@ -379,14 +379,11 @@ const Questions = () => {
         const otherFiles = formData.getAll('file');
         const hashtag = data.hashtag?.trim();
         const title = data.title?.trim();
-        const question = data.question?.trim();
-    
+        const question = data.questions?.trim();
         // Check if hashtag, title, or question contain sensitive words
         const containsSensitiveWord = (text) => {
             return sensitiveWords.some(word => text.toLowerCase().includes(word));
         };
-    
-        // Check hashtag
         if (!hashtag) {
             setLoading(false);
             setSnackbarOpen(true);
@@ -408,39 +405,37 @@ const Questions = () => {
             setSnackbarSeverity('error');
             return;
         }
-    
-        // Check title
-        if (!title) {
-            setLoading(false);
-            setSnackbarOpen(true);
-            setSnackbarMessage('Tiêu đề không được để trống.');
-            setSnackbarSeverity('error');
-            return;
-        }
-        if (containsSensitiveWord(title)) {
-            setLoading(false);
-            setSnackbarOpen(true);
-            setSnackbarMessage('Tiêu đề chứa từ nhạy cảm hoặc không phù hợp.');
-            setSnackbarSeverity('error');
-            return;
-        }
-    
-        // Check question content
-        if (!question) {
-            setLoading(false);
-            setSnackbarOpen(true);
-            setSnackbarMessage('Câu hỏi không được để trống.');
-            setSnackbarSeverity('error');
-            return;
-        }
-        if (containsSensitiveWord(question)) {
-            setLoading(false);
-            setSnackbarOpen(true);
-            setSnackbarMessage('Câu hỏi chứa từ nhạy cảm hoặc không phù hợp.');
-            setSnackbarSeverity('error');
-            return;
-        }
-    
+         // Check title
+    if (!title) {
+        setLoading(false);
+        setSnackbarOpen(true);
+        setSnackbarMessage('Tiêu đề không được để trống.');
+        setSnackbarSeverity('error');
+        return;
+    }
+    if (containsSensitiveWord(title)) {
+        setLoading(false);
+        setSnackbarOpen(true);
+        setSnackbarMessage('Tiêu đề chứa từ nhạy cảm hoặc không phù hợp.');
+        setSnackbarSeverity('error');
+        return;
+    }
+    // Check question content
+    if (!question) {
+        setLoading(false);
+        setSnackbarOpen(true);
+        setSnackbarMessage('Câu hỏi không được để trống.');
+        setSnackbarSeverity('error');
+        return;
+    }
+    if (containsSensitiveWord(question)) {
+        setLoading(false);
+        setSnackbarOpen(true);
+        setSnackbarMessage('Câu hỏi chứa từ nhạy cảm hoặc không phù hợp.');
+        setSnackbarSeverity('error');
+        return;
+    }
+
         try {
             let imageUrls = [];
             if (imageFiles.length > 0) {
@@ -452,7 +447,7 @@ const Questions = () => {
                     .filter((imgUrl) => imgUrl.status === 201)
                     .map((imgUrl) => imgUrl.imagePath);
             }
-    
+
             let fileUrls = [];
             if (otherFiles.length > 0) {
                 const uploadFilePromises = otherFiles
@@ -460,10 +455,8 @@ const Questions = () => {
                     .map((file) => handleUploadFile(file));
                 fileUrls = await Promise.all(uploadFilePromises);
             }
-    
             delete data.file;
             delete data.image;
-    
             const dataToSubmit = {
                 ...data,
                 user_id: userData.current.id,
@@ -475,14 +468,14 @@ const Questions = () => {
                 comments: [],
                 replies: [],
             };
-    
+
             const res = await addQuestion(dataToSubmit);
             if (res?.status === 'success' && res?.data?.question?.id) {
                 const questionId = res.data.question.id;
-    
+
                 const existingHashtag = await HashtagApi.getHashtags();
                 const existingHashtagData = existingHashtag.data.hashtags.find((h) => h.name === hashtag);
-    
+
                 let hashtagId;
                 if (existingHashtagData) {
                     hashtagId = existingHashtagData.id;
@@ -490,14 +483,14 @@ const Questions = () => {
                     const newHashtag = await HashtagApi.addHashtag({ name: hashtag });
                     hashtagId = newHashtag?.data?.hashtag?.id;
                 }
-    
+
                 if (hashtagId) {
                     await QuestionHashtags.addQuestionHashtag({
                         question_id: questionId,
                         hashtag_id: hashtagId,
                     });
                 }
-    
+
                 setLoading(false);
                 setSnackbarOpen(true);
                 setSnackbarMessage('Câu hỏi của bạn đã được đặt thành công.');
@@ -557,39 +550,39 @@ const Questions = () => {
         // Offensive to intellect
         "ngu", "ngu ngốc", "ngu si", "dốt", "dốt nát", "đần", "đần độn", "hâm", "khùng", "điên", "đồ ngu",
         "đồ dốt", "thiểu năng", "chậm hiểu", "đần thối", "hâm hấp", "óc", "con",
-    
+
         // Offensive to dignity
         "mất dạy", "vô học", "đồ chó", "đồ điếm", "con điếm", "lừa đảo", "bẩn thỉu", "rác rưởi",
         "hèn mọn", "vô liêm sỉ", "mặt dày", "khốn nạn", "đồ khốn", "thất đức", "kẻ thù",
         "phản bội", "vô dụng", "đáng khinh", "nhục nhã",
-    
+
         // Profanity
         "địt", "đụ", "lồn", "buồi", "chịch", "cặc", "đéo", "vãi lồn", "vãi buồi", "đái", "ỉa",
         "đéo mẹ", "đéo biết", "mẹ kiếp", "chết mẹ", "chết tiệt", "cái lồn", "cái buồi",
         "cái đít", "mặt lồn", "mặt c*",
-    
+
         // Offensive to family
         "bố mày", "mẹ mày", "ông mày", "bà mày", "con mày", "chó má", "cút mẹ", "xéo mẹ", "bố láo",
         "đồ mất dạy", "không biết điều", "con hoang", "đồ rẻ rách", "đồ phế thải", "đồ vô ơn",
-    
+
         // Abbreviations of profanities
         "dm", "vcl", "vkl", "clgt", "vl", "cc", "dcm", "đmm", "dkm", "vãi cả lồn", "vc", "đb",
-    
+
         // Incitement/Devaluation
         "đập chết", "cút xéo", "đâm đầu", "tự tử", "biến đi", "mày đi chết đi", "vô giá trị",
         "không xứng đáng", "đồ thừa", "kẻ vô ơn", "đồ bất tài",
-    
+
         // Regional or implied negative terms
         "mất nết", "dơ dáy", "đồ rác", "đồ hèn", "hết thuốc", "chó cắn", "ngu như bò", "câm mồm",
         "hèn hạ", "ngu xuẩn", "đồ quỷ", "đồ xấu xa", "đồ ác độc",
-    
+
         // Shop, buying, selling related terms (non-IT)
         "mua bán", "bán hàng", "sản phẩm", "cửa hàng", "mua đồ", "bán đồ", "cửa hàng online", "mua sắm",
         "shop", "khuyến mãi", "giảm giá", "chợ online", "mua bán online", "sản phẩm giá rẻ", "mua hàng giả",
         "mua hàng kém chất lượng", "sản phẩm không đảm bảo", "bán hàng lừa đảo", "mua bán trái phép",
         "mua hàng cấm", "bán đồ giả", "mua đồ không rõ nguồn gốc", "mua đồ lậu"
     ];
-    
+
 
 
     const containsSensitiveWords = (text) => {
