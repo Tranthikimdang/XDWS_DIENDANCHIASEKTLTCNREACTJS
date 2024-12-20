@@ -1,4 +1,4 @@
-/* Footer.css */
+
 
 .footer {
   background-color: #f0f0f0; /* Màu xám nhạt */
@@ -7,16 +7,55 @@
   line-height: 1.6; /* Tăng khoảng cách giữa các dòng */
 }
 
-.footer a {
-  color: #333;
+.social-section {
+  background-color: #eaf4ff;
+  color: #003366;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.social-icons .MuiIconButton-root {
+  color: #003366;
+  margin: 0 8px;
+  transition: transform 0.3s ease;
+}
+
+.social-icons .MuiIconButton-root:hover {
+  color: #007bff;
+  transform: scale(1.2);
+}
+
+.content-section {
+  background-color: #ffffff;
+  padding: 32px 16px;
+}
+
+.content-section h6 {
+  color: #003366;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.footer-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-list li {
+  margin-bottom: 8px;
+}
+
+.footer-list li a {
+  color: #007bff;
   text-decoration: none;
+  transition: color 0.3s;
   font-size: 16px; /* Tăng kích thước chữ cho liên kết */
   line-height: 1.6; /* Tăng khoảng cách giữa các dòng cho liên kết */
 }
 
-.footer a:hover {
-  color: #555;
-  text-decoration: underline;
+.footer-list li a:hover {
+  color: #0056b3;
 }
 
 .footer .social-section {

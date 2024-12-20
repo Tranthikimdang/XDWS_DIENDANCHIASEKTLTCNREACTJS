@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Grid, Box, Typography, CircularProgress, Button, IconButton } from '@mui/material';
-import { useLocation, useNavigate, useParams } from 'react-router-dom'; // Lấy id từ URL
+import { useLocation, useNavigate, useParams, Link } from 'react-router-dom'; // Lấy id từ URL
 import { doc, getDoc, collection, getDocs, query, where, addDoc } from 'firebase/firestore'; // Sử dụng để lấy dữ liệu cụ thể từ Firestore
 
 
@@ -45,6 +45,15 @@ const ProductsDetail = () => {
   const userId = user ? user.id : null;
 
   const iframeRef = useRef(null);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái để theo dõi xem người dùng đã đăng nhập hay chưa
+
+    useEffect(() => {
+        const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
+        if (userDataFromLocalStorage) {
+            setIsLoggedIn(true); // Nếu có dữ liệu người dùng, đặt trạng thái là đã đăng nhập
+        }
+    }, []);
 
   useEffect(() => {
     const fetchStudyTime = async () => {
@@ -204,33 +213,109 @@ const ProductsDetail = () => {
 
   // Load comments from localStorage on initial load
   useEffect(() => {
-    const storedComments = localStorage.getItem('comment_course');
-    if (storedComments) {
-      setDataTemp(JSON.parse(storedComments));
-    } else {
-      const fetchComments = async () => {
-        try {
-          const response = await getCourseComments(id);
-          console.log('Comments:', response.data);
-          setDataTemp(response.data); // Assuming this includes replies
-          localStorage.setItem('comments', JSON.stringify(response.data)); // Store to localStorage
-        } catch (error) {
-          console.error("Error fetching comments:", error);
-        }
-      };
+    const fetchComments = async () => {
+      try {
+        const response = await getCourseComments(id);
+        console.log('Comments from API:', response.data);
 
-      if (id) fetchComments();
+        if (Array.isArray(response.data)) {
+          const mergedData = response.data.map((apiComment) => {
+            const storedComments = JSON.parse(localStorage.getItem(`comment_course_${id}`)) || [];
+            const storedComment = storedComments.find((item) => item.id === apiComment.id);
+            return {
+              ...apiComment,
+              replies: storedComment?.replies || apiComment.replies || [],
+            };
+          });
+
+          setDataTemp(mergedData);
+          localStorage.setItem(`comment_course_${id}`, JSON.stringify(mergedData));
+        } else {
+          console.error("API did not return an array. Response:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    };
+
+    const storedComments = localStorage.getItem(`comment_course_${id}`);
+    if (storedComments) {
+      const parsedComments = JSON.parse(storedComments);
+      if (Array.isArray(parsedComments)) {
+        setDataTemp(parsedComments);
+      } else {
+        console.error("Stored comments are not an array. Clearing localStorage.");
+        localStorage.removeItem(`comment_course_${id}`);
+      }
     }
+
+    fetchComments();
   }, [id]);
 
+
   // Save comments to localStorage after adding a new comment or reply
+  const sensitiveWords = [
+    // Xúc phạm trí tuệ
+    "ngu", "ngu ngốc", "ngu si", "dốt", "dốt nát", "đần", "đần độn", "hâm", "khùng", "điên", "đồ ngu",
+    "đồ dốt", "thiểu năng", "chậm hiểu", "đần thối", "hâm hấp", "óc", "con",
+
+    // Xúc phạm nhân phẩm
+    "mất dạy", "vô học", "đồ chó", "đồ điếm", "con điếm", "lừa đảo", "bẩn thỉu", "rác rưởi",
+    "hèn mọn", "vô liêm sỉ", "mặt dày", "khốn nạn", "đồ khốn", "thất đức", "kẻ thù",
+    "phản bội", "vô dụng", "đáng khinh", "nhục nhã",
+
+    // Chửi tục thô lỗ
+    "địt", "đụ", "lồn", "buồi", "chịch", "cặc", "đéo", "vãi lồn", "vãi buồi", "đái", "ỉa",
+    "đéo mẹ", "đéo biết", "mẹ kiếp", "chết mẹ", "chết tiệt", "cái lồn", "cái buồi",
+    "cái đít", "mặt lồn", "mặt c*",
+
+    // Xúc phạm gia đình
+    "bố mày", "mẹ mày", "ông mày", "bà mày", "con mày", "chó má", "cút mẹ", "xéo mẹ", "bố láo",
+    "đồ mất dạy", "không biết điều", "con hoang", "đồ rẻ rách", "đồ phế thải", "đồ vô ơn",
+
+    // Từ viết tắt thô tục
+    "dm", "vcl", "vkl", "clgt", "vl", "cc", "dcm", "đmm", "dkm", "vãi cả lồn", "vc", "đb",
+
+    // Kích động/hạ bệ
+    "đập chết", "cút xéo", "đâm đầu", "tự tử", "biến đi", "mày đi chết đi", "vô giá trị",
+    "không xứng đáng", "đồ thừa", "kẻ vô ơn", "đồ bất tài",
+
+    // Các từ vùng miền hoặc ẩn ý tiêu cực
+    "mất nết", "dơ dáy", "đồ rác", "đồ hèn", "hết thuốc", "chó cắn", "ngu như bò", "câm mồm",
+    "hèn hạ", "ngu xuẩn", "đồ quỷ", "đồ xấu xa", "đồ ác độc"
+  ];
+
+
+  const containsSensitiveWords = (text) => {
+    return sensitiveWords.some(word => text.includes(word));
+  };
+
   const handleAddComment = async (course_id) => {
+    if (!isLoggedIn) {
+      setSnackbarMessage("Vui lòng đăng nhập để bình luận.");
+      setSnackbarSeverity("warning");
+      setSnackbarOpen(true);
+      return; // Ngừng thực hiện hàm nếu người dùng chưa đăng nhập
+  }
+    if (!userData?.current?.id) {
+      setSnackbarMessage("Bạn cần đăng nhập để gửi bình luận.");
+      setSnackbarSeverity("warning");
+      setSnackbarOpen(true);
+      return;
+    }
     try {
       if (!newComment || newComment.trim() === '') {
         setSnackbarMessage("Nội dung bình luận không được để trống.");
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
         return; // Ngừng thực hiện hàm nếu bình luận rỗng
+      }
+
+      if (containsSensitiveWords(newComment)) {
+        setSnackbarMessage("Nội dung bình luận không hợp lệ.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+        return; // Stop execution if comment contains sensitive words
       }
 
       let imageUrl = [];
@@ -275,28 +360,34 @@ const ProductsDetail = () => {
       setSnackbarMessage("Đã xảy ra lỗi khi gửi bình luận.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
-    }}
-
-  // // Hàm định dạng ngày
-  // const formatDate = (createdAt) => {
-  //   if (!createdAt) return 'N/A';
-
-  //   const date = new Date(createdAt);
-  //   if (isNaN(date)) return 'Invalid date';
-
-  //   return formatDistanceToNow(date, { addSuffix: true });
-  // };
+    }
+  };
 
   const handleAddReply = async (course_id, commentId, parentId = null) => {
-    if (isSubmittingReply) return;
-    setIsSubmittingReply(true);
+    if (!userData?.current?.id) {
+      setSnackbarOpen(false);
+      setTimeout(() => {
+        setSnackbarMessage("Bạn cần đăng nhập để gửi trả lời.");
+        setSnackbarSeverity("warning");
+        setSnackbarOpen(true);
+      }, 100);
+      return;
+    }
 
-    if (!newReplies[parentId || commentId] || newReplies[parentId || commentId].trim() === '') {
+    const replyContent = newReplies[parentId || commentId];
+
+    if (!replyContent || replyContent.trim() === '') {
       setSnackbarMessage("Nội dung phản hồi không được để trống.");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
-      setIsSubmittingReply(false);
       return;
+    }
+
+    if (containsSensitiveWords(replyContent)) {
+      setSnackbarMessage("Nội dung phản hồi không hợp lệ.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+      return; // Stop execution if reply contains sensitive words
     }
 
     try {
@@ -306,20 +397,32 @@ const ProductsDetail = () => {
         replyImageFile.forEach((image) => {
           formDataImage.append("image", image);
         });
-        const imageResponse = await axios.post("http://localhost:3000/api/upload", formDataImage, {
+
+        // Log FormData content
+        for (let pair of formDataImage.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+        }
+
+        const imageResponse = await axios.post("http://localhost:3000/api/uploads", formDataImage, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
+
+        // Log response from the upload API
+        console.log("Upload response:", imageResponse.data);
+
         if (imageResponse.data && Array.isArray(imageResponse.data.imagePaths)) {
           imageUrls = imageResponse.data.imagePaths;
         }
       }
 
+      console.log("Image URLs to be sent:", imageUrls); // Log image URLs
+
       const newReply = {
         user_id: userData.current.id,
-        content: newReplies[parentId || commentId] || '',
-        imageUrls: imageUrls,  // No need to stringify
+        content: replyContent || '',
+        imageUrls: imageUrls,
         created_at: new Date(),
       };
 
@@ -332,12 +435,20 @@ const ProductsDetail = () => {
               const repliesArray = Array.isArray(item.replies) ? item.replies : [];
               return {
                 ...item,
-                replies: [...repliesArray, { ...newReply, id: response.data.data.reply.id }],
+                replies: [
+                  ...repliesArray,
+                  {
+                    ...newReply,
+                    id: response.data.data.reply.id, // Thêm id từ API
+                  },
+                ],
               };
             }
             return item;
           });
-          localStorage.setItem('comment_course', JSON.stringify(updatedComments)); // Save updated comments
+
+          // Cập nhật đầy đủ vào localStorage
+          localStorage.setItem(`comment_course_${course_id}`, JSON.stringify(updatedComments));
           return updatedComments;
         });
 
@@ -357,7 +468,6 @@ const ProductsDetail = () => {
       setIsSubmittingReply(false);
     }
   };
-
 
 
   const formatDate = (createdAt) => {
@@ -409,6 +519,10 @@ const ProductsDetail = () => {
         <Alert
           onClose={() => setSnackbarOpen(false)}
           severity={snackbarSeverity}
+          sx={{
+            width: '100%',
+            border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+          }}
         >
           {snackbarMessage}
         </Alert>
@@ -516,65 +630,73 @@ const ProductsDetail = () => {
         <Typography variant="h6">Bình luận</Typography>
         {/* Form nhập bình luận */}
         <Box mt={2} display="flex" flexDirection="column" gap={2}>
-          <textarea
-            rows={4}
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Nhập bình luận của bạn..."
-            style={{
-              width: '100%',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              resize: 'none',
-            }}
-          />
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ width: '100%', marginLeft: '0', marginTop: '-10px' }}
-          >
-            {/* Chỉ giữ lại nút upload ảnh */}
-            <Box display="flex" gap={1}>
-              <Button
-                variant="outlined"
-                startIcon={<ImageIcon />}
-                sx={{
-                  borderRadius: '16px',
-                  textTransform: 'none',
+          {!isLoggedIn ? ( // Kiểm tra xem người dùng đã đăng nhập hay chưa
+            <Typography variant="body2" color="text.secondary">
+              Vui lòng <Link to="/auth/login" style={{ color: '#007bff', textDecoration: 'underline' }}>đăng nhập</Link> để xem và bình luận.
+            </Typography>
+          ) : (
+            <>
+              <textarea
+                rows={4}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Nhập bình luận của bạn..."
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc',
+                  resize: 'none',
                 }}
-                component="label"
+              />
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{ width: '100%', marginLeft: '0', marginTop: '-10px' }}
               >
-                Hình ảnh
-                <input
-                  name="image"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  hidden
-                  onChange={(e) => setImageFile(e.target.files[0])}
-                />
-              </Button>
-            </Box>
+                {/* Chỉ giữ lại nút upload ảnh */}
+                <Box display="flex" gap={1}>
+                  <Button
+                    variant="outlined"
+                    startIcon={<ImageIcon />}
+                    sx={{
+                      borderRadius: '16px',
+                      textTransform: 'none',
+                    }}
+                    component="label"
+                  >
+                    Hình ảnh
+                    <input
+                      name="image"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      hidden
+                      onChange={(e) => setImageFile(e.target.files[0])}
+                    />
+                  </Button>
+                </Box>
 
-            {/* Nút Gửi */}
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              sx={{
-                textTransform: 'none',
-                borderRadius: '16px',
-                padding: '5px 20px',
-                fontWeight: 'bold',
-                marginRight: '950px',
-              }}
-              onClick={() => handleAddComment(product.id)}
-            >
-              Gửi
-            </Button>
-          </Box>
+                {/* Nút Gửi */}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  sx={{
+                    textTransform: 'none',
+                    borderRadius: '16px',
+                    padding: '5px 20px',
+                    fontWeight: 'bold',
+                    marginRight: '950px',
+                  }}
+                  onClick={() => handleAddComment(product.id)}
+                >
+                  Gửi
+                </Button>
+              </Box>
+            </>
+          )}
         </Box>
 
         {/* Danh sách bình luận */}
@@ -640,7 +762,7 @@ const ProductsDetail = () => {
                     size="small"
                     color="primary"
                     sx={{ textTransform: 'none', marginRight: '950px' }}
-                    onClick={() => setReplyingTo(replyingTo?.id === comment.id && replyingTo?.type === 'comment' ? null : { id: comment.id, type: 'comment'})}
+                    onClick={() => setReplyingTo(replyingTo?.id === comment.id && replyingTo?.type === 'comment' ? null : { id: comment.id, type: 'comment' })}
                   >
                     Trả lời
                   </Button>
@@ -719,31 +841,20 @@ const ProductsDetail = () => {
                           {reply.content}
                         </Typography>
 
-                        {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 ? (
+                        {Array.isArray(reply.imageUrls) && reply.imageUrls.length > 0 && (
                           <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                            {reply.imageUrls.map((imageUrl, index) => (
-                              <Box key={index} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
+                            {reply.imageUrls.map((imageUrl, idx) => (
+                              <Box key={idx} sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
                                 <img
-                                  src={`http://localhost:3000${imageUrl}`}  // Ensure correct URL path
-                                  alt={`Comment image ${index + 1}`}
+                                  src={imageUrl}  // Ensure correct URL path
+                                  alt={`Comment image ${idx + 1}`}
                                   style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
                                 />
                               </Box>
                             ))}
                           </Box>
-                        ) : (
-                          reply.imageUrls && typeof reply.imageUrls === 'string' && ( // Ensure it's a string before rendering
-                            <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
-                              <Box sx={{ flexBasis: 'calc(50% - 5px)', flexGrow: 1 }}>
-                                <img
-                                  src={reply.imageUrls}
-                                  alt="Comment image"
-                                  style={{ width: '25%', height: 'auto', borderRadius: '8px', objectFit: 'contain' }}
-                                />
-                              </Box>
-                            </Box>
-                          )
                         )}
+
                         <Typography
                           variant="caption"
                           color="textSecondary"
@@ -820,16 +931,15 @@ const ProductsDetail = () => {
                     ))}
                   </Box>
                 )}
+
+
               </Box>
             ))
           ) : (
             <Typography variant="body2">Chưa có bình luận nào.</Typography>
           )}
         </Box>
-
-
       </Box>
-
     </Box>
   );
 };

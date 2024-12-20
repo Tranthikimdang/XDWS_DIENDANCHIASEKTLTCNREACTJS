@@ -28,7 +28,7 @@ exports.createHashtag = async (req, res) => {
     }
 
     try {
-        const newHashtag = await Hashtag.create({ name });
+        const newHashtag = await Hashtag.create({ name, created_at: new Date() });
         res.status(201).json({
             status: 'success',
             data: {
@@ -56,9 +56,13 @@ exports.updateHashtag = async (req, res) => {
                 message: "Hashtag not found"
             });
         }
-        hashtag.name = name || hashtag.name;
 
+        // Cập nhật name nếu có
+        hashtag.name = name || hashtag.name;
+        hashtag.updated_at = new Date();
+        // Lưu lại thay đổi, Sequelize sẽ tự động cập nhật trường updated_at
         await hashtag.save();
+
         res.status(200).json({
             status: 'success',
             data: {
@@ -72,6 +76,7 @@ exports.updateHashtag = async (req, res) => {
         });
     }
 };
+
 
 // Xóa một hashtag
 exports.deleteHashtag = async (req, res) => {

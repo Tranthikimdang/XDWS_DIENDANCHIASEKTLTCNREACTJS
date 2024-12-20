@@ -134,35 +134,54 @@ exports.createCourseDetail = async (req, res) => {
 
 // Cập nhật thông tin chi tiết khóa học
 exports.updateCourseDetail = async (req, res) => {
-  const { id } = req.params;
-  const { course_id, video, name, no } = req.body;
+  const { course_id, name, no, video, updated_at } = req.body;
+  const detailId = req.params.id; // Lấy ID từ params
+
+  if (!detailId) {
+    return res.status(400).json({
+      status: "error",
+      message: "Detail ID is required.",
+    });
+  }
 
   try {
-    const courseDetail = await CourseDetail.findByPk(id);
-    if (!courseDetail) {
+    // Giữ URL video nếu có, nếu không có video mới, giữ video cũ
+    let embedUrl = video || ''; // video là URL từ frontend
+
+    // Cập nhật chi tiết khóa học trong cơ sở dữ liệu
+    const updatedCourseDetail = {
+      course_id,
+      name,
+      no,
+      video: embedUrl,
+      updated_at,
+    };
+
+    // Tiến hành cập nhật dữ liệu vào cơ sở dữ liệu
+    const result = await CourseDetail.update(updatedCourseDetail, {
+      where: { id: detailId },
+    });
+
+    if (result[0] > 0) {
+      return res.status(200).json({
+        status: 'success',
+        message: 'Course detail updated successfully.',
+      });
+    } else {
       return res.status(404).json({
-        status: "error",
-        message: "Course detail not found",
+        status: 'error',
+        message: 'Course detail not found.',
       });
     }
-    courseDetail.course_id = course_id || courseDetail.course_id;
-    courseDetail.video = video || courseDetail.video;
-    courseDetail.name = name || courseDetail.name;
-    courseDetail.no = no || courseDetail.no;
-
-    await courseDetail.save();
-    res.status(200).json({
-      status: "success",
-      data: { courseDetail },
-    });
-  } catch (err) {
-    res.status(500).send({
-      status: "error",
-      message:
-        err.message || "Some error occurred while updating the course detail.",
+  } catch (error) {
+    console.error('Error updating course detail:', error.message);
+    return res.status(500).json({
+      status: 'error',
+      message: 'An error occurred while updating the course detail.',
     });
   }
 };
+
 
 // Xóa thông tin chi tiết khóa học
 exports.deleteCourseDetail = async (req, res) => {

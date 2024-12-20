@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination, TextField, InputAdornment, } from '@mui/material';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import SearchIcon from '@mui/icons-material/Search';
 // Firebase
 import '../index.css';
 import CourseApi from '../../../apis/CourseApI';
 import CateCourseApi from '../../../apis/Categories_courseApI';
 import StudyTimeApi from '../../../apis/StudyTimeApI';
+import UserAPI from '../../../apis/UserApI';
 
 const Products = () => {
   const navigate = useNavigate();
@@ -56,20 +58,29 @@ const Products = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await CourseApi.getCoursesList(); // Gọi API để lấy tất cả sản phẩm
-        const filteredProducts = response.data.courses.filter(
-          (product) => String(product.cate_course_id) === cateId,
-        ); // Lọc theo ID danh mục
-        setProducts(filteredProducts); // Lưu dữ liệu vào state
+        const response = await CourseApi.getCoursesList();
+        const course = response.data.courses;
+        
+        // Lấy danh sách người dùng
+        const responseuse = await UserAPI.getUsersList();
+        const usersData = responseuse.data.users;
+
+        // Lấy thông tin người dùng cho mỗi khóa học
+        const coursesWithUsers = course.map((courseItem) => {
+          const matchingUser = usersData.find((user) => user.id == courseItem.userId);
+          return { ...courseItem, user: matchingUser }; // Gắn người dùng vào khóa học
+        });
+
+        setProducts(coursesWithUsers); // Cập nhật khóa học với người dùng tương ứng
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
-
+    
     fetchProducts();
-  }, [cateId]);
+  }, []); 
 
   // Fetch categories using API
   useEffect(() => {
@@ -157,12 +168,30 @@ const Products = () => {
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-            <TextField
-              label="Tìm kiếm sản phẩn"
+          <TextField
+              label="Tìm kiếm khóa học"
               variant="outlined"
               fullWidth
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                margin: 'auto',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
 
@@ -226,17 +255,22 @@ const Products = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4">
                               <h5>{product.name}</h5>
                               <div className="d-flex flex-row">
-                                <span>Số lượng {product.quality}</span>
+                                <span>Người đăng: {product.user?.name || 'Không có thông tin'}</span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Price: ${product.price}
+                                  <span className="text-primary"> • </span>Giá gốc:
+                                  {product.price + ' VND'
+                                    ? product.price.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Discount:{' '}
-                                  {product.discount}%
+                                  <span className="text-primary"> • </span>Giảm giá còn:{' '}
+                                  {product.discount + ' VND'
+                                    ? product.discount.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">

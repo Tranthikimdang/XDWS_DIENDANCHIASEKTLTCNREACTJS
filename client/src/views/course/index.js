@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import {
@@ -14,12 +15,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
-
+import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg";
 import CourseApi from '../../apis/CourseApI';
 import CateCourseApi from '../../apis/Categories_courseApI';
 import StudyTimeApi from '../../apis/StudyTimeApI';
 import './index.css';
-
+import UserAPI from '../../apis/UserApI';
 // Tạo Alert để hiển thị snackbar
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -38,7 +39,7 @@ const Course = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-
+  const [users, setUsers] = useState({});
   const user = JSON.parse(localStorage.getItem('user'));
   const userId = user ? user.id : null;
 
@@ -50,13 +51,24 @@ const Course = () => {
         const response = await CourseApi.getCoursesList();
         const course = response.data.courses;
 
-        setProducts(course);
+        // Lấy danh sách người dùng
+        const responseuse = await UserAPI.getUsersList();
+        const usersData = responseuse.data.users;
+
+        // Lấy thông tin người dùng cho mỗi khóa học
+        const coursesWithUsers = course.map((courseItem) => {
+          const matchingUser = usersData.find((user) => user.id == courseItem.userId);
+          return { ...courseItem, user: matchingUser }; // Gắn người dùng vào khóa học
+        });
+
+        setProducts(coursesWithUsers); // Cập nhật khóa học với người dùng tương ứng
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchProducts();
   }, []);
 
@@ -160,11 +172,19 @@ const Course = () => {
   };
 
   return (
-    <PageContainer title="Danh sách khóa học | Share Code" description="Đây là trang danh sách khóa học">
+    <PageContainer
+      title="Danh sách khóa học | Share Code"
+      description="Đây là trang danh sách khóa học"
+    >
       <Box sx={{ padding: { xs: '10px' } }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
-            <Typography variant="h4" component="h1" className="heading">
+          <Grid item xs={8} sx={{ marginBottom: { xs: '50px', md: '50px' }, marginTop: '30px' }}>
+            <Typography
+              variant="h4"
+              component="h1"
+              className="heading"
+              sx={{ fontWeight: 'bold', fontFamily: 'Roboto, sans-serif' }}
+            >
               Các khóa học của chúng tôi
             </Typography>
             <Typography variant="body1" paragraph className="typography-body">
@@ -232,7 +252,7 @@ const Course = () => {
                                   }}
                                 >
                                   <img
-                                    src={product.image}
+                                    src={product.image || imageplaceholder}
                                     className="w-100"
                                     alt={product.name}
                                     style={{
@@ -241,6 +261,9 @@ const Course = () => {
                                       borderRadius: '10px',
                                       transition: 'all 0.3s ease',
                                       cursor: 'pointer',
+                                    }}
+                                    onError={(e) => {
+                                      e.target.src = imageplaceholder; // Hiển thị ảnh mặc định nếu ảnh không tải được
                                     }}
                                   />
                                   <a href="#!">
@@ -259,18 +282,25 @@ const Course = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4">
                               <h5>{product.name}</h5>
                               <div className="d-flex flex-row">
-                                <span>Số lượng {product.quality}</span>
+                                <span>
+                                  Người đăng: {product.user?.name || 'Không có thông tin'}
+                                </span>{' '}
+                                {/* Hiển thị tên người đăng */}
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
-                                  <span className="text-primary"> • </span>Giá gốc: {product.price}{' '}
-                                  VND
+                                  <span className="text-primary"> • </span>Giá gốc:
+                                  {product.price + ' VND'
+                                    ? product.price.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small">
                                 <span>
                                   <span className="text-primary"> • </span>Giảm giá còn:{' '}
-                                  {product.discount} VND
+                                  {product.discount + ' VND'
+                                    ? product.discount.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </span>
                               </div>
                               <div className="d-flex mt-1 mb-0 text-muted small d-flex justify-content-start">
@@ -297,15 +327,15 @@ const Course = () => {
                             <div className="col-md-6 col-lg-4 col-xl-4 border-sm-start-none border-start">
                               <div className="align-items-center mb-1">
                                 <h6 className="mb-1 me-1" style={{ fontSize: '1rem' }}>
-                                  {product.discount
-                                    ? product.discount.toLocaleString('vi-VN')
-                                    : 'N/A'}{' '}
-                                  VND
+                                  {product.discount + ' VND'
+                                    ? product.discount.toLocaleString('vi-VN') + ' VND'
+                                    : 'Miễn phí'}{' '}
                                 </h6>
                                 <span className="text-danger" style={{ fontSize: '0.7rem' }}>
                                   <s>
-                                    {product.price ? product.price.toLocaleString('vi-VN') : 'N/A'}{' '}
-                                    VND
+                                    {product.price + ' VND'
+                                      ? product.price.toLocaleString('vi-VN') + ' VND'
+                                      : 'Miễn phí'}{' '}
                                   </s>
                                 </span>
                               </div>
@@ -313,41 +343,41 @@ const Course = () => {
                                 <b>Giảm giá sốc</b>
                               </h6>
                               <div className="d-flex flex-column mt-4">
-  {/* Kiểm tra quyền truy cập để hiển thị nút */}
-  {hasStudyAccess(product.id) ? (
-    <button
-      className="btn btn-success btn-sm"
-      type="button"
-      onClick={() => navigate(`/productDetailUser/${product.id}`)}
-    >
-      Bắt đầu học
-    </button>
-  ) : (
-    <>
-      <button 
-        className="btn btn-primary btn-sm" 
-        type="button"
-        onClick={() => navigate('/cart')}
-      >
-        Mua ngay
-      </button>
-      <button
-        className="btn btn-outline-primary btn-sm mt-2"
-        type="button" 
-        onClick={() => navigate(`/productDetail/${product.id}`)}
-      >
-        Xem thêm
-      </button>
-      {/* <button
+                                {/* Kiểm tra quyền truy cập để hiển thị nút */}
+                                {hasStudyAccess(product.id) ? (
+                                  <button
+                                    className="btn btn-success btn-sm"
+                                    type="button"
+                                    onClick={() => navigate(`/productDetailUser/${product.id}`)}
+                                  >
+                                    Bắt đầu học
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      className="btn btn-primary btn-sm"
+                                      type="button"
+                                      onClick={() => navigate('/cart')}
+                                    >
+                                      Mua ngay
+                                    </button>
+                                    <button
+                                      className="btn btn-outline-primary btn-sm mt-2"
+                                      type="button"
+                                      onClick={() => navigate(`/productDetail/${product.id}`)}
+                                    >
+                                      Xem thêm
+                                    </button>
+                                    {/* <button
         className="btn btn-outline-primary btn-sm mt-2"
         type="button"
         onClick={() => addToCart(product)}
       >
         Thêm vào giỏ hàng
       </button> */}
-    </>
-  )}
-</div>
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>

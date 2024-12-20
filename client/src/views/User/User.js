@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react';
 import {
   Grid,
@@ -8,16 +9,16 @@ import {
   CardMedia,
   TextField,
   InputAdornment,
+  Pagination,
 } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
-import DashboardCard from '../../components/shared/DashboardCard';
 import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon } from '@mui/icons-material';
-import { getStorage, ref, getDownloadURL } from 'firebase/storage';
+//api
 import UserAPI from 'src/apis/UserApI';
 import api from 'src/apis/mentorApi';
-
-const defaultImageUrl = 'path-to-default-image.jpg';
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
 
 const User = () => {
   const [users, setUsers] = useState([]); // Separate state for users
@@ -35,9 +36,9 @@ const User = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await UserAPI.getUsersList();  // API call to get users
+        const response = await UserAPI.getUsersList(); // API call to get users
         const filteredUsers = response.data.users.filter(
-          (user) => !(user.role === 'admin' && user.id === userId)
+          (user) => !(user.role === 'admin' && user.id === userId),
         );
         setUsers(filteredUsers);
       } catch (error) {
@@ -73,7 +74,7 @@ const User = () => {
 
   // Filter users by search term
   const filteredUsers = users.filter(
-    (user) => user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (user) => user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Pagination logic
@@ -83,69 +84,85 @@ const User = () => {
 
   return (
     <PageContainer title="Người dùng | Share Code" description="Đây là trang người dùng">
-    
-        <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
-          <Grid container spacing={4}>
-            <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-              <Typography
-                variant="h4"
-                component="h1"
-                className="heading"
-                sx={{ fontWeight: 'bold', color: '#333' }}
-              >
-                Danh Sách Tài Khoản
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-              <TextField
-                label="Tìm kiếm người dùng"
-                variant="outlined"
-                fullWidth
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{
-                  maxWidth: '500px',
-                  margin: 'auto',
+      <Box sx={{ padding: { xs: '10px', sm: '20px' }, maxWidth: '1200px', margin: 'auto' }}>
+        <Grid container spacing={4}>
+        <Grid item xs={12} sx={{ marginBottom: { xs: '50px', md: '30px' }, marginTop: '10px' }}>
+            <Typography
+              variant="h4"
+              component="h1"
+              className="heading"
+              sx={{ fontWeight: 'bold', fontFamily: 'Roboto, sans-serif' }}
+            >
+              Người dùng
+            </Typography>
+            <Typography variant="body1" paragraph className="typography-body">
+              Tìm kiếm và kết nối với những người dùng trong lĩnh vực lập trình.
+              <br />
+              Những người kinh nghiệm, sẵn sàng hỗ trợ bạn
+              trên hành trình học lập trình và phát triển sự nghiệp.
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            xs={8}
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '16px',
+              justifyContent: 'flex-start',
+            }}
+          >
+            <TextField
+              label="Tìm kiếm người dùng"
+              variant="outlined"
+              fullWidth
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                flex: '1 1 300px',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
                   borderRadius: '50px',
-                  backgroundColor: '#f7f7f7',
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: '50px',
-                  },
-                  '& .MuiInputBase-input': {
-                    padding: '12px 16px',
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            </Grid>
-            {/* User List */}
-            {loading ? (
-              <Typography sx={{ textAlign: 'center', width: '100%' }}>Loading...</Typography>
-            ) : currentUsers.length > 0 ? (
-              currentUsers.map((user) => (
-                <Grid item xs={12} sm={6} md={4} key={user.id}>
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
+          {/* User List */}
+          {loading ? (
+            <Typography sx={{ textAlign: 'center', width: '100%'}}>Loading...</Typography>
+          ) : currentUsers.length > 0 ? (
+            <Grid container spacing={3} justifyContent="center" className='mt-3'>
+              {currentUsers.map((user) => (
+                <Grid item xs={12} sm={6} md={3} key={user.id}>
                   <Card
                     className="user-card"
                     sx={{
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
                       boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                       borderRadius: '12px',
                       transition: 'transform 0.3s',
                       '&:hover': { transform: 'translateY(-5px)' },
+                      height: '100%', // Đảm bảo card có chiều cao đầy đủ
                     }}
                     onClick={() => handleCardClick(user.id)}
                   >
                     <Box sx={{ flexShrink: 0 }}>
                       <CardMedia
                         component="img"
-                        image={user.imageUrl || defaultImageUrl}
+                        image={user.imageUrl || avatardefault}
                         alt={user.name || 'User'}
                         sx={{
                           width: '120px',
@@ -156,35 +173,44 @@ const User = () => {
                           border: '4px solid #fff',
                           boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
                         }}
+                        onError={(e) => {
+                          e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
+                        }}
                       />
                     </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '8px' }}>
                       <CardContent sx={{ padding: '16px' }}>
-                        <Typography variant="h6" fontWeight="bold" color="#2c3e50">
+                        <Typography variant="h6" fontWeight="bold" color="#2c3e50" sx={{ textAlign: 'center' }}>
                           {user.name}
                         </Typography>
-                        <Typography variant="body2" color="#7f8c8d">
+                        <Typography variant="body2" color="#7f8c8d" sx={{ textAlign: 'center' }}>
                           {user.email}
                         </Typography>
-                        <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '8px' }}>
+                        <Typography variant="body2" color="textSecondary" sx={{ marginBottom: '8px', textAlign: 'center' }}>
                           {user.location || 'Unknown Location'}
-                        </Typography>
-                        <Typography variant="body2" color="#16a085">
-                          Number of articles: {user.articleCount || 0}
                         </Typography>
                       </CardContent>
                     </Box>
                   </Card>
                 </Grid>
-              ))
-            ) : (
-              <Typography sx={{ textAlign: 'center', width: '100%' }}>
-                Không có người dùng nào...
-              </Typography>
-            )}
-          </Grid>
-        </Box>
-     
+              ))}
+            </Grid>
+          ) : (
+            <Typography sx={{ textAlign: 'center', width: '100%' }}>
+              Không có người dùng nào...
+            </Typography>
+          )}
+        </Grid>
+      </Box>
+      {/* Pagination */}
+      <Box display="flex" justifyContent="center" mt={4} mb={4}>
+        <Pagination
+          count={Math.ceil(filteredUsers.length / usersPerPage)}
+          page={currentPage}
+          onChange={(event, value) => setCurrentPage(value)}
+          color="primary"
+        />
+      </Box>
     </PageContainer>
   );
 };

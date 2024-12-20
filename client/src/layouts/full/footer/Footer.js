@@ -60,7 +60,6 @@ export default function Footer() {
             </Typography>
           </Grid>
 
-          {/* Sản Phẩm */}
           <Grid item xs={12} md={2}>
             <Typography variant="h6" gutterBottom>
               Sản phẩm
@@ -139,7 +138,7 @@ export default function Footer() {
       <Box className='copyright' sx={{ py: 2, backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
         <Typography variant="body2" color="text.secondary" align="center">
           © {new Date().getFullYear()} Bản quyền thuộc về:
-          <Link href="https://sharecode.vn/" color="inherit" sx={{ ml: 1, fontWeight: 'bold' }}>
+<Link href="https://sharecode.vn/" color="inherit" sx={{ ml: 1, fontWeight: 'bold' }}>
             ShareCode.vn
           </Link>
         </Typography>

@@ -1,8 +1,8 @@
 import {
-  IconHome, IconUsers, IconBrandYoutube
+  IconHome, IconBrandYoutube
 } from '@tabler/icons';
 import { IconUser } from '@tabler/icons-react';
-import { IconInfoSquareRounded, IconFilePhone, IconUserCircle, IconUserCode  } from '@tabler/icons-react';
+import { IconInfoSquareRounded, IconFilePhone, IconUserCode, IconUserCircle  } from '@tabler/icons-react';
 import { uniqueId } from 'lodash';
 
 const Menuitems = [

@@ -25,7 +25,8 @@ function FormAddCourse() {
   const [cates, setCates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState('');
-
+  const user = JSON.parse(localStorage.getItem('user'));
+  const userId = user ? user.id : null;
   const smallFontStyle = {
     fontSize: '0.9rem',
   };
@@ -78,6 +79,7 @@ function FormAddCourse() {
         image: imageName, // Lưu tên tệp
         name: data.name,
         view: "0",
+        userId: userId,
         price: parseFloat(data.price),
         discount: parseFloat(data.discount),
         quality: parseInt(data.quality),

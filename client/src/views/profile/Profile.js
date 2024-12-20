@@ -62,6 +62,8 @@ const Profile = () => {
         const response = await UserAPI.getUsersList();
         const matchingUser = response.data.users.find((user) => user.id == userId);
 
+        console.log(matchingUser.imageUrl);
+        
         setUser(matchingUser);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -127,20 +129,23 @@ const Profile = () => {
     setActiveTab(newValue);
   };
 
+
+
   //date
-  const formatUpdatedAt = (updatedAt) => {
+  const formatUpdatedAt = (updatedAt) => { 
     let updatedAtString = '';
-
+  
     if (updatedAt) {
-      const date = new Date(updatedAt.seconds * 1000); // Chuyển đổi giây thành milliseconds
+      const date = new Date(updatedAt);  // Tạo đối tượng Date từ chuỗi thời gian
       const now = new Date();
-      const diff = now - date; // Tính toán khoảng cách thời gian
-
-      const seconds = Math.floor(diff / 1000); // chuyển đổi ms thành giây
+      const diff = now - date;
+  
+      const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
-
+  
+      // Hiển thị thời gian theo các đơn vị khác nhau
       if (days > 0) {
         updatedAtString = `${days} ngày trước`;
       } else if (hours > 0) {
@@ -153,10 +158,10 @@ const Profile = () => {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-
+  
     return updatedAtString;
   };
-
+  
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -187,7 +192,7 @@ const Profile = () => {
         type: followId ? 'not_followed' : 'pending',
         relatedId: followId || null,
       };
-  
+
       await NotificationApi.createNotification(notification);
       console.log('Thông báo đã được thêm vào database');
     } catch (error) {
@@ -195,48 +200,62 @@ const Profile = () => {
     }
   };
 
-    //thông báo cho tôi
-    const addNotificationMe = async (message, followId = null) => {
-      try {
-        const notification = {
-          userId: userLocalId,
-          message,
-          type: 'pending',
-          relatedId: followId || null,
-        };
-    
-        await NotificationApi.createNotification(notification);
-        console.log('Thông báo đã được thêm vào database');
-      } catch (error) {
-        console.error('Error adding notification:', error);
-      }
-    };
-  
+  //thông báo cho tôi
+  const addNotificationMe = async (message, followId = null) => {
+    try {
+      const notification = {
+        userId: userLocalId,
+        message,
+        type: 'pending',
+        relatedId: followId || null,
+      };
+
+      await NotificationApi.createNotification(notification);
+      console.log('Thông báo đã được thêm vào database');
+    } catch (error) {
+      console.error('Error adding notification:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchFollowStatus = async () => {
-      if (!userId || !userLocalId) {
-        console.warn('User ID hoặc User Local ID không tồn tại');
+      if (!userId) {
+        console.warn('User ID không tồn tại');
         return;
       }
   
-      if (userId !== userLocalId) {
-        try {
-          const response = await FollowApi.checkFollowStatus(userLocalId, userId);
-          if (!response) {
-            console.error('API trả về response null hoặc không hợp lệ');
-            return;
-          }
-          setFollowStatus(response.status || 'not_followed'); // Mặc định là not_followed nếu không có
-          setFollowId(response.followId || null); // Đảm bảo followId không bị null
-        } catch (error) {
-          console.error('Error checking follow status:', error);
+      try {
+        // Lấy tất cả các follow từ API
+        const response = await FollowApi.getAllFollows();
+        if (!response || !Array.isArray(response.data)) {
+          console.error('API trả về dữ liệu không hợp lệ');
+          return;
         }
+  
+        // Tìm follow có liên quan đến userId
+        const follow = response.data.find(
+          (follow) =>
+            (follow.follower_id == userId && follow.target_id == userLocalId) ||
+            (follow.follower_id == userLocalId && follow.target_id == userId)
+        );
+  
+        // Kiểm tra nếu có follow
+        if (follow) {
+          setFollowStatus(follow.status || 'not_followed');
+          setFollowId(follow.id || null);
+        } else {
+          setFollowStatus('not_followed'); // Mặc định là 'not_followed' nếu không tìm thấy follow
+          setFollowId(null);
+        }
+      } catch (error) {
+        console.error('Error checking follow status:', error);
       }
     };
   
     fetchFollowStatus();
-  }, [userId, userLocalId]);
+  }, [userId, userLocalId]);  // Chạy lại khi userId hoặc userLocalId thay đổi
   
+
   const deleteFollow = async () => {
     try {
       if (followId) {
@@ -269,13 +288,13 @@ const Profile = () => {
           console.error('API createFollow không trả về dữ liệu hợp lệ');
           return;
         }
-  
+
         const newFollowId = response.data.id; // Lấy ID của bản follow vừa được thêm
         setFollowStatus('pending');
         setFollowId(newFollowId); // Gán followId mới vào state
         setSnackbarMessage('Đã gửi yêu cầu theo dõi');
         setOpenSnackbar(true);
-  
+
         // Gửi thông báo với followId làm relatedId
         await addNotification(`${user.name} đã gửi lời mời kết bạn`, newFollowId);
       } else if (followStatus === 'pending' && followId) {
@@ -285,7 +304,7 @@ const Profile = () => {
         setFollowId(null);
         setSnackbarMessage('Đã hủy yêu cầu theo dõi');
         setOpenSnackbar(true);
-  
+
         // Gửi thông báo với followId làm relatedId
         await addNotificationMe(`Bạn đã hủy yêu cầu kết bạn`, userLocalId);
       }
@@ -298,6 +317,7 @@ const Profile = () => {
     return !!userLocalId; // Trả về true nếu tồn tại, ngược lại false
   };
   
+
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -339,7 +359,11 @@ const Profile = () => {
                 {user?.name}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
-                {user?.role === 'mentors' ? 'Mentors' : 'Người hướng dẫn'}
+                {user?.role === 'mentors'
+                  ? 'Người hướng dẫn'
+                  : user?.role === 'admin' || user?.role === 'user'
+                    ? 'Người dùng'
+                    : 'Không xác định'}
               </Typography>
               <Divider sx={{ width: '100%', margin: '10px 0' }} />
               {/* Kiểm tra nếu userId trong URL trùng với userLocalId */}
@@ -630,11 +654,9 @@ const Profile = () => {
                     </Typography>
                     {questions?.length > 0 ? (
                       questions
-                        .filter((question) => question.isApproved === 1)
-                        .sort((a, b) => (a.updated_at.seconds < b.updated_at.seconds ? 1 : -1))
                         .map((question) => (
                           <Box
-                            key={question.id}
+                            key={question?.id}
                             sx={{
                               border: '1px solid #e0e0e0',
                               borderRadius: '8px',
@@ -661,7 +683,7 @@ const Profile = () => {
                                     {user.name}
                                   </Typography>
                                   <Typography variant="body2" color="textSecondary">
-                                    {formatUpdatedAt(question.updated_at)}
+                                    {formatUpdatedAt(question.updatedAt)}
                                   </Typography>
                                 </Box>
                               </Box>
@@ -677,7 +699,7 @@ const Profile = () => {
                                   variant="h6"
                                   sx={{ color: '#007bff', fontSize: '0.8rem' }}
                                 >
-                                  #{question.hashtag}
+                                  {question.hashtag}
                                 </Typography>
                               )}
                             </Box>
@@ -772,12 +794,6 @@ const Profile = () => {
                                   </Typography>
                                 </Box>
                               )}
-
-                            <Divider sx={{ my: 2 }} />
-                            {/* Like and Comment Counts */}
-                            <Typography variant="subtitle1" color="textSecondary">
-                              345 Likes • 34 Comments
-                            </Typography>
                           </Box>
                         ))
                     ) : (

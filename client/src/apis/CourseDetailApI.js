@@ -19,10 +19,22 @@ const apiRequest = async (method, url, data) => {
 // Course Details API
 const addCourseDetail = async (courseDetail) => apiRequest('post', COURSE_DETAILS_URL, courseDetail);
 const getCourseDetailsList = async () => apiRequest('get', COURSE_DETAILS_URL);
-const updateCourseDetail = async (id, updatedData) => apiRequest('put', `${COURSE_DETAILS_URL}/${id}`, updatedData);
+// const updateCourseDetail = async (id, updatedData) => apiRequest('put', `${COURSE_DETAILS_URL}/${id}`, updatedData);
 const deleteCourseDetail = async (id) => apiRequest('delete', `${COURSE_DETAILS_URL}/${id}`);
 const getProductByCourseId = async (detailId) => apiRequest('get', `${COURSE_DETAILS_URL}/${detailId}`);
-
+const updateCourseDetail = async (id, updatedData) => {
+  try {
+    const response = await axios.put(`${COURSE_DETAILS_URL}/${id}`, updatedData, {
+      headers: {
+        'Content-Type': 'multipart/form-data', // Chỉ định Content-Type là multipart/form-data
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error updating course detail:', error);
+    throw error;
+  }
+};
 // API cho lộ trình học
 const getCourseProgress = async (courseId) => apiRequest('get', `${COURSE_PROGRESS_URL}/${courseId}`);
 const updateWatchedTime = async (id, watchedTime) => {

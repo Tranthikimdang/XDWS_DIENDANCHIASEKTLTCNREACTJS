@@ -1,53 +1,56 @@
 // Vision UI Dashboard React layouts
-import Dashboard from "src/pages/admin/dashboard";
-import Questions from "src/pages/admin/questions";
+import Dashboard from 'src/pages/admin/dashboard';
+import Questions from 'src/pages/admin/questions';
 
-import AddCate from "../pages/admin/category/data/FormAddCate";
-import EditCate from "../pages/admin/category/data/FormEditCate";
+import AddCate from '../pages/admin/category/data/FormAddCate';
+import EditCate from '../pages/admin/category/data/FormEditCate';
 
-import CategoryPro from "../pages/admin/category_pro";
-import AddCatePro from "../pages/admin/category_pro/data/FormAddCate";
-import EditCatePro from "../pages/admin/category_pro/data/FormEditCate";
+import CategoryPro from '../pages/admin/category_pro';
+import AddCatePro from '../pages/admin/category_pro/data/FormAddCate';
+import EditCatePro from '../pages/admin/category_pro/data/FormEditCate';
 
-import Products from "src/pages/admin/course";
-import AddProduct from "../pages/admin/course/data/FormAdd";
-import EditProduct from "../pages/admin/course/data/FormEdit";
-import productDetail from "../views/course/components/detail"
+import Products from 'src/pages/admin/course';
+import AddProduct from '../pages/admin/course/data/FormAdd';
+import EditProduct from '../pages/admin/course/data/FormEdit';
+import productDetail from '../views/course/components/detail';
 
-
-import productDetailAdmin from "../pages/admin/courseDetail"
-import AddProDetaill from "../pages/admin/courseDetail/data/FormAdd"
-import EditProDetaill from "../pages/admin/courseDetail/data/FormAdd"
+import productDetailAdmin from '../pages/admin/courseDetail';
+import AddProDetaill from '../pages/admin/courseDetail/data/FormAdd';
+import EditProDetaill from '../pages/admin/courseDetail/data/FormAdd';
 // import Article from "src/pages/admin/article";
-import FormAddArticle from "src/pages/admin/article/data/FormAddArticle";
-import FormViewArticle from "src/pages/admin/article/data/FormViewArticle";
-import FormEditArticle from "src/pages/admin/article/data/FormEditArticle";
+import FormAddArticle from 'src/pages/admin/article/data/FormAddArticle';
+import FormViewArticle from 'src/pages/admin/article/data/FormViewArticle';
+import FormEditArticle from 'src/pages/admin/article/data/FormEditArticle';
 
-import Mentor from "src/pages/admin/mentor";
-import FormViewMentor from "src/pages/admin/mentor/data/FormViewMentor";
+import Mentor from 'src/pages/admin/mentor';
+import FormViewMentor from 'src/pages/admin/mentor/data/FormViewMentor';
 
 import Orders from 'src/pages/admin/orders';
 
 import HashtagAdmin from 'src/pages/admin/hashtag';
-import AddHashtag from "../pages/admin/hashtag/data/FormAddHashtag"
-import EditHashtag from "../pages/admin/hashtag/data/FormEditHashtag"
+import AddHashtag from '../pages/admin/hashtag/data/FormAddHashtag';
+import EditHashtag from '../pages/admin/hashtag/data/FormEditHashtag';
 
+import StudyTime from '../pages/admin/studyTime/index';
+import AddStudyTime from '../pages/admin/studyTime/data/FormAdd';
+
+import AddExercise from '../pages/admin/exercise/data/FormAdd';
+import EditExercise from '../pages/admin/exercise/data/FormEdit';
 // Vision UI Dashboard React icons
 // import { IoIosDocument } from "react-icons/io";
-import { BsFillPersonFill } from "react-icons/bs";
-import { IoHome } from "react-icons/io5";
-import { BsFillPersonPlusFill, BsList } from "react-icons/bs";
-import { BsFillFileEarmarkTextFill, BsHash } from "react-icons/bs";
-import { BsFillPencilFill } from "react-icons/bs";
-import { BsJournals } from "react-icons/bs";
-import { FaQuestionCircle, FaYoutube } from "react-icons/fa";
+import { BsFillPersonFill } from 'react-icons/bs';
+import { IoHome } from 'react-icons/io5';
+import { BsFillPersonPlusFill, BsList } from 'react-icons/bs';
+import { BsFillFileEarmarkTextFill, BsHash } from 'react-icons/bs';
+import { BsFillPencilFill } from 'react-icons/bs';
+import { BsJournals } from 'react-icons/bs';
+import { FaQuestionCircle, FaYoutube, FaRegClock } from 'react-icons/fa';
 const routes = [
-
   {
-    type: "collapse",
-    name: "Bảng điều khiển",
-    key: "dashboard",
-    route: "/admin/dashboard",
+    type: 'collapse',
+    name: 'Bảng điều khiển',
+    key: 'dashboard',
+    route: '/admin/dashboard',
     icon: <IoHome size="15px" color="inherit" />,
     component: Dashboard,
     noCollapse: true,
@@ -55,8 +58,8 @@ const routes = [
   {
     // type: "collapse",
     // name: "Quản lý bài viết",
-    key: "article",
-    route: "/admin/article",
+    key: 'article',
+    route: '/admin/article',
     //tamthoi
     // icon: <BsJournals size="15px" color="inherit" />,
     // component: Article,
@@ -66,251 +69,260 @@ const routes = [
   {
     // type: "collapse",
     // name: "Danh mục bài viết",
-    key: "category",
-    route: "/admin/category",
+    key: 'category',
+    route: '/admin/category',
     // icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
     // noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
-    type: "collapse",
-    name: "Quản lý câu hỏi",
-    key: "questions",
-    route: "/admin/questions",
+    type: 'collapse',
+    name: 'Quản lý câu hỏi',
+    key: 'questions',
+    route: '/admin/questions',
     icon: <FaQuestionCircle size="15px" color="inherit" />,
     component: Questions,
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý bình luận",
-    key: "comment",
-    route: "/admin/comment",
+    type: 'collapse',
+    name: 'Quản lý bình luận',
+    key: 'comment',
+    route: '/admin/comment',
     icon: <BsFillPencilFill size="15px" color="inherit" />,
     // component: Comment,
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý khóa học",
-    key: "products",
-    route: "/admin/products",
-    icon: <FaYoutube size="15px" color="inherit" />,
-    component: CategoryPro,
-    noCollapse: true,
-  },
-  {
-    type: "collapse",
-    name: "Danh mục khóa học",
-    key: "categoryPro",
-    route: "/admin/categoryPro",
+    type: 'collapse',
+    name: 'Danh mục khóa học',
+    key: 'categoryPro',
+    route: '/admin/categoryPro',
     icon: <BsFillFileEarmarkTextFill size="15px" color="inherit" />,
     component: Products,
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý hashtag",
-    key: "hashtag",
-    route: "/admin/hashtag",
+    type: 'collapse',
+    name: 'Quản lý khóa học',
+    key: 'products',
+    route: '/admin/products',
+    icon: <FaYoutube size="15px" color="inherit" />,
+    component: CategoryPro,
+    noCollapse: true,
+  },
+  {
+    type: 'collapse',
+    name: 'Thời gian học',
+    key: 'studyTime',
+    route: '/admin/studyTime',
+    icon: <FaRegClock size="15px" color="inherit" />,
+    component: StudyTime,
+    noCollapse: true,
+  },
+  {
+    type: 'collapse',
+    name: 'Quản lý hashtag',
+    key: 'hashtag',
+    route: '/admin/hashtag',
     icon: <BsHash size="15px" color="inherit" />,
     component: HashtagAdmin,
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý đơn hàng",
-    key: "orders",
-    route: "/admin/orders",
+    type: 'collapse',
+    name: 'Quản lý đơn hàng',
+    key: 'orders',
+    route: '/admin/orders',
     icon: <BsList size="15px" color="inherit" />,
     component: Orders,
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý tài khoản",
-    key: "user",
-    route: "/admin/user",
+    type: 'collapse',
+    name: 'Quản lý tài khoản',
+    key: 'user',
+    route: '/admin/user',
     icon: <BsFillPersonPlusFill size="15px" color="inherit" />,
     // component: User,
     noCollapse: true,
   },
   {
-    type: "collapse",
-    name: "Quản lý người cố vấn",
-    key: "mentor",
-    route: "/admin/mentor",
+    type: 'collapse',
+    name: 'Quản lý người cố vấn',
+    key: 'mentor',
+    route: '/admin/mentor',
     icon: <BsJournals size="15px" color="inherit" />,
     component: Mentor,
     noCollapse: true,
   },
-  { type: "title", title: "Mục tài khoản", key: "account-pages" },
+  { type: 'title', title: 'Mục tài khoản', key: 'account-pages' },
   {
-    type: "collapse",
-    name: "Profile",
-    key: "profile",
-    route: "/admin/profile",
+    type: 'collapse',
+    name: 'Profile',
+    key: 'profile',
+    route: '/admin/profile',
     icon: <BsFillPersonFill size="15px" color="inherit" />,
     // component: Profile,
     noCollapse: true,
   },
 
   {
-    key: "commentDetail",
-    route: "/admin/commentDetail/:id",
+    key: 'commentDetail',
+    route: '/admin/commentDetail/:id',
     // component: CommentDetail,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formaddcmt",
-    route: "/admin/formaddcmt",
+    key: 'formaddcmt',
+    route: '/admin/formaddcmt',
     // component: FormAddCmt,
     hidden: true,
   },
   {
-    key: "formeditcmt",
-    route: "/admin/formeditcmt",
+    key: 'formeditcmt',
+    route: '/admin/formeditcmt',
     // component: FormEditCmt,
     hidden: true,
   },
   {
-    key: "formdeletecmt",
-    route: "/admin/formdeletecmt",
+    key: 'formdeletecmt',
+    route: '/admin/formdeletecmt',
     // component: FormDeleteCmt,
     hidden: true, // Ẩn mục này
   },
   // questions
   {
-    key: "formaddquestions",
-    route: "/admin/formAddQuestions",
+    key: 'formaddquestions',
+    route: '/admin/formAddQuestions',
     // component: FormAddQuestions,
     hidden: true,
   },
   {
-    key: "formeditquestions",
-    route: "/admin/formEditQuestions",
+    key: 'formeditquestions',
+    route: '/admin/formEditQuestions',
     // component: FormEditQuestions,
     hidden: true,
   },
   {
-    key: "formdeletequestions",
-    route: "/admin/formDeleteQuestions",
+    key: 'formdeletequestions',
+    route: '/admin/formDeleteQuestions',
     // component: FormDeleteQuestions,
     hidden: true, // Ẩn mục này
   },
   //cate
   {
-    key: "formaddcate",
-    route: "/admin/formaddcate",
+    key: 'formaddcate',
+    route: '/admin/formaddcate',
     // component: FormAddCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formeditcate",
-    route: "/admin/formeditcate",
+    key: 'formeditcate',
+    route: '/admin/formeditcate',
     // component: FormEditCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formdeletecate",
-    route: "/admin/formdeletecate",
+    key: 'formdeletecate',
+    route: '/admin/formdeletecate',
     // component: FormDeleteCate,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formadduser",
-    route: "/admin/formadduser",
+    key: 'formadduser',
+    route: '/admin/formadduser',
     // component: FormAddUser,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formedituser",
-    route: "/admin/formedituser",
+    key: 'formedituser',
+    route: '/admin/formedituser',
     // component: FormEditUser,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formdeleteUser",
-    route: "/admin/formdeleteUser",
+    key: 'formdeleteUser',
+    route: '/admin/formdeleteUser',
     // component: FormDeleteUser,
     noCollapse: true,
     hidden: true, // Ẩn mục này
   },
   //article
   {
-    key: "formeandarticle",
-    route: "/admin/formaddarticle",
+    key: 'formeandarticle',
+    route: '/admin/formaddarticle',
     component: FormAddArticle,
-    hidden: true, // Ẩn mục này            
+    hidden: true, // Ẩn mục này
   },
   {
-    key: "formviewarticle",
-    route: "/admin/formviewarticle/:id", // Thêm :id để định tuyến theo params
+    key: 'formviewarticle',
+    route: '/admin/formviewarticle/:id', // Thêm :id để định tuyến theo params
     component: FormViewArticle,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "formeditarticle",
-    route: "/admin/formeditarticle",
+    key: 'formeditarticle',
+    route: '/admin/formeditarticle',
     component: FormEditArticle,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "addCatePro",
-    route: "/admin/addCatePro",
+    key: 'addCatePro',
+    route: '/admin/addCatePro',
     component: AddCatePro,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "editCatePro",
-    route: "/admin/editCatePro/:id",
+    key: 'editCatePro',
+    route: '/admin/editCatePro/:id',
     component: EditCatePro,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "addProduct",
-    route: "/admin/addProduct",
+    key: 'addProduct',
+    route: '/admin/addProduct',
     component: AddProduct,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "editProduct",
-    route: "/admin/editProduct/:id",
+    key: 'editProduct',
+    route: '/admin/editProduct/:id',
     component: EditProduct,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "editProduct",
+    key: 'editProduct',
     route: '/productDetail/:id',
     component: productDetail,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "addCate",
-    route: "/admin/addCate",
+    key: 'addCate',
+    route: '/admin/addCate',
     component: AddCate,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "editCate",
-    route: "/admin/editCate/:id",
+    key: 'editCate',
+    route: '/admin/editCate/:id',
     component: EditCate,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "addCate",
-    route: "/admin/addCate",
+    key: 'addCate',
+    route: '/admin/addCate',
     component: AddCate,
     hidden: true, // Ẩn mục này
   },
   {
-    key: "editCate",
-    route: "/admin/editCate/:id",
+    key: 'editCate',
+    route: '/admin/editCate/:id',
     component: EditCate,
     hidden: true, // Ẩn mục này
   },
@@ -329,7 +341,7 @@ const routes = [
   },
   {
     key: 'EditProDetaill',
-    route: '/admin/editProDetaill/:detailId',
+    route: '/admin/editProDetaill/:course_id/:detailId',
     component: EditProDetaill,
     hidden: true, // Ẩn mục này
   },
@@ -341,8 +353,8 @@ const routes = [
   },
   //mentor
   {
-    key: "formviewmentor",
-    route: "/admin/formviewmentor/:id", // Thêm :id để định tuyến theo params
+    key: 'formviewmentor',
+    route: '/admin/formviewmentor/:id', // Thêm :id để định tuyến theo params
     component: FormViewMentor,
     hidden: true, // Ẩn mục này
   },
@@ -356,6 +368,24 @@ const routes = [
     key: 'EditHashTag',
     route: '/admin/edithashtag/:id',
     component: EditHashtag,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'AddStudyTime',
+    route: '/admin/addStudyTime',
+    component: AddStudyTime,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'AddExercise',
+    route: '/admin/addExercise/:course_id',
+    component: AddExercise,
+    hidden: true, // Ẩn mục này
+  },
+  {
+    key: 'EditExercise',
+    route: '/admin/editExercise/:course_id/:exercise_id',
+    component: EditExercise,
     hidden: true, // Ẩn mục này
   },
 ];

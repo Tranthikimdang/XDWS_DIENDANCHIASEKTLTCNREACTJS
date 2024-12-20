@@ -27,8 +27,12 @@ const Questions = sequelize.define('Questions', {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
     },
-    questions: {
+    title: {
         type: DataTypes.STRING,
+        allowNull: false
+    },
+    questions: {
+        type: DataTypes.TEXT('long'),
     },
     hashtag:{
         type: DataTypes.STRING,
@@ -41,16 +45,12 @@ const Questions = sequelize.define('Questions', {
         type: DataTypes.JSON, 
         defaultValue: []
     },
-    isApproved: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
-    },
     is_deleted: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
     up_code: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT('long'),
     },
     comments: {
         type: DataTypes.JSON,

@@ -21,48 +21,37 @@ exports.getAllQuestions = async (req, res) => {
     }
 };
 
+// Lấy câu hỏi theo ID
 exports.getQuestionId = async (req, res) => {
+    const { id } = req.params; // Lấy ID từ URL
+    console.log(`Fetching question with ID: ${id}`); // Log ID để kiểm tra
     try {
-        const { id } = req.params;
+        // Truy vấn cơ sở dữ liệu với ID
+        const question = await Question.findByPk(id);
+        console.log('Truy vấn kết quả:', question); // Log dữ liệu trả về từ DB
 
-        let questions;
-        if (id) {
-            // Tìm câu hỏi theo ID
-            questions = await Question.findByPk(id);
-            if (!questions) {
-                return res.status(404).json({
-                    status: 'error',
-                    message: `No question found with ID ${id}`
-                });
-            }
+        if (question) {
+            // Nếu tìm thấy, trả về dữ liệu
+            res.status(200).json({ status: 'success', data: { question } });
         } else {
-            // Lấy tất cả câu hỏi
-            questions = await Question.findAll();
+            // Nếu không tìm thấy, trả về lỗi 404
+            res.status(404).json({ status: 'error', message: 'Question not found' });
         }
-
-        res.status(200).json({
-            status: 'success',
-            results: Array.isArray(questions) ? questions.length : 1,
-            data: {
-                questions
-            }
-        });
-    } catch (err) {
-        res.status(500).send({
-            status: 'error',
-            message: err.message || 'Some error occurred while retrieving questions.'
-        });
+    } catch (error) {
+        // Log lỗi nếu có vấn đề
+        console.error('Lỗi truy vấn:', error);
+        res.status(500).json({ status: 'error', message: 'Internal Server Error' });
     }
 };
 
 // Tạo câu hỏi mới
 exports.createQuestion = async (req, res) => {
-    const { user_id,questions,hashtag, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id, title, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
     console.log(questions);
-    
-    
+
+
     const userExists = await UserModel.findOne({ where: { id: user_id } });
-    
+
     if (!userExists) {
         return res.status(400).json({ error: 'User not found with the provided user_id' });
     }
@@ -73,7 +62,7 @@ exports.createQuestion = async (req, res) => {
 
     try {
         const newQuestion = await Question.create({
-            user_id,questions,hashtag, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies
+            user_id, title, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code
         });
         res.status(201).json({
             status: 'success',
@@ -93,7 +82,7 @@ exports.createQuestion = async (req, res) => {
 // Cập nhật câu hỏi
 exports.updateQuestion = async (req, res) => {
     const { id } = req.params;
-    const { user_id,questions,hashtag, imageUrls, fileUrls, isApproved, is_deleted, up_code, comments, replies } = req.body;
+    const { user_id, title, questions, hashtag, imageUrls, fileUrls, is_deleted, up_code } = req.body;
 
     try {
         const question = await Question.findByPk(id);
@@ -105,15 +94,14 @@ exports.updateQuestion = async (req, res) => {
         }
 
         question.user_id = user_id || question.user_id;
+        question.title = title || question.title;
         question.questions = questions || question.questions;
         question.hashtag = hashtag || question.hashtag;
         question.imageUrls = imageUrls || question.imageUrls;
         question.fileUrls = fileUrls || question.fileUrls;
-        question.isApproved = isApproved !== undefined ? isApproved : question.isApproved;
         question.is_deleted = is_deleted !== undefined ? is_deleted : question.is_deleted;
         question.up_code = up_code || question.up_code;
-        question.comments = comments || question.comments;
-        question.replies = replies || question.replies;
+
 
         await question.save();
         res.status(200).json({

@@ -23,7 +23,7 @@ const Chatbox = Loadable(lazy(() => import('../views/Chatbox/chatbox')));
 const ArticleDetail = Loadable(lazy(() => import('../views/article/components/ArticleDetail')));
 const Newpost = Loadable(lazy(() => import('../views/article/components/new-post')));
 const Questions = Loadable(lazy(() => import('../views/questions/Questions')));
-const EditQuestions = Loadable(lazy(() => import('../views/questions/EditQuestions')));
+const QuestionDetail = Loadable(lazy(() => import('../views/questions/components/QuestionDetail')));
 const SamplePage = Loadable(lazy(() => import('../views/sample-page/SamplePage')));
 const Icons = Loadable(lazy(() => import('../views/icons/Icons')));
 const TypographyPage = Loadable(lazy(() => import('../views/utilities/TypographyPage')));
@@ -42,6 +42,10 @@ const Mentor = Loadable(lazy(() => import('../views/mentor/mentor')));
 const RegisterMentor = Loadable(lazy(() => import('../views/mentor/registerMentor')));
 const EditProfile = Loadable(lazy(() => import('../views/profile/editProfile')));
 const Notification = Loadable(lazy(() => import('../views/notification')));
+const Friend = Loadable(lazy(() => import('../views/Friend/Friend')));
+const Certificate = Loadable(lazy(() => import('../views/certificate')));
+
+
 
 //admin
 const DashboardAdmin = Loadable(lazy(() => import('../pages/admin/dashboard')));
@@ -56,6 +60,9 @@ const ProfileAdmin = Loadable(lazy(() => import('../pages/admin/profile')));
 const CommentAdmin = Loadable(lazy(() => import('../pages/admin/comment')));
 
 const QuestionAdmin = Loadable(lazy(() => import('../pages/admin/questions')));
+const FormViewQuestion = Loadable(lazy(() => import('../pages/admin/questions/data/formViewQuestion')));
+const FormEditQuestion = Loadable(lazy(() => import('../pages/admin/questions/data/formEditQuestion.js')));
+
 const UserAdmin = Loadable(lazy(() => import('../pages/admin/user')));
 const CategoryPro = Loadable(lazy(() => import('../pages/admin/category_pro')));
 const AddCatePro = Loadable(lazy(() => import('../pages/admin/category_pro/data/FormAddCate')));
@@ -84,9 +91,14 @@ const HasgtagAdmin = Loadable(lazy(() => import('../pages/admin/hashtag/')));
 const AddHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormAddHashtag')));
 const EditHasgtag = Loadable(lazy(() => import('../pages/admin/hashtag/data/FormEditHashtag')));
  
-
+const AddExercise = Loadable(lazy(() => import('../pages/admin/exercise/data/FormAdd')));
+const EditExercise = Loadable(lazy(() => import('../pages/admin/exercise/data/FormEdit')));
 
 const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
+
+const StudyTime = Loadable(lazy(() => import('../pages/admin/studyTime')));
+const AddStudyTime = Loadable(lazy(() => import('../pages/admin/studyTime/data/FormAdd')));
+
 
 const renderRoutes = (role) => {
   const routes = [
@@ -119,9 +131,10 @@ const renderRoutes = (role) => {
         { path: '/article', exact: true, element: <Article /> },
         { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
-        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
-        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
+        { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/questions/:questionId', exact: true, element: <QuestionDetail /> }, 
         { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
@@ -140,7 +153,8 @@ const renderRoutes = (role) => {
         { path: '/orders', exact: true, element: <Orders /> },
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
-        
+        { path: '/friend', exact: true, element: <Friend /> },
+        { path: '/certificate', exact: true, element: <Certificate /> },
       ],
     });
     routes.push({
@@ -155,7 +169,8 @@ const renderRoutes = (role) => {
         { path: 'comment', exact: true, element: <CommentAdmin /> }, // Add this route
         { path: 'category', exact: true, element: <CategoryAdmin /> },
         { path: 'questions', exact: true, element: <QuestionAdmin /> },
-        { path: 'questions/:id', exact: true, element: <EditQuestions /> },
+        { path: 'questions/view/:id', exact: true, element: <FormViewQuestion /> },
+        { path: 'questions/edit/:id', exact: true, element: <FormEditQuestion /> },
         { path: 'user', exact: true, element: <UserAdmin /> },
         { path: 'commentDetail/:id', exact: true, element: <CommentDetailAdmin /> }, // Add this route for UserList
         { path: 'categoryPro', exact: true, element: <CategoryPro /> },
@@ -173,13 +188,17 @@ const renderRoutes = (role) => {
         { path: 'orders', exact: true, element: <Orders /> }, 
         { path: 'addProDetaill/:course_id', exact: true, element: <AddProDetaill /> }, 
         { path: 'productDetail/:course_id', exact: true, element: <ProDetaill /> }, 
-        { path: 'editProDetaill/:detailId', exact: true, element: <EditProDetaill /> }, 
+        { path: 'editProDetaill/:course_id/:detailId', exact: true, element: <EditProDetaill /> }, 
         { path: 'mentor', exact: true, element: <MentorAdmin /> },
         { path: 'formviewmentor/:id', exact: true, element: <FormViewMentor/> },
         { path: 'profile', exact: true, element: <ProfileAdmin/> },
         { path: 'hashtag', exact: true, element: <HasgtagAdmin/> },
         { path: 'addhashtag', exact: true, element: <AddHasgtag /> },
         { path: 'edithashtag/:id', exact: true, element: <EditHasgtag /> },
+        { path: 'studyTime', exact: true, element: <StudyTime /> },
+        { path: 'addStudyTime', exact: true, element: <AddStudyTime /> },
+        { path: 'addExercise/:course_id', exact: true, element: <AddExercise /> },
+        { path: 'editExercise/:course_id/:exercise_id', exact: true, element: <EditExercise /> }, 
         // { path: '*', element: <Navigate to="/auth/404" /> },
 
       ],
@@ -197,6 +216,7 @@ const renderRoutes = (role) => {
         { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
         { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/questions/:questionId', exact: true, element: <QuestionDetail /> }, 
         { path: '/mentor', exact: true, element: <Mentor /> },
         { path: '/registerMentor', exact: true, element: <RegisterMentor /> },
         { path: '/sample-page', exact: true, element: <SamplePage /> },
@@ -214,6 +234,8 @@ const renderRoutes = (role) => {
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },      
         { path: '*', element: <Navigate to="/auth/404" /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
+        { path: '/friend', exact: true, element: <Friend /> },
+        { path: '/certificate', exact: true, element: <Certificate /> },
       ],
     });
   } else {
@@ -227,9 +249,10 @@ const renderRoutes = (role) => {
         { path: '/article', exact: true, element: <Article /> },
         { path: '/contact', exact: true, element: <Contact /> },
         { path: '/CateArticleDetail/:id', exact: true, element: <CateArticleDetail /> },
-        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, // Add this route
-        { path: '/new-post', exact: true, element: <Newpost /> }, // Add this route
+        { path: '/article/:id', exact: true, element: <ArticleDetail /> }, 
+        { path: '/new-post', exact: true, element: <Newpost /> }, 
         { path: '/questions', exact: true, element: <Questions /> },
+        { path: '/questions/:questionId', exact: true, element: <QuestionDetail /> }, 
         { path: '/sample-page', exact: true, element: <SamplePage /> },
         { path: '/icons', exact: true, element: <Icons /> },
         { path: '/ui/typography', exact: true, element: <TypographyPage /> },
@@ -246,6 +269,8 @@ const renderRoutes = (role) => {
         { path: '/cart', exact: true, element: <Cart /> },
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
+        { path: '/friend', exact: true, element: <Friend /> },
+        { path: '/certificate', exact: true, element: <Certificate /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });

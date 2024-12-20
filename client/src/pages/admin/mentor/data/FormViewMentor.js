@@ -42,6 +42,7 @@ import profile3 from "src/assets/admin/images/profile-3.png";
 
 function FormViewMentor() {
   const { id } = useParams();
+  // eslint-disable-next-line no-unused-vars
   const navigate = useNavigate();
   const [mentor, setMentor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -70,8 +71,6 @@ function FormViewMentor() {
         setLoading(false);
       }
     };
-    console.log(mentor?.skills);
-
     fetchMentor();
   }, [id]);
 

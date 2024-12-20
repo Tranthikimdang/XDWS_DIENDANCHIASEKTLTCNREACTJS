@@ -9,17 +9,22 @@ import VuiBox from 'src/components/admin/VuiBox';
 import VuiTypography from 'src/components/admin/VuiTypography';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
+import Footer from "src/examples/Footer";
 import Tooltip from '@mui/material/Tooltip';
 import Table from 'src/examples/Tables/Table';
 import authorsQuestionsData from './data/authorsTableData';
 import ConfirmDialog from './data/formDeleteQuestions';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
+import SearchIcon from '@mui/icons-material/Search';
+import VuiInput from "src/components/admin/VuiInput";
 import './index.css';
-
+// Images
+import avatardefault from "src/assets/images/profile/user-1.jpg";
+import imageplaceholder from "src/assets/images/placeholder/imageplaceholder.jpg";
 //kết nối sql
 import userApis from 'src/apis/UserApI';
-import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
+import { deleteQuestion, getQuestionsList } from 'src/apis/QuestionsApis';
 
 function Questions() {
   // eslint-disable-next-line no-unused-vars
@@ -35,8 +40,10 @@ function Questions() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [rowsPerPage] = useState(5);
+  const [rowsPerPage] = useState(4);
   const [reload, setReload] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
   // Fetch Questionss from Firestore
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -87,9 +94,9 @@ function Questions() {
   };
 
   //xóa
-  const handleDelete = (id, questions) => {
+  const handleDelete = (id, title) => {
     setDeleteId(id);
-    setDeleteQuestions(questions);
+    setDeleteQuestions(title);
     setOpenDialog(true);
   };
 
@@ -124,26 +131,14 @@ function Questions() {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
-  //duyệt
-  const handleApprove = async (row) => {
-    try {
-      const res = await updateQuestion(row.id, { ...row, isApproved: true });
-      console.log(res);
-      if (res.status == 'success') {
-        setReload((reload) => !reload);
-        // Cập nhật lại danh sách bài viết
-        setSnackbarMessage('Câu hỏi đã được duyệt thành công.');
-        setSnackbarSeverity('success');
-        setSnackbarOpen(true);
-      }
-    } catch (error) {
-      console.error('Lỗi khi duyệt Câu hỏi:', error);
-      setSnackbarMessage('Không thể duyệt các câu hỏi.');
-      setSnackbarSeverity('error');
-      setSnackbarOpen(true);
-    }
-  };
+  //tim kiem
+  const filteredRows = rows.filter((row) =>
+    users.find((u) => u.id === row.user_id)?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.questions?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.hashtag.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.up_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
 
   const formatUpdatedAt = (updatedAt) => {
@@ -176,15 +171,36 @@ function Questions() {
   };
 
   return (
-    <DashboardLayout>
-      <DashboardNavbar />
-      <VuiBox py={3}>
+    <VuiBox
+      display="flex"
+      flexDirection="column"
+      minHeight="100vh" // Chiều cao tối thiểu toàn bộ màn hình
+    >
+      <DashboardLayout>
+        <DashboardNavbar />
         <VuiBox mb={3}>
           <Card>
             <VuiBox display="flex" justifyContent="space-between" alignItems="center" mb="22px">
               <VuiTypography variant="lg" color="white">
                 Bảng câu hỏi
               </VuiTypography>
+              <VuiBox mb={1}>
+                <VuiInput
+                  placeholder="Nhập vào đây..."
+                  icon={{ component: <SearchIcon />, direction: "left" }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  sx={({ breakpoints }) => ({
+                    [breakpoints.down("sm")]: {
+                      maxWidth: "80px",
+                    },
+                    [breakpoints.only("sm")]: {
+                      maxWidth: "80px",
+                    },
+                    backgroundColor: "info.main !important",
+                  })}
+                />
+              </VuiBox>
             </VuiBox>
             {loading ? (
               <div
@@ -215,7 +231,7 @@ function Questions() {
                 >
                   <Table
                     columns={columns}
-                    rows={rows
+                    rows={filteredRows
                       .sort((a, b) => (a.updatedAt.seconds < b.updatedAt.seconds ? 1 : -1))
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, index) => {
@@ -239,17 +255,21 @@ function Questions() {
                             >
                               <div className="image-column" style={{ flex: '0 0 100px' }}>
                                 <img
-                                  src={row.imageUrls}
+                                  src={row.imageUrls?.[0] || imageplaceholder} // Lấy ảnh đầu tiên trong danh sách hoặc ảnh mặc định
                                   alt="Không có hình ảnh"
                                   style={{
-                                    width: '100px',
-                                    height: '50px',
-                                    objectFit: 'cover',
-                                    objectPosition: 'center',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                    width: '100px',           // Chiều rộng ảnh
+                                    height: '60px',           // Chiều cao ảnh
+                                    objectFit: 'cover',       // Cắt ảnh cho vừa khung
+                                    objectPosition: 'center', // Căn giữa ảnh
+                                    borderRadius: '8px',      // Bo tròn góc ảnh
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',  // Hiệu ứng bóng đổ
+                                  }}
+                                  onError={(e) => {
+                                    e.target.src = imageplaceholder; // Hiển thị ảnh mặc định nếu ảnh không tải được
                                   }}
                                 />
+
                               </div>
                             </div>
                           ),
@@ -258,14 +278,17 @@ function Questions() {
                               <img
                                 src={
                                   users?.find((u) => row?.user_id === u.id)?.imageUrl ||
-                                  'default-image-url.jpg'
+                                  avatardefault
                                 }
-                                alt="User Avatar"
+                                alt="Hình ảnh người dùng"
                                 style={{
                                   width: 40,
                                   height: 40,
                                   borderRadius: '50%',
                                   marginRight: 8,
+                                }}
+                                onError={(e) => {
+                                  e.target.src = avatardefault; // Hiển thị ảnh mặc định nếu ảnh không tải được
                                 }}
                               />
                               <VuiTypography variant="button" color="white" fontWeight="medium">
@@ -299,8 +322,8 @@ function Questions() {
                           ),
                           action: (
                             <div className="action-buttons">
-                              <Link to={`/admin/questions/${row.id}`} state={{ type: '0' }}>
-                                <Tooltip title="Xem bài viết" placement="top">
+                              <Link to={`/admin/questions/view/${row.id}`} state={{ type: '0' }}>
+                                <Tooltip title="Xem câu hỏi" placement="top">
                                   <button
                                     className="text-light btn btn-outline-info me-2"
                                     type="button"
@@ -320,8 +343,8 @@ function Questions() {
                                   </button>
                                 </Tooltip>
                               </Link>
-                              <Link to={`/admin/questions/${row.id}`} state={{ type: '1' }}>
-                                <Tooltip title="Sửa bài viết" placement="top">
+                              <Link to={`/admin/questions/edit/${row.id}`} state={{ type: '1' }}>
+                                <Tooltip title="Sửa câu hỏi" placement="top">
                                   <button
                                     className="text-light btn btn-outline-warning me-2"
                                     type="button"
@@ -340,11 +363,11 @@ function Questions() {
                                   </button>
                                 </Tooltip>
                               </Link>
-                              <Tooltip title="Xóa bài viết" placement="top">
+                              <Tooltip title="Xóa câu hỏi" placement="top">
                                 <button
                                   className="text-light btn btn-outline-danger me-2"
                                   type="button"
-                                  onClick={() => handleDelete(row.id, row.questions)}
+                                  onClick={() => handleDelete(row.id, row.title)}
                                 >
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -359,29 +382,6 @@ function Questions() {
                                   </svg>
                                 </button>
                               </Tooltip>
-                              {row.isApproved == 0 && (
-                                <>
-                                  <Tooltip title="Duyệt bài viết" placement="top">
-                                    <button
-                                      className="text-light btn btn-outline-success me-2"
-                                      onClick={() => handleApprove(row)}
-                                      type="button"
-                                    >
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="16"
-                                        height="16"
-                                        fill="currentColor"
-                                        className="bi bi-check-square"
-                                        viewBox="0 0 16 16"
-                                      >
-                                        <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-                                        <path d="M10.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425z" />
-                                      </svg>
-                                    </button>
-                                  </Tooltip>
-                                </>
-                              )}
                             </div>
                           ),
                         };
@@ -413,32 +413,34 @@ function Questions() {
             )}
           </Card>
         </VuiBox>
-      </VuiBox>
-      <ConfirmDialog
-        open={openDialog}
-        onClose={cancelDelete}
-        onConfirm={confirmDelete}
-        questions={`${deleteQuestions}`}
-      />
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={5000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-        sx={{ transform: 'translateY(100px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
-      >
-        <Alert
+        <ConfirmDialog
+          open={openDialog}
+          onClose={cancelDelete}
+          onConfirm={confirmDelete}
+          title={`${deleteQuestions}`}
+        />
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={5000}
           onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{
-            width: '100%',
-            border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
-          }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{ transform: 'translateY(100px)' }} // Điều chỉnh khoảng cách từ phía trên bằng cách di chuyển theo trục Y
         >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </DashboardLayout>
+          <Alert
+            onClose={handleSnackbarClose}
+            severity={snackbarSeverity}
+            sx={{
+              width: '100%',
+              border: '1px solid #ccc', // Thêm đường viền 1px với màu #ccc (màu xám nhạt)
+            }}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </DashboardLayout>
+      {/* Footer cố định */}
+      <Footer />
+    </VuiBox >
   );
 }
 

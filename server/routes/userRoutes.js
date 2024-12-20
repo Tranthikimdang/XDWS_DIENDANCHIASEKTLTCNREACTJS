@@ -5,6 +5,9 @@ const userController = require('../controllers/userController'); // Đảm bảo
 // Lấy tất cả người dùng
 router.get('/', userController.getAllUsers);
 
+// Lấy id câu hỏi
+router.get('/:id', userController.getUserId); 
+
 // Tạo người dùng mới
 router.post('/', userController.createUser);
 
