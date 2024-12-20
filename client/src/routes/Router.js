@@ -156,7 +156,7 @@ const renderRoutes = (role) => {
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
-        { path: '/certificate', exact: true, element: <Certificate /> },
+        { path: '/certificate/:userId', exact: true, element: <Certificate /> },
         { path: '/question_Hashtag/:hashtagId', exact: true, element: <QH /> },
       ],
     });
@@ -238,7 +238,7 @@ const renderRoutes = (role) => {
         { path: '*', element: <Navigate to="/auth/404" /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
-        { path: '/certificate', exact: true, element: <Certificate /> },
+        { path: '/certificate/:userId', exact: true, element: <Certificate /> },
         { path: '/question_Hashtag/:hashtagId', exact: true, element: <QH /> },
       ],
     });
@@ -274,7 +274,7 @@ const renderRoutes = (role) => {
         { path: '/editProfile/:userId', exact: true, element: <EditProfile /> },
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
-        { path: '/certificate', exact: true, element: <Certificate /> },
+        { path: '/certificate/:userId', exact: true, element: <Certificate /> },
         { path: '/question_Hashtag/:hashtagId', exact: true, element: <QH /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
