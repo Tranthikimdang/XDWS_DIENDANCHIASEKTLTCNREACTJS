@@ -167,7 +167,7 @@ const QuestionDetail = () => {
     const fetchQuestionDetails = async () => {
       setLoading(true);
       try {
-        // Fetch câu hỏi và bình luận từ API
+        // Fetch câu hỏi từ API
         const questionResponse = await QuestionsApis.getQuestionId(questionId);
         const fetchedQuestion = questionResponse.data.question;
 
@@ -178,10 +178,19 @@ const QuestionDetail = () => {
           setUser(userResponse.data.user);
         }
 
+        // Kiểm tra nếu có dữ liệu bình luận trong localStorage
         const savedComments = JSON.parse(localStorage.getItem('comment_question')) || [];
-        fetchedQuestion.comments = savedComments.find(
-          (item) => item.id === Number(questionId),
-        ).comments;
+        const questionWithComments = savedComments.find(
+          (item) => item.id === Number(questionId)
+        );
+
+        // Nếu có bình luận, gán vào fetchedQuestion
+        if (questionWithComments) {
+          fetchedQuestion.comments = questionWithComments.comments;
+        } else {
+          fetchedQuestion.comments = [];  // Nếu không có bình luận, gán mảng rỗng
+        }
+
         console.log(fetchedQuestion);
 
         // Cập nhật state câu hỏi
@@ -190,7 +199,7 @@ const QuestionDetail = () => {
         // Cập nhật danh sách câu hỏi
         setListQuestion((prevQuestions) => {
           const updatedQuestions = prevQuestions.map((q) =>
-            q.id === questionId ? fetchedQuestion : q,
+            q.id === questionId ? fetchedQuestion : q
           );
           return updatedQuestions;
         });
@@ -203,6 +212,7 @@ const QuestionDetail = () => {
 
     fetchQuestionDetails();
   }, [questionId]);
+
   // Lấy danh sách người dùng từ Firestore
   useEffect(() => {
     const userDataFromLocalStorage = JSON.parse(localStorage.getItem('user'));
