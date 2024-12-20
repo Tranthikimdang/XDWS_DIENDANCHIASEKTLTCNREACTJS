@@ -516,14 +516,14 @@ const ProductsDetail = () => {
                               ? 'green' // Đúng: viền xanh
                               : 'red' // Sai: viền đỏ
                             : option.toLowerCase() === questionData.correct_answer
-                            ? 'green' // Đáp án đúng: viền xanh
+                            ? 'grey' // Đáp án đúng: viền xanh
                             : 'grey' // Đáp án khác: viền xám
                           : selectedAnswer === option.toLowerCase()
-                          ? 'grey' // Khi chọn: viền xanh
+                          ? 'blue' // Khi chọn: viền xanh
                           : 'grey', // Chưa chọn: viền xám
                         backgroundColor: isSubmitted
                           ? option.toLowerCase() === questionData.correct_answer
-                            ? 'rgba(0, 255, 0, 0.2)' // Đúng: nền xanh nhạt
+                            ? 'transparent' // Đúng: nền xanh nhạt
                             : option.toLowerCase() === selectedAnswer && !isCorrect
                             ? 'rgba(255, 0, 0, 0.2)' // Sai: nền đỏ nhạt
                             : 'transparent' // Nền trong suốt
