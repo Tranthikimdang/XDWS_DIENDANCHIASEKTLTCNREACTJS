@@ -44,7 +44,7 @@ const EditProfile = Loadable(lazy(() => import('../views/profile/editProfile')))
 const Notification = Loadable(lazy(() => import('../views/notification')));
 const Friend = Loadable(lazy(() => import('../views/Friend/Friend')));
 const Certificate = Loadable(lazy(() => import('../views/certificate')));
-
+const QH = Loadable(lazy(() => import('../views/questions/components/Questions_hashtag')));
 
 
 //admin
@@ -98,6 +98,8 @@ const Orders = Loadable(lazy(() => import('../pages/admin/orders')));
 
 const StudyTime = Loadable(lazy(() => import('../pages/admin/studyTime')));
 const AddStudyTime = Loadable(lazy(() => import('../pages/admin/studyTime/data/FormAdd')));
+
+
 
 
 const renderRoutes = (role) => {
@@ -155,6 +157,7 @@ const renderRoutes = (role) => {
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
         { path: '/certificate', exact: true, element: <Certificate /> },
+        { path: '/question_Hashtag/:hashtagId', exact: true, element: <QH /> },
       ],
     });
     routes.push({
@@ -236,6 +239,7 @@ const renderRoutes = (role) => {
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
         { path: '/certificate', exact: true, element: <Certificate /> },
+        { path: '/question_Hashtag/:hashtagId', exact: true, element: <QH /> },
       ],
     });
   } else {
@@ -271,6 +275,7 @@ const renderRoutes = (role) => {
         { path: '/notification/:userId', exact: true, element: <Notification /> },
         { path: '/friend', exact: true, element: <Friend /> },
         { path: '/certificate', exact: true, element: <Certificate /> },
+        { path: '/question_Hashtag/:hashtagId', exact: true, element: <QH /> },
         { path: '*', element: <Navigate to="/auth/404" /> },
       ],
     });
