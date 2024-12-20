@@ -20,6 +20,7 @@ import { Email, LocationOn, Phone, Work, Person, Cake } from '@mui/icons-materia
 import PageContainer from 'src/components/container/PageContainer';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; //style
+import { jsPDF } from 'jspdf';
 //sql
 import UserAPI from 'src/apis/UserApI';
 import CourseApi from '../../apis/CourseApI';
@@ -28,9 +29,10 @@ import QuestionsApis from '../../apis/QuestionsApis';
 import { deleteQuestion, getQuestionsList, updateQuestion } from 'src/apis/QuestionsApis';
 import FollowApi from '../../apis/FollowApI';
 import NotificationApi from '../../apis/NotificationsApI';
-//
+import CertificateAPI from '../../apis/CertificateApI';
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { CardMedia } from '@mui/material';
 //icon
 import DescriptionIcon from '@mui/icons-material/Description';
 const Profile = () => {
@@ -51,6 +53,8 @@ const Profile = () => {
   const [followId, setFollowId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [courses, setCourses] = useState([]); // Lưu danh sách tất cả khóa học
+  const [filteredCertificates, setFilteredCertificates] = useState([]);
 
   const userLocal = JSON.parse(localStorage.getItem('user'));
   const userLocalId = userLocal ? userLocal.id : null;
@@ -62,8 +66,6 @@ const Profile = () => {
         const response = await UserAPI.getUsersList();
         const matchingUser = response.data.users.find((user) => user.id == userId);
 
-        console.log(matchingUser.imageUrl);
-        
         setUser(matchingUser);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -107,6 +109,99 @@ const Profile = () => {
     fetchData();
   }, [userId]);
 
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      if (!userId) return;
+
+      try {
+        setLoading(true);
+        const response = await CertificateAPI.getCertificatesList(); // Gọi API để lấy tất cả chứng chỉ
+
+        // Lọc chứng chỉ chỉ thuộc về userId hiện tại
+        const userCertificates = response.data.certificates.filter(
+          (certificate) => certificate.user_id == userId,
+        );
+
+        // Gắn tên khóa học vào từng chứng chỉ
+        const updatedCertificates = userCertificates.map((certificate) => {
+          const course = courses.find((course) => course.id === certificate.course_id); // Tìm khóa học theo course_id
+          return {
+            ...certificate,
+            course_name: course ? course.name : 'Khóa học không tìm thấy', // Gắn tên khóa học vào chứng chỉ
+            img: course ? course.image : 'không có ảnh', // Gắn tên khóa học vào chứng chỉ
+          };
+        });
+
+        setFilteredCertificates(updatedCertificates); // Lưu chứng chỉ đã được gắn tên khóa học vào state
+      } catch (error) {
+        console.error('Error fetching certificates:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCertificates();
+  }, [userId, courses]);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await CourseApi.getCoursesList(); // Gọi API để lấy toàn bộ khóa học
+        setCourses(response.data.courses); // Lưu tất cả khóa học vào state
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  const handleDownloadCertificate = (course, user) => {
+    if (!user || !course) return; // Kiểm tra dữ liệu người dùng và khóa học
+
+    // Tạo tài liệu PDF
+    const doc = new jsPDF();
+
+    // Thêm background cho chứng chỉ
+    doc.setFillColor(240, 240, 240); // Màu nền sáng
+    doc.rect(0, 0, doc.internal.pageSize.width, doc.internal.pageSize.height, 'F'); // Vẽ hình chữ nhật nền
+
+    // Thêm khung cho chứng chỉ
+    doc.setLineWidth(1);
+    doc.setDrawColor(0, 0, 0); // Màu khung đen
+    doc.rect(10, 10, doc.internal.pageSize.width - 20, doc.internal.pageSize.height - 20); // Khung bao quanh chứng chỉ
+
+    // Thêm logo ở giữa chứng chỉ
+    const logoUrl =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAUkSURBVHgB7Z2NcdpMEIaXb1IAXweiAkMFhgpiKjCuwHEFmApsKjCuwLgClAqMK0CpwHRw2RdORAGZHyHdbqx9Zi5yzDjx7N7+3N6dtkEV4ZyL+NHlccEDX7f9RxHpJuGx9GPO4yeejUYjoQpoUImw0Lv8+M7jivQL+lSgjJjHMytjTiVxtgJY6E1+DGgt+C7VAyhgzIqY0JmcpQAW/oAfDzyaVE8SHqNzFFFIAd7VDKk+M/4QCY9ekTjxH50ICx8zfkYm/CwRjwXLZkgncrQF+KzmiUzwh0B86B9rDUcpwAsfsz4i4xgSOtIlHXRBLHzk729kwj+FiMfMy24vey3AZv7ZYDHX2WcJn1qACb8UkJ7PvCxz+dQC+IcWZMIvC5QyOnkf5FqAT6ciMsqi7dP3HXYswC+yZmRUATKjOPuNPAWY66mOhBXQyn7jLxfkazsRGVURsYzvs9/4ywJs9gcBqWmLLQHPPxZgsz8YSE1/pH/ZWIDN/qAs2QL+xxcrC/CZT0RGKJpe5hsXdE1GaLBtu3ZB5n5EWLmhRqbaaYQnggs6WDI1KqNnCpCl/Y3WB6fUEscxvb6+UpIkq7FcLqlMut0uPT09kRARFKDuSAmEPB6P6fHxsXSBbwOlCnIBBUSkCMz4m5ubYIJpt0U9cBMxQI0FjEYj6vV6QWflxYWoB25iDaCC+/t7x79Q8LFYLJwkKhTAQVBE+IPBwEkjrgDMwCiKajn7wclHE8sGfl8iExkOh8SKJ3GcMBKz//b21mlBVAHT6TS48K+vr50mRF0Qcv6QPDw80GQyIU18I0Hm89Ju+uwlLTeo8PlbiCqgKiBorHAvLy+JU01qNvVe4MF+gCNDDPE0tO6YAoQRjQH9fr+SQIwYAL9/dXW1igMag+8GJwgLKEjuj5qPhrJDHqIuKNTMRO7farVWZQ9tiCogdC2eS950d3dHqnCCfHx8OPbVwcsRGsrQKaIWkAbK0MAlYc9ZA+ILMZSiO51O5ZvveXBgFs+QxNcBEABq8xJg818cp4RQKen2QBySRM1KGNVKVC1D8/z8TJKoUQAC8mw2C+6OQu9J7OAU8vb2FmyrEv+PJKrL0ZidcBGoF1W5eSMpgn9mPwBpalWpqmQqahsywth+gDDq94QRB97f31cxoIoDXNg7xmkJKVQqIOT9AGnUKaBm9wN0xYAa3g/QsxCz+wGCvLy8iAjf7gc4ux8gHgNQarD7AYJIzH5NR9TtfoAwcEFiK53QtXi4HWX3A5ZYiEEBIue3Q94PQLlBetGVQwIFQAoRfSGwu5a9H6D4bOjKAn6RENiCrDnviAFh/ICRxxwKiMmQYp6+M+6D6tsJSYrVa4zTlbDs4Zh6EuOPVAFTMkKzmvTZN+eaGwrH5i3q2WKcjvPa9WBzVSdrAZj9CzIrqJqEMi2uNhbgX6duVlA942xXJeugEZb9HTQ8Cm4tfFl2ZLujAN9kxlxR+Yy2G/iAfX3E8EJve61xOey4npR9e8J9Wkds4zwSHr3PPmzQHty6BR8swVLTYhTvJQn8D0J7CRmnAuEfbGm71wJSnDX2PJWEyuonDDKWYJs3h4nphP7yRx/Mwj/oO4Lqe+WIHrDKPVr44CgXtI25pB3gGe7y8vxDFDqa6K0BeS1WdgnVFwRaCL5TRPigkAVs49ZtEG+pPgu3mMcrj0naE7IopSggxa1bYg14XNLXU0ZCa6FPi872PEpVQBYfJ6CELq0bBWExF5H+RV3in/Drv/wzPiWwGv8QvwHu5t44+FRvkgAAAABJRU5ErkJggg=='; // Logo
+    const logoWidth = 50;
+    const logoHeight = 50;
+    const logoX = (doc.internal.pageSize.width - logoWidth) / 2; // Căn giữa logo
+    const logoY = 50;
+    doc.addImage(logoUrl, 'PNG', logoX, logoY, logoWidth, logoHeight);
+
+    // Thêm tiêu đề cho giấy khen
+    doc.setFont('times', 'normal');
+    doc.setFontSize(22);
+    doc.text('SHARE CODE', doc.internal.pageSize.width / 2, 120, { align: 'center' });
+
+    // Thêm thông tin học viên
+    doc.setFontSize(16);
+    doc.text(`Name: ${user.name}`, 20, 150);
+    doc.text(`Course: ${course}`, 20, 160); // Sử dụng tên khóa học từ state course
+    doc.text(`Issue date: ${new Date().toLocaleDateString()}`, 20, 170);
+    doc.text(`Completion rate: 100%`, 20, 180);
+
+    // Thêm thông điệp cuối
+    doc.setFont('times', 'italic');
+    doc.setFontSize(14);
+    doc.text('Thank you for participating and good luck!', doc.internal.pageSize.width / 2, 220, {
+      align: 'center',
+    });
+
+    // Lưu PDF
+    doc.save('certificate.pdf');
+  };
   // Fetch câu hỏi
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -129,22 +224,20 @@ const Profile = () => {
     setActiveTab(newValue);
   };
 
-
-
   //date
-  const formatUpdatedAt = (updatedAt) => { 
+  const formatUpdatedAt = (updatedAt) => {
     let updatedAtString = '';
-  
+
     if (updatedAt) {
-      const date = new Date(updatedAt);  // Tạo đối tượng Date từ chuỗi thời gian
+      const date = new Date(updatedAt); // Tạo đối tượng Date từ chuỗi thời gian
       const now = new Date();
       const diff = now - date;
-  
+
       const seconds = Math.floor(diff / 1000);
       const minutes = Math.floor(seconds / 60);
       const hours = Math.floor(minutes / 60);
       const days = Math.floor(hours / 24);
-  
+
       // Hiển thị thời gian theo các đơn vị khác nhau
       if (days > 0) {
         updatedAtString = `${days} ngày trước`;
@@ -158,10 +251,10 @@ const Profile = () => {
     } else {
       updatedAtString = 'Không rõ thời gian';
     }
-  
+
     return updatedAtString;
   };
-  
+
   useEffect(() => {
     const fetchStudyTime = async () => {
       setLoading(true);
@@ -223,7 +316,7 @@ const Profile = () => {
         console.warn('User ID không tồn tại');
         return;
       }
-  
+
       try {
         // Lấy tất cả các follow từ API
         const response = await FollowApi.getAllFollows();
@@ -231,14 +324,14 @@ const Profile = () => {
           console.error('API trả về dữ liệu không hợp lệ');
           return;
         }
-  
+
         // Tìm follow có liên quan đến userId
         const follow = response.data.find(
           (follow) =>
             (follow.follower_id == userId && follow.target_id == userLocalId) ||
-            (follow.follower_id == userLocalId && follow.target_id == userId)
+            (follow.follower_id == userLocalId && follow.target_id == userId),
         );
-  
+
         // Kiểm tra nếu có follow
         if (follow) {
           setFollowStatus(follow.status || 'not_followed');
@@ -251,10 +344,9 @@ const Profile = () => {
         console.error('Error checking follow status:', error);
       }
     };
-  
+
     fetchFollowStatus();
-  }, [userId, userLocalId]);  // Chạy lại khi userId hoặc userLocalId thay đổi
-  
+  }, [userId, userLocalId]); // Chạy lại khi userId hoặc userLocalId thay đổi
 
   const deleteFollow = async () => {
     try {
@@ -266,14 +358,14 @@ const Profile = () => {
         setSnackbarMessage('Đã hủy kết bạn');
         setOpenSnackbar(true);
       } else {
-        console.warn("Không tìm thấy followId để xóa.");
+        console.warn('Không tìm thấy followId để xóa.');
       }
     } catch (error) {
-      console.error("Lỗi khi hủy kết bạn:", error);
+      console.error('Lỗi khi hủy kết bạn:', error);
       setSnackbarMessage('Hủy kết bạn thất bại, vui lòng thử lại.');
       setOpenSnackbar(true);
     }
-  }
+  };
   const handleFollowClick = async () => {
     try {
       if (!isUserLoggedIn()) {
@@ -316,7 +408,6 @@ const Profile = () => {
     const userLocalId = localStorage.getItem('user');
     return !!userLocalId; // Trả về true nếu tồn tại, ngược lại false
   };
-  
 
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
@@ -362,8 +453,8 @@ const Profile = () => {
                 {user?.role === 'mentors'
                   ? 'Người hướng dẫn'
                   : user?.role === 'admin' || user?.role === 'user'
-                    ? 'Người dùng'
-                    : 'Không xác định'}
+                  ? 'Người dùng'
+                  : 'Không xác định'}
               </Typography>
               <Divider sx={{ width: '100%', margin: '10px 0' }} />
               {/* Kiểm tra nếu userId trong URL trùng với userLocalId */}
@@ -401,7 +492,7 @@ const Profile = () => {
                 centered
               >
                 <Tab label="Tổng Quan" />
-                <Tab label="Khóa Học" />
+                <Tab label="Chứng chỉ" />
                 <Tab label="Câu Hỏi" />
               </Tabs>
             </Card>
@@ -488,162 +579,76 @@ const Profile = () => {
                   <>
                     {/* Nội dung tab khóa học*/}
                     <Typography variant="h4" gutterBottom>
-                      Khóa học của người dùng đăng ký
+                      Thành tích của người dùng
                     </Typography>
-                    {Array.isArray(products) && products.length > 0 ? (
-                      products.map((product) => (
-                        <Card
-                          key={product?.id}
-                          sx={{
-                            display: 'flex',
-                            mb: 3,
-                            flexDirection: { xs: 'column', md: 'row' },
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          <div className="card-body border p-3 rounded col-md-12 col-xl-12">
-                            <div className="shadow-sm rounded-3">
-                              <div className="row g-2">
-                                {/* Product Image */}
-                                <div className="col-12 col-md-4 mb-3 mb-md-0">
-                                  <Link
-                                    to={`/productDetail/${product.id}`}
-                                    style={{ textDecoration: 'none' }}
-                                  >
-                                    <div
-                                      className="bg-image hover-zoom ripple rounded ripple-surface"
-                                      style={{
-                                        display: 'flex',
-                                        border: '1px solid #ddd',
-                                        padding: '4px',
-                                        height: '120px',
-                                        borderRadius: '8px',
-                                      }}
-                                    >
-                                      <img
-                                        src={product.image}
-                                        className="w-100"
-                                        alt={product.name}
-                                        style={{
-                                          objectFit: 'cover',
-                                          height: '100%',
-                                          borderRadius: '8px',
-                                          transition: 'all 0.3s ease',
-                                          cursor: 'pointer',
-                                        }}
-                                      />
-                                    </div>
-                                  </Link>
-                                </div>
-
-                                {/* Product Details */}
-                                <div className="col-12 col-md-4">
-                                  <h6
-                                    style={{
-                                      fontSize: '1rem',
-                                      fontWeight: 'bold',
-                                      marginBottom: '8px',
-                                      textAlign: 'left', // Căn lề trái cho tên sản phẩm
-                                    }}
-                                  >
-                                    {product.name}
-                                  </h6>
-                                  <div
-                                    className="text-muted small mt-1"
-                                    style={{
-                                      width: '100%', // Chiếm toàn bộ chiều rộng của phần tử cha
-                                      whiteSpace: 'normal', // Cho phép nội dung xuống dòng
-                                      overflow: 'visible', // Không ẩn nội dung thừa
-                                      textOverflow: 'clip', // Không cắt phần thừa
-                                      textAlign: 'left', // Căn lề trái cho mô tả
-                                    }}
-                                  >
-                                    Mô tả:{' '}
-                                    {product.description?.replace(/(<([^>]+)>)/gi, '') ||
-                                      'Không có mô tả'}
-                                  </div>
-                                </div>
-
-                                {/* Price and Actions */}
-                                <div className="col-12 col-md-4 d-flex flex-column align-items-start align-items-md-end">
-                                  <div
-                                    style={{
-                                      display: 'flex',
-                                      flexDirection: 'column',
-                                      alignItems: 'center',
-                                      padding: '10px',
-                                      border: '1px solid #ddd',
-                                      borderRadius: '8px',
-                                      backgroundColor: '#f9f9f9',
-                                      minWidth: '200px',
-                                    }}
-                                  >
-                                    {/* Giá giảm */}
-                                    <h6
-                                      className="text-success mb-1"
-                                      style={{
-                                        fontSize: '1.1rem',
-                                        fontWeight: 'bold',
-                                      }}
-                                    >
-                                      {product.discount?.toLocaleString('vi-VN')} VND
-                                    </h6>
-                                    {/* Giá gốc */}
-                                    <span
-                                      className="text-danger small mb-3"
-                                      style={{ fontSize: '0.9rem', textDecoration: 'line-through' }}
-                                    >
-                                      {product.price?.toLocaleString('vi-VN')} VND
-                                    </span>
-
-                                    {/* Nút hành động */}
-                                    <div className="mt-2 w-100 d-flex flex-column align-items-center">
-                                      {hasStudyAccess(product.id) ? (
-                                        <button
-                                          className="btn btn-success btn-sm w-100"
-                                          type="button"
-                                          style={{ marginBottom: '8px' }}
-                                          onClick={() =>
-                                            navigate(`/productDetailUser/${product.id}`)
-                                          }
-                                        >
-                                          Bắt đầu học
-                                        </button>
-                                      ) : (
-                                        <>
-                                          <button
-                                            className="btn btn-primary btn-sm w-100"
-                                            type="button"
-                                            style={{ marginBottom: '8px' }}
-                                          >
-                                            Mua ngay
-                                          </button>
-                                          <button
-                                            className="btn btn-outline-primary btn-sm w-100"
-                                            type="button"
-                                            style={{
-                                              borderColor: '#007bff',
-                                              color: '#007bff',
-                                            }}
-                                          >
-                                            Thêm vào giỏ hàng
-                                          </button>
-                                        </>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      ))
-                    ) : (
-                      <Typography variant="body2">Không có khóa học nào.</Typography>
-                    )}
+                    <Grid
+                      container
+                      spacing={2} // Khoảng cách giữa các item
+                      sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap', // Đảm bảo item xuống dòng khi không đủ không gian
+                      }}
+                    >
+                      {loading ? (
+                        <Grid item xs={12}>
+                          <Typography variant="h6">Đang tải dữ liệu...</Typography>
+                        </Grid>
+                      ) : filteredCertificates.length > 0 ? (
+                        filteredCertificates.map((certificate) => (
+                          <Grid
+                            sx={{
+                              display: 'flex',
+                              flexWrap: 'wrap', // Đúng cú pháp
+                            }}
+                            item
+                            xs={12}
+                            sm={6}
+                            key={certificate.id}
+                          >
+                            <Grid item xs={4} sm={12} key={certificate.id}>
+                              <Card
+                                sx={{ cursor: 'pointer' }}
+                                onClick={() =>
+                                  handleDownloadCertificate(certificate.course_name, user)
+                                }
+                              >
+                                <CardMedia
+                                  component="img"
+                                  height="140"
+                                  image={certificate.img || 'defaultImageUrl'} // Nếu không có ảnh chứng chỉ, sử dụng ảnh mặc định
+                                  alt="certificate"
+                                />
+                                <CardContent>
+                                  <Typography variant="h6">
+                                    {certificate.certificate_code}
+                                  </Typography>{' '}
+                                  {/* Mã chứng chỉ */}
+                                  <Typography variant="body2" color="text.secondary">
+                                    Khóa học: {certificate.course_name} {/* Tên khóa học */}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    Ngày cấp:{' '}
+                                    {new Date(certificate.issue_date).toLocaleDateString()}{' '}
+                                    {/* Ngày cấp */}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    Trạng thái:{' '}
+                                    {certificate.status === 'active'
+                                      ? 'Đang hoạt động'
+                                      : 'Đã thu hồi'}{' '}
+                                    {/* Trạng thái chứng chỉ */}
+                                  </Typography>
+                                </CardContent>
+                              </Card>
+                            </Grid>
+                          </Grid>
+                        ))
+                      ) : (
+                        <Grid item xs={12}>
+                          <Typography variant="body2">Chưa có chứng chỉ nào.</Typography>
+                        </Grid>
+                      )}
+                    </Grid>
                   </>
                 )}
                 {activeTab === 2 && (
@@ -653,149 +658,146 @@ const Profile = () => {
                       Câu Hỏi Của Người Dùng
                     </Typography>
                     {questions?.length > 0 ? (
-                      questions
-                        .map((question) => (
-                          <Box
-                            key={question?.id}
-                            sx={{
-                              border: '1px solid #e0e0e0',
-                              borderRadius: '8px',
-                              padding: '20px',
-                              marginTop: '20px',
-                              backgroundColor: '#fff',
-                            }}
-                          >
-                            {/* Header with Author Info */}
-                            <Box display="flex" alignItems="center" justifyContent="space-between">
-                              <Box display="flex" alignItems="center">
-                                <img
-                                  src={user.imageUrl || '../../assets/images/profile/user-1.jpg'}
-                                  alt="Author"
-                                  style={{
-                                    width: 40,
-                                    height: 40,
-                                    borderRadius: '50%',
-                                    marginRight: 8,
-                                  }}
-                                />
-                                <Box>
-                                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                                    {user.name}
-                                  </Typography>
-                                  <Typography variant="body2" color="textSecondary">
-                                    {formatUpdatedAt(question.updatedAt)}
-                                  </Typography>
-                                </Box>
+                      questions.map((question) => (
+                        <Box
+                          key={question?.id}
+                          sx={{
+                            border: '1px solid #e0e0e0',
+                            borderRadius: '8px',
+                            padding: '20px',
+                            marginTop: '20px',
+                            backgroundColor: '#fff',
+                          }}
+                        >
+                          {/* Header with Author Info */}
+                          <Box display="flex" alignItems="center" justifyContent="space-between">
+                            <Box display="flex" alignItems="center">
+                              <img
+                                src={user.imageUrl || '../../assets/images/profile/user-1.jpg'}
+                                alt="Author"
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  borderRadius: '50%',
+                                  marginRight: 8,
+                                }}
+                              />
+                              <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                  {user.name}
+                                </Typography>
+                                <Typography variant="body2" color="textSecondary">
+                                  {formatUpdatedAt(question.updatedAt)}
+                                </Typography>
                               </Box>
                             </Box>
-                            {/* Display Question Content */}
-                            <Box sx={{ mt: 3, mb: 3 }}>
-                              <Typography variant="subtitle1">
-                                {question?.questions || ''}
+                          </Box>
+                          {/* Display Question Content */}
+                          <Box sx={{ mt: 3, mb: 3 }}>
+                            <Typography variant="subtitle1">{question?.questions || ''}</Typography>
+                            <Divider sx={{ mb: 2 }} />
+                            {question?.hashtag && (
+                              <Typography
+                                variant="h6"
+                                sx={{ color: '#007bff', fontSize: '0.8rem' }}
+                              >
+                                {question.hashtag}
                               </Typography>
-                              <Divider sx={{ mb: 2 }} />
-                              {question?.hashtag && (
-                                <Typography
-                                  variant="h6"
-                                  sx={{ color: '#007bff', fontSize: '0.8rem' }}
-                                >
-                                  {question.hashtag}
-                                </Typography>
-                              )}
-                            </Box>
-                            <Box sx={{ mt: 3, mb: 3 }}>
-                              {question?.up_code ? (
-                                <>
-                                  <SyntaxHighlighter language="javascript" style={dracula}>
-                                    {question.up_code}
-                                  </SyntaxHighlighter>
-                                  <Divider sx={{ mb: 2 }} />
-                                </>
-                              ) : null}
-                            </Box>
+                            )}
+                          </Box>
+                          <Box sx={{ mt: 3, mb: 3 }}>
+                            {question?.up_code ? (
+                              <>
+                                <SyntaxHighlighter language="javascript" style={dracula}>
+                                  {question.up_code}
+                                </SyntaxHighlighter>
+                                <Divider sx={{ mb: 2 }} />
+                              </>
+                            ) : null}
+                          </Box>
 
-                            {/* Display Images */}
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                justifyContent: 'center',
-                                gap: '5px',
-                              }}
-                            >
-                              {question?.imageUrls?.length > 0 &&
-                                question?.imageUrls.map((image, index) => (
-                                  <Box
-                                    key={index}
-                                    sx={{
-                                      flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
-                                      flexGrow: 1,
-                                      maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
-                                      mb: 2,
-                                    }}
-                                  >
-                                    <img
-                                      src={image || '../../assets/images/profile/user-1.jpg'}
-                                      alt=""
-                                      style={{
-                                        width: '100%',
-                                        height: 'auto',
-                                        borderRadius: '8px',
-                                      }}
-                                    />
-                                  </Box>
-                                ))}
-                            </Box>
-                            {question.fileUrls &&
-                              question.fileUrls.length > 0 &&
-                              question.fileUrls.some(
-                                (url) =>
-                                  decodeURIComponent(url).split('/').pop().split('?')[0] !==
-                                  'uploads',
-                              ) && (
+                          {/* Display Images */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexWrap: 'wrap',
+                              justifyContent: 'center',
+                              gap: '5px',
+                            }}
+                          >
+                            {question?.imageUrls?.length > 0 &&
+                              question?.imageUrls.map((image, index) => (
                                 <Box
+                                  key={index}
                                   sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    padding: '10px',
-                                    border: '1px solid #e0e0e0',
-                                    borderRadius: '8px',
-                                    backgroundColor: '#fff',
-                                    width: 'fit-content',
-                                    height: '30px',
+                                    flexBasis: ['100%', '48%', '32%'][Math.min(2, index)],
+                                    flexGrow: 1,
+                                    maxWidth: ['100%', '48%', '32%'][Math.min(2, index)],
+                                    mb: 2,
                                   }}
                                 >
-                                  <IconButton sx={{ color: '#007bff' }}>
-                                    <DescriptionIcon />
-                                  </IconButton>
-                                  <Typography variant="subtitle1">
-                                    {question.fileUrls.map((url, index) => {
-                                      const fileName = decodeURIComponent(url)
-                                        .split('/')
-                                        .pop()
-                                        .split('?')[0];
-                                      return fileName !== 'uploads' ? (
-                                        <a
-                                          key={index}
-                                          href={url}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          style={{
-                                            color: 'inherit',
-                                            textDecoration: 'none',
-                                            fontSize: '14px',
-                                            marginRight: '10px',
-                                          }}
-                                        >
-                                          {fileName}
-                                        </a>
-                                      ) : null;
-                                    })}
-                                  </Typography>
+                                  <img
+                                    src={image || '../../assets/images/profile/user-1.jpg'}
+                                    alt=""
+                                    style={{
+                                      width: '100%',
+                                      height: 'auto',
+                                      borderRadius: '8px',
+                                    }}
+                                  />
                                 </Box>
-                              )}
+                              ))}
                           </Box>
-                        ))
+                          {question.fileUrls &&
+                            question.fileUrls.length > 0 &&
+                            question.fileUrls.some(
+                              (url) =>
+                                decodeURIComponent(url).split('/').pop().split('?')[0] !==
+                                'uploads',
+                            ) && (
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  padding: '10px',
+                                  border: '1px solid #e0e0e0',
+                                  borderRadius: '8px',
+                                  backgroundColor: '#fff',
+                                  width: 'fit-content',
+                                  height: '30px',
+                                }}
+                              >
+                                <IconButton sx={{ color: '#007bff' }}>
+                                  <DescriptionIcon />
+                                </IconButton>
+                                <Typography variant="subtitle1">
+                                  {question.fileUrls.map((url, index) => {
+                                    const fileName = decodeURIComponent(url)
+                                      .split('/')
+                                      .pop()
+                                      .split('?')[0];
+                                    return fileName !== 'uploads' ? (
+                                      <a
+                                        key={index}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                          color: 'inherit',
+                                          textDecoration: 'none',
+                                          fontSize: '14px',
+                                          marginRight: '10px',
+                                        }}
+                                      >
+                                        {fileName}
+                                      </a>
+                                    ) : null;
+                                  })}
+                                </Typography>
+                              </Box>
+                            )}
+                        </Box>
+                      ))
                     ) : (
                       <Typography variant="body2">Không có câu hỏi nào.</Typography>
                     )}

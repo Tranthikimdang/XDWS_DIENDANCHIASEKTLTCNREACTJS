@@ -1,22 +1,21 @@
 import { useEffect, useState } from 'react';
 import { Box, Grid, Typography, Card, CardContent, CardMedia } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CertificateAPI from '../../apis/CertificateApI'; // Đảm bảo rằng bạn đã có API này
 import CourseAPI from '../../apis/CourseApI'; // API để lấy dữ liệu khóa học
 import PageContainer from 'src/components/container/PageContainer';
 import { jsPDF } from 'jspdf';
+import UserAPI from 'src/apis/UserApI';
 
 const FriendsList = () => {
   const [loading, setLoading] = useState(true);
   const [certificates, setCertificates] = useState([]);
   const [courses, setCourses] = useState([]); // Lưu danh sách tất cả khóa học
   const [filteredCertificates, setFilteredCertificates] = useState([]); // Lưu dữ liệu khóa học
-  const navigate = useNavigate();
+  const [user, setUser] = useState({});
 
-  // Lấy thông tin người dùng từ localStorage
-  const user = JSON.parse(localStorage.getItem('user'));
-  const userId = user ? user.id : null; // Lấy ID người dùng từ localStorage
 
+  const { userId } = useParams();
   // Fetch dữ liệu khóa học
   useEffect(() => {
     const fetchCourses = async () => {
@@ -31,6 +30,25 @@ const FriendsList = () => {
     fetchCourses();
   }, []); // Chỉ chạy một lần khi component được render lần đầu
 
+
+    useEffect(() => {
+      const fetchUsers = async () => {
+        setLoading(true);
+        try {
+          const response = await UserAPI.getUsersList();
+          const matchingUser = response.data.users.find((user) => user.id == userId);
+  
+          console.log(matchingUser.imageUrl);
+          
+          setUser(matchingUser);
+        } catch (error) {
+          console.error('Error fetching users:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchUsers();
+    }, [userId]);
   // Fetch all certificates và lọc theo userId
   useEffect(() => {
     const fetchCertificates = async () => {
@@ -67,10 +85,6 @@ const FriendsList = () => {
   }, [userId, courses]); // Chạy lại khi `userId` hoặc `courses` thay đổi
 
   // Handle card click (nếu có nhu cầu điều hướng)
-  const handleCardClick = (certificateId) => {
-    navigate(`/certificate/${certificateId}`, { state: { id: certificateId } });
-  };
-
   const handleDownloadCertificate = (course, user) => {
     if (!user || !course) return; // Kiểm tra dữ liệu người dùng và khóa học
 

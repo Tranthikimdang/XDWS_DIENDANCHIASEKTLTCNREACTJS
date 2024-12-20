@@ -107,7 +107,7 @@ const Profile = () => {
           <ListItemText>Bạn bè</ListItemText>
         </MenuItem>
 
-        <MenuItem component={Link} to={`/certificate`}>
+        <MenuItem component={Link} to={`/certificate/${user?.id}`}>
           <ListItemIcon>
             <IconCertificate width={20} />
           </ListItemIcon>
