@@ -10,7 +10,6 @@ const Hashtag = sequelize.define('Hashtag', {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true // Đảm bảo rằng tên hashtag là duy nhất
     },
     created_at: {
         type: DataTypes.DATE,

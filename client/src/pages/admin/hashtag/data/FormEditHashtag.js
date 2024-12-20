@@ -66,17 +66,17 @@ function FormEditHashtag() {
       return;
     }
 
-    if (isNameExists) {
-      setError("name", { type: "manual", message: "Hashtag đã tồn tại" });
-      setSnackbarMessage("Hashtag đã tồn tại.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
-      setLoading(false);
-      return;
-    }
+    // if (isNameExists) {
+    //   setError("name", { type: "manual", message: "Hashtag đã tồn tại" });
+    //   setSnackbarMessage("Hashtag đã tồn tại.");
+    //   setSnackbarSeverity("error");
+    //   setSnackbarOpen(true);
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
-      await HashtagApi.updateHashtag(id, { name: formData.name, updated_at: new Date() });
+      await HashtagApi.updateHashtag(id, { name: formData.name });
 
       setSnackbarMessage("Cập nhật hashtag thành công.");
       setSnackbarSeverity("success");
@@ -91,6 +91,7 @@ function FormEditHashtag() {
       setLoading(false);
     }
   };
+
 
   const handleSnackbarClose = (event, reason) => {
     if (reason === "clickaway") {

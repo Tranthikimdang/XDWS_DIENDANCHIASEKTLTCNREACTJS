@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Grid, Box, Typography, CircularProgress, Pagination, TextField } from '@mui/material';
+import { Grid, Box, Typography, CircularProgress, Pagination, TextField, InputAdornment, } from '@mui/material';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import PageContainer from 'src/components/container/PageContainer';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import SearchIcon from '@mui/icons-material/Search';
 // Firebase
 import '../index.css';
 import CourseApi from '../../../apis/CourseApI';
@@ -166,12 +167,30 @@ const Products = () => {
             </Typography>
           </Grid>
           <Grid item xs={8} sx={{ marginBottom: '20px', textAlign: 'center' }}>
-            <TextField
-              label="Tìm kiếm sản phẩn"
+          <TextField
+              label="Tìm kiếm khóa học"
               variant="outlined"
               fullWidth
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Update search term
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{
+                margin: 'auto',
+                borderRadius: '50px',
+                backgroundColor: '#f7f7f7',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '50px',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '12px 16px',
+                },
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
 

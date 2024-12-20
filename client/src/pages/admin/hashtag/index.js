@@ -5,18 +5,16 @@ import VuiBox from 'src/components/admin/VuiBox';
 import VuiTypography from 'src/components/admin/VuiTypography';
 import DashboardLayout from 'src/examples/LayoutContainers/DashboardLayout';
 import DashboardNavbar from 'src/examples/Navbars/DashboardNavbar';
-import Footer from "src/examples/Footer";
+import Footer from 'src/examples/Footer';
 import Table from 'src/examples/Tables/Table';
 import authorsTableData from './data/authorsTableData';
 import ConfirmDialog from './data/FormDeleteHashtag';
 import { Alert, Snackbar } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
-import Tooltip from "@mui/material/Tooltip";
+import Tooltip from '@mui/material/Tooltip';
 import SearchIcon from '@mui/icons-material/Search';
 import HashtagApi from 'src/apis/HashtagApI';
-import VuiInput from "src/components/admin/VuiInput";
-
-
+import VuiInput from 'src/components/admin/VuiInput';
 
 function Hashtag() {
   const { columns } = authorsTableData;
@@ -28,7 +26,7 @@ function Hashtag() {
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(4);
+  const [rowsPerPage, setRowsPerPage] = useState(8);
   // tim kiem
   const [searchTerm, setSearchTerm] = useState(''); // New state for search input
 
@@ -144,17 +142,17 @@ function Hashtag() {
                 <VuiBox mb={1}>
                   <VuiInput
                     placeholder="Nhập vào đây..."
-                    icon={{ component: <SearchIcon />, direction: "left" }}
+                    icon={{ component: <SearchIcon />, direction: 'left' }}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     sx={({ breakpoints }) => ({
-                      [breakpoints.down("sm")]: {
-                        maxWidth: "80px",
+                      [breakpoints.down('sm')]: {
+                        maxWidth: '80px',
                       },
-                      [breakpoints.only("sm")]: {
-                        maxWidth: "80px",
+                      [breakpoints.only('sm')]: {
+                        maxWidth: '80px',
                       },
-                      backgroundColor: "info.main !important",
+                      backgroundColor: 'info.main !important',
                     })}
                   />
                 </VuiBox>
@@ -180,8 +178,6 @@ function Hashtag() {
                   </Tooltip>
                 </Link>
               </VuiBox>
-
-
 
               {loading ? (
                 <div
@@ -261,6 +257,27 @@ function Hashtag() {
               )}
             </Card>
           </VuiBox>
+          <div className="d-flex justify-content-center p-2 custom-pagination">
+            <div className="btn-group btn-group-sm" role="group" aria-label="Pagination">
+              <button
+                className="btn btn-light"
+                onClick={() => handleChangePage(null, page - 1)}
+                disabled={page === 0}
+              >
+                &laquo;
+              </button>
+              <span className="btn btn-light disabled">
+                Page {page + 1} of {Math.ceil(filteredRows.length / rowsPerPage)}
+              </span>
+              <button
+                className="btn btn-light"
+                onClick={() => handleChangePage(null, page + 1)}
+                disabled={page >= Math.ceil(filteredRows.length / rowsPerPage) - 1}
+              >
+                &raquo;
+              </button>
+            </div>
+          </div>
         </VuiBox>
 
         <ConfirmDialog
@@ -283,7 +300,7 @@ function Hashtag() {
       </DashboardLayout>
       {/* Footer cố định */}
       <Footer />
-    </VuiBox >
+    </VuiBox>
   );
 }
 
