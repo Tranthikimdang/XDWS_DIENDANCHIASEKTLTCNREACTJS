@@ -27,9 +27,17 @@ exports.createOrder = async (req, res) => {
         return res.status(400).json({ error: 'Item, payment, user ID, username, and cart ID are required' });
     }
 
+    // Kiểm tra nếu `item` là một chuỗi JSON hợp lệ
+    let itemJson;
+    try {
+        itemJson = JSON.stringify(item); // Chuyển đổi item thành JSON string
+    } catch (err) {
+        return res.status(400).json({ error: 'Invalid JSON format for item' });
+    }
+
     try {
         const newOrder = await Order.create({
-            item,
+            item: itemJson, // Lưu trữ dữ liệu JSON hợp lệ
             payment,
             status: status || 'pending',
             user_id,
@@ -55,6 +63,15 @@ exports.updateOrder = async (req, res) => {
     const { id } = req.params;
     const { item, payment, status, user_id, cart_id, username } = req.body;
 
+    let itemJson = item;
+    if (item) {
+        try {
+            itemJson = JSON.stringify(item); // Chuyển đổi item thành JSON string
+        } catch (err) {
+            return res.status(400).json({ error: 'Invalid JSON format for item' });
+        }
+    }
+
     try {
         const order = await Order.findByPk(id);
         if (!order) {
@@ -63,7 +80,7 @@ exports.updateOrder = async (req, res) => {
                 message: "Order not found"
             });
         }
-        order.item = item || order.item;
+        order.item = itemJson || order.item;
         order.payment = payment || order.payment;
         order.status = status || order.status;
         order.user_id = user_id || order.user_id;

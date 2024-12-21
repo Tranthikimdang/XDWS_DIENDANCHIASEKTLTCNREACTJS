@@ -256,10 +256,7 @@ function Orders() {
                       ? currentUsers.map((row, index) => ({
                           ...row,
                           no: indexOfFirstUser + index + 1,
-                          items: row.items,
                           order_day: row.order_day,
-                          paymentMethod: row.paymentMethod,
-                          totalAmount: `$${row.totalAmount}`, // Display total amount with currency
                           status: row.status,
                           actions: (
                             <div className="action-buttons">

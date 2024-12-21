@@ -21,7 +21,15 @@ const apiRequest = async (method, url, data) => {
 const addCart = async (cart) => apiRequest('post', CARTS_URL, cart);
 const getCartsList = async () => apiRequest('get', CARTS_URL);
 const updateCart = async (id, updatedData) => apiRequest('put', `${CARTS_URL}/${id}`, updatedData);
-const deleteCart = async (id) => apiRequest('delete', `${CARTS_URL}/${id}`);
+const deleteCart = async (id) => {
+  try {
+    const response = await apiRequest('delete', `${BASE_URL}/carts/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error in DELETE request to /carts:', error);
+    throw new Error(error.response?.data?.message || 'Request failed. Please try again.');
+  }
+};
 
 // Export the functions
 export default {

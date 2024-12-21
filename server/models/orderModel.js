@@ -24,7 +24,7 @@ const Order = sequelize.define('Order', {
         }
     },
     item: {
-        type: DataTypes.STRING,
+        type: DataTypes.JSON, // Thay đổi từ STRING thành JSON để lưu trữ thông tin sản phẩm
         allowNull: false
     },
     payment: {

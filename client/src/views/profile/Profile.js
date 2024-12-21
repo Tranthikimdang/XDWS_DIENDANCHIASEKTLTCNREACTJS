@@ -33,6 +33,7 @@ import CertificateAPI from '../../apis/CertificateApI';
 import './profile.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { CardMedia } from '@mui/material';
+import api from '../../apis/NotificationsApI';
 //icon
 import DescriptionIcon from '@mui/icons-material/Description';
 const Profile = () => {
@@ -49,12 +50,14 @@ const Profile = () => {
   const [userLoading, setUserLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [StudyTime, setStudyTime] = useState([]);
+  const [follow, setFollow] = useState([]);
   const [followStatus, setFollowStatus] = useState('not_followed'); // Trạng thái ban đầu
   const [followId, setFollowId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [courses, setCourses] = useState([]); // Lưu danh sách tất cả khóa học
   const [filteredCertificates, setFilteredCertificates] = useState([]);
+  const [notifications, setNotifications] = useState([]);
 
   const userLocal = JSON.parse(localStorage.getItem('user'));
   const userLocalId = userLocal ? userLocal.id : null;
@@ -336,6 +339,7 @@ const Profile = () => {
         if (follow) {
           setFollowStatus(follow.status || 'not_followed');
           setFollowId(follow.id || null);
+          setFollow(follow);
         } else {
           setFollowStatus('not_followed'); // Mặc định là 'not_followed' nếu không tìm thấy follow
           setFollowId(null);
@@ -409,6 +413,42 @@ const Profile = () => {
     return !!userLocalId; // Trả về true nếu tồn tại, ngược lại false
   };
 
+  const handleAcceptNotification = async (notification) => {
+    console.log('Notification data:', notification.relatedId); // Kiểm tra dữ liệu thông báo
+    try {
+      // Cập nhật trạng thái thông báo
+      if (!notification.relatedId) {
+        await api.deleteNotification(notification.id); // Gọi API xóa thông báo
+        setNotifications(notifications.filter((item) => item.id !== notification.id)); // Cập nhật danh sách thông báo trong state
+        return;
+      }
+
+      await api.updateNotification(notification.id, { type: 'friend' });
+
+      // Cập nhật trạng thái follow
+      await FollowApi.updateFollow(notification.relatedId, {
+        status: 'friend',
+        is_approved: 1,
+      });
+
+      const senderId = notification.userId; // Người khởi tạo yêu cầu
+      const message = `Người dùng ${userLocal.name} đã đồng ý kết bạn với bạn.`; // user.name là người nhận yêu cầu
+
+      await api.createNotification({
+        userId: userLocalId,
+        message,
+        type: 'friend',
+        relatedId: notification.relatedId,
+      });
+      setNotifications(
+        notifications.map((item) =>
+          item.id === notification.id ? { ...item, type: 'friend' } : item,
+        ),
+      );
+    } catch (error) {
+      console.error('Error accepting notification:', error);
+    }
+  };
   if (loading) return <div>Đang tải...</div>;
   if (error) return <div>{error}</div>;
 
@@ -459,7 +499,7 @@ const Profile = () => {
               <Divider sx={{ width: '100%', margin: '10px 0' }} />
               {/* Kiểm tra nếu userId trong URL trùng với userLocalId */}
               <Box sx={{ display: 'flex', gap: '10px', marginBottom: '0px' }}>
-                {userId == userLocalId ? (
+                {userId === userLocalId ? (
                   <Button
                     variant="contained"
                     color="primary"
@@ -473,9 +513,28 @@ const Profile = () => {
                     Hủy kết bạn
                   </Button>
                 ) : followStatus === 'pending' ? (
-                  <Button variant="contained" color="warning" onClick={handleFollowClick}>
-                    Hủy yêu cầu
-                  </Button>
+                  userLocalId === follow.target_id ? (
+                    <>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        // onClick={handleAcceptNotification(follow)}
+                      >
+                        Chấp nhận
+                      </Button>
+                      <Button variant="contained" color="warning" onClick={handleFollowClick}>
+                        Hủy yêu cầu
+                      </Button>
+                    </>
+                  ) : userLocalId === follow.follower_id ? (
+                    <Button
+                      variant="contained"
+                      color="warning"
+                      onClick={handleFollowClick} // Hàm xử lý khi nhấn nút "Hủy yêu cầu"
+                    >
+                      Hủy yêu cầu
+                    </Button>
+                  ) : null
                 ) : (
                   <Button variant="contained" color="primary" onClick={handleFollowClick}>
                     Theo dõi

@@ -1,4 +1,5 @@
 const Cart = require('../models/cartsModel');
+const Order = require('../models/orderModel');
 
 exports.getAllCarts = async (req, res) => {
     try {
@@ -78,23 +79,30 @@ exports.updateCart = async (req, res) => {
 
 exports.deleteCart = async (req, res) => {
     const { id } = req.params;
+
     try {
-        const cart = await Cart.findByPk(id);
+        // Bước 1: Xóa tất cả các đơn hàng có cart_id trùng với id giỏ hàng
+        await Order.destroy({ where: { cart_id: id } });
+
+        // Bước 2: Sau khi xóa các đơn hàng, tiến hành xóa giỏ hàng
+        const cart = await Cart.findByPk(id);  // Đảm bảo bạn đã import model Cart
         if (!cart) {
             return res.status(404).json({
-                status: "error",
-                message: "Cart not found"
+                status: 'error',
+                message: 'Cart not found'
             });
         }
+
         await cart.destroy();
-        res.status(204).json({
+        res.status(200).json({
             status: 'success',
-            data: null
+            message: 'Cart and related orders deleted successfully'
         });
-    } catch (err) {
-        res.status(500).send({
+    } catch (error) {
+        console.error('Error deleting cart and orders:', error);
+        res.status(500).json({
             status: 'error',
-            message: err.message || 'Some error occurred while deleting the cart.'
+            message: 'An error occurred while deleting the cart and related orders'
         });
     }
 };

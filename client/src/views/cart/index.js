@@ -118,7 +118,10 @@ const Cart = () => {
 
   const handleRemove = async (id) => {
     try {
+      // Gọi API xóa giỏ hàng (cùng với các đơn hàng liên quan)
       await cartApi.deleteCart(id);
+  
+      // Sau khi xóa, cập nhật lại giỏ hàng trên frontend
       setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
     } catch (error) {
       console.error('Error removing item:', error);
@@ -146,36 +149,46 @@ const Cart = () => {
       alert('Giỏ hàng của bạn trống.');
       return;
     }
-
+  
     if (!name || !email) {
       setNameError(!name);
       setEmailError(!email);
       return;
     }
-
+  
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert('Email không hợp lệ.');
+      return;
+    }
+  
     if (paymentMethod === 'card' && !validateCardDetails()) {
       alert('Vui lòng nhập đầy đủ thông tin thẻ tín dụng.');
       return;
     }
-
+  
     try {
       setLoadingCheckout(true);
-
-      const cartId = cartItems[0]?.id; // Updated to use 'id' instead of 'cart_id'
-
+  
+      const cartId = cartItems[0]?.id || null; // Fallback nếu id không tồn tại 
+      if (!cartId) {
+        alert('Không tìm thấy ID giỏ hàng.');
+        return;
+      }
+  
       const orderData = {
         user_id: userId,
         username: name,
         user_email: email,
-        item: cartItems.map((item) => ({
+        item: JSON.stringify(cartItems.map((item) => ({
           course_id: item.course_id,
           quantity: item.quantity || 1,
           price: products[item.course_id]?.price || 0,
           discount: products[item.course_id]?.discount || 0,
-        })),
+        }))),
         totalAmount,
         payment: paymentMethod,
-        // Include card details if payment method is card
         ...(paymentMethod === 'card' && {
           card_details: {
             card_number: cardNumber,
@@ -184,49 +197,59 @@ const Cart = () => {
             cardholder_name: cardName,
           },
         }),
-        cart_id: cartId, // Updated to use 'id'
+        cart_id: cartId,
       };
-
-      const response = await orderApi.createOrder(orderData); // Use createOrder as per controller
+      console.log('Order Data:', orderData);
+  
+      const response = await orderApi.addOrder(orderData);
       if (response.status === 'success') {
         setCartItems([]);
+        for (const item of cartItems) {
+          await handleRemove(item.id); // Gọi hàm handleRemove để xóa sản phẩm khỏi giỏ hàng
+        }
         setSnackbarMessage('Thanh toán thành công! Đơn hàng của bạn đã được tạo.');
         setOpenSnackbar(true);
-
+  
         if (paymentMethod === 'e_wallet') {
           setShowQRCodeDialog(true);
         }
+      } else {
+        alert(`Thanh toán thất bại: ${response.message || 'Lỗi không xác định.'}`);
       }
     } catch (error) {
       console.error('Error during checkout:', error);
-      alert('Đã xảy ra lỗi khi thanh toán. Vui lòng thử lại.');
+      alert(error.message || 'Đã xảy ra lỗi khi thanh toán. Vui lòng thử lại.');
     } finally {
       setLoadingCheckout(false);
     }
   };
+  
 
   // Updated handleBuy function
   const handleBuy = async () => {
+    // Kiểm tra giỏ hàng trống
     if (cartItems.length === 0) {
       alert('Giỏ hàng của bạn trống.');
       return;
     }
-
+  
+    // Kiểm tra thông tin người dùng
     if (!name || !email) {
       setNameError(!name);
       setEmailError(!email);
       return;
     }
-
-    const cartId = cartItems[0]?.id; // Updated to use 'id' instead of 'cart_id'
+  
+    const cartId = cartItems[0]?.id; // Lấy 'id' của giỏ hàng
     if (!cartId) {
       alert('Không tìm thấy ID giỏ hàng.');
       return;
     }
-
+  
     try {
       setLoadingBuy(true);
-
+  
+      // Dữ liệu đơn hàng
       const orderData = {
         user_id: userId,
         username: name,
@@ -238,15 +261,29 @@ const Cart = () => {
           discount: products[item.course_id]?.discount || 0,
         })),
         totalAmount,
-        payment: 'addOrder', // Define the appropriate payment method
-        cart_id: cartId, // Updated to use 'id'
+        payment: 'addOrder', // Xác định phương thức thanh toán (có thể sửa nếu cần)
+        cart_id: cartId,
       };
-
-      const response = await orderApi.createOrder(orderData); // Use createOrder as per controller
-      if (response.status === 'success') {
-        setCartItems([]);
+  
+      console.log('Dữ liệu đơn hàng gửi đi:', orderData);  // Kiểm tra dữ liệu gửi đi
+  
+      // Gọi API để thêm đơn hàng
+      const response = await orderApi.addOrder(orderData); // Gọi API để thêm đơn hàng
+  
+      // Kiểm tra phản hồi
+      console.log('Phản hồi từ server:', response);
+  
+      // Xử lý kết quả phản hồi từ API
+      if (response && response.status === 'success') {
+        setCartItems([]); // Xóa giỏ hàng sau khi gửi thành công
+        for (const item of cartItems) {
+          await handleRemove(item.id); // Gọi hàm handleRemove để xóa sản phẩm khỏi giỏ hàng
+        }
         setSnackbarMessage('Đơn hàng đã được gửi đi thành công!');
         setOpenSnackbar(true);
+      } else {
+        // Xử lý khi API không trả về 'success'
+        alert('Đã xảy ra lỗi trong quá trình gửi đơn hàng.');
       }
     } catch (error) {
       console.error('Error during buying:', error);
@@ -255,6 +292,7 @@ const Cart = () => {
       setLoadingBuy(false);
     }
   };
+  
 
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);

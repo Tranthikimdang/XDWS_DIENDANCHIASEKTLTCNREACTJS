@@ -5,7 +5,7 @@ import { baselightTheme } from './theme/DefaultColors';
 import { useContext, useEffect, useState } from 'react';
 import storeContext from './store/context';
 import { VisionUIControllerProvider } from './context';
-import { WebSocketProvider  } from './context/websocket';
+
 function App() {
   const [role, setRole] = useState(null);
 
@@ -22,10 +22,8 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <VisionUIControllerProvider>
-      <WebSocketProvider>
           <CssBaseline />
           {routing}
-        </WebSocketProvider>
       </VisionUIControllerProvider>
     </ThemeProvider>
   );
